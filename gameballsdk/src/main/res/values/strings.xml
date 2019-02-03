@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">GameBallSdk</string>
+    <string name="default_notification_channel_id">GAME_BALL_CHANNEL_ID</string>
+</resources>

@@ -1,0 +1,100 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+/*task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'com.gameball'
+            artifactId 'gameball'
+            version '0.1'
+            artifact(sourceJar)
+            artifact("$buildDir/outputs/aar/gameballsdk-release.aar")
+
+            //generate pom nodes for dependencies
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                configurations.compile.allDependencies.each { dependency ->
+                    def dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', dependency.group)
+                    dependencyNode.appendNode('artifactId', dependency.name)
+                    dependencyNode.appendNode('version', dependency.version)
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "$buildDir/repo"
+        }
+    }
+}*/
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        buildConfigField 'String', 'MAIN_HOST', '"http://ec2-18-188-207-253.us-east-2.compute.amazonaws.com:8092/"'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    api 'com.android.support:appcompat-v7:27.1.1'
+    api 'com.google.firebase:firebase-core:16.0.1'
+    api 'com.google.firebase:firebase-messaging:17.3.0'
+    api 'io.reactivex.rxjava2:rxjava:2.2.1'
+    api 'com.squareup.retrofit2:retrofit:2.4.0'
+    api 'com.google.code.gson:gson:2.8.2'
+    api 'com.squareup.retrofit2:converter-gson:2.3.0'
+    api 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    api 'com.squareup.okhttp3:okhttp:3.10.0'
+}
+apply plugin: 'com.google.gms.google-services'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'com.gameball'
+            artifactId 'gameball'
+            version '0.1'
+            artifact "$buildDir/outputs/aar/gameballsdk-release.aar"
+            //aar artifact you want to publish
+
+            //generate pom nodes for dependencies
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                configurations.compile.allDependencies.each { dependency ->
+                    def dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', dependency.group)
+                    dependencyNode.appendNode('artifactId', dependency.name)
+                    dependencyNode.appendNode('version', dependency.version)
+                }
+            }
+        }
+    }
+
+    //publish to filesystem repo
+    repositories {
+        maven {
+            url "${project.rootDir}/repo"
+        }
+    }
+}
