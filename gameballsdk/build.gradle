@@ -1,38 +1,7 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
+//apply plugin: 'maven-publish'
 
-/*task sourceJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier "sources"
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId 'com.gameball'
-            artifactId 'gameball'
-            version '0.1'
-            artifact(sourceJar)
-            artifact("$buildDir/outputs/aar/gameballsdk-release.aar")
-
-            //generate pom nodes for dependencies
-            pom.withXml {
-                def dependenciesNode = asNode().appendNode('dependencies')
-                configurations.compile.allDependencies.each { dependency ->
-                    def dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', dependency.group)
-                    dependencyNode.appendNode('artifactId', dependency.name)
-                    dependencyNode.appendNode('version', dependency.version)
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            url "$buildDir/repo"
-        }
-    }
-}*/
+apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion 27
@@ -69,7 +38,16 @@ dependencies {
 }
 apply plugin: 'com.google.gms.google-services'
 
-publishing {
+
+install {
+    repositories.mavenInstaller {
+        pom.groupId = 'com.gameball'
+        pom.version = '0.1'
+        pom.artifactId = "gameball" //project.name
+    }
+}
+
+/*publishing {
     publications {
         maven(MavenPublication) {
             groupId 'com.gameball'
@@ -97,4 +75,4 @@ publishing {
             url "${project.rootDir}/repo"
         }
     }
-}
+}*/
