@@ -56,7 +56,7 @@ public class MainContainerFragment extends Fragment implements MainContainerCont
         txtPlayerEmail = (TextView) rootView.findViewById(R.id.txt_player_email);
         btnClose = (ImageButton) rootView.findViewById(R.id.btn_close);
         tabs = (TabLayout) rootView.findViewById(R.id.tabs);
-        viewPager = (ViewPager) rootView.findViewById(R.id.veiw_pager);
+        viewPager =  rootView.findViewById(R.id.view_pager);
     }
 
     private void prepView()
@@ -72,7 +72,7 @@ public class MainContainerFragment extends Fragment implements MainContainerCont
         tabs.getTabAt(0).setIcon(R.drawable.ic_news_black);
         tabs.getTabAt(1).setIcon(R.drawable.ic_profile_black);
         tabs.getTabAt(2).setIcon(R.drawable.ic_flag_black);
-        tabs.getTabAt(0).setIcon(R.drawable.ic_profile_black);
+        tabs.getTabAt(3).setIcon(R.drawable.ic_profile_black);
     }
     @Override
     public void showLoadingIndicator()

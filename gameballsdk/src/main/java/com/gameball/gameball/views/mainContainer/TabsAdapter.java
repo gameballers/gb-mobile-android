@@ -19,17 +19,13 @@ public class TabsAdapter extends FragmentPagerAdapter
         switch (position)
         {
             case 0:
-                new Fragment();
-                break;
+                return new Fragment();
             case 1:
-                new ProfileFragment();
-                break;
+                return new ProfileFragment();
             case 2:
-                new Fragment();
-                break;
+                return new Fragment();
             case 3:
-                new Fragment();
-                break;
+                return new Fragment();
         }
 
         return null;
