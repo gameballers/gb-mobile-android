@@ -17,6 +17,8 @@ import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Network;
+import com.gameball.gameball.views.GameBallActivity;
+import com.gameball.gameball.views.GameBallMainActivity;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -175,5 +177,11 @@ public class GameBallApp {
             return true;
         }
         return false;
+    }
+
+    public void showProfile(Context context)
+    {
+        Intent intent = new Intent(context, GameBallMainActivity.class);
+        context.startActivity(intent);
     }
 }
