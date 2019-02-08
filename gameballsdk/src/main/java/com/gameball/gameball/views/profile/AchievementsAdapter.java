@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
@@ -47,6 +48,9 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     {
 		public ImageView achievementsLogo;
 		public TextView achievementName;
+		public ProgressBar achievementProgress;
+		public View notAchievedIndicator;
+		public ImageView lockedAchievementIndicator;
 
 
         public ItemRowHolder(View itemView)
@@ -54,6 +58,9 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             super(itemView);
             achievementsLogo = itemView.findViewById(R.id.achievements_logo);
             achievementName = itemView.findViewById(R.id.achievements_name);
+            achievementProgress = itemView.findViewById(R.id.achievements_progress);
+            notAchievedIndicator = itemView.findViewById(R.id.not_achieved_indicator);
+            lockedAchievementIndicator = itemView.findViewById(R.id.locked_achievement_indicator);
 
             itemView.setOnClickListener(this);
         }
