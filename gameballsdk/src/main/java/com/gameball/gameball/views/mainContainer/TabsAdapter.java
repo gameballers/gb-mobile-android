@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.gameball.gameball.views.achievements.AchievementsFragment;
+import com.gameball.gameball.views.leaderBoard.LeaderBoardFragment;
 import com.gameball.gameball.views.profile.ProfileFragment;
 
 public class TabsAdapter extends FragmentPagerAdapter
@@ -26,7 +27,7 @@ public class TabsAdapter extends FragmentPagerAdapter
             case 2:
                 return new AchievementsFragment();
             case 3:
-                return new Fragment();
+                return new LeaderBoardFragment();
         }
 
         return null;

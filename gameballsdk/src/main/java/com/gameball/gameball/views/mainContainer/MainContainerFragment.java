@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
+import com.gameball.gameball.utils.DisplayUtils;
 
 public class MainContainerFragment extends Fragment implements MainContainerContract.View
 {
@@ -63,6 +64,7 @@ public class MainContainerFragment extends Fragment implements MainContainerCont
     {
         viewPager.setAdapter(tabsAdapter);
         tabs.setupWithViewPager(viewPager);
+        tabs.setSelectedTabIndicatorHeight((int) DisplayUtils.convertDpToPixel(2));
         setupTabsIcons();
 
     }
@@ -72,7 +74,7 @@ public class MainContainerFragment extends Fragment implements MainContainerCont
         tabs.getTabAt(0).setIcon(R.drawable.ic_news_black);
         tabs.getTabAt(1).setIcon(R.drawable.ic_profile_black);
         tabs.getTabAt(2).setIcon(R.drawable.ic_flag_black);
-        tabs.getTabAt(3).setIcon(R.drawable.ic_profile_black);
+        tabs.getTabAt(3).setIcon(R.drawable.ic_trophy);
     }
     @Override
     public void showLoadingIndicator()

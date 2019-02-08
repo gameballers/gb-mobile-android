@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    >
 
     <include
         android:id="@+id/header"
@@ -15,6 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/header"
         app:tabMode="scrollable"
+        android:elevation="10dp"
         >
     </android.support.design.widget.TabLayout>
 
@@ -23,6 +26,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/tabs"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/tabs"
+        android:background="@drawable/shadow"
+        />
 
 
 </RelativeLayout>
