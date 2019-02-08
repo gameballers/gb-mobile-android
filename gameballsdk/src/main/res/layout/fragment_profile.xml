@@ -179,10 +179,8 @@
             app:layout_constraintTop_toBottomOf="@id/current_frubies_value"
             app:layout_constraintStart_toStartOf="@id/level_logo"
             android:layout_marginTop="20dp"
-            android:text="Achievements"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
-            android:textStyle="bold"
+            android:text="@string/achievements"
+            style="@style/text_title_style"
             />
 
         <android.support.v7.widget.RecyclerView

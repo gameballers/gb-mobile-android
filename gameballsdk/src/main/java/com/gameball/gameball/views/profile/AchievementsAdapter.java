@@ -36,7 +36,22 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     public void onBindViewHolder(ItemRowHolder holder, int position)
     {
 //        Object item = mData.get(position);
+        switch (position%3)
+        {
+            case 1:
+                holder.notAchievedIndicator.setVisibility(View.VISIBLE);
+                break;
+            case 2:
+                holder.notAchievedIndicator.setVisibility(View.VISIBLE);
+                holder.lockedAchievementIndicator.setVisibility(View.VISIBLE);
+                break;
+            default:
+                holder.notAchievedIndicator.setVisibility(View.GONE);
+                holder.lockedAchievementIndicator.setVisibility(View.GONE);
+                holder.achievementProgress.setVisibility(View.VISIBLE);
+        }
     }
+
 
     @Override
     public int getItemCount()
