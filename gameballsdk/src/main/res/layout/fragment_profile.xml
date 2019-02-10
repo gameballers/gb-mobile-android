@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fillViewport="true"
-    android:background="@android:color/white">
+    android:background="@android:color/white"
+    android:fillViewport="true">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,185 +15,174 @@
             android:id="@+id/level_logo"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="30dp"
             android:layout_marginLeft="30dp"
             android:layout_marginTop="30dp"
             android:src="@drawable/ic_diamond"
-            />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/txt_level_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/level_logo"
-            app:layout_constraintStart_toEndOf="@id/level_logo"
-            app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:textSize="14sp"
             android:textColor="#80000000"
-            android:text="You are on level"
-            />
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/level_logo"
+            app:layout_constraintTop_toTopOf="@id/level_logo"
+            tools:text="You are on level" />
 
         <TextView
             android:id="@+id/level_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/txt_level_title"
-            app:layout_constraintStart_toStartOf="@id/txt_level_title"
-            app:layout_constraintEnd_toEndOf="@id/txt_level_title"
             android:layout_marginTop="10dp"
-            android:textSize="26sp"
-            android:text="Crystal"
-            android:textStyle="bold"
             android:textColor="@android:color/black"
-            />
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/txt_level_title"
+            app:layout_constraintStart_toStartOf="@id/txt_level_title"
+            app:layout_constraintTop_toBottomOf="@id/txt_level_title"
+            tools:text="Crystal" />
 
         <ProgressBar
             android:id="@+id/level_progress"
+            style="@android:style/Widget.ProgressBar.Horizontal"
             android:layout_width="0dp"
             android:layout_height="10dp"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            app:layout_constraintStart_toStartOf="@id/level_name"
-            app:layout_constraintTop_toBottomOf="@id/level_name"
-            app:layout_constraintEnd_toEndOf="@id/level_name"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="30dp"
             android:layout_marginRight="30dp"
             android:progress="25"
             android:progressDrawable="@drawable/level_progress_drawable"
-            />
+            app:layout_constraintEnd_toEndOf="@id/level_name"
+            app:layout_constraintStart_toStartOf="@id/level_name"
+            app:layout_constraintTop_toBottomOf="@id/level_name" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/level_progress"
-            app:layout_constraintStart_toStartOf="@id/level_progress"
             android:layout_marginTop="3dp"
-            android:textSize="12sp"
-            android:text="Next level at"
             android:textColor="#80000000"
-            />
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/level_progress"
+            app:layout_constraintTop_toBottomOf="@id/level_progress"
+            tools:text="Next level at" />
 
         <TextView
             android:id="@+id/frubies_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/level_progress"
-            app:layout_constraintEnd_toEndOf="@id/level_progress"
             android:layout_marginTop="3dp"
-            android:textSize="12sp"
-            android:text="4000"
             android:textColor="#80000000"
+            android:textSize="12sp"
             android:textStyle="bold"
-            />
+            app:layout_constraintEnd_toEndOf="@id/level_progress"
+            app:layout_constraintTop_toBottomOf="@id/level_progress"
+            tools:text="4000" />
 
         <android.support.constraint.Guideline
             android:id="@+id/vertical_guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5"/>
+            app:layout_constraintGuide_percent="0.5" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            app:layout_constraintTop_toTopOf="@id/points_title"
-            app:layout_constraintBottom_toBottomOf="@id/points_title"
-            android:minHeight="20dp"
             android:background="#19000000"
-            />
+            android:minHeight="20dp"
+            app:layout_constraintBottom_toBottomOf="@id/points_title"
+            app:layout_constraintTop_toTopOf="@id/points_title" />
 
         <TextView
             android:id="@+id/frubies_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/frubies_value"
-            app:layout_constraintEnd_toStartOf="@id/current_frubies_value"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="3dp"
             android:layout_marginRight="3dp"
-            android:layout_marginTop="20dp"
-            android:gravity="end|right|center"
-            android:text="frubies"
-            android:textStyle="bold"
-            android:textSize="14sp"
+            android:gravity="end|center"
             android:textColor="@android:color/black"
-            />
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/current_frubies_value"
+            app:layout_constraintTop_toBottomOf="@id/frubies_value"
+            tools:text="frubies" />
 
         <TextView
             android:id="@+id/current_frubies_value"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/frubies_value"
-            app:layout_constraintEnd_toStartOf="@id/vertical_guideline"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="10dp"
             android:layout_marginRight="10dp"
-            android:text="3,000"
-            android:textSize="15sp"
             android:textColor="@android:color/black"
-            />
+            android:textSize="15sp"
+            app:layout_constraintEnd_toStartOf="@id/vertical_guideline"
+            app:layout_constraintTop_toBottomOf="@id/frubies_value"
+            tools:text="3,000" />
 
         <TextView
             android:id="@+id/points_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/frubies_title"
-            app:layout_constraintStart_toEndOf="@id/vertical_guideline"
             android:layout_marginStart="10dp"
             android:layout_marginLeft="10dp"
-            android:gravity="end|right|center"
-            android:text="Points"
-            android:textStyle="bold"
-            android:textSize="14sp"
+            android:gravity="end|center"
             android:textColor="@android:color/black"
-            />
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/vertical_guideline"
+            app:layout_constraintTop_toTopOf="@id/frubies_title"
+            tools:text="Points" />
 
         <TextView
             android:id="@+id/current_points_value"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/frubies_title"
-            app:layout_constraintStart_toEndOf="@id/points_title"
             android:layout_marginStart="3dp"
             android:layout_marginLeft="3dp"
-            android:text="3,000"
-            android:textSize="15sp"
             android:textColor="@android:color/black"
-            />
+            android:textSize="15sp"
+            app:layout_constraintStart_toEndOf="@id/points_title"
+            app:layout_constraintTop_toTopOf="@id/frubies_title"
+            tools:text="3,000" />
 
         <View
             android:layout_width="1dp"
             android:layout_height="0dp"
-            app:layout_constraintTop_toTopOf="@id/current_frubies_value"
+            android:background="#10000000"
             app:layout_constraintBottom_toBottomOf="@id/current_frubies_value"
-            app:layout_constraintStart_toEndOf="@id/current_frubies_value"
             app:layout_constraintEnd_toStartOf="@id/points_title"
-            android:background="#10000000"/>
+            app:layout_constraintStart_toEndOf="@id/current_frubies_value"
+            app:layout_constraintTop_toTopOf="@id/current_frubies_value" />
 
         <TextView
             android:id="@+id/achievements_title"
+            style="@style/text_title_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/current_frubies_value"
-            app:layout_constraintStart_toStartOf="@id/level_logo"
             android:layout_marginTop="20dp"
             android:text="@string/achievements"
-            style="@style/text_title_style"
-            />
+            app:layout_constraintStart_toStartOf="@id/level_logo"
+            app:layout_constraintTop_toBottomOf="@id/current_frubies_value" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/achievements_recyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/achievements_title"
-            app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="20dp"
-            />
-
-
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/achievements_title"
+            tools:itemCount="9"
+            tools:layoutManager="android.support.v7.widget.GridLayoutManager"
+            tools:listitem="@layout/acheivments_item_layout"
+            tools:orientation="vertical"
+            tools:spanCount="3" />
     </android.support.constraint.ConstraintLayout>
-
 </android.support.v4.widget.NestedScrollView>

@@ -78,7 +78,7 @@ public class RxErrorHandlingCallAdapterFactory extends CallAdapter.Factory {
                 Single single = (Single) adapt;
                 return single.onErrorResumeNext(new Function<Throwable, SingleSource>() {
                     @Override
-                    public SingleSource apply(@NonNull Throwable throwable) throws Exception {
+                    public SingleSource apply(@NonNull Throwable throwable) {
                         return Single.error(asRetrofitException(throwable));
                     }
                 });
@@ -86,7 +86,7 @@ public class RxErrorHandlingCallAdapterFactory extends CallAdapter.Factory {
                 Maybe maybe = (Maybe) adapt;
                 return maybe.onErrorResumeNext(new Function<Throwable, MaybeSource>() {
                     @Override
-                    public MaybeSource apply(@NonNull Throwable throwable) throws Exception {
+                    public MaybeSource apply(@NonNull Throwable throwable) {
                         return Maybe.error(asRetrofitException(throwable));
                     }
                 });
@@ -94,7 +94,7 @@ public class RxErrorHandlingCallAdapterFactory extends CallAdapter.Factory {
                 Observable observable = (Observable) adapt;
                 return observable.onErrorResumeNext(new Function<Throwable, ObservableSource>() {
                     @Override
-                    public ObservableSource apply(@NonNull Throwable throwable) throws Exception {
+                    public ObservableSource apply(@NonNull Throwable throwable) {
                         return Observable.error(asRetrofitException(throwable));
                     }
                 });
@@ -102,7 +102,7 @@ public class RxErrorHandlingCallAdapterFactory extends CallAdapter.Factory {
                 Flowable flowable = (Flowable) adapt;
                 return flowable.onErrorResumeNext(new Function<Throwable, Publisher>() {
                     @Override
-                    public Publisher apply(@NonNull Throwable throwable) throws Exception {
+                    public Publisher apply(@NonNull Throwable throwable) {
                         return Flowable.error(asRetrofitException(throwable));
                     }
                 });
@@ -110,7 +110,7 @@ public class RxErrorHandlingCallAdapterFactory extends CallAdapter.Factory {
                 Completable completable = (Completable) adapt;
                 return completable.onErrorResumeNext(new Function<Throwable, CompletableSource>() {
                     @Override
-                    public CompletableSource apply(Throwable throwable) throws Exception {
+                    public CompletableSource apply(Throwable throwable) {
                         return Completable.error(RxCallAdapterWrapper.this.asRetrofitException(throwable));
                     }
                 });

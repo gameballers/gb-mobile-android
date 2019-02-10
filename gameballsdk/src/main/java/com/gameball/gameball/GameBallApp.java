@@ -9,7 +9,12 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
@@ -17,8 +22,7 @@ import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Network;
-import com.gameball.gameball.views.GameBallActivity;
-import com.gameball.gameball.views.GameBallMainActivity;
+import com.gameball.gameball.views.mainContainer.MainContainerFragment;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -41,6 +45,7 @@ public class GameBallApp {
     private static final String API_KEY = "AIzaSyCk3X3ZleIQjnaV-QBij9M57iBatAewMGg";
     private static final String SENDER_ID = "252563989296";
     private static final String MAIN_ACTIVITY_ACTION = "GAME_BALL_SDK";
+    private static final String TAG_GAMEBALL_PROFILE_DIALOG = "gameball_profile_dialog";
 
     private static GameBallApp ourInstance;
     private Context mContext;
@@ -179,9 +184,29 @@ public class GameBallApp {
         return false;
     }
 
-    public void showProfile(Context context)
-    {
-        Intent intent = new Intent(context, GameBallMainActivity.class);
-        context.startActivity(intent);
+    public void showProfile(AppCompatActivity activity) {
+        showProfile(activity.getSupportFragmentManager());
     }
+
+    public void showProfile(Fragment fragment) {
+        showProfile(fragment.getChildFragmentManager());
+    }
+
+    private void showProfile(FragmentManager fragmentManager) {
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+
+        Fragment prev = fragmentManager
+                .findFragmentByTag(TAG_GAMEBALL_PROFILE_DIALOG);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        DialogFragment dialogFragment = new MainContainerFragment();
+        dialogFragment.show(ft, TAG_GAMEBALL_PROFILE_DIALOG);
+
+        /*Intent intent = new Intent(context, GameBallMainActivity.class);
+        context.startActivity(intent);*/
+    }
+
+
 }

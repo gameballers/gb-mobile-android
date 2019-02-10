@@ -15,8 +15,7 @@ import com.gameball.gameball.R;
 
 import java.util.ArrayList;
 
-public class LeaderBoardFragment extends Fragment
-{
+public class LeaderBoardFragment extends Fragment {
     View rootView;
     private TextView filerBtn;
     private RecyclerView leaderboardRecyclerview;
@@ -24,30 +23,26 @@ public class LeaderBoardFragment extends Fragment
     LeaderBoardAdapter leaderBoardAdapter;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState)
-    {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         leaderBoardAdapter = new LeaderBoardAdapter(getContext(), new ArrayList<Object>());
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
-    {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_leader_board, container, false);
         initView();
         prepView();
         return rootView;
     }
 
-    private void initView()
-    {
-        filerBtn = (TextView) rootView.findViewById(R.id.filer_btn);
-        leaderboardRecyclerview = (RecyclerView) rootView.findViewById(R.id.leaderboard_recyclerview);
+    private void initView() {
+        filerBtn = rootView.findViewById(R.id.filer_btn);
+        leaderboardRecyclerview = rootView.findViewById(R.id.leaderboard_recyclerview);
     }
 
-    private void prepView()
-    {
+    private void prepView() {
         leaderboardRecyclerview.setHasFixedSize(true);
         leaderboardRecyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
         leaderboardRecyclerview.setAdapter(leaderBoardAdapter);

@@ -8,18 +8,14 @@ import com.gameball.gameball.views.achievements.AchievementsFragment;
 import com.gameball.gameball.views.leaderBoard.LeaderBoardFragment;
 import com.gameball.gameball.views.profile.ProfileFragment;
 
-public class TabsAdapter extends FragmentPagerAdapter
-{
-    public TabsAdapter(FragmentManager fm)
-    {
+public class TabsAdapter extends FragmentPagerAdapter {
+    public TabsAdapter(FragmentManager fm) {
         super(fm);
     }
 
     @Override
-    public Fragment getItem(int position)
-    {
-        switch (position)
-        {
+    public Fragment getItem(int position) {
+        switch (position) {
             case 0:
                 return new Fragment();
             case 1:
@@ -34,8 +30,7 @@ public class TabsAdapter extends FragmentPagerAdapter
     }
 
     @Override
-    public int getCount()
-    {
+    public int getCount() {
         return 4;
     }
 }

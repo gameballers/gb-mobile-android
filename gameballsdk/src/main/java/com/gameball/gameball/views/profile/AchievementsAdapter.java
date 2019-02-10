@@ -13,31 +13,26 @@ import com.gameball.gameball.R;
 
 import java.util.ArrayList;
 
-public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapter.ItemRowHolder>
-{
+public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapter.ItemRowHolder> {
     private Context mContext;
     private ArrayList<Object> mData;
 
-    public AchievementsAdapter(Context context, ArrayList<Object> data)
-    {
+    public AchievementsAdapter(Context context, ArrayList<Object> data) {
         this.mData = data;
         this.mContext = context;
     }
 
     @Override
-    public ItemRowHolder onCreateViewHolder(ViewGroup parent, int viewType)
-    {
+    public ItemRowHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View row = inflater.inflate(R.layout.acheivments_item_layout, parent, false);
         return new ItemRowHolder(row);
     }
 
     @Override
-    public void onBindViewHolder(ItemRowHolder holder, int position)
-    {
+    public void onBindViewHolder(ItemRowHolder holder, int position) {
 //        Object item = mData.get(position);
-        switch (position%3)
-        {
+        switch (position % 3) {
             case 1:
                 holder.notAchievedIndicator.setVisibility(View.VISIBLE);
                 break;
@@ -54,22 +49,19 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
 
 
     @Override
-    public int getItemCount()
-    {
+    public int getItemCount() {
         return 6;
     }
 
-    public class ItemRowHolder extends RecyclerView.ViewHolder implements View.OnClickListener
-    {
-		public ImageView achievementsLogo;
-		public TextView achievementName;
-		public ProgressBar achievementProgress;
-		public View notAchievedIndicator;
-		public ImageView lockedAchievementIndicator;
+    public class ItemRowHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public ImageView achievementsLogo;
+        public TextView achievementName;
+        public ProgressBar achievementProgress;
+        public View notAchievedIndicator;
+        public ImageView lockedAchievementIndicator;
 
 
-        public ItemRowHolder(View itemView)
-        {
+        public ItemRowHolder(View itemView) {
             super(itemView);
             achievementsLogo = itemView.findViewById(R.id.achievements_logo);
             achievementName = itemView.findViewById(R.id.achievements_name);
@@ -81,13 +73,11 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         }
 
         @Override
-        public void onClick(View view)
-        {
+        public void onClick(View view) {
             final int pos = getLayoutPosition();
             int pos1 = getAdapterPosition();
-            if (pos == pos1)
-            {
-                
+            if (pos == pos1) {
+
             }
         }
     }

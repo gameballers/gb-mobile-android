@@ -17,8 +17,7 @@ import com.gameball.gameball.R;
 
 import java.util.ArrayList;
 
-public class ProfileFragment extends Fragment
-{
+public class ProfileFragment extends Fragment {
     View rootView;
 
     private ImageView levelLogo;
@@ -32,42 +31,37 @@ public class ProfileFragment extends Fragment
     AchievementsAdapter achievementsAdapter;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState)
-    {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initComponents();
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
-    {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_profile, container, false);
         initView();
         prepView();
         return rootView;
     }
 
-    private void initComponents()
-    {
+    private void initComponents() {
         achievementsAdapter = new AchievementsAdapter(getContext(), new ArrayList<Object>());
     }
 
-    private void initView()
-    {
-        levelLogo = (ImageView) rootView.findViewById(R.id.level_logo);
-        levelName = (TextView) rootView.findViewById(R.id.level_name);
-        levelProgress = (ProgressBar) rootView.findViewById(R.id.level_progress);
-        frubiesValue = (TextView) rootView.findViewById(R.id.frubies_value);
-        currentFrubiesValue = (TextView) rootView.findViewById(R.id.current_frubies_value);
-        currentPointsValue = (TextView) rootView.findViewById(R.id.current_points_value);
-        achievementsRecyclerView = (RecyclerView) rootView.findViewById(R.id.achievements_recyclerView);
+    private void initView() {
+        levelLogo = rootView.findViewById(R.id.level_logo);
+        levelName = rootView.findViewById(R.id.level_name);
+        levelProgress = rootView.findViewById(R.id.level_progress);
+        frubiesValue = rootView.findViewById(R.id.frubies_value);
+        currentFrubiesValue = rootView.findViewById(R.id.current_frubies_value);
+        currentPointsValue = rootView.findViewById(R.id.current_points_value);
+        achievementsRecyclerView = rootView.findViewById(R.id.achievements_recyclerView);
     }
 
-    private void prepView()
-    {
+    private void prepView() {
         achievementsRecyclerView.setHasFixedSize(true);
-        achievementsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(),3));
+        achievementsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         achievementsRecyclerView.setAdapter(achievementsAdapter);
         achievementsRecyclerView.setNestedScrollingEnabled(false);
     }

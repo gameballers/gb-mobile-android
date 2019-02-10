@@ -1,66 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="10dp"
-    android:background="@color/colorPrimary">
+    android:background="@color/colorPrimary"
+    android:padding="10dp">
 
     <ImageView
         android:id="@+id/gameball_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/common_google_signin_btn_icon_dark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:src="@drawable/common_google_signin_btn_icon_dark"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/txt_player_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/gameball_logo"
-        app:layout_constraintStart_toEndOf="@id/gameball_logo"
+        android:layout_marginStart="3dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:scrollbarSize="16sp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/txt_player_email"
         app:layout_constraintEnd_toStartOf="@id/btn_close"
-        android:layout_marginStart="3dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginLeft="3dp"
-        android:layout_marginRight="5dp"
-        android:text="Ahmed el Assy"
-        android:textColor="@android:color/white"
-        android:scrollbarSize="16sp"
-        android:textStyle="bold"
-        />
+        app:layout_constraintStart_toEndOf="@id/gameball_logo"
+        app:layout_constraintTop_toTopOf="@id/gameball_logo"
+        tools:text="Ahmed el Assy" />
 
     <TextView
         android:id="@+id/txt_player_email"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/gameball_logo"
-        app:layout_constraintStart_toStartOf="@id/txt_player_name"
-        app:layout_constraintTop_toBottomOf="@id/txt_player_name"
-        app:layout_constraintEnd_toEndOf="@id/txt_player_name"
-        android:text="ah.assy@gmail.com"
         android:scrollbarSize="16sp"
         android:textColor="@android:color/white"
-        />
+        app:layout_constraintBottom_toBottomOf="@id/gameball_logo"
+        app:layout_constraintEnd_toEndOf="@id/txt_player_name"
+        app:layout_constraintStart_toStartOf="@id/txt_player_name"
+        app:layout_constraintTop_toBottomOf="@id/txt_player_name"
+        tools:text="ah.assy@gmail.com" />
 
     <ImageButton
         android:id="@+id/btn_close"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@null"
         android:paddingStart="10dp"
-        android:paddingEnd="10dp"
         android:paddingLeft="10dp"
+        android:paddingEnd="10dp"
         android:paddingRight="10dp"
         android:src="@drawable/ic_close_white"
-        android:background="@null"
-        />
-
-
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
