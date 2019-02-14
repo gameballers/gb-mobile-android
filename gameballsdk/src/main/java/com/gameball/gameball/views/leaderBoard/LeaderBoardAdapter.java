@@ -50,7 +50,7 @@ public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.
             playerLevelLogo = itemView.findViewById(R.id.player_level_logo);
             playerName = itemView.findViewById(R.id.player_name);
             playerCurrentLevelName = itemView.findViewById(R.id.player_current_level_name);
-            frubiesValue = itemView.findViewById(R.id.frubies_value);
+            frubiesValue = itemView.findViewById(R.id.frubies_for_next_level);
 
             itemView.setOnClickListener(this);
         }

@@ -10,14 +10,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
+import com.gameball.gameball.model.response.Game;
+import com.gameball.gameball.network.utils.DownloadImage;
+import com.gameball.gameball.utils.Constants;
+import com.gameball.gameball.utils.ImageDownloader;
 
 import java.util.ArrayList;
 
 public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapter.ItemRowHolder> {
     private Context mContext;
-    private ArrayList<Object> mData;
+    private ArrayList<Game> mData;
 
-    public AchievementsAdapter(Context context, ArrayList<Object> data) {
+    public AchievementsAdapter(Context context, ArrayList<Game> data) {
         this.mData = data;
         this.mContext = context;
     }
@@ -31,26 +35,35 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
 
     @Override
     public void onBindViewHolder(ItemRowHolder holder, int position) {
-//        Object item = mData.get(position);
-        switch (position % 3) {
-            case 1:
-                holder.notAchievedIndicator.setVisibility(View.VISIBLE);
-                break;
-            case 2:
-                holder.notAchievedIndicator.setVisibility(View.VISIBLE);
-                holder.lockedAchievementIndicator.setVisibility(View.VISIBLE);
-                break;
-            default:
+        Game item = mData.get(position);
+        if(item.getIcon() != null && !item.getIcon().isEmpty())
+            ImageDownloader.downloadImage(holder.achievementsLogo,Constants.TEST_BASE_URL +
+                    item.getIcon());
+
+        holder.achievementName.setText(item.getGameName());
+        if(item.getIsUnlocked())
+        {
+            holder.achievementProgress.setProgress((int) item.getActionsAndAmountCompletedPercentage());
+            holder.achievementProgress.setVisibility(View.VISIBLE);
+
+            if(item.getActionsAndAmountCompletedPercentage() == 100)
+            {
                 holder.notAchievedIndicator.setVisibility(View.GONE);
-                holder.lockedAchievementIndicator.setVisibility(View.GONE);
-                holder.achievementProgress.setVisibility(View.VISIBLE);
+            }
         }
+        if(item.getIsUnlocked())
+            holder.lockedAchievementIndicator.setVisibility(View.GONE);
+
     }
 
+    public void setmData(ArrayList<Game> mData)
+    {
+        this.mData = mData;
+    }
 
     @Override
     public int getItemCount() {
-        return 6;
+        return mData.size();
     }
 
     public class ItemRowHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
