@@ -43,6 +43,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/achievements_name"
+        android:elevation="1dp"
         tools:visibility="visible" />
 
     <View
@@ -50,7 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/semiTransparent"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
@@ -64,5 +65,5 @@
         android:src="@drawable/ic_lock_white"
         app:layout_constraintEnd_toEndOf="@id/achievements_logo"
         app:layout_constraintTop_toTopOf="@id/achievements_logo"
-        tools:visibility="visible" />
+        />
 </android.support.constraint.ConstraintLayout>

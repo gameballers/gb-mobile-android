@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.gameball.gameball.R;
+import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.views.profile.AchievementsAdapter;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class AchievementsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        achievementsAdapter = new AchievementsAdapter(getContext(), new ArrayList<Object>());
+        achievementsAdapter = new AchievementsAdapter(getContext(), new ArrayList<Game>());
     }
 
     @Nullable

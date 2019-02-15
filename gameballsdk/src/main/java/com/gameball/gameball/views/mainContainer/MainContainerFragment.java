@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.R;
 import com.gameball.gameball.utils.DisplayUtils;
 

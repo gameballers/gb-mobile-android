@@ -4,4 +4,7 @@
     <string name="achievements">Achievements</string>
     <string name="leaderboard">Leaderboard</string>
     <string name="frubies">frubies</string>
+    <string name="you_are_on_level">You are on level</string>
+    <string name="next_level_at">Next level at</string>
+    <string name="points">Points</string>
 </resources>

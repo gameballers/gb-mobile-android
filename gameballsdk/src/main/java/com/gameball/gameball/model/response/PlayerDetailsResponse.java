@@ -1,12 +1,10 @@
-package com.gameball.gameball.model.request;
+package com.gameball.gameball.model.response;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-/**
- * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
- */
-public class PlayerRegisterRequest {
+public class PlayerDetailsResponse {
+
     @SerializedName("Name")
     @Expose
     private String name;
@@ -18,37 +16,31 @@ public class PlayerRegisterRequest {
     private String gender;
     @SerializedName("Age")
     @Expose
-    private int age;
+    private Integer age;
     @SerializedName("DateOfBirth")
     @Expose
     private String dateOfBirth;
     @SerializedName("PlayerCategoryID")
     @Expose
-    private int playerCategoryID;
+    private Integer playerCategoryID;
     @SerializedName("ExternalID")
     @Expose
     private String externalID;
     @SerializedName("CurrentLevel")
     @Expose
-    private int currentLevel;
+    private Integer currentLevel;
     @SerializedName("AccFrubies")
     @Expose
-    private int accFrubies;
+    private Integer accFrubies;
     @SerializedName("AccPoints")
     @Expose
-    private int accPoints;
+    private Integer accPoints;
     @SerializedName("StatusId")
     @Expose
-    private int statusId;
-    @SerializedName("ClientID")
+    private Integer statusId;
+    @SerializedName("Level")
     @Expose
-    private String clientID;
-    @SerializedName("DeviceToken")
-    @Expose
-    private String deviceToken;
-    @SerializedName("OSType")
-    @Expose
-    private String oSType = "Android";
+    private Level level;
 
     public String getName() {
         return name;
@@ -74,11 +66,11 @@ public class PlayerRegisterRequest {
         this.gender = gender;
     }
 
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
@@ -90,11 +82,11 @@ public class PlayerRegisterRequest {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public int getPlayerCategoryID() {
+    public Integer getPlayerCategoryID() {
         return playerCategoryID;
     }
 
-    public void setPlayerCategoryID(int playerCategoryID) {
+    public void setPlayerCategoryID(Integer playerCategoryID) {
         this.playerCategoryID = playerCategoryID;
     }
 
@@ -106,51 +98,44 @@ public class PlayerRegisterRequest {
         this.externalID = externalID;
     }
 
-    public int getCurrentLevel() {
+    public Integer getCurrentLevel() {
         return currentLevel;
     }
 
-    public void setCurrentLevel(int currentLevel) {
+    public void setCurrentLevel(Integer currentLevel) {
         this.currentLevel = currentLevel;
     }
 
-    public int getAccFrubies() {
+    public Integer getAccFrubies() {
         return accFrubies;
     }
 
-    public void setAccFrubies(int accFrubies) {
+    public void setAccFrubies(Integer accFrubies) {
         this.accFrubies = accFrubies;
     }
 
-    public int getAccPoints() {
+    public Integer getAccPoints() {
         return accPoints;
     }
 
-    public void setAccPoints(int accPoints) {
+    public void setAccPoints(Integer accPoints) {
         this.accPoints = accPoints;
     }
 
-    public int getStatusId() {
+    public Integer getStatusId() {
         return statusId;
     }
 
-    public void setStatusId(int statusId) {
+    public void setStatusId(Integer statusId) {
         this.statusId = statusId;
     }
 
-    public String getClientID() {
-        return clientID;
+    public Level getLevel() {
+        return level;
     }
 
-    public void setClientID(String clientID) {
-        this.clientID = clientID;
+    public void setLevel(Level level) {
+        this.level = level;
     }
 
-    public String getDeviceToken() {
-        return deviceToken;
-    }
-
-    public void setDeviceToken(String deviceToken) {
-        this.deviceToken = deviceToken;
-    }
 }

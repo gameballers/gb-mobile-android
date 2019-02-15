@@ -49,7 +49,7 @@
         tools:text="level name" />
 
     <TextView
-        android:id="@+id/frubies_value"
+        android:id="@+id/frubies_for_next_level"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
@@ -65,9 +65,9 @@
         android:text="@string/frubies"
         android:textColor="@android:color/black"
         android:textSize="13sp"
-        app:layout_constraintBottom_toTopOf="@id/frubies_value"
-        app:layout_constraintEnd_toEndOf="@id/frubies_value"
-        app:layout_constraintStart_toStartOf="@id/frubies_value" />
+        app:layout_constraintBottom_toTopOf="@id/frubies_for_next_level"
+        app:layout_constraintEnd_toEndOf="@id/frubies_for_next_level"
+        app:layout_constraintStart_toStartOf="@id/frubies_for_next_level" />
 
     <View
         android:layout_width="match_parent"
@@ -81,6 +81,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="start"
-        app:constraint_referenced_ids="frubies_value,frubies_title" />
+        app:constraint_referenced_ids="frubies_for_next_level,frubies_title" />
 
 </android.support.constraint.ConstraintLayout>
