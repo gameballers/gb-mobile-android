@@ -1,20 +1,19 @@
 package com.gameball.gameball.network.profileRemote;
 
-import android.graphics.Bitmap;
+import com.gameball.gameball.model.response.BaseResponse;
+import com.gameball.gameball.model.response.Game;
+import com.gameball.gameball.model.response.Level;
+import com.gameball.gameball.model.response.PlayerDetailsResponse;
 
-import com.gameball.gameball.model.response.GetNextLevelWrapper;
-import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
-import com.gameball.gameball.model.response.PlayerDetailsResponseWrapper;
-import com.gameball.gameball.network.GenericCallback;
+import java.util.ArrayList;
 
 import io.reactivex.Observable;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
+import io.reactivex.Single;
 
 
 public interface DataSourceContract
 {
-    Observable<PlayerDetailsResponseWrapper> getPlayerDetails(String playerId);
-    Observable<GetWithUnlocksWrapper> getWithUnlocks(String playerId);
-    Observable<GetNextLevelWrapper> getNextLevel(String playerId);
+    Single<BaseResponse<PlayerDetailsResponse>> getPlayerDetails(String playerId);
+    Single<BaseResponse<ArrayList<Game>>> getWithUnlocks(String playerId);
+    Single<BaseResponse<Level>> getNextLevel(String playerId);
 }

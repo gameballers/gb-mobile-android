@@ -5,13 +5,18 @@ import android.util.Pair;
 
 import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
-import com.gameball.gameball.model.response.GetNextLevelWrapper;
-import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
-import com.gameball.gameball.model.response.PlayerDetailsResponseWrapper;
+import com.gameball.gameball.model.response.BaseResponse;
+import com.gameball.gameball.model.response.Game;
+import com.gameball.gameball.model.response.Level;
+import com.gameball.gameball.model.response.PlayerDetailsResponse;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
+
+import java.util.ArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiFunction;
@@ -38,26 +43,26 @@ public class ProfilePresenter implements ProfileContract.Presenter
     {
         view.showProfileLoadingIndicator();
 
-        Observable<PlayerDetailsResponseWrapper> playerDetailsObservable =
+        Single<BaseResponse<PlayerDetailsResponse>> playerDetailsObservable =
                 profileRemoteDataSource.getPlayerDetails(sharedPreferencesUtils.getExternalId())
                 .observeOn(AndroidSchedulers.mainThread());
 
-        Observable<GetNextLevelWrapper> nextLevelObservable =
+        Single<BaseResponse<Level>> nextLevelObservable =
                 profileRemoteDataSource.getNextLevel(sharedPreferencesUtils.getExternalId())
                         .observeOn(AndroidSchedulers.mainThread());
 
-        Observable.zip(playerDetailsObservable, nextLevelObservable
-                , new BiFunction<PlayerDetailsResponseWrapper, GetNextLevelWrapper,
-                        Pair<PlayerDetailsResponseWrapper, GetNextLevelWrapper>>()
+        Single.zip(playerDetailsObservable, nextLevelObservable
+                , new BiFunction<BaseResponse<PlayerDetailsResponse>, BaseResponse<Level>,
+                        Pair<BaseResponse<PlayerDetailsResponse>, BaseResponse<Level>>>()
                 {
                     @Override
-                    public Pair<PlayerDetailsResponseWrapper, GetNextLevelWrapper> apply(PlayerDetailsResponseWrapper playerDetailsResponseWrapper, GetNextLevelWrapper getNextLevelWrapper) throws Exception
+                    public Pair<BaseResponse<PlayerDetailsResponse>, BaseResponse<Level>> apply(BaseResponse<PlayerDetailsResponse> playerDetailsResponseWrapper, BaseResponse<Level> getNextLevelWrapper) throws Exception
                     {
                         return new Pair<>(playerDetailsResponseWrapper, getNextLevelWrapper);
                     }
                 })
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Pair<PlayerDetailsResponseWrapper, GetNextLevelWrapper>>()
+                .subscribe(new SingleObserver<Pair<BaseResponse<PlayerDetailsResponse>, BaseResponse<Level>>>()
                 {
                     @Override
                     public void onSubscribe(Disposable d)
@@ -66,24 +71,18 @@ public class ProfilePresenter implements ProfileContract.Presenter
                     }
 
                     @Override
-                    public void onNext(
-                            Pair<PlayerDetailsResponseWrapper, GetNextLevelWrapper> playerDetailsAndNextLevelPair)
+                    public void onSuccess(Pair<BaseResponse<PlayerDetailsResponse>, BaseResponse<Level>> playerDetailsAndNextLevelPair)
                     {
                         localDataSource.playerDetails = playerDetailsAndNextLevelPair.first.getResponse();
-                        localDataSource.nextLevel = playerDetailsAndNextLevelPair.second.getLevel();
+                        localDataSource.nextLevel = playerDetailsAndNextLevelPair.second.getResponse();
+                        view.hideProfileLoadingIndicator();
+                        view.fillPlayerData(localDataSource.playerDetails, localDataSource.nextLevel);
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
                         view.hideProfileLoadingIndicator();
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-                        view.hideProfileLoadingIndicator();
-                        view.fillPlayerData(localDataSource.playerDetails, localDataSource.nextLevel);
                     }
                 });
     }
@@ -93,7 +92,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
     {
         view.showAchievementsLoadingIndicator();
         profileRemoteDataSource.getWithUnlocks(sharedPreferencesUtils.getExternalId())
-                .subscribe(new Observer<GetWithUnlocksWrapper>()
+                .subscribe(new SingleObserver<BaseResponse<ArrayList<Game>>>()
                 {
                     @Override
                     public void onSubscribe(Disposable d)
@@ -102,22 +101,17 @@ public class ProfilePresenter implements ProfileContract.Presenter
                     }
 
                     @Override
-                    public void onNext(GetWithUnlocksWrapper getWithUnlocksWrapper)
+                    public void onSuccess(BaseResponse<ArrayList<Game>> arrayListBaseResponse)
                     {
-                        localDataSource.games = getWithUnlocksWrapper.getGames();
+                        localDataSource.games = arrayListBaseResponse.getResponse();
+                        view.hideAchievementsLoadingIndicator();
+                        view.fillAchievements(localDataSource.games);
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
                         view.hideAchievementsLoadingIndicator();
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-                        view.hideAchievementsLoadingIndicator();
-                        view.fillAchievements(localDataSource.games);
                     }
                 });
     }

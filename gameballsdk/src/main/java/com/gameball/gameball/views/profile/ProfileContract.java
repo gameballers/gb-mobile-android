@@ -1,12 +1,8 @@
 package com.gameball.gameball.views.profile;
 
-import android.util.Pair;
-
 import com.gameball.gameball.model.response.Game;
-import com.gameball.gameball.model.response.GetNextLevelWrapper;
 import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerDetailsResponse;
-import com.gameball.gameball.model.response.PlayerDetailsResponseWrapper;
 
 import java.util.ArrayList;
 

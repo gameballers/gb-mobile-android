@@ -1,23 +1,20 @@
 package com.gameball.gameball.network.profileRemote;
 
-import android.graphics.Bitmap;
-
-import com.gameball.gameball.model.response.GetNextLevelWrapper;
-import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
-import com.gameball.gameball.model.response.PlayerDetailsResponseWrapper;
-import com.gameball.gameball.network.GenericCallback;
+import com.gameball.gameball.model.response.BaseResponse;
+import com.gameball.gameball.model.response.Game;
+import com.gameball.gameball.model.response.Level;
+import com.gameball.gameball.model.response.PlayerDetailsResponse;
 import com.gameball.gameball.network.ServiceBuilder;
 import com.gameball.gameball.network.api.GameBallApi;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.ArrayList;
+
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ProfileRemoteDataSource implements DataSourceContract
 {
@@ -44,7 +41,7 @@ public class ProfileRemoteDataSource implements DataSourceContract
     }
 
     @Override
-    public Observable<PlayerDetailsResponseWrapper> getPlayerDetails(String playerId)
+    public Single<BaseResponse<PlayerDetailsResponse>> getPlayerDetails(String playerId)
     {
         return gameBallApi.getPlayerDetails(playerId)
                 .subscribeOn(Schedulers.io())
@@ -52,7 +49,7 @@ public class ProfileRemoteDataSource implements DataSourceContract
     }
 
     @Override
-    public Observable<GetWithUnlocksWrapper> getWithUnlocks(String playerId)
+    public Single<BaseResponse<ArrayList<Game>>> getWithUnlocks(String playerId)
     {
         return gameBallApi.getWithUnlocks(playerId)
                 .subscribeOn(Schedulers.io())
@@ -60,7 +57,7 @@ public class ProfileRemoteDataSource implements DataSourceContract
     }
 
     @Override
-    public Observable<GetNextLevelWrapper> getNextLevel(String playerId)
+    public Single<BaseResponse<Level>> getNextLevel(String playerId)
     {
         return gameBallApi.getNextLevel(playerId)
                 .subscribeOn(Schedulers.io())
