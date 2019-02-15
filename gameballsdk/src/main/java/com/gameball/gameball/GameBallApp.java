@@ -119,8 +119,6 @@ public class GameBallApp {
         mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.init(mContext, new Gson());
-        SharedPreferencesUtils.getInstance().putClientId(clientID);
-        SharedPreferencesUtils.getInstance().putExternalId(externalId);
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setApplicationId(APPLICATION_ID) // Required for Analytics.
