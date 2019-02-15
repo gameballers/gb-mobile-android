@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Pair;
 
 import com.gameball.gameball.local.LocalDataSource;
+import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.GetNextLevelWrapper;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
 import com.gameball.gameball.model.response.PlayerDetailsResponseWrapper;
@@ -21,6 +22,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
     ProfileContract.View view;
     LocalDataSource localDataSource;
     ProfileRemoteDataSource profileRemoteDataSource;
+    SharedPreferencesUtils sharedPreferencesUtils;
 
     public ProfilePresenter(Context context, ProfileContract.View view)
     {
@@ -28,6 +30,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
         this.view = view;
         profileRemoteDataSource = ProfileRemoteDataSource.getInstance();
         localDataSource = LocalDataSource.getInstance();
+        sharedPreferencesUtils = SharedPreferencesUtils.getInstance();
     }
 
     @Override
@@ -36,11 +39,11 @@ public class ProfilePresenter implements ProfileContract.Presenter
         view.showProfileLoadingIndicator();
 
         Observable<PlayerDetailsResponseWrapper> playerDetailsObservable =
-                profileRemoteDataSource.getPlayerDetails(localDataSource.playerId)
+                profileRemoteDataSource.getPlayerDetails(sharedPreferencesUtils.getExternalId())
                 .observeOn(AndroidSchedulers.mainThread());
 
         Observable<GetNextLevelWrapper> nextLevelObservable =
-                profileRemoteDataSource.getNextLevel(localDataSource.playerId)
+                profileRemoteDataSource.getNextLevel(sharedPreferencesUtils.getExternalId())
                         .observeOn(AndroidSchedulers.mainThread());
 
         Observable.zip(playerDetailsObservable, nextLevelObservable
@@ -89,7 +92,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
     public void getWithUnlocks()
     {
         view.showAchievementsLoadingIndicator();
-        profileRemoteDataSource.getWithUnlocks(localDataSource.playerId)
+        profileRemoteDataSource.getWithUnlocks(sharedPreferencesUtils.getExternalId())
                 .subscribe(new Observer<GetWithUnlocksWrapper>()
                 {
                     @Override

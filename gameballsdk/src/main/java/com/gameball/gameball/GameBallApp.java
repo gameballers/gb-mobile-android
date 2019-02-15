@@ -50,7 +50,7 @@ public class GameBallApp {
     private static GameBallApp ourInstance;
     private Context mContext;
     private FirebaseApp GameBallFirebaseApp;
-    private int mClientID;
+    private String mClientID;
     private String mExternalId;
     private int mNotificationIcon;
     private String mDeviceToken;
@@ -79,10 +79,10 @@ public class GameBallApp {
 
                 String deviceToken = SharedPreferencesUtils.getInstance().getDeviceToken();
                 String externalId = SharedPreferencesUtils.getInstance().getExternalId();
-                int clientId = SharedPreferencesUtils.getInstance().getClientId();
+                String clientId = SharedPreferencesUtils.getInstance().getClientId();
 
                 if (deviceToken != null && mDeviceToken != null && mDeviceToken.equals(deviceToken)
-                        && clientId == mClientID
+                        && clientId.equals(mClientID)
                         && externalId != null && mExternalId != null
                         && mExternalId.equals(externalId)) {
                     Log.d(TAG, "Device already registered");
@@ -112,13 +112,15 @@ public class GameBallApp {
         }).subscribeOn(Schedulers.io());
     }
 
-    public void init(int clientID, String externalId, @DrawableRes int notificationIcon) {
+    public void init(String clientID, String externalId, @DrawableRes int notificationIcon) {
         // TODO: 8/23/2018
         this.mClientID = clientID;
         this.mExternalId = externalId;
         mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.init(mContext, new Gson());
+        SharedPreferencesUtils.getInstance().putClientId(clientID);
+        SharedPreferencesUtils.getInstance().putExternalId(externalId);
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setApplicationId(APPLICATION_ID) // Required for Analytics.

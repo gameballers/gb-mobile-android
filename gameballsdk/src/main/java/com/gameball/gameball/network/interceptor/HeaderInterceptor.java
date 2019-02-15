@@ -1,6 +1,7 @@
 package com.gameball.gameball.network.interceptor;
 
 import com.gameball.gameball.local.LocalDataSource;
+import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.utils.Constants;
 
 import java.io.IOException;
@@ -18,9 +19,9 @@ public class HeaderInterceptor implements Interceptor
 
         Request.Builder builder = request.newBuilder();
 
-        if (LocalDataSource.getInstance().clientId != null)
+        if (SharedPreferencesUtils.getInstance().getClientId() != null)
             builder.addHeader(Constants.APIKey,
-                    LocalDataSource.getInstance().clientId);
+                    SharedPreferencesUtils.getInstance().getClientId());
 
         request = builder.build();
         return chain.proceed(request);
