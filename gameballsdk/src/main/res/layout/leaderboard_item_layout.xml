@@ -66,8 +66,7 @@
         android:textColor="@android:color/black"
         android:textSize="13sp"
         app:layout_constraintBottom_toTopOf="@id/frubies_for_next_level"
-        app:layout_constraintEnd_toEndOf="@id/frubies_for_next_level"
-        app:layout_constraintStart_toStartOf="@id/frubies_for_next_level" />
+        app:layout_constraintEnd_toEndOf="@id/frubies_for_next_level"/>
 
     <View
         android:layout_width="match_parent"

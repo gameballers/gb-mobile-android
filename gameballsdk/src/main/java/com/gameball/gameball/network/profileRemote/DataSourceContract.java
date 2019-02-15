@@ -16,4 +16,5 @@ public interface DataSourceContract
     Single<BaseResponse<PlayerDetailsResponse>> getPlayerDetails(String playerId);
     Single<BaseResponse<ArrayList<Game>>> getWithUnlocks(String playerId);
     Single<BaseResponse<Level>> getNextLevel(String playerId);
+    Single<BaseResponse<ArrayList<PlayerDetailsResponse>>> getLeaderBoard(String playerId);
 }

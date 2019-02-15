@@ -13,8 +13,6 @@ import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
 
 import java.util.ArrayList;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -44,11 +42,11 @@ public class ProfilePresenter implements ProfileContract.Presenter
         view.showProfileLoadingIndicator();
 
         Single<BaseResponse<PlayerDetailsResponse>> playerDetailsObservable =
-                profileRemoteDataSource.getPlayerDetails(sharedPreferencesUtils.getExternalId())
+                profileRemoteDataSource.getPlayerDetails(sharedPreferencesUtils.getPlayerId())
                 .observeOn(AndroidSchedulers.mainThread());
 
         Single<BaseResponse<Level>> nextLevelObservable =
-                profileRemoteDataSource.getNextLevel(sharedPreferencesUtils.getExternalId())
+                profileRemoteDataSource.getNextLevel(sharedPreferencesUtils.getPlayerId())
                         .observeOn(AndroidSchedulers.mainThread());
 
         Single.zip(playerDetailsObservable, nextLevelObservable
@@ -91,7 +89,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
     public void getWithUnlocks()
     {
         view.showAchievementsLoadingIndicator();
-        profileRemoteDataSource.getWithUnlocks(sharedPreferencesUtils.getExternalId())
+        profileRemoteDataSource.getWithUnlocks(sharedPreferencesUtils.getPlayerId())
                 .subscribe(new SingleObserver<BaseResponse<ArrayList<Game>>>()
                 {
                     @Override

@@ -12,6 +12,7 @@ import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -60,6 +61,14 @@ public class ProfileRemoteDataSource implements DataSourceContract
     public Single<BaseResponse<Level>> getNextLevel(String playerId)
     {
         return gameBallApi.getNextLevel(playerId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public Single<BaseResponse<ArrayList<PlayerDetailsResponse>>> getLeaderBoard(String playerId)
+    {
+        return gameBallApi.getLeaderBoard(playerId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

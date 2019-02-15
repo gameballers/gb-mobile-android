@@ -78,7 +78,7 @@ public class GameBallApp {
                 Log.d(TAG, "Game ball sdk token = " + mDeviceToken);
 
                 String deviceToken = SharedPreferencesUtils.getInstance().getDeviceToken();
-                String externalId = SharedPreferencesUtils.getInstance().getExternalId();
+                String externalId = SharedPreferencesUtils.getInstance().getPlayerId();
                 String clientId = SharedPreferencesUtils.getInstance().getClientId();
 
                 if (deviceToken != null && mDeviceToken != null && mDeviceToken.equals(deviceToken)
@@ -90,7 +90,7 @@ public class GameBallApp {
                 } else {
                     SharedPreferencesUtils.getInstance().clearData();
                     SharedPreferencesUtils.getInstance().putClientId(mClientID);
-                    SharedPreferencesUtils.getInstance().putExternalId(mExternalId);
+                    SharedPreferencesUtils.getInstance().putPlayerId(mExternalId);
                 }
 
 

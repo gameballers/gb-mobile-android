@@ -9,4 +9,5 @@ public class Config {
     public static final String PlayerDetails = "api/Bots/GetPlayerDetails";
     public static final String GetWithUnlocks = "api/Bots/GetWithUnlocks";
     public static final String GetNextLevel = "api/Bots/GetNextLevel";
+    public static final String GetLeaderBoard = "api/Bots/GetLeaderBoard";
 }
