@@ -26,4 +26,13 @@
         tools:orientation="vertical"
         tools:scrollbars="horizontal"
         tools:spanCount="3" />
+
+    <ProgressBar
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/achievements_recyclerView"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        />
 </RelativeLayout>
