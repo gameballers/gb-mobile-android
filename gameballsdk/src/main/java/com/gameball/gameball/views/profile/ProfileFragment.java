@@ -87,7 +87,9 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     public void fillPlayerData(PlayerDetailsResponse playerDetails , Level nextLevel)
     {
         levelName.setText(playerDetails.getLevel().getName());
-        ImageDownloader.downloadImage(levelLogo, Constants.TEST_BASE_URL + playerDetails.getLevel().getIcon().getFileName());
+        if(playerDetails.getLevel().getIcon() != null)
+            ImageDownloader.downloadImage(levelLogo, Constants.TEST_BASE_URL +
+                    playerDetails.getLevel().getIcon().getFileName());
         frubiesForNextLevel.setText(nextLevel.getLevelFrubies() + "");
         currentPointsValue.setText(playerDetails.getAccPoints() + "");
         currentFrubiesValue.setText(playerDetails.getLevel().getLevelFrubies() + "");

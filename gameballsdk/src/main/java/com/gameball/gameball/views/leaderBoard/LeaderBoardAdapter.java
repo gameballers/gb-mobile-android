@@ -9,14 +9,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
+import com.gameball.gameball.model.response.PlayerDetailsResponse;
+import com.gameball.gameball.network.utils.DownloadImage;
+import com.gameball.gameball.utils.ImageDownloader;
 
 import java.util.ArrayList;
 
 public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ItemRowHolder> {
     private Context mContext;
-    private ArrayList<Object> mData;
+    private ArrayList<PlayerDetailsResponse> mData;
 
-    public LeaderBoardAdapter(Context context, ArrayList<Object> data) {
+    public LeaderBoardAdapter(Context context, ArrayList<PlayerDetailsResponse> data) {
         this.mData = data;
         this.mContext = context;
     }
@@ -25,17 +28,31 @@ public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.
     public ItemRowHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View row = inflater.inflate(R.layout.leaderboard_item_layout, parent, false);
-        return new ItemRowHolder(row);
+        ItemRowHolder rowHolder = new ItemRowHolder(row);
+        rowHolder.setIsRecyclable(false);
+        return rowHolder;
     }
 
     @Override
     public void onBindViewHolder(ItemRowHolder holder, int position) {
-//        Object item = mData.get(position);
+        PlayerDetailsResponse item = mData.get(position);
+
+        holder.playerName.setText(item.getName());
+        holder.playerCurrentLevelName.setText(item.getLevel().getName());
+        holder.frubiesValue.setText(String.format("%d",item.getAccFrubies()));
+        if(item.getLevel().getIcon() != null)
+            ImageDownloader.downloadImage(holder.playerLevelLogo,
+                    item.getLevel().getIcon().getFileName());
+    }
+
+    public void setmData(ArrayList<PlayerDetailsResponse> mData)
+    {
+        this.mData = mData;
     }
 
     @Override
     public int getItemCount() {
-        return 12;
+        return mData.size();
     }
 
     public class ItemRowHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

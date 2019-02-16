@@ -29,7 +29,9 @@
         android:drawablePadding="4dp"
         android:focusable="true"
         android:textSize="12sp"
-        tools:text="Last 3 months" />
+        android:visibility="gone"
+        tools:text="Last 3 months"
+        />
 
     <View
         android:id="@+id/separator"
@@ -49,6 +51,15 @@
         android:layout_marginTop="10dp"
         tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
         tools:listitem="@layout/leaderboard_item_layout" />
+
+    <ProgressBar
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/leaderboard_recyclerview"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        />
 
 
 </RelativeLayout>

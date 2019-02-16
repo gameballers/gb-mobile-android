@@ -38,4 +38,9 @@ public interface GameBallApi {
 
     @GET(Config.GetNextLevel)
     Single<BaseResponse<Level>> getNextLevel(@Query("externalId") String playerId);
+
+    @GET(Config.GetLeaderBoard)
+    Single<BaseResponse<ArrayList<PlayerDetailsResponse>>> getLeaderBoard(@Query("externalId") String playerId);
+
+
 }

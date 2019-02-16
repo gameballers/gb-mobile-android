@@ -120,8 +120,8 @@ public class SharedPreferencesUtils {
         putString(PreferencesContract.DEVICE_TOKEN, deviceToken);
     }
 
-    public void putExternalId(String externalId) {
-        putString(PreferencesContract.EXTERNAL_ID, externalId);
+    public void putPlayerId(String playerId) {
+        putString(PreferencesContract.EXTERNAL_ID, playerId);
     }
 
     public void putClientId(String clientId) {
@@ -132,7 +132,7 @@ public class SharedPreferencesUtils {
         return getString(PreferencesContract.DEVICE_TOKEN, null);
     }
 
-    public String getExternalId() {
+    public String getPlayerId() {
         return getString(PreferencesContract.EXTERNAL_ID, null);
     }
 

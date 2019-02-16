@@ -9,23 +9,30 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
+import com.gameball.gameball.model.response.PlayerDetailsResponse;
 
 import java.util.ArrayList;
 
-public class LeaderBoardFragment extends Fragment {
+public class LeaderBoardFragment extends Fragment implements LeaderBoardContract.View
+{
     View rootView;
     private TextView filerBtn;
     private RecyclerView leaderboardRecyclerview;
+    private ProgressBar loadingIndicator;
 
     LeaderBoardAdapter leaderBoardAdapter;
+    LeaderBoardContract.Presenter presenter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        leaderBoardAdapter = new LeaderBoardAdapter(getContext(), new ArrayList<Object>());
+        presenter = new LeaderBoardPresenter(getContext(),this);
+        leaderBoardAdapter = new LeaderBoardAdapter(getContext(), new ArrayList<PlayerDetailsResponse>());
+
     }
 
     @Nullable
@@ -34,17 +41,38 @@ public class LeaderBoardFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_leader_board, container, false);
         initView();
         prepView();
+        presenter.getLeaderBoard();
         return rootView;
     }
 
     private void initView() {
         filerBtn = rootView.findViewById(R.id.filer_btn);
         leaderboardRecyclerview = rootView.findViewById(R.id.leaderboard_recyclerview);
+        loadingIndicator = rootView.findViewById(R.id.loading_indicator);
     }
 
     private void prepView() {
         leaderboardRecyclerview.setHasFixedSize(true);
         leaderboardRecyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
         leaderboardRecyclerview.setAdapter(leaderBoardAdapter);
+    }
+
+    @Override
+    public void fillLeaderBoard(ArrayList<PlayerDetailsResponse> leaderBoard)
+    {
+        leaderBoardAdapter.setmData(leaderBoard);
+        leaderBoardAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void showLoadingIndicator()
+    {
+        loadingIndicator.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideLoadingIndicator()
+    {
+        loadingIndicator.setVisibility(View.GONE);
     }
 }
