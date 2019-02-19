@@ -1,6 +1,7 @@
 package com.gameball.gameball.views.profile;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,8 @@ import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.network.utils.DownloadImage;
 import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.ImageDownloader;
+import com.gameball.gameball.views.achievementDetails.AchievementDetailsActivity;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -50,9 +53,8 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             {
                 holder.notAchievedIndicator.setVisibility(View.GONE);
             }
-        }
-        if(item.getIsUnlocked())
             holder.lockedAchievementIndicator.setVisibility(View.GONE);
+        }
 
     }
 
@@ -90,7 +92,9 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             final int pos = getLayoutPosition();
             int pos1 = getAdapterPosition();
             if (pos == pos1) {
-
+                Intent intent = new Intent(mContext, AchievementDetailsActivity.class);
+                intent.putExtra(Constants.GAME_OBJ_KEY,new Gson().toJson(mData.get(pos)));
+                mContext.startActivity(intent);
             }
         }
     }
