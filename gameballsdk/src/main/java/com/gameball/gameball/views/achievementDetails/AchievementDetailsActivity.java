@@ -19,12 +19,17 @@ import com.google.gson.Gson;
 public class AchievementDetailsActivity extends AppCompatActivity
 {
 
+    public static final int AMOUNT_BASED = 1;
+    public static final int ACTION_BASED = 2;
+    public static final int ACTION_AND_AMOUNT_BASED = 3;
+
     private ImageView challengeIcon;
     private View notAchievedIndicator;
     private ImageView lockedChallengeIndicator;
     private TextView challengeName;
     private TextView challengeDescription;
     private TextView targetAmountCount;
+    private TextView progressTitle;
     private ProgressBar challengeAmountProgress;
     private TextView targetAmountDescription;
     private TextView targetActionCount;
@@ -33,6 +38,7 @@ public class AchievementDetailsActivity extends AppCompatActivity
     private ImageView statusIcon;
     private TextView statusDescription;
     private ImageButton backBtn;
+    private View separator;
 
     Game game;
 
@@ -60,6 +66,7 @@ public class AchievementDetailsActivity extends AppCompatActivity
         challengeName = (TextView) findViewById(R.id.challenge_name);
         challengeDescription = (TextView) findViewById(R.id.challenge_description);
         targetAmountCount = (TextView) findViewById(R.id.target_amount_count);
+        progressTitle = (TextView) findViewById(R.id.progress_title);
         challengeAmountProgress = (ProgressBar) findViewById(R.id.challenge_amount_progress);
         targetAmountDescription = (TextView) findViewById(R.id.target_amount_description);
         targetActionCount = (TextView) findViewById(R.id.target_action_count);
@@ -68,13 +75,14 @@ public class AchievementDetailsActivity extends AppCompatActivity
         statusIcon = (ImageView) findViewById(R.id.status_icon);
         statusDescription = (TextView) findViewById(R.id.status_description);
         backBtn = (ImageButton) findViewById(R.id.back_btn);
+        separator = findViewById(R.id.separator);
     }
 
     private void fillView()
     {
         challengeName.setText(game.getGameName());
         challengeDescription.setText(game.getDescription());
-        ImageDownloader.downloadImage(challengeIcon,game.getIcon());
+        ImageDownloader.downloadImage(challengeIcon,Constants.TEST_BASE_URL + game.getIcon());
         handleUnlocked();
 
     }
@@ -87,6 +95,8 @@ public class AchievementDetailsActivity extends AppCompatActivity
             notAchievedIndicator.setVisibility(View.VISIBLE);
             statusIcon.setImageResource(R.drawable.ic_status_locked);
             statusDescription.setText(R.string.locked);
+            progressTitle.setVisibility(View.GONE);
+            separator.setVisibility(View.GONE);
         }
         else
         {
@@ -103,7 +113,43 @@ public class AchievementDetailsActivity extends AppCompatActivity
                 statusIcon.setImageResource(R.drawable.ic_status_keep_going);
                 statusDescription.setText(R.string.keep_going);
             }
+
+            switch (game.getBehaviorTypeId())
+            {
+                case ACTION_BASED:
+                    showActionProgress();
+                    break;
+                case AMOUNT_BASED:
+                    showAmountProgress();
+                    break;
+                case ACTION_AND_AMOUNT_BASED:
+                    showAmountProgress();
+                    showActionProgress();
+                    break;
+            }
         }
+    }
+
+    private void showActionProgress()
+    {
+        targetActionCount.setVisibility(View.VISIBLE);
+        challengeActionProgress.setVisibility(View.VISIBLE);
+        targetActionDescription.setVisibility(View.VISIBLE);
+        challengeActionProgress.setProgress((int) game.getActionsCompletedPercentage());
+        targetActionCount.setText(game.getTargetActionsCount() + "");
+        targetActionDescription.setText(String.format("only %d %s remaining to achive this challenge",
+                game.getTargetActionsCount() - game.getAchievedActionsCount(), ""));
+    }
+
+    private void showAmountProgress()
+    {
+        targetAmountCount.setVisibility(View.VISIBLE);
+        challengeAmountProgress.setVisibility(View.VISIBLE);
+        targetAmountDescription.setVisibility(View.VISIBLE);
+        challengeAmountProgress.setProgress((int) game.getAmountCompletedPercentage());
+        targetAmountCount.setText(game.getTargetAmount() + "");
+        targetAmountDescription.setText(String.format("only %d %s remaining to achive this challenge",
+                game.getTargetAmount() - game.getCurrentAmount(), ""));
     }
 
 

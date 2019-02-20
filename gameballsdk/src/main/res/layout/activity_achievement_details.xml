@@ -127,6 +127,8 @@
                     android:textSize="14sp"
                     android:textColor="#4a4a4a"
                     android:textStyle="bold"
+                    tool:visibility="visible"
+                    android:visibility="gone"
                     />
 
                 <ProgressBar
@@ -143,6 +145,9 @@
                     tool:progress="50"
                     android:progressDrawable="@drawable/level_progress_drawable"
                     android:elevation="1dp"
+                    android:visibility="gone"
+                    tool:visibility="visible"
+
                     />
 
                 <TextView
@@ -159,6 +164,8 @@
                     tool:text="amount description"
                     android:textColor="#4a4a4a"
                     android:textSize="14sp"
+                    tool:visibility="visible"
+                    android:visibility="gone"
                     />
 
                 <TextView
@@ -173,6 +180,8 @@
                     android:textSize="14sp"
                     android:textColor="#4a4a4a"
                     android:textStyle="bold"
+                    tool:visibility="visible"
+                    android:visibility="gone"
                     />
 
                 <ProgressBar
@@ -189,6 +198,8 @@
                     tool:progress="50"
                     android:progressDrawable="@drawable/level_progress_drawable"
                     android:elevation="1dp"
+                    tool:visibility="visible"
+                    android:visibility="gone"
                     />
 
                 <TextView
@@ -205,10 +216,13 @@
                     tool:text="amount description"
                     android:textColor="#4a4a4a"
                     android:textSize="14sp"
+                    tool:visibility="visible"
+                    android:visibility="gone"
                     />
             </RelativeLayout>
 
             <View
+                android:id="@+id/separator"
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_marginStart="50dp"
