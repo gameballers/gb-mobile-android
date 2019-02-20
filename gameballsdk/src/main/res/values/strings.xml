@@ -12,4 +12,7 @@
     <string name="locked">Locked!</string>
     <string name="achieved">Achieved!</string>
     <string name="keep_going">Keep Going!</string>
+    <string name="reach_level">reach level</string>
+    <string name="you_need_to">You need to</string>
+    <string name="to_unlock_this_level">to unlock this level</string>
 </resources>

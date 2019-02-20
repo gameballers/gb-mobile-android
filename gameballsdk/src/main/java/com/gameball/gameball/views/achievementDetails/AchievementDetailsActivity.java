@@ -23,6 +23,11 @@ public class AchievementDetailsActivity extends AppCompatActivity
     public static final int ACTION_BASED = 2;
     public static final int ACTION_AND_AMOUNT_BASED = 3;
 
+    public static final int ACTIVATION_FRIBIES_BASED = 2;
+    public static final int ACTIVATION_LEVEL_BASED = 3;
+
+
+
     private ImageView challengeIcon;
     private View notAchievedIndicator;
     private ImageView lockedChallengeIndicator;
@@ -94,9 +99,21 @@ public class AchievementDetailsActivity extends AppCompatActivity
             lockedChallengeIndicator.setVisibility(View.VISIBLE);
             notAchievedIndicator.setVisibility(View.VISIBLE);
             statusIcon.setImageResource(R.drawable.ic_status_locked);
-            statusDescription.setText(R.string.locked);
             progressTitle.setVisibility(View.GONE);
             separator.setVisibility(View.GONE);
+
+            String statusSuffix = "";
+            switch (game.getActivationCriteriaTypeId())
+            {
+                case ACTIVATION_FRIBIES_BASED:
+                    statusSuffix  = game.getActivationFrubes() + " " + getString(R.string.frubies);
+                    break;
+                case ACTIVATION_LEVEL_BASED:
+                    statusSuffix = getString(R.string.reach_level)+ " " + game.getActivationLevel();
+
+            }
+            statusDescription.setText(String.format("%s %s %s %s",getString(R.string.locked),
+                    getString(R.string.you_need_to),statusSuffix,getString(R.string.to_unlock_this_level)));
         }
         else
         {
