@@ -46,7 +46,7 @@ public class Game
     private Double actionsCompletedPercentage;
     @SerializedName("AmountCompletedPercentage")
     @Expose
-    private Integer amountCompletedPercentage;
+    private Double amountCompletedPercentage;
     @SerializedName("ActionsAndAmountCompletedPercentage")
     @Expose
     private Double actionsAndAmountCompletedPercentage;
@@ -162,7 +162,7 @@ public class Game
         this.targetAmount = targetAmount;
     }
 
-    public Double getActionsCompletedPercentage() {
+    public double getActionsCompletedPercentage() {
         return actionsCompletedPercentage;
     }
 
@@ -170,11 +170,11 @@ public class Game
         this.actionsCompletedPercentage = actionsCompletedPercentage;
     }
 
-    public Integer getAmountCompletedPercentage() {
+    public double getAmountCompletedPercentage() {
         return amountCompletedPercentage;
     }
 
-    public void setAmountCompletedPercentage(Integer amountCompletedPercentage) {
+    public void setAmountCompletedPercentage(double amountCompletedPercentage) {
         this.amountCompletedPercentage = amountCompletedPercentage;
     }
 

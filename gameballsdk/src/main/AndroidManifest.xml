@@ -5,7 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application>
-        <activity android:name=".views.GameBallMainActivity"></activity>
+        <activity android:name=".views.achievementDetails.AchievementDetailsActivity"></activity>
+        <activity android:name=".views.GameBallMainActivity" />
         <activity
             android:name=".views.GameBallActivity"
             android:theme="@style/Theme.Transparent">

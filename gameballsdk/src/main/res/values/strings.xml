@@ -7,4 +7,12 @@
     <string name="you_are_on_level">You are on level</string>
     <string name="next_level_at">Next level at</string>
     <string name="points">Points</string>
+    <string name="progress">Progress</string>
+    <string name="status">Status</string>
+    <string name="locked">Locked!</string>
+    <string name="achieved">Achieved!</string>
+    <string name="keep_going">Keep Going!</string>
+    <string name="reach_level">reach level</string>
+    <string name="you_need_to">You need to</string>
+    <string name="to_unlock_this_level">to unlock this level</string>
 </resources>
