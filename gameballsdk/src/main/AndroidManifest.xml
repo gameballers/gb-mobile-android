@@ -16,6 +16,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!--<activity android:name=".views.GameBallActivity">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="GAME_BALL_SDK" />-->
+                <!--<category android:name="android.intent.category.DEFAULT" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
+
     </application>
 
 </manifest>

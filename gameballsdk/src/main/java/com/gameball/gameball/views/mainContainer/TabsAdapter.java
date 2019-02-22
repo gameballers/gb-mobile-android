@@ -17,13 +17,13 @@ public class TabsAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return new Fragment();
-            case 1:
                 return new ProfileFragment();
-            case 2:
+            case 1:
                 return new AchievementsFragment();
-            case 3:
+            case 2:
                 return new LeaderBoardFragment();
+            case 3:
+                return new Fragment();
         }
 
         return null;

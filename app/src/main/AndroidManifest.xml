@@ -21,12 +21,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.gameball.gameball.views.GameBallActivity">
-            <intent-filter>
-                <action android:name="GAME_BALL_SDK" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+
 
         <service android:name=".GameBallDemoFirebaseMessagingService">
             <intent-filter>
