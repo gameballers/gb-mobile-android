@@ -1,5 +1,6 @@
 package com.gameball.gameball.network.api;
 
+import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
@@ -11,7 +12,7 @@ import com.gameball.gameball.network.Config;
 
 import java.util.ArrayList;
 
-import io.reactivex.Observable;
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import retrofit2.Response;
 import retrofit2.http.Body;
@@ -45,6 +46,9 @@ public interface GameBallApi {
 
     @GET(Config.GetBotSettings)
     Single<BaseResponse<ClientBotSettings>> getBotSettings();
+
+    @POST(Config.AddNewAction)
+    Completable addNewAtion(@Body Action actionBody);
 
 
 }

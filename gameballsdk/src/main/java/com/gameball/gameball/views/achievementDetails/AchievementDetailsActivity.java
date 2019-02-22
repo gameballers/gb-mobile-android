@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.network.utils.DownloadImage;
@@ -87,7 +88,7 @@ public class AchievementDetailsActivity extends AppCompatActivity
     {
         challengeName.setText(game.getGameName());
         challengeDescription.setText(game.getDescription());
-        ImageDownloader.downloadImage(challengeIcon,Constants.TEST_BASE_URL + game.getIcon());
+        ImageDownloader.downloadImage(challengeIcon, BuildConfig.MAIN_HOST + game.getIcon());
         handleUnlocked();
 
     }

@@ -94,9 +94,6 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     {
         LayerDrawable progressDrawable = (LayerDrawable) levelProgress.getProgressDrawable();
         ShapeDrawable progressItem = (ShapeDrawable) progressDrawable.findDrawableByLayerId(R.id.actual_progress_color);
-        Paint paint = new Paint();
-        paint.setColor(Color.parseColor(clientBotSettings.getBotMainColor()));
-        progressItem.getShape().draw(new Canvas(),paint);
     }
 
     private void prepView() {

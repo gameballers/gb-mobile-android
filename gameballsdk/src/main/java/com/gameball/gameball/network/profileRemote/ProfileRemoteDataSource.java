@@ -1,20 +1,19 @@
 package com.gameball.gameball.network.profileRemote;
 
+import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerDetailsResponse;
 import com.gameball.gameball.network.Network;
-import com.gameball.gameball.network.ServiceBuilder;
 import com.gameball.gameball.network.api.GameBallApi;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 
-import io.reactivex.Observable;
-import io.reactivex.Scheduler;
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -79,6 +78,14 @@ public class ProfileRemoteDataSource implements DataSourceContract
     public Single<BaseResponse<ClientBotSettings>> getBotSettings()
     {
         return gameBallApi.getBotSettings()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public Completable AddNewAction(Action actionBody)
+    {
+        return gameBallApi.addNewAtion(actionBody)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

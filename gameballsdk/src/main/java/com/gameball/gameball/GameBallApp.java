@@ -18,11 +18,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Network;
+import com.gameball.gameball.network.api.GameBallApi;
 import com.gameball.gameball.views.mainContainer.MainContainerFragment;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -33,12 +35,12 @@ import com.google.gson.Gson;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -62,12 +64,14 @@ public class GameBallApp
     private String mExternalId;
     private int mNotificationIcon;
     private String mDeviceToken;
+    private GameBallApi gameBallApi;
 
     private GameBallApp(Context context)
     {
         if (this.mContext == null)
         {
             this.mContext = context;
+            gameBallApi = Network.getInstance().getGameBallApi();
         }
     }
 
@@ -116,7 +120,7 @@ public class GameBallApp
                 registerDeviceRequest.setExternalID(mExternalId);
                 registerDeviceRequest.setDeviceToken(mDeviceToken);
 
-                BaseResponse<PlayerRegisterResponse> response = Network.getInstance().getGameBallApi()
+                BaseResponse<PlayerRegisterResponse> response = gameBallApi
                         .registrationPlayer(registerDeviceRequest)
                         .blockingGet();
 
@@ -132,7 +136,7 @@ public class GameBallApp
 
     private void getBotSettings()
     {
-        Network.getInstance().getGameBallApi().getBotSettings()
+        gameBallApi.getBotSettings()
                 .subscribeOn(Schedulers.io())
                 .retry()
                 .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>()
@@ -182,7 +186,7 @@ public class GameBallApp
         // Retrieve secondary app.
         GameBallFirebaseApp = FirebaseApp.getInstance(TAG);
 
-        registerDevice().subscribe(new Action()
+        registerDevice().subscribe(new io.reactivex.functions.Action()
         {
             @Override
             public void run()
@@ -273,7 +277,7 @@ public class GameBallApp
                 {
                     return Observable.just(SharedPreferencesUtils.getInstance().getClientBotSettings());
                 }
-                return Network.getInstance().getGameBallApi().getBotSettings().flatMapObservable(new Function<BaseResponse<ClientBotSettings>, ObservableSource<? extends ClientBotSettings>>()
+                return gameBallApi.getBotSettings().flatMapObservable(new Function<BaseResponse<ClientBotSettings>, ObservableSource<? extends ClientBotSettings>>()
                 {
                     @Override
                     public ObservableSource<? extends ClientBotSettings> apply(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) throws Exception
@@ -309,6 +313,14 @@ public class GameBallApp
                         dialogFragment.show(ft, TAG_GAMEBALL_PROFILE_DIALOG);
                     }
                 });
+    }
+
+    public void AddAction(Action action)
+    {
+        gameBallApi.addNewAtion(action).
+                subscribeOn(Schedulers.io())
+                .retry()
+                .subscribe();
     }
 
 
