@@ -15,8 +15,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        GameBallApp.getInstance(this).init("8fdfd2dffd-9mnvhu25d6c3d",
-                "SomeGuid16", R.mipmap.ic_launcher);
 
         findViewById(R.id.btn_show_profile).setOnClickListener(new View.OnClickListener() {
             @Override

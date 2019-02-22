@@ -14,6 +14,7 @@ public class app extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        GameBallApp.getInstance(this).init(2, ExternalId, R.mipmap.ic_launcher);
+        GameBallApp.getInstance(this).init("8fdfd2dffd-9mnvhu25d6c3d",
+                "SomeGuid16", R.mipmap.ic_launcher);
     }
 }

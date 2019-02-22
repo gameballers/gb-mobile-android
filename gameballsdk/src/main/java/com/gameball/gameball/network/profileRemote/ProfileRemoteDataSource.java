@@ -1,9 +1,11 @@
 package com.gameball.gameball.network.profileRemote;
 
 import com.gameball.gameball.model.response.BaseResponse;
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerDetailsResponse;
+import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.ServiceBuilder;
 import com.gameball.gameball.network.api.GameBallApi;
 import com.google.gson.Gson;
@@ -30,7 +32,7 @@ public class ProfileRemoteDataSource implements DataSourceContract
                 .excludeFieldsWithoutExposeAnnotation()
                 .create();
 
-        gameBallApi = ServiceBuilder.buildService(GameBallApi.class, jsonFactory);
+        gameBallApi = Network.getInstance().getGameBallApi();
     }
 
     public static ProfileRemoteDataSource getInstance()
@@ -69,6 +71,14 @@ public class ProfileRemoteDataSource implements DataSourceContract
     public Single<BaseResponse<ArrayList<PlayerDetailsResponse>>> getLeaderBoard(String playerId)
     {
         return gameBallApi.getLeaderBoard(playerId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public Single<BaseResponse<ClientBotSettings>> getBotSettings()
+    {
+        return gameBallApi.getBotSettings()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.network.utils.DownloadImage;
@@ -40,7 +41,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     public void onBindViewHolder(ItemRowHolder holder, int position) {
         Game item = mData.get(position);
         if(item.getIcon() != null && !item.getIcon().isEmpty())
-            ImageDownloader.downloadImage(holder.achievementsLogo,Constants.TEST_BASE_URL +
+            ImageDownloader.downloadImage(holder.achievementsLogo, BuildConfig.MAIN_HOST +
                     item.getIcon());
 
         holder.achievementName.setText(item.getGameName());

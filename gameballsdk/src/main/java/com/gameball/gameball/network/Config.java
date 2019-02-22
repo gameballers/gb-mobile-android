@@ -10,4 +10,5 @@ public class Config {
     public static final String GetWithUnlocks = "api/Bots/GetWithUnlocks";
     public static final String GetNextLevel = "api/Bots/GetNextLevel";
     public static final String GetLeaderBoard = "api/Bots/GetLeaderBoard";
+    public static final String GetBotSettings = "api/Bots/GetClientBotSettings";
 }
