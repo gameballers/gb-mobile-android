@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
@@ -19,6 +20,8 @@ import android.widget.TextView;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.R;
+import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.utils.DisplayUtils;
 
 public class MainContainerFragment extends DialogFragment implements MainContainerContract.View {
@@ -30,8 +33,10 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     private ImageButton btnClose;
     private TabLayout tabs;
     private ViewPager viewPager;
+    private ConstraintLayout headerParent;
 
     TabsAdapter tabsAdapter;
+    ClientBotSettings clientBotSettings;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,6 +46,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
 
     private void initComponents() {
         tabsAdapter = new TabsAdapter(getChildFragmentManager());
+        clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
     }
 
     @Nullable
@@ -48,6 +54,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_main_container, container, false);
         initView();
+        setupBotSettings();
         prepView();
         return rootView;
     }
@@ -92,6 +99,12 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         btnClose = rootView.findViewById(R.id.btn_close);
         tabs = rootView.findViewById(R.id.tabs);
         viewPager = rootView.findViewById(R.id.view_pager);
+        headerParent = rootView.findViewById(R.id.header);
+    }
+
+    private void setupBotSettings()
+    {
+        headerParent.setBackgroundColor(Color.parseColor(clientBotSettings.getBotMainColor()));
     }
 
     private void prepView() {
