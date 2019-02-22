@@ -2,26 +2,35 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <Button
         android:id="@+id/btn_show_profile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:gravity="center"
         android:text="show profile" />
 
     <Button
+
+        android:id="@+id/action_1004"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="action 1004"
+        />
+
+    <Button
+        android:id="@+id/action_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="action 3"
+        />
+    <Button
         android:id="@+id/btn_show_notification"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
         android:text="show notification" />
+
 </LinearLayout>
