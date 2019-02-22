@@ -6,4 +6,10 @@ package com.gameball.gameball.network;
 public class Config {
     public static final String PlayerRegistration = "api/PlayersActions/PostPlayerSDKRegisteration";
     public static final String Push = "api/Integration/Push";
+    public static final String PlayerDetails = "api/Bots/GetPlayerDetails";
+    public static final String GetWithUnlocks = "api/Bots/GetWithUnlocks";
+    public static final String GetNextLevel = "api/Bots/GetNextLevel";
+    public static final String GetLeaderBoard = "api/Bots/GetLeaderBoard";
+    public static final String GetBotSettings = "api/Bots/GetClientBotSettings";
+    public static final String AddNewAction = "api/Integration/AddNewAction";
 }

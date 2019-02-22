@@ -3,6 +3,7 @@ package com.gameball.gameball.local;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -120,24 +121,36 @@ public class SharedPreferencesUtils {
         putString(PreferencesContract.DEVICE_TOKEN, deviceToken);
     }
 
-    public void putExternalId(String externalId) {
-        putString(PreferencesContract.EXTERNAL_ID, externalId);
+    public void putPlayerId(String playerId) {
+        putString(PreferencesContract.EXTERNAL_ID, playerId);
     }
 
-    public void putClientId(int clientId) {
-        putInt(PreferencesContract.CLIENT_ID, clientId);
+    public void putClientId(String clientId) {
+        putString(PreferencesContract.CLIENT_ID, clientId);
     }
 
     public String getDeviceToken() {
         return getString(PreferencesContract.DEVICE_TOKEN, null);
     }
 
-    public String getExternalId() {
+    public String getPlayerId() {
         return getString(PreferencesContract.EXTERNAL_ID, null);
     }
 
-    public int getClientId() {
-        return getInt(PreferencesContract.CLIENT_ID, -1);
+    public String getClientId() {
+        return getString(PreferencesContract.CLIENT_ID, null);
+    }
+
+    public void putClientBotSettings(ClientBotSettings clientBotSettings)
+    {
+        putString(PreferencesContract.CLIENT_BOT_SETTINGS, gson.toJson(clientBotSettings));
+    }
+
+    public ClientBotSettings getClientBotSettings()
+    {
+        ClientBotSettings clientBotSettings = gson.fromJson(
+                getString(PreferencesContract.CLIENT_BOT_SETTINGS,null), ClientBotSettings.class);
+        return clientBotSettings;
     }
 
     private static final class PreferencesContract {
@@ -145,6 +158,8 @@ public class SharedPreferencesUtils {
         private static final String EXTERNAL_ID = "EXTERNAL_ID";
         private static final String DEVICE_TOKEN = "DEVICE_TOKEN";
         private static final String CLIENT_ID = "CLIENT_ID";
+        private static final String CLIENT_BOT_SETTINGS = "BOT_SETTINGS";
+
 
     }
 

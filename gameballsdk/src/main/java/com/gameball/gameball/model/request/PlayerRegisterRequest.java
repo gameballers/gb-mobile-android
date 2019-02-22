@@ -42,7 +42,7 @@ public class PlayerRegisterRequest {
     private int statusId;
     @SerializedName("ClientID")
     @Expose
-    private int clientID;
+    private String clientID;
     @SerializedName("DeviceToken")
     @Expose
     private String deviceToken;
@@ -138,11 +138,11 @@ public class PlayerRegisterRequest {
         this.statusId = statusId;
     }
 
-    public int getClientID() {
+    public String getClientID() {
         return clientID;
     }
 
-    public void setClientID(int clientID) {
+    public void setClientID(String clientID) {
         this.clientID = clientID;
     }
 
