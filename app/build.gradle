@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        config {
-            keyAlias 'test123'
-            keyPassword 'test123'
-            storePassword 'test123'
-            storeFile file('~/Desktop/Freelance/gameball/gb-mobile-android/app/test.jks')
-        }
+//        config {
+//            keyAlias 'test123'
+//            keyPassword 'test123'
+//            storePassword 'test123'
+//            storeFile file('~/Desktop/Freelance/gameball/gb-mobile-android/app/test.jks')
+//        }
     }
     compileSdkVersion 27
     defaultConfig {
@@ -17,7 +17,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        signingConfig signingConfigs.config
+//        signingConfig signingConfigs.config
     }
     buildTypes {
         release {
