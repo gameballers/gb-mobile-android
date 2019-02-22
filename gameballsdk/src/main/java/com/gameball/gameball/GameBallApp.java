@@ -20,8 +20,10 @@ import android.util.Log;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.response.BaseResponse;
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Network;
+import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
 import com.gameball.gameball.views.mainContainer.MainContainerFragment;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -32,6 +34,8 @@ import com.google.gson.Gson;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -112,6 +116,36 @@ public class GameBallApp {
         }).subscribeOn(Schedulers.io());
     }
 
+    private void getBotSettings()
+    {
+        ProfileRemoteDataSource.getInstance().getBotSettings()
+                .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onSuccess(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse)
+                    {
+                        SharedPreferencesUtils.getInstance().putClientBotSettings(
+                                clientBotSettingsBaseResponse.getResponse());
+
+                        Log.i("bot_settings",new Gson().toJson(
+                                SharedPreferencesUtils.getInstance().getClientBotSettings()));
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        Log.i("bot_settings_error",e.getMessage());
+                    }
+                });
+    }
+
     public void init(String clientID, String externalId, @DrawableRes int notificationIcon) {
         // TODO: 8/23/2018
         this.mClientID = clientID;
@@ -142,6 +176,7 @@ public class GameBallApp {
                 // pass
             }
         });
+        getBotSettings();
 
     }
 

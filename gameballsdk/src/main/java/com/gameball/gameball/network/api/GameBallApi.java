@@ -2,6 +2,7 @@ package com.gameball.gameball.network.api;
 
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.response.BaseResponse;
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerDetailsResponse;
@@ -41,6 +42,9 @@ public interface GameBallApi {
 
     @GET(Config.GetLeaderBoard)
     Single<BaseResponse<ArrayList<PlayerDetailsResponse>>> getLeaderBoard(@Query("externalId") String playerId);
+
+    @GET(Config.GetBotSettings)
+    Single<BaseResponse<ClientBotSettings>> getBotSettings();
 
 
 }
