@@ -1,5 +1,6 @@
 package com.gameball.gameball.network.profileRemote;
 
+import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
@@ -8,7 +9,7 @@ import com.gameball.gameball.model.response.PlayerDetailsResponse;
 
 import java.util.ArrayList;
 
-import io.reactivex.Observable;
+import io.reactivex.Completable;
 import io.reactivex.Single;
 
 
@@ -19,4 +20,5 @@ public interface DataSourceContract
     Single<BaseResponse<Level>> getNextLevel(String playerId);
     Single<BaseResponse<ArrayList<PlayerDetailsResponse>>> getLeaderBoard(String playerId);
     Single<BaseResponse<ClientBotSettings>> getBotSettings();
+    Completable AddNewAction(Action actionBody);
 }
