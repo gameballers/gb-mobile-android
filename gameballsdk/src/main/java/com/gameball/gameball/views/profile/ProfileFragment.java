@@ -1,9 +1,13 @@
 package com.gameball.gameball.views.profile;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
@@ -88,7 +93,10 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private void setupBotSettings()
     {
         LayerDrawable progressDrawable = (LayerDrawable) levelProgress.getProgressDrawable();
-        ClipDrawable progressItem = (ClipDrawable) progressDrawable.findDrawableByLayerId(R.id.progress_item);
+        ShapeDrawable progressItem = (ShapeDrawable) progressDrawable.findDrawableByLayerId(R.id.actual_progress_color);
+        Paint paint = new Paint();
+        paint.setColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        progressItem.getShape().draw(new Canvas(),paint);
     }
 
     private void prepView() {
@@ -103,7 +111,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     {
         levelName.setText(playerDetails.getLevel().getName());
         if(playerDetails.getLevel().getIcon() != null)
-            ImageDownloader.downloadImage(levelLogo, Constants.TEST_BASE_URL +
+            ImageDownloader.downloadImage(levelLogo, BuildConfig.MAIN_HOST +
                     playerDetails.getLevel().getIcon().getFileName());
         frubiesForNextLevel.setText(nextLevel.getLevelFrubies() + "");
         currentPointsValue.setText(playerDetails.getAccPoints() + "");

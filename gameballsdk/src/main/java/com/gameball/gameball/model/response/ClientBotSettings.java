@@ -41,19 +41,9 @@ public class ClientBotSettings
         return clientId;
     }
 
-    public void setClientId(Integer clientId)
-    {
-        this.clientId = clientId;
-    }
-
     public String getBotMainColor()
     {
         return botMainColor;
-    }
-
-    public void setBotMainColor(String botMainColor)
-    {
-        this.botMainColor = botMainColor;
     }
 
     public String getButtonBackgroundColor()
@@ -61,19 +51,9 @@ public class ClientBotSettings
         return buttonBackgroundColor;
     }
 
-    public void setButtonBackgroundColor(String buttonBackgroundColor)
-    {
-        this.buttonBackgroundColor = buttonBackgroundColor;
-    }
-
     public String getButtonFlagColor()
     {
         return buttonFlagColor;
-    }
-
-    public void setButtonFlagColor(String buttonFlagColor)
-    {
-        this.buttonFlagColor = buttonFlagColor;
     }
 
     public String getButtonSariColor()
@@ -81,19 +61,9 @@ public class ClientBotSettings
         return buttonSariColor;
     }
 
-    public void setButtonSariColor(String buttonSariColor)
-    {
-        this.buttonSariColor = buttonSariColor;
-    }
-
     public String getShape()
     {
         return shape;
-    }
-
-    public void setShape(String shape)
-    {
-        this.shape = shape;
     }
 
     public String getDirection()
@@ -101,19 +71,9 @@ public class ClientBotSettings
         return direction;
     }
 
-    public void setDirection(String direction)
-    {
-        this.direction = direction;
-    }
-
     public String getOfflineStatemessage()
     {
         return offlineStatemessage;
-    }
-
-    public void setOfflineStatemessage(String offlineStatemessage)
-    {
-        this.offlineStatemessage = offlineStatemessage;
     }
 
     public String getButton()
@@ -121,18 +81,8 @@ public class ClientBotSettings
         return button;
     }
 
-    public void setButton(String button)
-    {
-        this.button = button;
-    }
-
     public String getButtonLink()
     {
         return buttonLink;
-    }
-
-    public void setButtonLink(String buttonLink)
-    {
-        this.buttonLink = buttonLink;
     }
 }

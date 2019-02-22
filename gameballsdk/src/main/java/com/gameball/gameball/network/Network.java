@@ -3,6 +3,8 @@ package com.gameball.gameball.network;
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.network.api.GameBallApi;
 import com.gameball.gameball.network.interceptor.GeneralInterceptor;
+import com.gameball.gameball.network.interceptor.HeaderInterceptor;
+import com.gameball.gameball.network.interceptor.LoggingInterceptor;
 import com.gameball.gameball.network.utils.RxErrorHandlingCallAdapterFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,6 +36,8 @@ public class Network {
                 .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(TIMEOUT, TimeUnit.SECONDS)
+                .addInterceptor(new LoggingInterceptor())
+                .addInterceptor(new HeaderInterceptor())
                 .addInterceptor(mGeneralInterceptor);
 
         mOkHttpClient = ohttpClientBuilder.build();

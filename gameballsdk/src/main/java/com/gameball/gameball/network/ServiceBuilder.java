@@ -2,6 +2,7 @@ package com.gameball.gameball.network;
 
 import android.support.annotation.NonNull;
 
+import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.network.interceptor.HeaderInterceptor;
 import com.gameball.gameball.network.interceptor.LoggingInterceptor;
 import com.gameball.gameball.utils.Constants;
@@ -28,7 +29,7 @@ public class ServiceBuilder
     private static void initRetrofitBuilder(@NonNull Gson gson)
     {
         retrofitBuilder = new Retrofit.Builder()
-                .baseUrl(Constants.TEST_BASE_URL)
+                .baseUrl(BuildConfig.MAIN_HOST)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create());
     }
