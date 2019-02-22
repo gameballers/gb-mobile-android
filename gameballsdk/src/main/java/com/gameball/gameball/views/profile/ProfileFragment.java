@@ -1,5 +1,13 @@
 package com.gameball.gameball.views.profile;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,7 +22,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
+import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerDetailsResponse;
@@ -40,6 +51,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
 
     AchievementsAdapter achievementsAdapter;
     ProfileContract.Presenter presenter;
+    ClientBotSettings clientBotSettings;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,6 +64,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_profile, container, false);
         initView();
+        setupBotSettings();
         prepView();
         presenter.getPlayerDetails();
         presenter.getWithUnlocks();
@@ -61,6 +74,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private void initComponents() {
         achievementsAdapter = new AchievementsAdapter(getContext(), new ArrayList<Game>());
         presenter = new ProfilePresenter(getContext(), this);
+        clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
     }
 
     private void initView() {
@@ -76,6 +90,15 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         achievementsLoadingIndicator = rootView.findViewById(R.id.achievements_loading_indicator);
     }
 
+    private void setupBotSettings()
+    {
+        LayerDrawable progressDrawable = (LayerDrawable) levelProgress.getProgressDrawable();
+        ShapeDrawable progressItem = (ShapeDrawable) progressDrawable.findDrawableByLayerId(R.id.actual_progress_color);
+        Paint paint = new Paint();
+        paint.setColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        progressItem.getShape().draw(new Canvas(),paint);
+    }
+
     private void prepView() {
         achievementsRecyclerView.setHasFixedSize(true);
         achievementsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
@@ -88,7 +111,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     {
         levelName.setText(playerDetails.getLevel().getName());
         if(playerDetails.getLevel().getIcon() != null)
-            ImageDownloader.downloadImage(levelLogo, Constants.TEST_BASE_URL +
+            ImageDownloader.downloadImage(levelLogo, BuildConfig.MAIN_HOST +
                     playerDetails.getLevel().getIcon().getFileName());
         frubiesForNextLevel.setText(nextLevel.getLevelFrubies() + "");
         currentPointsValue.setText(playerDetails.getAccPoints() + "");
