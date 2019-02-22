@@ -11,20 +11,28 @@ import com.gameball.gameball.GameBallApp;
 
 public class MainActivity extends AppCompatActivity {
 
+    private GameBallApp gameBallApp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        gameBallApp = GameBallApp.getInstance(MainActivity.this.getApplicationContext());
+
         findViewById(R.id.btn_show_profile).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GameBallApp.getInstance(MainActivity.this.getApplicationContext())
-                        .showProfile(MainActivity.this);
+                gameBallApp.showProfile(MainActivity.this);
             }
         });
 
-//        navigateToFragment(new MainContainerFragment());
+        findViewById(R.id.btn_show_notification).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gameBallApp.showNotification();
+            }
+        });
     }
 
     public void navigateToFragment(Fragment fragment) {

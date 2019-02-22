@@ -16,6 +16,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Toast;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.Action;
@@ -35,7 +39,6 @@ import com.google.gson.Gson;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.SingleObserver;
@@ -48,8 +51,7 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
  */
-public class GameBallApp
-{
+public class GameBallApp {
     private static final String TAG = GameBallApp.class.getSimpleName();
     private static final String APPLICATION_ID = "1:252563989296:android:cf5a4f42fc122b54";
     private static final String API_KEY = "AIzaSyCk3X3ZleIQjnaV-QBij9M57iBatAewMGg";
@@ -66,31 +68,24 @@ public class GameBallApp
     private String mDeviceToken;
     private GameBallApi gameBallApi;
 
-    private GameBallApp(Context context)
-    {
-        if (this.mContext == null)
-        {
+    private GameBallApp(Context context) {
+        if (this.mContext == null) {
             this.mContext = context;
             gameBallApi = Network.getInstance().getGameBallApi();
         }
     }
 
-    public static GameBallApp getInstance(Context context)
-    {
-        if (ourInstance == null)
-        {
+    public static GameBallApp getInstance(Context context) {
+        if (ourInstance == null) {
             ourInstance = new GameBallApp(context);
         }
         return ourInstance;
     }
 
-    private Completable registerDevice()
-    {
-        return Completable.fromCallable(new Callable<String>()
-        {
+    private Completable registerDevice() {
+        return Completable.fromCallable(new Callable<String>() {
             @Override
-            public String call() throws Exception
-            {
+            public String call() throws Exception {
                 mDeviceToken = FirebaseInstanceId.getInstance(GameBallFirebaseApp)
                         .getToken(SENDER_ID, "FCM");
 
@@ -103,12 +98,10 @@ public class GameBallApp
                 if (deviceToken != null && mDeviceToken != null && mDeviceToken.equals(deviceToken)
                         && clientId.equals(mClientID)
                         && externalId != null && mExternalId != null
-                        && mExternalId.equals(externalId))
-                {
+                        && mExternalId.equals(externalId)) {
                     Log.d(TAG, "Device already registered");
                     return deviceToken;
-                } else
-                {
+                } else {
                     SharedPreferencesUtils.getInstance().clearData();
                     SharedPreferencesUtils.getInstance().putClientId(mClientID);
                     SharedPreferencesUtils.getInstance().putPlayerId(mExternalId);
@@ -124,8 +117,7 @@ public class GameBallApp
                         .registrationPlayer(registerDeviceRequest)
                         .blockingGet();
 
-                if (response.isSuccess())
-                {
+                if (response.isSuccess()) {
                     SharedPreferencesUtils.getInstance().putDeviceToken(mDeviceToken);
                 }
 
@@ -134,22 +126,18 @@ public class GameBallApp
         }).subscribeOn(Schedulers.io());
     }
 
-    private void getBotSettings()
-    {
+    private void getBotSettings() {
         gameBallApi.getBotSettings()
                 .subscribeOn(Schedulers.io())
                 .retry()
-                .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>()
-                {
+                .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>() {
                     @Override
-                    public void onSubscribe(Disposable d)
-                    {
+                    public void onSubscribe(Disposable d) {
 
                     }
 
                     @Override
-                    public void onSuccess(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse)
-                    {
+                    public void onSuccess(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) {
                         SharedPreferencesUtils.getInstance().putClientBotSettings(
                                 clientBotSettingsBaseResponse.getResponse());
 
@@ -159,15 +147,13 @@ public class GameBallApp
                     }
 
                     @Override
-                    public void onError(Throwable e)
-                    {
+                    public void onError(Throwable e) {
                         Log.i("bot_settings_error", e.getMessage());
                     }
                 });
     }
 
-    public void init(String clientID, String externalId, @DrawableRes int notificationIcon)
-    {
+    public void init(String clientID, String externalId, @DrawableRes int notificationIcon) {
         // TODO: 8/23/2018
         this.mClientID = clientID;
         this.mExternalId = externalId;
@@ -186,18 +172,14 @@ public class GameBallApp
         // Retrieve secondary app.
         GameBallFirebaseApp = FirebaseApp.getInstance(TAG);
 
-        registerDevice().subscribe(new io.reactivex.functions.Action()
-        {
+        registerDevice().subscribe(new io.reactivex.functions.Action() {
             @Override
-            public void run()
-            {
+            public void run() {
                 // pass
             }
-        }, new Consumer<Throwable>()
-        {
+        }, new Consumer<Throwable>() {
             @Override
-            public void accept(Throwable throwable)
-            {
+            public void accept(Throwable throwable) {
                 // pass
             }
         });
@@ -205,8 +187,7 @@ public class GameBallApp
 
     }
 
-    private void sendNotification(String messageBody)
-    {
+    private void sendNotification(String messageBody) {
         Intent intent = new Intent(MAIN_ACTIVITY_ACTION);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0 /* Request code */, intent,
@@ -227,8 +208,7 @@ public class GameBallApp
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Since android Oreo notification channel is needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(channelId, "Game Ball Demo",
                     NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(channel);
@@ -237,75 +217,58 @@ public class GameBallApp
         notificationManager.notify(999999999 /* ID of notification */, notificationBuilder.build());
     }
 
-    public boolean isGameBallNotification(RemoteMessage remoteMessage)
-    {
+    public boolean isGameBallNotification(RemoteMessage remoteMessage) {
         if (remoteMessage != null && SENDER_ID.equals(remoteMessage.getFrom())
-                && remoteMessage.getNotification() != null)
-        {
+                && remoteMessage.getNotification() != null) {
             sendNotification(remoteMessage.getNotification().getBody());
             return true;
         }
         return false;
     }
 
-    public void showProfile(AppCompatActivity activity)
-    {
+    public void showProfile(AppCompatActivity activity) {
         showProfile(activity.getSupportFragmentManager());
     }
 
-    public void showProfile(Fragment fragment)
-    {
+    public void showProfile(Fragment fragment) {
         showProfile(fragment.getChildFragmentManager());
     }
 
-    private void showProfile(final FragmentManager fragmentManager)
-    {
-        Observable.fromCallable(new Callable<Boolean>()
-        {
+    private void showProfile(final FragmentManager fragmentManager) {
+        Observable.fromCallable(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception
-            {
+            public Boolean call() throws Exception {
                 ClientBotSettings clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
                 return clientBotSettings != null;
             }
-        }).flatMap(new Function<Boolean, ObservableSource<ClientBotSettings>>()
-        {
+        }).flatMap(new Function<Boolean, ObservableSource<ClientBotSettings>>() {
             @Override
-            public ObservableSource<ClientBotSettings> apply(Boolean aBoolean) throws Exception
-            {
-                if (aBoolean)
-                {
+            public ObservableSource<ClientBotSettings> apply(Boolean aBoolean) throws Exception {
+                if (aBoolean) {
                     return Observable.just(SharedPreferencesUtils.getInstance().getClientBotSettings());
                 }
-                return gameBallApi.getBotSettings().flatMapObservable(new Function<BaseResponse<ClientBotSettings>, ObservableSource<? extends ClientBotSettings>>()
-                {
+                return gameBallApi.getBotSettings().flatMapObservable(new Function<BaseResponse<ClientBotSettings>, ObservableSource<? extends ClientBotSettings>>() {
                     @Override
-                    public ObservableSource<? extends ClientBotSettings> apply(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) throws Exception
-                    {
+                    public ObservableSource<? extends ClientBotSettings> apply(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) throws Exception {
                         return Observable.just(clientBotSettingsBaseResponse.getResponse());
                     }
                 });
             }
-        }).doOnNext(new Consumer<ClientBotSettings>()
-        {
+        }).doOnNext(new Consumer<ClientBotSettings>() {
             @Override
-            public void accept(ClientBotSettings clientBotSettings) throws Exception
-            {
+            public void accept(ClientBotSettings clientBotSettings) throws Exception {
                 SharedPreferencesUtils.getInstance().putClientBotSettings(clientBotSettings);
             }
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<ClientBotSettings>()
-                {
+                .subscribe(new Consumer<ClientBotSettings>() {
                     @Override
-                    public void accept(ClientBotSettings clientBotSettings) throws Exception
-                    {
+                    public void accept(ClientBotSettings clientBotSettings) throws Exception {
                         FragmentTransaction ft = fragmentManager.beginTransaction();
 
                         Fragment prev = fragmentManager
                                 .findFragmentByTag(TAG_GAMEBALL_PROFILE_DIALOG);
-                        if (prev != null)
-                        {
+                        if (prev != null) {
                             ft.remove(prev);
                         }
                         ft.addToBackStack(null);
@@ -315,8 +278,7 @@ public class GameBallApp
                 });
     }
 
-    public void AddAction(Action action)
-    {
+    public void AddAction(Action action) {
         gameBallApi.addNewAtion(action).
                 subscribeOn(Schedulers.io())
                 .retry()
@@ -324,4 +286,17 @@ public class GameBallApp
     }
 
 
+    public void showNotification() {
+        LayoutInflater inflater = (LayoutInflater) mContext
+                .getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.custom_toast_layout, null);
+
+        Toast toast = new Toast(mContext);
+
+        //use both property in single function
+        toast.setGravity(Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(layout);
+        toast.show();
+    }
 }
