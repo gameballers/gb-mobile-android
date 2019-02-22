@@ -1,5 +1,9 @@
 package com.gameball.gameball.views.profile;
 
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +19,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
+import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerDetailsResponse;
@@ -40,6 +46,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
 
     AchievementsAdapter achievementsAdapter;
     ProfileContract.Presenter presenter;
+    ClientBotSettings clientBotSettings;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,6 +59,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_profile, container, false);
         initView();
+        setupBotSettings();
         prepView();
         presenter.getPlayerDetails();
         presenter.getWithUnlocks();
@@ -61,6 +69,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private void initComponents() {
         achievementsAdapter = new AchievementsAdapter(getContext(), new ArrayList<Game>());
         presenter = new ProfilePresenter(getContext(), this);
+        clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
     }
 
     private void initView() {
@@ -74,6 +83,12 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         profileLoadingIndicator = rootView.findViewById(R.id.profile_data_loading_indicator);
         profileLoadingIndicatorBg = rootView.findViewById(R.id.profile_data_loading_indicator_bg);
         achievementsLoadingIndicator = rootView.findViewById(R.id.achievements_loading_indicator);
+    }
+
+    private void setupBotSettings()
+    {
+        LayerDrawable progressDrawable = (LayerDrawable) levelProgress.getProgressDrawable();
+        ClipDrawable progressItem = (ClipDrawable) progressDrawable.findDrawableByLayerId(R.id.progress_item);
     }
 
     private void prepView() {

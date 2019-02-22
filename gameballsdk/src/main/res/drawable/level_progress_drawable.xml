@@ -9,13 +9,13 @@
             <corners android:radius="10dp" />
         </shape>
     </item>
-    <item android:id="@android:id/progress">
+    <item android:id="@+id/progress_item">
         <clip>
             <layer-list>
                 <item>
                     <color android:color="@android:color/transparent" />
                 </item>
-                <item>
+                <item android:id="@+id/actual_progress_color">
                     <shape>
                         <solid android:color="@color/colorPrimary" />
                         <corners android:radius="10dp" />

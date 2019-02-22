@@ -105,6 +105,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     private void setupBotSettings()
     {
         headerParent.setBackgroundColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        tabs.setSelectedTabIndicatorColor(Color.parseColor(clientBotSettings.getBotMainColor()));
     }
 
     private void prepView() {
