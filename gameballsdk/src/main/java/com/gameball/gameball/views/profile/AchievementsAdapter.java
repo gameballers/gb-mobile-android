@@ -2,6 +2,9 @@ package com.gameball.gameball.views.profile;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.LayerDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +15,8 @@ import android.widget.TextView;
 
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
+import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.network.utils.DownloadImage;
 import com.gameball.gameball.utils.Constants;
@@ -24,10 +29,12 @@ import java.util.ArrayList;
 public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapter.ItemRowHolder> {
     private Context mContext;
     private ArrayList<Game> mData;
+    private ClientBotSettings clientBotSettings;
 
     public AchievementsAdapter(Context context, ArrayList<Game> data) {
         this.mData = data;
         this.mContext = context;
+        clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
     }
 
     @Override
@@ -41,8 +48,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     public void onBindViewHolder(ItemRowHolder holder, int position) {
         Game item = mData.get(position);
         if(item.getIcon() != null && !item.getIcon().isEmpty())
-            ImageDownloader.downloadImage(holder.achievementsLogo, BuildConfig.MAIN_HOST +
-                    item.getIcon());
+            ImageDownloader.downloadImage(holder.achievementsLogo, item.getIcon());
 
         holder.achievementName.setText(item.getGameName());
         if(item.getIsUnlocked())
@@ -57,6 +63,9 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             holder.lockedAchievementIndicator.setVisibility(View.GONE);
         }
 
+        LayerDrawable progressDrawable = (LayerDrawable) holder.achievementProgress.getProgressDrawable();
+        progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
+                PorterDuff.Mode.SRC_IN);
     }
 
     public void setmData(ArrayList<Game> mData)
