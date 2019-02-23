@@ -1,5 +1,8 @@
 package com.gameball.gameball.views.achievementDetails;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -11,13 +14,15 @@ import android.widget.TextView;
 
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
+import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.network.utils.DownloadImage;
 import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.ImageDownloader;
 import com.google.gson.Gson;
 
-public class AchievementDetailsActivity extends AppCompatActivity
+public class AchievementDetailsActivity extends AppCompatActivity implements View.OnClickListener
 {
 
     public static final int AMOUNT_BASED = 1;
@@ -32,6 +37,7 @@ public class AchievementDetailsActivity extends AppCompatActivity
     private ImageView challengeIcon;
     private View notAchievedIndicator;
     private ImageView lockedChallengeIndicator;
+    private TextView statusTitle;
     private TextView challengeName;
     private TextView challengeDescription;
     private TextView targetAmountCount;
@@ -47,6 +53,7 @@ public class AchievementDetailsActivity extends AppCompatActivity
     private View separator;
 
     Game game;
+    ClientBotSettings clientBotSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -55,6 +62,8 @@ public class AchievementDetailsActivity extends AppCompatActivity
         setContentView(R.layout.activity_achievement_details);
         initComponents();
         initView();
+        prepView();
+        setupBotSettings();
         fillView();
     }
 
@@ -62,12 +71,14 @@ public class AchievementDetailsActivity extends AppCompatActivity
     {
         String  gameStr = getIntent().getStringExtra(Constants.GAME_OBJ_KEY);
         game = new Gson().fromJson(gameStr, Game.class);
+        clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
     }
 
     private void initView()
     {
         challengeIcon = (ImageView) findViewById(R.id.challenge_icon);
         notAchievedIndicator = (View) findViewById(R.id.not_achieved_indicator);
+        statusTitle = findViewById(R.id.status_title);
         lockedChallengeIndicator = (ImageView) findViewById(R.id.locked_challenge_indicator);
         challengeName = (TextView) findViewById(R.id.challenge_name);
         challengeDescription = (TextView) findViewById(R.id.challenge_description);
@@ -84,13 +95,28 @@ public class AchievementDetailsActivity extends AppCompatActivity
         separator = findViewById(R.id.separator);
     }
 
+    private void prepView()
+    {
+        backBtn.setOnClickListener(this);
+    }
+
+
     private void fillView()
     {
         challengeName.setText(game.getGameName());
         challengeDescription.setText(game.getDescription());
-        ImageDownloader.downloadImage(challengeIcon, BuildConfig.MAIN_HOST + game.getIcon());
+        ImageDownloader.downloadImage(challengeIcon, game.getIcon());
         handleUnlocked();
 
+    }
+
+    private void setupBotSettings()
+    {
+        LayerDrawable amountProgress = (LayerDrawable) challengeAmountProgress.getProgressDrawable();
+        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+        LayerDrawable actionProgress = (LayerDrawable) challengeActionProgress.getProgressDrawable();
+        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+        statusTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
     }
 
     private void handleUnlocked()
@@ -118,6 +144,7 @@ public class AchievementDetailsActivity extends AppCompatActivity
         }
         else
         {
+            separator.setVisibility(View.VISIBLE);
             lockedChallengeIndicator.setVisibility(View.GONE);
             if(game.getAchievedCount() > 0)
             {
@@ -171,4 +198,12 @@ public class AchievementDetailsActivity extends AppCompatActivity
     }
 
 
+    @Override
+    public void onClick(View v)
+    {
+        if (v.getId() == R.id.back_btn)
+        {
+            onBackPressed();
+        }
+    }
 }

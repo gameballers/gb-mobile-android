@@ -2,7 +2,9 @@ package com.gameball.gameball.views.profile;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -93,7 +95,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private void setupBotSettings()
     {
         LayerDrawable progressDrawable = (LayerDrawable) levelProgress.getProgressDrawable();
-        ShapeDrawable progressItem = (ShapeDrawable) progressDrawable.findDrawableByLayerId(R.id.actual_progress_color);
+        progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
     }
 
     private void prepView() {
@@ -108,7 +110,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     {
         levelName.setText(playerDetails.getLevel().getName());
         if(playerDetails.getLevel().getIcon() != null)
-            ImageDownloader.downloadImage(levelLogo, BuildConfig.MAIN_HOST +
+            ImageDownloader.downloadImage(levelLogo,
                     playerDetails.getLevel().getIcon().getFileName());
         frubiesForNextLevel.setText(nextLevel.getLevelFrubies() + "");
         currentPointsValue.setText(playerDetails.getAccPoints() + "");
