@@ -105,7 +105,7 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
     {
         challengeName.setText(game.getGameName());
         challengeDescription.setText(game.getDescription());
-        ImageDownloader.downloadImage(challengeIcon, game.getIcon());
+        ImageDownloader.downloadImage(this, challengeIcon, game.getIcon());
         handleUnlocked();
 
     }

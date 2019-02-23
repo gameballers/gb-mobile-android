@@ -9,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -48,7 +50,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     public void onBindViewHolder(ItemRowHolder holder, int position) {
         Game item = mData.get(position);
         if(item.getIcon() != null && !item.getIcon().isEmpty())
-            ImageDownloader.downloadImage(holder.achievementsLogo, item.getIcon());
+            ImageDownloader.downloadImage(mContext, holder.achievementsLogo, item.getIcon());
 
         holder.achievementName.setText(item.getGameName());
         if(item.getIsUnlocked())
@@ -66,6 +68,10 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         LayerDrawable progressDrawable = (LayerDrawable) holder.achievementProgress.getProgressDrawable();
         progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
                 PorterDuff.Mode.SRC_IN);
+
+        Animation bounceAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
+        bounceAnim.setDuration(900);
+        holder.itemview.startAnimation(bounceAnim);
     }
 
     public void setmData(ArrayList<Game> mData)
@@ -79,6 +85,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     }
 
     public class ItemRowHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public View itemview;
         public ImageView achievementsLogo;
         public TextView achievementName;
         public ProgressBar achievementProgress;
@@ -88,6 +95,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
 
         public ItemRowHolder(View itemView) {
             super(itemView);
+            this.itemview = itemView;
             achievementsLogo = itemView.findViewById(R.id.achievements_logo);
             achievementName = itemView.findViewById(R.id.achievements_name);
             achievementProgress = itemView.findViewById(R.id.achievements_progress);
