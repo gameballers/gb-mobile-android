@@ -227,10 +227,21 @@ public class GameBallApp {
         return false;
     }
 
+    /**
+     * Use Show profile method the Way you would like.
+     * It just shows the profile of the user that contains the user details, user achievements and the leader board.
+     * basically call this method when ever you want to allow the user to see his profile.
+     * @param activity if you are using an activity send an instance of the activity to be able to show the profile
+     */
     public void showProfile(AppCompatActivity activity) {
         showProfile(activity.getSupportFragmentManager());
     }
 
+    /**
+     * It just shows the profile of the user that contains the user details, user achievements and the leader board.
+     * basically call this method when ever you want to allow the user to see his profile.
+     * @param fragment if you are using a fragment send an instance of the fragment to be able to show the profile
+     */
     public void showProfile(Fragment fragment) {
         showProfile(fragment.getChildFragmentManager());
     }
@@ -279,6 +290,10 @@ public class GameBallApp {
                 });
     }
 
+    /**
+     * AddAction is used to
+     * @param action
+     */
     public void AddAction(Action action) {
         gameBallApi.addNewAtion(action).
                 subscribeOn(Schedulers.io())
