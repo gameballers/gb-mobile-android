@@ -228,7 +228,7 @@ public class GameBallApp {
     }
 
     /**
-     * Use Show profile method the Way you would like.
+     * Use Show profile method where ever you like.
      * It just shows the profile of the user that contains the user details, user achievements and the leader board.
      * basically call this method when ever you want to allow the user to see his profile.
      * @param activity if you are using an activity send an instance of the activity to be able to show the profile
@@ -291,8 +291,11 @@ public class GameBallApp {
     }
 
     /**
-     * AddAction is used to
-     * @param action
+     * use AddAction when ever you want to trigger that an action is done by the user.
+     * @param action the method requires and action object that requires the challengeApiId
+     *               another two paramaeters are optional.
+     *               amount: is needed if the challenge is amount based
+     *               playerCategoryID: us needed if you have multi users categories(default value is 0)
      */
     public void AddAction(Action action) {
         gameBallApi.addNewAtion(action).
