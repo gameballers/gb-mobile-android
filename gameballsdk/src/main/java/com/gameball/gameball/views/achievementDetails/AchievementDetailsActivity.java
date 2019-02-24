@@ -81,9 +81,10 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
         zoomIn = AnimationUtils.loadAnimation(this, R.anim.zoom_in);
         zoomIn.setDuration(500);
         fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
-        fadeIn.setDuration(700);
+        fadeIn.setDuration(1000);
         translate = AnimationUtils.loadAnimation(this, R.anim.translate_bottom_to_top);
-        translate.setDuration(800);
+        translate.setDuration(1000);
+        translate.setFillAfter(true);
     }
 
     private void initView()
@@ -97,9 +98,11 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
         targetAmountCount = (TextView) findViewById(R.id.target_amount_count);
         progressTitle = (TextView) findViewById(R.id.progress_title);
         challengeAmountProgress = (ProgressBar) findViewById(R.id.challenge_amount_progress);
+        challengeAmountProgress.setProgress(1);
         targetAmountDescription = (TextView) findViewById(R.id.target_amount_description);
         targetActionCount = (TextView) findViewById(R.id.target_action_count);
         challengeActionProgress = (ProgressBar) findViewById(R.id.challenge_action_progress);
+        challengeActionProgress.setProgress(1);
         targetActionDescription = (TextView) findViewById(R.id.target_action_description);
         statusIcon = (ImageView) findViewById(R.id.status_icon);
         statusDescription = (TextView) findViewById(R.id.status_description);
@@ -117,13 +120,15 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
     {
         challengeName.setText(game.getGameName());
         challengeDescription.setText(game.getDescription());
-        ImageDownloader.downloadImage(this, challengeIcon, game.getIcon());
+        ImageDownloader.downloadImage(this, challengeIcon,
+                BuildConfig.MAIN_HOST + game.getIcon());
         handleUnlocked();
         applyAnimation();
     }
 
     private void applyAnimation()
     {
+        challengeName.startAnimation(fadeIn);
         statusIcon.startAnimation(zoomIn);
         challengeDescription.startAnimation(translate);
     }
@@ -202,10 +207,13 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
         targetActionCount.setText(game.getTargetActionsCount() + "");
         targetActionDescription.setText(String.format("only %d %s remaining to achive this challenge",
                 game.getTargetActionsCount() - game.getAchievedActionsCount(), ""));
+
         final ProgressBarAnimation actionProgressBarAnimation = new ProgressBarAnimation(challengeActionProgress,
                 0,(int) game.getActionsCompletedPercentage());
         actionProgressBarAnimation.setDuration(700);
         actionProgressBarAnimation.setFillAfter(true);
+        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        fadeIn.setDuration(1000);
         fadeIn.setAnimationListener(new Animation.AnimationListener()
         {
             @Override
@@ -240,11 +248,16 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
         targetAmountCount.setText(game.getTargetAmount() + "");
         targetAmountDescription.setText(String.format("only %d %s remaining to achive this challenge",
                 game.getTargetAmount() - game.getCurrentAmount(), ""));
+        if(game.getAmountCompletedPercentage() == 0)
+            challengeAmountProgress.setProgress(0);
         final ProgressBarAnimation amountProgressBarAnimation = new ProgressBarAnimation(challengeAmountProgress,
                 0,(int) game.getAmountCompletedPercentage());
         amountProgressBarAnimation.setDuration(700);
         amountProgressBarAnimation.setFillAfter(true);
 
+
+        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        fadeIn.setDuration(1000);
         fadeIn.setAnimationListener(new Animation.AnimationListener()
         {
             @Override

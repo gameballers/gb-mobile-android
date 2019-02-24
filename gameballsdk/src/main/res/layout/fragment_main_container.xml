@@ -16,9 +16,9 @@
 
         <ImageView
             android:id="@+id/gameball_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/common_google_signin_btn_icon_dark"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/ic_gameball_grey_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

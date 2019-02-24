@@ -43,7 +43,9 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     public ItemRowHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View row = inflater.inflate(R.layout.acheivments_item_layout, parent, false);
-        return new ItemRowHolder(row);
+        ItemRowHolder rh = new ItemRowHolder(row);
+        rh.setIsRecyclable(false);
+        return rh;
     }
 
     @Override
