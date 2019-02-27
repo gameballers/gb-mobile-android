@@ -72,7 +72,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
                 PorterDuff.Mode.SRC_IN);
 
         Animation bounceAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
-        bounceAnim.setDuration(900);
+        bounceAnim.setDuration(500);
         holder.itemview.startAnimation(bounceAnim);
     }
 

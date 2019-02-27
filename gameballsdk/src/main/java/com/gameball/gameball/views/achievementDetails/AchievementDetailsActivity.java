@@ -140,6 +140,7 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
         LayerDrawable actionProgress = (LayerDrawable) challengeActionProgress.getProgressDrawable();
         actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
         statusTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        progressTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
     }
 
     private void handleUnlocked()
