@@ -2,16 +2,23 @@ package com.gameball.gameball.views.profile;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.LayerDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
+import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.network.utils.DownloadImage;
 import com.gameball.gameball.utils.Constants;
@@ -24,25 +31,28 @@ import java.util.ArrayList;
 public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapter.ItemRowHolder> {
     private Context mContext;
     private ArrayList<Game> mData;
+    private ClientBotSettings clientBotSettings;
 
     public AchievementsAdapter(Context context, ArrayList<Game> data) {
         this.mData = data;
         this.mContext = context;
+        clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
     }
 
     @Override
     public ItemRowHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View row = inflater.inflate(R.layout.acheivments_item_layout, parent, false);
-        return new ItemRowHolder(row);
+        ItemRowHolder rh = new ItemRowHolder(row);
+        rh.setIsRecyclable(false);
+        return rh;
     }
 
     @Override
     public void onBindViewHolder(ItemRowHolder holder, int position) {
         Game item = mData.get(position);
         if(item.getIcon() != null && !item.getIcon().isEmpty())
-            ImageDownloader.downloadImage(holder.achievementsLogo, BuildConfig.MAIN_HOST +
-                    item.getIcon());
+            ImageDownloader.downloadImage(mContext, holder.achievementsLogo, item.getIcon());
 
         holder.achievementName.setText(item.getGameName());
         if(item.getIsUnlocked())
@@ -57,6 +67,13 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             holder.lockedAchievementIndicator.setVisibility(View.GONE);
         }
 
+        LayerDrawable progressDrawable = (LayerDrawable) holder.achievementProgress.getProgressDrawable();
+        progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
+                PorterDuff.Mode.SRC_IN);
+
+        Animation bounceAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
+        bounceAnim.setDuration(500);
+        holder.itemview.startAnimation(bounceAnim);
     }
 
     public void setmData(ArrayList<Game> mData)
@@ -70,6 +87,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     }
 
     public class ItemRowHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public View itemview;
         public ImageView achievementsLogo;
         public TextView achievementName;
         public ProgressBar achievementProgress;
@@ -79,6 +97,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
 
         public ItemRowHolder(View itemView) {
             super(itemView);
+            this.itemview = itemView;
             achievementsLogo = itemView.findViewById(R.id.achievements_logo);
             achievementName = itemView.findViewById(R.id.achievements_name);
             achievementProgress = itemView.findViewById(R.id.achievements_progress);

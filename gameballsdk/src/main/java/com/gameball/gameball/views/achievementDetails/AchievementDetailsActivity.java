@@ -1,8 +1,13 @@
 package com.gameball.gameball.views.achievementDetails;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -11,13 +16,16 @@ import android.widget.TextView;
 
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
+import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.network.utils.DownloadImage;
 import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.ImageDownloader;
+import com.gameball.gameball.utils.ProgressBarAnimation;
 import com.google.gson.Gson;
 
-public class AchievementDetailsActivity extends AppCompatActivity
+public class AchievementDetailsActivity extends AppCompatActivity implements View.OnClickListener
 {
 
     public static final int AMOUNT_BASED = 1;
@@ -32,6 +40,7 @@ public class AchievementDetailsActivity extends AppCompatActivity
     private ImageView challengeIcon;
     private View notAchievedIndicator;
     private ImageView lockedChallengeIndicator;
+    private TextView statusTitle;
     private TextView challengeName;
     private TextView challengeDescription;
     private TextView targetAmountCount;
@@ -47,6 +56,10 @@ public class AchievementDetailsActivity extends AppCompatActivity
     private View separator;
 
     Game game;
+    ClientBotSettings clientBotSettings;
+    Animation zoomIn;
+    Animation fadeIn;
+    Animation translate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -55,6 +68,8 @@ public class AchievementDetailsActivity extends AppCompatActivity
         setContentView(R.layout.activity_achievement_details);
         initComponents();
         initView();
+        prepView();
+        setupBotSettings();
         fillView();
     }
 
@@ -62,21 +77,32 @@ public class AchievementDetailsActivity extends AppCompatActivity
     {
         String  gameStr = getIntent().getStringExtra(Constants.GAME_OBJ_KEY);
         game = new Gson().fromJson(gameStr, Game.class);
+        clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
+        zoomIn = AnimationUtils.loadAnimation(this, R.anim.zoom_in);
+        zoomIn.setDuration(500);
+        fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        fadeIn.setDuration(1000);
+        translate = AnimationUtils.loadAnimation(this, R.anim.translate_bottom_to_top);
+        translate.setDuration(1000);
+        translate.setFillAfter(true);
     }
 
     private void initView()
     {
         challengeIcon = (ImageView) findViewById(R.id.challenge_icon);
         notAchievedIndicator = (View) findViewById(R.id.not_achieved_indicator);
+        statusTitle = findViewById(R.id.status_title);
         lockedChallengeIndicator = (ImageView) findViewById(R.id.locked_challenge_indicator);
         challengeName = (TextView) findViewById(R.id.challenge_name);
         challengeDescription = (TextView) findViewById(R.id.challenge_description);
         targetAmountCount = (TextView) findViewById(R.id.target_amount_count);
         progressTitle = (TextView) findViewById(R.id.progress_title);
         challengeAmountProgress = (ProgressBar) findViewById(R.id.challenge_amount_progress);
+        challengeAmountProgress.setProgress(1);
         targetAmountDescription = (TextView) findViewById(R.id.target_amount_description);
         targetActionCount = (TextView) findViewById(R.id.target_action_count);
         challengeActionProgress = (ProgressBar) findViewById(R.id.challenge_action_progress);
+        challengeActionProgress.setProgress(1);
         targetActionDescription = (TextView) findViewById(R.id.target_action_description);
         statusIcon = (ImageView) findViewById(R.id.status_icon);
         statusDescription = (TextView) findViewById(R.id.status_description);
@@ -84,13 +110,37 @@ public class AchievementDetailsActivity extends AppCompatActivity
         separator = findViewById(R.id.separator);
     }
 
+    private void prepView()
+    {
+        backBtn.setOnClickListener(this);
+    }
+
+
     private void fillView()
     {
         challengeName.setText(game.getGameName());
         challengeDescription.setText(game.getDescription());
-        ImageDownloader.downloadImage(challengeIcon, BuildConfig.MAIN_HOST + game.getIcon());
+        ImageDownloader.downloadImage(this, challengeIcon,
+                BuildConfig.MAIN_HOST + game.getIcon());
         handleUnlocked();
+        applyAnimation();
+    }
 
+    private void applyAnimation()
+    {
+        challengeName.startAnimation(fadeIn);
+        statusIcon.startAnimation(zoomIn);
+        challengeDescription.startAnimation(translate);
+    }
+
+    private void setupBotSettings()
+    {
+        LayerDrawable amountProgress = (LayerDrawable) challengeAmountProgress.getProgressDrawable();
+        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+        LayerDrawable actionProgress = (LayerDrawable) challengeActionProgress.getProgressDrawable();
+        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+        statusTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        progressTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
     }
 
     private void handleUnlocked()
@@ -118,7 +168,9 @@ public class AchievementDetailsActivity extends AppCompatActivity
         }
         else
         {
+            separator.setVisibility(View.VISIBLE);
             lockedChallengeIndicator.setVisibility(View.GONE);
+            progressTitle.startAnimation(fadeIn);
             if(game.getAchievedCount() > 0)
             {
                 notAchievedIndicator.setVisibility(View.GONE);
@@ -153,10 +205,40 @@ public class AchievementDetailsActivity extends AppCompatActivity
         targetActionCount.setVisibility(View.VISIBLE);
         challengeActionProgress.setVisibility(View.VISIBLE);
         targetActionDescription.setVisibility(View.VISIBLE);
-        challengeActionProgress.setProgress((int) game.getActionsCompletedPercentage());
         targetActionCount.setText(game.getTargetActionsCount() + "");
         targetActionDescription.setText(String.format("only %d %s remaining to achive this challenge",
                 game.getTargetActionsCount() - game.getAchievedActionsCount(), ""));
+
+        final ProgressBarAnimation actionProgressBarAnimation = new ProgressBarAnimation(challengeActionProgress,
+                0,(int) game.getActionsCompletedPercentage());
+        actionProgressBarAnimation.setDuration(700);
+        actionProgressBarAnimation.setFillAfter(true);
+        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        fadeIn.setDuration(1000);
+        fadeIn.setAnimationListener(new Animation.AnimationListener()
+        {
+            @Override
+            public void onAnimationStart(Animation animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation)
+            {
+                challengeActionProgress.startAnimation(actionProgressBarAnimation);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation)
+            {
+
+            }
+        });
+
+        targetActionCount.startAnimation(fadeIn);
+        challengeActionProgress.startAnimation(fadeIn);
+        targetActionDescription.startAnimation(fadeIn);
     }
 
     private void showAmountProgress()
@@ -164,11 +246,52 @@ public class AchievementDetailsActivity extends AppCompatActivity
         targetAmountCount.setVisibility(View.VISIBLE);
         challengeAmountProgress.setVisibility(View.VISIBLE);
         targetAmountDescription.setVisibility(View.VISIBLE);
-        challengeAmountProgress.setProgress((int) game.getAmountCompletedPercentage());
         targetAmountCount.setText(game.getTargetAmount() + "");
         targetAmountDescription.setText(String.format("only %d %s remaining to achive this challenge",
                 game.getTargetAmount() - game.getCurrentAmount(), ""));
+        if(game.getAmountCompletedPercentage() == 0)
+            challengeAmountProgress.setProgress(0);
+        final ProgressBarAnimation amountProgressBarAnimation = new ProgressBarAnimation(challengeAmountProgress,
+                0,(int) game.getAmountCompletedPercentage());
+        amountProgressBarAnimation.setDuration(700);
+        amountProgressBarAnimation.setFillAfter(true);
+
+
+        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        fadeIn.setDuration(1000);
+        fadeIn.setAnimationListener(new Animation.AnimationListener()
+        {
+            @Override
+            public void onAnimationStart(Animation animation)
+            {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation)
+            {
+                challengeAmountProgress.startAnimation(amountProgressBarAnimation);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation)
+            {
+
+            }
+        });
+
+        targetAmountCount.startAnimation(fadeIn);
+        challengeAmountProgress.startAnimation(fadeIn);
+        targetAmountDescription.startAnimation(fadeIn);
     }
 
 
+    @Override
+    public void onClick(View v)
+    {
+        if (v.getId() == R.id.back_btn)
+        {
+            onBackPressed();
+        }
+    }
 }

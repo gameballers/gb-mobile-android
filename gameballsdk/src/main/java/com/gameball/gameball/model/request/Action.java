@@ -1,5 +1,6 @@
 package com.gameball.gameball.model.request;
 
+import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -13,7 +14,7 @@ public class Action
     private String playerId;
     @SerializedName("Amount")
     @Expose
-    private int amount;
+    private Integer amount;
     @SerializedName("PlayerCategoryID")
     @Expose
     private long playerCategoryID;
@@ -21,36 +22,28 @@ public class Action
     @Expose
     private boolean isPositive;
 
-    public Action(String challengeApiId, String playerId)
+    public Action(String challengeApiId)
     {
-        this.challengeApiId = challengeApiId;
-        this.playerId = playerId;
-        playerCategoryID = 0;
-        isPositive = true;
+        this(challengeApiId,-1,0);
     }
 
-    public Action(String challengeApiId, String playerId, int amount)
+    public Action(String challengeApiId, int amount)
     {
-        this.challengeApiId = challengeApiId;
-        this.playerId = playerId;
-        this.amount = amount;
-        this.isPositive = true;
+        this(challengeApiId,amount,0);
     }
 
-    public Action(String challengeApiId, String playerId, long playerCategoryID)
+    public Action(String challengeApiId, long playerCategoryID)
+    {
+        this(challengeApiId,-1,playerCategoryID);
+    }
+
+    public Action(String challengeApiId, int amount, long playerCategoryID)
     {
         this.challengeApiId = challengeApiId;
-        this.playerId = playerId;
+        this.playerId = SharedPreferencesUtils.getInstance().getPlayerId();
         this.playerCategoryID = playerCategoryID;
         this.isPositive = true;
-    }
-
-    public Action(String challengeApiId, String playerId, int amount, long playerCategoryID)
-    {
-        this.challengeApiId = challengeApiId;
-        this.playerId = playerId;
-        this.amount = amount;
-        this.playerCategoryID = playerCategoryID;
-        this.isPositive = true;
+        if(amount != -1)
+            this.amount = amount;
     }
 }

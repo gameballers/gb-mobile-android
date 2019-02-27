@@ -41,7 +41,7 @@ public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.
         holder.playerCurrentLevelName.setText(item.getLevel().getName());
         holder.frubiesValue.setText(String.format("%d",item.getAccFrubies()));
         if(item.getLevel().getIcon() != null)
-            ImageDownloader.downloadImage(holder.playerLevelLogo,
+            ImageDownloader.downloadImage(mContext, holder.playerLevelLogo,
                     item.getLevel().getIcon().getFileName());
     }
 

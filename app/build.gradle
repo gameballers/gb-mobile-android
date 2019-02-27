@@ -5,7 +5,7 @@ android {
 //        config {
 //            keyAlias 'test123'
 //            keyPassword 'test123'
-//            storePassword 'test123'
+//            storePassword 'test123
 //            storeFile file('C:/Users/ahmed.abdelfattah/AndroidStudioProjects/GameBall/app/test.jks')
 //        }
 //    }
