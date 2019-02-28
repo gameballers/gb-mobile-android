@@ -19,9 +19,9 @@ public class TabsAdapter extends FragmentPagerAdapter {
             case 0:
                 return new ProfileFragment();
             case 1:
-                return new AchievementsFragment();
-            case 2:
                 return new LeaderBoardFragment();
+            case 2:
+                return new AchievementsFragment();
             case 3:
                 return new Fragment();
         }
@@ -31,6 +31,6 @@ public class TabsAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return 2;
     }
 }

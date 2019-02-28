@@ -32,11 +32,17 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     private Context mContext;
     private ArrayList<Game> mData;
     private ClientBotSettings clientBotSettings;
+    Animation bounceAnim;
+    Animation fadeIn;
 
     public AchievementsAdapter(Context context, ArrayList<Game> data) {
         this.mData = data;
         this.mContext = context;
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
+        bounceAnim = AnimationUtils.loadAnimation(mContext, R.anim.translate_bottom_to_top);
+        bounceAnim.setDuration(800);
+        fadeIn = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
+        fadeIn.setDuration(400);
     }
 
     @Override
@@ -70,9 +76,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         LayerDrawable progressDrawable = (LayerDrawable) holder.achievementProgress.getProgressDrawable();
         progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
                 PorterDuff.Mode.SRC_IN);
-
-        Animation bounceAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
-        bounceAnim.setDuration(500);
+        holder.itemview.startAnimation(fadeIn);
         holder.itemview.startAnimation(bounceAnim);
     }
 
