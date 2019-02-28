@@ -124,8 +124,8 @@ public class MainContainerFragment extends DialogFragment implements MainContain
 
     private void setupTabsIcons() {
         tabs.getTabAt(0).setIcon(R.drawable.ic_profile_black);
-        tabs.getTabAt(1).setIcon(R.drawable.ic_flag_black);
-        tabs.getTabAt(2).setIcon(R.drawable.ic_trophy);
+//        tabs.getTabAt(1).setIcon(R.drawable.ic_flag_black);
+        tabs.getTabAt(1).setIcon(R.drawable.ic_trophy);
 //        tabs.getTabAt(3).setIcon(R.drawable.ic_trophy);
     }
 
