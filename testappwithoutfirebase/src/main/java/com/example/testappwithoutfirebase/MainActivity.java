@@ -6,12 +6,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.network.api.GameBallApi;
 
 public class MainActivity extends AppCompatActivity {
+
+    EditText playerIDField;
 
     private GameBallApp gameBallApp;
 
@@ -20,12 +24,35 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        playerIDField = findViewById(R.id.player_id_filed);
+
         gameBallApp = GameBallApp.getInstance(MainActivity.this.getApplicationContext());
+
+        findViewById(R.id.register_btn).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if(!playerIDField.getText().toString().trim().isEmpty())
+                {
+                    gameBallApp.registerPlayer(playerIDField.getText().toString());
+                }
+            }
+        });
 
         findViewById(R.id.btn_show_profile).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                gameBallApp.showProfile(MainActivity.this);
+                try
+                {
+                    gameBallApp.showProfile(MainActivity.this);
+                } catch (Exception e)
+                {
+                    Toast.makeText(MainActivity.this, "enter player ID then hit register," +
+                                    "and then try to show profile"
+                            , Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -56,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 gameBallApp.showNotification();
             }
         });
+
     }
 
     public void navigateToFragment(Fragment fragment) {
