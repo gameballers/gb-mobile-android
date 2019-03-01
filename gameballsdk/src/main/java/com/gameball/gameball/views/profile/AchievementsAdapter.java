@@ -15,12 +15,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
-import com.gameball.gameball.network.utils.DownloadImage;
 import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.ImageDownloader;
 import com.gameball.gameball.views.achievementDetails.AchievementDetailsActivity;
@@ -32,17 +30,17 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     private Context mContext;
     private ArrayList<Game> mData;
     private ClientBotSettings clientBotSettings;
-    Animation bounceAnim;
+    Animation translate;
     Animation fadeIn;
 
     public AchievementsAdapter(Context context, ArrayList<Game> data) {
         this.mData = data;
         this.mContext = context;
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
-        bounceAnim = AnimationUtils.loadAnimation(mContext, R.anim.translate_bottom_to_top);
-        bounceAnim.setDuration(800);
+        translate = AnimationUtils.loadAnimation(mContext, R.anim.translate_bottom_to_top);
+        translate.setDuration(800);
         fadeIn = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
-        fadeIn.setDuration(400);
+        fadeIn.setDuration(800);
     }
 
     @Override
@@ -77,7 +75,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
                 PorterDuff.Mode.SRC_IN);
         holder.itemview.startAnimation(fadeIn);
-        holder.itemview.startAnimation(bounceAnim);
+//        holder.itemview.startAnimation(translate);
     }
 
     public void setmData(ArrayList<Game> mData)

@@ -131,6 +131,7 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
         challengeName.startAnimation(fadeIn);
         statusIcon.startAnimation(zoomIn);
         challengeDescription.startAnimation(translate);
+        statusDescription.startAnimation(translate);
     }
 
     private void setupBotSettings()
