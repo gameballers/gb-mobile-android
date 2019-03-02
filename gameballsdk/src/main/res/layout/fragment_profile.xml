@@ -27,17 +27,67 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/txt_level_title"
-            android:layout_width="0dp"
+            android:id="@+id/frubies_title"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="3dp"
+            android:layout_marginRight="3dp"
             android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:textColor="#80000000"
+            android:gravity="end|center"
+            android:textColor="#adadad"
             android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@id/level_logo"
             app:layout_constraintTop_toTopOf="@id/level_logo"
-            android:text="@string/you_are_on_level" />
+            android:text="@string/frubies_colen"
+            android:layout_marginLeft="10dp" />
+
+        <TextView
+            android:id="@+id/current_frubies_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:textColor="#676767"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/frubies_title"
+            app:layout_constraintTop_toTopOf="@id/frubies_title"
+            android:layout_marginStart="3dp"
+            android:layout_marginLeft="3dp"
+            tools:text="3,000"
+            />
+
+        <TextView
+            android:id="@+id/points_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:gravity="end|center"
+            android:textColor="#adadad"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/current_frubies_value"
+            app:layout_constraintTop_toTopOf="@id/frubies_title"
+            android:text="@string/points"
+            />
+
+
+        <TextView
+            android:id="@+id/current_points_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:layout_marginLeft="3dp"
+            android:textColor="#676767"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/points_title"
+            app:layout_constraintTop_toTopOf="@id/frubies_title"
+            tools:text="3,000" />
+
+
 
         <TextView
             android:id="@+id/level_name"
@@ -47,9 +97,9 @@
             android:textColor="@android:color/black"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="@id/txt_level_title"
-            app:layout_constraintStart_toStartOf="@id/txt_level_title"
-            app:layout_constraintTop_toBottomOf="@id/txt_level_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/frubies_title"
+            app:layout_constraintTop_toBottomOf="@id/frubies_title"
             tools:text="Crystal" />
 
         <ProgressBar
@@ -81,96 +131,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:textColor="#80000000"
+            android:textColor="#adadad"
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="@id/level_progress"
             app:layout_constraintTop_toBottomOf="@id/level_progress"
             tools:text="4000" />
 
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/frubies_and_points_container"
+        <View
+            android:id="@+id/separator"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="1dp"
             app:layout_constraintTop_toBottomOf="@id/frubies_for_next_level"
-            android:layout_marginTop="20dp"
-            android:background="#19000000"
-            android:padding="5dp"
-            >
-            <android.support.constraint.Guideline
-                android:id="@+id/vertical_guideline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.5" />
-            <TextView
-                android:id="@+id/frubies_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="3dp"
-                android:layout_marginRight="3dp"
-                android:drawableStart="@drawable/ic_diamond_outline_black"
-                android:drawableLeft="@drawable/ic_diamond_outline_black"
-                android:drawablePadding="5dp"
-                android:gravity="end|center"
-                android:textColor="@android:color/black"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@id/current_frubies_value"
-                android:text="@string/frubies" />
-
-            <TextView
-                android:id="@+id/current_frubies_value"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginRight="10dp"
-                android:textColor="@android:color/black"
-                android:textSize="15sp"
-                app:layout_constraintEnd_toStartOf="@id/vertical_guideline"
-                tools:text="3,000" />
-
-            <TextView
-                android:id="@+id/points_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
-                android:drawableStart="@drawable/ic_star_outline_black"
-                android:drawableLeft="@drawable/ic_star_outline_black"
-                android:drawablePadding="5dp"
-                android:gravity="end|center"
-                android:textColor="@android:color/black"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toEndOf="@id/vertical_guideline"
-                app:layout_constraintTop_toTopOf="@id/frubies_title"
-                android:text="@string/points"
-                />
-
-
-            <TextView
-                android:id="@+id/current_points_value"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="3dp"
-                android:layout_marginLeft="3dp"
-                android:textColor="@android:color/black"
-                android:textSize="15sp"
-                app:layout_constraintStart_toEndOf="@id/points_title"
-                app:layout_constraintTop_toTopOf="@id/frubies_title"
-                tools:text="3,000" />
-
-        </android.support.constraint.ConstraintLayout>
+            android:background="#cccccc"
+            android:layout_marginTop="27dp"
+            />
 
         <View
             android:id="@+id/profile_data_loading_indicator_bg"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/frubies_and_points_container"
+            app:layout_constraintBottom_toBottomOf="@id/separator"
             android:background="@android:color/white"
             android:visibility="gone"
             />
@@ -180,7 +162,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/frubies_and_points_container"
+            app:layout_constraintBottom_toBottomOf="@id/separator"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:visibility="gone"
@@ -194,7 +176,7 @@
             android:layout_marginTop="20dp"
             android:text="@string/achievements"
             app:layout_constraintStart_toStartOf="@id/level_logo"
-            app:layout_constraintTop_toBottomOf="@id/frubies_and_points_container" />
+            app:layout_constraintTop_toBottomOf="@id/separator" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/achievements_recyclerView"

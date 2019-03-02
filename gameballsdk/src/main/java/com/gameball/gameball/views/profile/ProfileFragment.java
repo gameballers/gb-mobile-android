@@ -51,11 +51,13 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private TextView currentFrubiesValue;
     private TextView currentPointsValue;
     private TextView achievemetTitle;
+    private TextView currentFrubiesTitle;
+    private TextView currentPointTitle;
     private RecyclerView achievementsRecyclerView;
     private ProgressBar profileLoadingIndicator;
     private ProgressBar achievementsLoadingIndicator;
     private View profileLoadingIndicatorBg;
-    private ConstraintLayout frubiesAndPointsContainer;
+
 
     AchievementsAdapter achievementsAdapter;
     ProfileContract.Presenter presenter;
@@ -97,7 +99,9 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         profileLoadingIndicator = rootView.findViewById(R.id.profile_data_loading_indicator);
         profileLoadingIndicatorBg = rootView.findViewById(R.id.profile_data_loading_indicator_bg);
         achievementsLoadingIndicator = rootView.findViewById(R.id.achievements_loading_indicator);
-        frubiesAndPointsContainer = rootView.findViewById(R.id.frubies_and_points_container);
+        currentPointTitle = rootView.findViewById(R.id.points_title);
+        currentFrubiesTitle= rootView.findViewById(R.id.frubies_title);
+
     }
 
     private void setupBotSettings()
@@ -118,8 +122,11 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         progressBarAnimation.setFillAfter(true);
 
         levelProgress.startAnimation(progressBarAnimation);
-        frubiesAndPointsContainer.startAnimation(zoomInX);
-        frubiesAndPointsContainer.startAnimation(fadeIn);
+        levelName.startAnimation(fadeIn);
+        currentFrubiesValue.startAnimation(fadeIn);
+        currentPointsValue.startAnimation(fadeIn);
+        currentFrubiesTitle.startAnimation(fadeIn);
+        currentPointTitle.startAnimation(fadeIn);
         achievemetTitle.startAnimation(fadeIn);
     }
 

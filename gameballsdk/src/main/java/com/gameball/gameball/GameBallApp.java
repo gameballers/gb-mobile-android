@@ -110,8 +110,8 @@ public class GameBallApp {
 
 
                 PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
-                registerDeviceRequest.setClientID(mClientID);
-                registerDeviceRequest.setExternalID(mPlayerID);
+                registerDeviceRequest.setPlayerUniqueID(mPlayerID);
+                registerDeviceRequest.setPlayerCategoryID(1);
                 registerDeviceRequest.setDeviceToken(mDeviceToken);
 
                 BaseResponse<PlayerRegisterResponse> response = gameBallApi
@@ -120,6 +120,10 @@ public class GameBallApp {
 
                 if (response.isSuccess()) {
                     SharedPreferencesUtils.getInstance().putDeviceToken(mDeviceToken);
+                }
+                else
+                {
+                    response.getErrorMsg();
                 }
 
                 return mDeviceToken;

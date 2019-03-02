@@ -20,7 +20,7 @@ public class ImageDownloader
                     @Override
                     public void onSuccess()
                     {
-                        Animation zoomInAnim = AnimationUtils.loadAnimation(context, R.anim.zoom_in);
+                        Animation zoomInAnim = AnimationUtils.loadAnimation(context, R.anim.fade_in);
                         zoomInAnim.setDuration(500);
                         imageView.startAnimation(zoomInAnim);
                     }

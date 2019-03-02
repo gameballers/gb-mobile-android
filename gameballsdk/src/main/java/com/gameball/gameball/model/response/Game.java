@@ -10,7 +10,7 @@ public class Game
     private String gameName;
     @SerializedName("ChallengeId")
     @Expose
-    private Integer challengeId;
+    private int challengeId;
     @SerializedName("Icon")
     @Expose
     private String icon;
@@ -22,46 +22,46 @@ public class Game
     private Boolean isUnlocked;
     @SerializedName("ActivationCriteriaTypeId")
     @Expose
-    private Integer activationCriteriaTypeId;
+    private int activationCriteriaTypeId;
     @SerializedName("ActivationFrubes")
     @Expose
-    private Integer activationFrubes;
+    private int activationFrubes;
     @SerializedName("ActivationLevel")
     @Expose
-    private Integer activationLevel;
+    private int activationLevel;
     @SerializedName("LevelName")
     @Expose
     private String levelName;
     @SerializedName("BehaviorTypeId")
     @Expose
-    private Integer behaviorTypeId;
+    private int behaviorTypeId;
     @SerializedName("TargetActionsCount")
     @Expose
-    private Integer targetActionsCount;
+    private int targetActionsCount;
     @SerializedName("TargetAmount")
     @Expose
-    private Integer targetAmount;
+    private int targetAmount;
     @SerializedName("ActionsCompletedPercentage")
     @Expose
-    private Double actionsCompletedPercentage;
+    private double actionsCompletedPercentage;
     @SerializedName("AmountCompletedPercentage")
     @Expose
-    private Double amountCompletedPercentage;
+    private double amountCompletedPercentage;
     @SerializedName("ActionsAndAmountCompletedPercentage")
     @Expose
-    private Double actionsAndAmountCompletedPercentage;
+    private double actionsAndAmountCompletedPercentage;
     @SerializedName("IsRepeatable")
     @Expose
     private Boolean isRepeatable;
     @SerializedName("AchievedCount")
     @Expose
-    private Integer achievedCount;
+    private int achievedCount;
     @SerializedName("AchievedActionsCount")
     @Expose
-    private Integer achievedActionsCount;
+    private int achievedActionsCount;
     @SerializedName("CurrentAmount")
     @Expose
-    private Integer currentAmount;
+    private int currentAmount;
     @SerializedName("UserMessage")
     @Expose
     private String userMessage;
@@ -74,11 +74,11 @@ public class Game
         this.gameName = gameName;
     }
 
-    public Integer getChallengeId() {
+    public int getChallengeId() {
         return challengeId;
     }
 
-    public void setChallengeId(Integer challengeId) {
+    public void setChallengeId(int challengeId) {
         this.challengeId = challengeId;
     }
 
@@ -106,27 +106,27 @@ public class Game
         this.isUnlocked = isUnlocked;
     }
 
-    public Integer getActivationCriteriaTypeId() {
+    public int getActivationCriteriaTypeId() {
         return activationCriteriaTypeId;
     }
 
-    public void setActivationCriteriaTypeId(Integer activationCriteriaTypeId) {
+    public void setActivationCriteriaTypeId(int activationCriteriaTypeId) {
         this.activationCriteriaTypeId = activationCriteriaTypeId;
     }
 
-    public Integer getActivationFrubes() {
+    public int getActivationFrubes() {
         return activationFrubes;
     }
 
-    public void setActivationFrubes(Integer activationFrubes) {
+    public void setActivationFrubes(int activationFrubes) {
         this.activationFrubes = activationFrubes;
     }
 
-    public Integer getActivationLevel() {
+    public int getActivationLevel() {
         return activationLevel;
     }
 
-    public void setActivationLevel(Integer activationLevel) {
+    public void setActivationLevel(int activationLevel) {
         this.activationLevel = activationLevel;
     }
 
@@ -138,27 +138,27 @@ public class Game
         this.levelName = levelName;
     }
 
-    public Integer getBehaviorTypeId() {
+    public int getBehaviorTypeId() {
         return behaviorTypeId;
     }
 
-    public void setBehaviorTypeId(Integer behaviorTypeId) {
+    public void setBehaviorTypeId(int behaviorTypeId) {
         this.behaviorTypeId = behaviorTypeId;
     }
 
-    public Integer getTargetActionsCount() {
+    public int getTargetActionsCount() {
         return targetActionsCount;
     }
 
-    public void setTargetActionsCount(Integer targetActionsCount) {
+    public void setTargetActionsCount(int targetActionsCount) {
         this.targetActionsCount = targetActionsCount;
     }
 
-    public Integer getTargetAmount() {
+    public int getTargetAmount() {
         return targetAmount;
     }
 
-    public void setTargetAmount(Integer targetAmount) {
+    public void setTargetAmount(int targetAmount) {
         this.targetAmount = targetAmount;
     }
 
@@ -166,7 +166,7 @@ public class Game
         return actionsCompletedPercentage;
     }
 
-    public void setActionsCompletedPercentage(Double actionsCompletedPercentage) {
+    public void setActionsCompletedPercentage(double actionsCompletedPercentage) {
         this.actionsCompletedPercentage = actionsCompletedPercentage;
     }
 
@@ -182,7 +182,7 @@ public class Game
         return actionsAndAmountCompletedPercentage;
     }
 
-    public void setActionsAndAmountCompletedPercentage(Double actionsAndAmountCompletedPercentage) {
+    public void setActionsAndAmountCompletedPercentage(double actionsAndAmountCompletedPercentage) {
         this.actionsAndAmountCompletedPercentage = actionsAndAmountCompletedPercentage;
     }
 
@@ -194,27 +194,27 @@ public class Game
         this.isRepeatable = isRepeatable;
     }
 
-    public Integer getAchievedCount() {
+    public int getAchievedCount() {
         return achievedCount;
     }
 
-    public void setAchievedCount(Integer achievedCount) {
+    public void setAchievedCount(int achievedCount) {
         this.achievedCount = achievedCount;
     }
 
-    public Integer getAchievedActionsCount() {
+    public int getAchievedActionsCount() {
         return achievedActionsCount;
     }
 
-    public void setAchievedActionsCount(Integer achievedActionsCount) {
+    public void setAchievedActionsCount(int achievedActionsCount) {
         this.achievedActionsCount = achievedActionsCount;
     }
 
-    public Integer getCurrentAmount() {
+    public int getCurrentAmount() {
         return currentAmount;
     }
 
-    public void setCurrentAmount(Integer currentAmount) {
+    public void setCurrentAmount(int currentAmount) {
         this.currentAmount = currentAmount;
     }
 
