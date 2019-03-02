@@ -6,6 +6,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <EditText
+        android:id="@+id/player_id_filed"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="enter PlayerID"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        />
+
+    <Button
+        android:id="@+id/register_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="register user"
+        android:textAllCaps="false"
+        />
+
     <Button
         android:id="@+id/btn_show_profile"
         android:layout_width="wrap_content"

@@ -9,6 +9,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -47,7 +48,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.ResponseBody;
 
 /**
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
@@ -64,7 +64,7 @@ public class GameBallApp {
     private Context mContext;
     private FirebaseApp GameBallFirebaseApp;
     private String mClientID;
-    private String mExternalId;
+    private String mPlayerID;
     private int mNotificationIcon;
     private String mDeviceToken;
     private GameBallApi gameBallApi;
@@ -93,25 +93,25 @@ public class GameBallApp {
                 Log.d(TAG, "Game ball sdk token = " + mDeviceToken);
 
                 String deviceToken = SharedPreferencesUtils.getInstance().getDeviceToken();
-                String externalId = SharedPreferencesUtils.getInstance().getPlayerId();
+                String playerId = SharedPreferencesUtils.getInstance().getPlayerId();
                 String clientId = SharedPreferencesUtils.getInstance().getClientId();
 
                 if (deviceToken != null && mDeviceToken != null && mDeviceToken.equals(deviceToken)
                         && clientId.equals(mClientID)
-                        && externalId != null && mExternalId != null
-                        && mExternalId.equals(externalId)) {
+                        && playerId != null && mPlayerID != null
+                        && mPlayerID.equals(playerId)) {
                     Log.d(TAG, "Device already registered");
                     return deviceToken;
                 } else {
                     SharedPreferencesUtils.getInstance().clearData();
                     SharedPreferencesUtils.getInstance().putClientId(mClientID);
-                    SharedPreferencesUtils.getInstance().putPlayerId(mExternalId);
+                    SharedPreferencesUtils.getInstance().putPlayerId(mPlayerID);
                 }
 
 
                 PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
                 registerDeviceRequest.setClientID(mClientID);
-                registerDeviceRequest.setExternalID(mExternalId);
+                registerDeviceRequest.setExternalID(mPlayerID);
                 registerDeviceRequest.setDeviceToken(mDeviceToken);
 
                 BaseResponse<PlayerRegisterResponse> response = gameBallApi
@@ -154,13 +154,15 @@ public class GameBallApp {
                 });
     }
 
-    public void init(String clientID, String externalId, @DrawableRes int notificationIcon) {
+    public void init(@NonNull String clientID, String playerID, @DrawableRes int notificationIcon) {
         // TODO: 8/23/2018
         this.mClientID = clientID;
-        this.mExternalId = externalId;
+        this.mPlayerID = playerID;
         mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.init(mContext, new Gson());
+
+        SharedPreferencesUtils.getInstance().putClientId(clientID);
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setApplicationId(APPLICATION_ID) // Required for Analytics.
@@ -172,20 +174,57 @@ public class GameBallApp {
 
         // Retrieve secondary app.
         GameBallFirebaseApp = FirebaseApp.getInstance(TAG);
-
-        registerDevice().subscribe(new io.reactivex.functions.Action() {
-            @Override
-            public void run() {
-                // pass
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) {
-                // pass
-            }
-        });
+        if(playerID != null && !playerID.trim().isEmpty())
+        {
+            registerDevice().subscribe(new io.reactivex.functions.Action()
+            {
+                @Override
+                public void run()
+                {
+                    // pass
+                }
+            }, new Consumer<Throwable>()
+            {
+                @Override
+                public void accept(Throwable throwable)
+                {
+                    // pass
+                }
+            });
+        }
         getBotSettings();
+    }
 
+    public void init(String clientID, @DrawableRes int notificationIcon)
+    {
+        init(clientID, "", notificationIcon);
+    }
+
+    public void registerPlayer(@NonNull String playerID)
+    {
+        if(!playerID.trim().isEmpty())
+        {
+            mPlayerID = playerID;
+            registerDevice().subscribe(new io.reactivex.functions.Action()
+            {
+                @Override
+                public void run()
+                {
+                    // pass
+                }
+            }, new Consumer<Throwable>()
+            {
+                @Override
+                public void accept(Throwable throwable)
+                {
+                    // pass
+                }
+            });
+        }
+        else
+        {
+            Log.e(TAG, "Player registration: playerID cannot be empty");
+        }
     }
 
     private void sendNotification(String messageBody) {
@@ -233,7 +272,12 @@ public class GameBallApp {
      * basically call this method when ever you want to allow the user to see his profile.
      * @param activity if you are using an activity send an instance of the activity to be able to show the profile
      */
-    public void showProfile(AppCompatActivity activity) {
+    public void showProfile(AppCompatActivity activity) throws  Exception{
+        if(SharedPreferencesUtils.getInstance().getPlayerId() == null)
+        {
+            throw new RuntimeException(TAG + ": User is not logged in yet!");
+        }
+
         showProfile(activity.getSupportFragmentManager());
     }
 
@@ -242,7 +286,12 @@ public class GameBallApp {
      * basically call this method when ever you want to allow the user to see his profile.
      * @param fragment if you are using a fragment send an instance of the fragment to be able to show the profile
      */
-    public void showProfile(Fragment fragment) {
+    public void showProfile(Fragment fragment) throws Exception{
+        if(SharedPreferencesUtils.getInstance().getPlayerId() == null)
+        {
+            throw new RuntimeException(TAG + ": User is not logged in yet!");
+        }
+
         showProfile(fragment.getChildFragmentManager());
     }
 

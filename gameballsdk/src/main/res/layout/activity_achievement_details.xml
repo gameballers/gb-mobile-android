@@ -23,8 +23,8 @@
 
                 <ImageView
                     android:id="@+id/challenge_icon"
-                    android:layout_width="170dp"
-                    android:layout_height="170dp"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
                     android:layout_marginTop="30dp"
                     android:layout_centerHorizontal="true"
                     tool:src="@drawable/ic_diamond"
@@ -57,13 +57,15 @@
 
                 <ImageButton
                     android:id="@+id/back_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_alignTop="@id/challenge_icon"
                     android:src="@drawable/ic_arrow_left"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginLeft="15dp"
                     android:scaleType="fitXY"
                     android:background="@null"
-                    android:padding="10dp"
+
                     />
 
                 <TextView
@@ -113,6 +115,7 @@
                     android:layout_marginLeft="50dp"
                     android:layout_marginTop="20dp"
                     android:text="@string/progress"
+                    android:textSize="20sp"
                     style="@style/text_title_style"
                     />
 
@@ -242,6 +245,7 @@
             android:layout_marginTop="30dp"
             android:text="@string/status"
             style="@style/text_title_style"
+            android:textSize="20sp"
             />
         
         <ImageView
