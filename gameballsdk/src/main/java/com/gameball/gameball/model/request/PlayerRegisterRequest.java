@@ -25,9 +25,9 @@ public class PlayerRegisterRequest {
     @SerializedName("PlayerCategoryID")
     @Expose
     private int playerCategoryID;
-    @SerializedName("ExternalID")
+    @SerializedName("PlayerUniqueID")
     @Expose
-    private String externalID;
+    private String playerUniqueID;
     @SerializedName("CurrentLevel")
     @Expose
     private int currentLevel;
@@ -98,12 +98,12 @@ public class PlayerRegisterRequest {
         this.playerCategoryID = playerCategoryID;
     }
 
-    public String getExternalID() {
-        return externalID;
+    public String getPlayerUniqueID() {
+        return playerUniqueID;
     }
 
-    public void setExternalID(String externalID) {
-        this.externalID = externalID;
+    public void setPlayerUniqueID(String playerUniqueID) {
+        this.playerUniqueID = playerUniqueID;
     }
 
     public int getCurrentLevel() {

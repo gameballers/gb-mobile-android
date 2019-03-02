@@ -120,8 +120,7 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
     {
         challengeName.setText(game.getGameName());
         challengeDescription.setText(game.getDescription());
-        ImageDownloader.downloadImage(this, challengeIcon,
-                BuildConfig.MAIN_HOST + game.getIcon());
+        ImageDownloader.downloadImage(this, challengeIcon, game.getIcon());
         handleUnlocked();
         applyAnimation();
     }
@@ -129,9 +128,9 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
     private void applyAnimation()
     {
         challengeName.startAnimation(fadeIn);
-        statusIcon.startAnimation(zoomIn);
-        challengeDescription.startAnimation(translate);
-        statusDescription.startAnimation(translate);
+        statusIcon.startAnimation(fadeIn);
+        challengeDescription.startAnimation(fadeIn);
+        statusDescription.startAnimation(fadeIn);
     }
 
     private void setupBotSettings()

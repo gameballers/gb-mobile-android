@@ -2,6 +2,7 @@ package com.gameball.gameball.views.mainContainer;
 
 import android.app.Dialog;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
@@ -119,11 +119,34 @@ public class MainContainerFragment extends DialogFragment implements MainContain
             }
         });
         setupTabsIcons();
+        tabs.getTabAt(tabs.getSelectedTabPosition()).getIcon().
+                setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+
+        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
+        {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab)
+            {
+                tab.getIcon().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab)
+            {
+                tab.getIcon().setColorFilter(Color.parseColor("#adadad"), PorterDuff.Mode.SRC_IN);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab)
+            {
+
+            }
+        });
 
     }
 
     private void setupTabsIcons() {
-        tabs.getTabAt(0).setIcon(R.drawable.ic_profile_black);
+        tabs.getTabAt(0).setIcon(R.drawable.ic_profile);
 //        tabs.getTabAt(1).setIcon(R.drawable.ic_flag_black);
         tabs.getTabAt(1).setIcon(R.drawable.ic_trophy);
 //        tabs.getTabAt(3).setIcon(R.drawable.ic_trophy);
