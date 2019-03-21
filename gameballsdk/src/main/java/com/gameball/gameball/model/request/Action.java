@@ -17,33 +17,25 @@ public class Action
     private Integer amount;
     @SerializedName("PlayerCategoryID")
     @Expose
-    private long playerCategoryID;
-    @SerializedName("isPositive")
+    private Integer playerCategoryID;
+    @SerializedName("IsPositive")
     @Expose
     private boolean isPositive;
 
     public Action(String challengeApiId)
     {
-        this(challengeApiId,-1,0);
+        this(challengeApiId,-1);
     }
 
     public Action(String challengeApiId, int amount)
     {
-        this(challengeApiId,amount,0);
-    }
-
-    public Action(String challengeApiId, long playerCategoryID)
-    {
-        this(challengeApiId,-1,playerCategoryID);
-    }
-
-    public Action(String challengeApiId, int amount, long playerCategoryID)
-    {
         this.challengeApiId = challengeApiId;
         this.playerId = SharedPreferencesUtils.getInstance().getPlayerId();
-        this.playerCategoryID = playerCategoryID;
         this.isPositive = true;
+        this.playerCategoryID = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
         if(amount != -1)
+        {
             this.amount = amount;
+        }
     }
 }

@@ -61,13 +61,17 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         holder.achievementName.setText(item.getGameName());
         if(item.getIsUnlocked())
         {
-            holder.achievementProgress.setProgress((int) item.getActionsAndAmountCompletedPercentage());
-            holder.achievementProgress.setVisibility(View.VISIBLE);
+            if(item.getActionsAndAmountCompletedPercentage() > 0)
+            {
+                holder.achievementProgress.setProgress((int) item.getActionsAndAmountCompletedPercentage());
+                holder.achievementProgress.setVisibility(View.VISIBLE);
+            }
 
             if(item.getActionsAndAmountCompletedPercentage() == 100)
             {
                 holder.notAchievedIndicator.setVisibility(View.GONE);
             }
+
             holder.lockedAchievementIndicator.setVisibility(View.GONE);
         }
 

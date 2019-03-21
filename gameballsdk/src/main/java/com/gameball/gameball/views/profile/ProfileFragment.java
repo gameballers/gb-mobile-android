@@ -1,5 +1,6 @@
 package com.gameball.gameball.views.profile;
 
+import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -51,11 +52,12 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private TextView currentFrubiesValue;
     private TextView currentPointsValue;
     private TextView achievemetTitle;
+    private TextView currentFrubiesTitle;
+    private TextView currentPointTitle;
     private RecyclerView achievementsRecyclerView;
     private ProgressBar profileLoadingIndicator;
-    private ProgressBar achievementsLoadingIndicator;
     private View profileLoadingIndicatorBg;
-    private ConstraintLayout frubiesAndPointsContainer;
+
 
     AchievementsAdapter achievementsAdapter;
     ProfileContract.Presenter presenter;
@@ -96,14 +98,17 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         achievementsRecyclerView = rootView.findViewById(R.id.achievements_recyclerView);
         profileLoadingIndicator = rootView.findViewById(R.id.profile_data_loading_indicator);
         profileLoadingIndicatorBg = rootView.findViewById(R.id.profile_data_loading_indicator_bg);
-        achievementsLoadingIndicator = rootView.findViewById(R.id.achievements_loading_indicator);
-        frubiesAndPointsContainer = rootView.findViewById(R.id.frubies_and_points_container);
+        currentPointTitle = rootView.findViewById(R.id.points_title);
+        currentFrubiesTitle= rootView.findViewById(R.id.frubies_title);
+
     }
 
     private void setupBotSettings()
     {
         LayerDrawable progressDrawable = (LayerDrawable) levelProgress.getProgressDrawable();
-        progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+        progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
+                PorterDuff.Mode.SRC_IN);
+        achievemetTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
     }
 
     private void applyAnimation(PlayerDetailsResponse playerDetails, Level nextLevel)
@@ -118,8 +123,11 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         progressBarAnimation.setFillAfter(true);
 
         levelProgress.startAnimation(progressBarAnimation);
-        frubiesAndPointsContainer.startAnimation(zoomInX);
-        frubiesAndPointsContainer.startAnimation(fadeIn);
+        levelName.startAnimation(fadeIn);
+        currentFrubiesValue.startAnimation(fadeIn);
+        currentPointsValue.startAnimation(fadeIn);
+        currentFrubiesTitle.startAnimation(fadeIn);
+        currentPointTitle.startAnimation(fadeIn);
         achievemetTitle.startAnimation(fadeIn);
     }
 
@@ -140,6 +148,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         frubiesForNextLevel.setText(nextLevel.getLevelFrubies() + "");
         currentPointsValue.setText(playerDetails.getAccPoints() + "");
         currentFrubiesValue.setText(playerDetails.getLevel().getLevelFrubies() + "");
+        achievemetTitle.setVisibility(View.VISIBLE);
         applyAnimation(playerDetails, nextLevel);
 
     }
@@ -152,28 +161,16 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     }
 
     @Override
-    public void showProfileLoadingIndicator()
+    public void showLoadingIndicator()
     {
         profileLoadingIndicator.setVisibility(View.VISIBLE);
         profileLoadingIndicatorBg.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void hideProfileLoadingIndicator()
+    public void hideLoadingIndicator()
     {
         profileLoadingIndicator.setVisibility(View.GONE);
         profileLoadingIndicatorBg.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void showAchievementsLoadingIndicator()
-    {
-        achievementsLoadingIndicator.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void hideAchievementsLoadingIndicator()
-    {
-        achievementsLoadingIndicator.setVisibility(View.GONE);
     }
 }

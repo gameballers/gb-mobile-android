@@ -122,7 +122,7 @@ public class SharedPreferencesUtils {
     }
 
     public void putPlayerId(String playerId) {
-        putString(PreferencesContract.EXTERNAL_ID, playerId);
+        putString(PreferencesContract.PLAYER_ID, playerId);
     }
 
     public void putClientId(String clientId) {
@@ -134,7 +134,7 @@ public class SharedPreferencesUtils {
     }
 
     public String getPlayerId() {
-        return getString(PreferencesContract.EXTERNAL_ID, null);
+        return getString(PreferencesContract.PLAYER_ID, null);
     }
 
     public String getClientId() {
@@ -153,12 +153,23 @@ public class SharedPreferencesUtils {
         return clientBotSettings;
     }
 
+    public void putPlayerCategoryId(Integer playerCategoryId)
+    {
+        putString(PreferencesContract.PLAYER_CATEGORY_ID, gson.toJson(playerCategoryId));
+    }
+
+    public Integer getPlayerCategoryId()
+    {
+        return getInt(PreferencesContract.PLAYER_CATEGORY_ID,  -1);
+    }
+
     private static final class PreferencesContract {
 
-        private static final String EXTERNAL_ID = "EXTERNAL_ID";
+        private static final String PLAYER_ID = "PLAYER_ID";
         private static final String DEVICE_TOKEN = "DEVICE_TOKEN";
         private static final String CLIENT_ID = "CLIENT_ID";
         private static final String CLIENT_BOT_SETTINGS = "BOT_SETTINGS";
+        private static final String PLAYER_CATEGORY_ID = "PLAYER_CATEGORY_ID";
 
 
     }

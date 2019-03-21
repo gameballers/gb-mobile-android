@@ -39,7 +39,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
     @Override
     public void getPlayerDetails()
     {
-        view.showProfileLoadingIndicator();
+        view.showLoadingIndicator();
 
         Single<BaseResponse<PlayerDetailsResponse>> playerDetailsObservable =
                 profileRemoteDataSource.getPlayerDetails(sharedPreferencesUtils.getPlayerId())
@@ -73,14 +73,14 @@ public class ProfilePresenter implements ProfileContract.Presenter
                     {
                         localDataSource.playerDetails = playerDetailsAndNextLevelPair.first.getResponse();
                         localDataSource.nextLevel = playerDetailsAndNextLevelPair.second.getResponse();
-                        view.hideProfileLoadingIndicator();
+                        view.hideLoadingIndicator();
                         view.fillPlayerData(localDataSource.playerDetails, localDataSource.nextLevel);
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
-                        view.hideProfileLoadingIndicator();
+                        view.hideLoadingIndicator();
                     }
                 });
     }
@@ -88,7 +88,6 @@ public class ProfilePresenter implements ProfileContract.Presenter
     @Override
     public void getWithUnlocks()
     {
-        view.showAchievementsLoadingIndicator();
         profileRemoteDataSource.getWithUnlocks(sharedPreferencesUtils.getPlayerId())
                 .subscribe(new SingleObserver<BaseResponse<ArrayList<Game>>>()
                 {
@@ -102,14 +101,13 @@ public class ProfilePresenter implements ProfileContract.Presenter
                     public void onSuccess(BaseResponse<ArrayList<Game>> arrayListBaseResponse)
                     {
                         localDataSource.games = arrayListBaseResponse.getResponse();
-                        view.hideAchievementsLoadingIndicator();
                         view.fillAchievements(localDataSource.games);
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
-                        view.hideAchievementsLoadingIndicator();
+
                     }
                 });
     }
