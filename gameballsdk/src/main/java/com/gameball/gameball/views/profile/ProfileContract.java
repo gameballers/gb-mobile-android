@@ -14,13 +14,9 @@ public interface ProfileContract
 
         void fillAchievements(ArrayList<Game> games);
 
-        void showProfileLoadingIndicator();
+        void showLoadingIndicator();
 
-        void hideProfileLoadingIndicator();
-
-        void showAchievementsLoadingIndicator();
-
-        void hideAchievementsLoadingIndicator();
+        void hideLoadingIndicator();
     }
 
     interface Presenter

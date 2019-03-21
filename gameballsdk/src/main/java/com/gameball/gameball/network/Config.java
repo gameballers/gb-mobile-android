@@ -11,5 +11,5 @@ public class Config {
     public static final String GetNextLevel = "api/Bots/GetNextLevel";
     public static final String GetLeaderBoard = "api/Bots/GetLeaderBoard";
     public static final String GetBotSettings = "api/Bots/GetClientBotSettings";
-    public static final String AddNewAction = "api/Integration/AddNewAction";
+    public static final String AddNewAction = "api/Integration/AddAction";
 }

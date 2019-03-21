@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -57,7 +59,7 @@ public class GameBallApp {
     private static final String APPLICATION_ID = "1:252563989296:android:cf5a4f42fc122b54";
     private static final String API_KEY = "AIzaSyCk3X3ZleIQjnaV-QBij9M57iBatAewMGg";
     private static final String SENDER_ID = "252563989296";
-    private static final String MAIN_ACTIVITY_ACTION = "GAME_BALL_SDK";
+    private static final String MAIN_ACTIVITY_ACTION = "GAME_BALL_MAIN_ACTIVITY";
     private static final String TAG_GAMEBALL_PROFILE_DIALOG = "gameball_profile_dialog";
 
     private static GameBallApp ourInstance;
@@ -65,6 +67,7 @@ public class GameBallApp {
     private FirebaseApp GameBallFirebaseApp;
     private String mClientID;
     private String mPlayerID;
+    private Integer mPlayerCategoryID;
     private int mNotificationIcon;
     private String mDeviceToken;
     private GameBallApi gameBallApi;
@@ -95,24 +98,31 @@ public class GameBallApp {
                 String deviceToken = SharedPreferencesUtils.getInstance().getDeviceToken();
                 String playerId = SharedPreferencesUtils.getInstance().getPlayerId();
                 String clientId = SharedPreferencesUtils.getInstance().getClientId();
+                int playerCategoryId = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
 
                 if (deviceToken != null && mDeviceToken != null && mDeviceToken.equals(deviceToken)
                         && clientId.equals(mClientID)
                         && playerId != null && mPlayerID != null
-                        && mPlayerID.equals(playerId)) {
+                        && mPlayerID.equals(playerId)
+                        && playerCategoryId != -1
+                        && playerCategoryId == mPlayerCategoryID) {
                     Log.d(TAG, "Device already registered");
                     return deviceToken;
                 } else {
                     SharedPreferencesUtils.getInstance().clearData();
                     SharedPreferencesUtils.getInstance().putClientId(mClientID);
                     SharedPreferencesUtils.getInstance().putPlayerId(mPlayerID);
+                    SharedPreferencesUtils.getInstance().putPlayerCategoryId(mPlayerCategoryID);
+
                 }
 
 
                 PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
                 registerDeviceRequest.setPlayerUniqueID(mPlayerID);
-                registerDeviceRequest.setPlayerCategoryID(1);
+                registerDeviceRequest.setPlayerCategoryID(mPlayerCategoryID);
                 registerDeviceRequest.setDeviceToken(mDeviceToken);
+
+                Log.i("register_body",new Gson().toJson(registerDeviceRequest));
 
                 BaseResponse<PlayerRegisterResponse> response = gameBallApi
                         .registrationPlayer(registerDeviceRequest)
@@ -158,10 +168,11 @@ public class GameBallApp {
                 });
     }
 
-    public void init(@NonNull String clientID, String playerID, @DrawableRes int notificationIcon) {
+    public void init(@NonNull String clientID, String playerID, int playerCategoryId, @DrawableRes int notificationIcon) {
         // TODO: 8/23/2018
         this.mClientID = clientID;
         this.mPlayerID = playerID;
+        this.mPlayerCategoryID = playerCategoryId;
         mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.init(mContext, new Gson());
@@ -199,16 +210,28 @@ public class GameBallApp {
         getBotSettings();
     }
 
+    public void init(String clientID, int playerCategoryID, @DrawableRes int notificationIcon)
+    {
+        init(clientID, "", playerCategoryID, notificationIcon);
+    }
+
     public void init(String clientID, @DrawableRes int notificationIcon)
     {
-        init(clientID, "", notificationIcon);
+        init(clientID, "",0, notificationIcon);
     }
 
     public void registerPlayer(@NonNull String playerID)
     {
+        registerPlayer(playerID,0);
+    }
+
+    public void registerPlayer(@NonNull String playerID, int playerCategoryId)
+    {
         if(!playerID.trim().isEmpty())
         {
             mPlayerID = playerID;
+            mPlayerCategoryID = playerCategoryId;
+
             registerDevice().subscribe(new io.reactivex.functions.Action()
             {
                 @Override
@@ -231,7 +254,7 @@ public class GameBallApp {
         }
     }
 
-    private void sendNotification(String messageBody) {
+    private void sendNotification(final String messageBody) {
         Intent intent = new Intent(MAIN_ACTIVITY_ACTION);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0 /* Request code */, intent,
@@ -247,6 +270,15 @@ public class GameBallApp {
                         .setSmallIcon(mNotificationIcon)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent);
+
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Toast.makeText(mContext, messageBody, Toast.LENGTH_SHORT).show();
+            }
+        },100);
 
         NotificationManager notificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
