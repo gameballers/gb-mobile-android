@@ -3,6 +3,8 @@ package com.gameball.gameball.model.response;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+
 public class Game
 {
     @SerializedName("GameName")
@@ -65,6 +67,9 @@ public class Game
     @SerializedName("UserMessage")
     @Expose
     private String userMessage;
+    @SerializedName("Milestones")
+    @Expose
+    private ArrayList<MileStone> mileStones;
 
     public String getGameName() {
         return gameName;
@@ -98,7 +103,7 @@ public class Game
         this.description = description;
     }
 
-    public Boolean getIsUnlocked() {
+    public Boolean isUnlocked() {
         return isUnlocked;
     }
 
@@ -186,7 +191,7 @@ public class Game
         this.actionsAndAmountCompletedPercentage = actionsAndAmountCompletedPercentage;
     }
 
-    public Boolean getIsRepeatable() {
+    public Boolean isRepeatable() {
         return isRepeatable;
     }
 
@@ -225,4 +230,11 @@ public class Game
     public void setUserMessage(String userMessage) {
         this.userMessage = userMessage;
     }
+
+    public ArrayList<MileStone> getMileStones()
+    {
+        return mileStones;
+    }
+
+
 }

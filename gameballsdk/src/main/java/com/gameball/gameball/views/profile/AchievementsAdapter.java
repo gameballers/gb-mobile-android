@@ -30,8 +30,8 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     private Context mContext;
     private ArrayList<Game> mData;
     private ClientBotSettings clientBotSettings;
-    Animation translate;
-    Animation fadeIn;
+    private Animation translate;
+    private Animation fadeIn;
 
     public AchievementsAdapter(Context context, ArrayList<Game> data) {
         this.mData = data;
@@ -59,7 +59,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             ImageDownloader.downloadImage(mContext, holder.achievementsLogo, item.getIcon());
 
         holder.achievementName.setText(item.getGameName());
-        if(item.getIsUnlocked())
+        if(item.isUnlocked())
         {
             if(item.getActionsAndAmountCompletedPercentage() > 0)
             {

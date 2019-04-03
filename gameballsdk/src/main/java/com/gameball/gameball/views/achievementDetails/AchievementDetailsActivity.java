@@ -8,18 +8,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
-import com.gameball.gameball.network.utils.DownloadImage;
 import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.ImageDownloader;
 import com.gameball.gameball.utils.ProgressBarAnimation;
@@ -89,24 +86,24 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
 
     private void initView()
     {
-        challengeIcon = (ImageView) findViewById(R.id.challenge_icon);
-        notAchievedIndicator = (View) findViewById(R.id.not_achieved_indicator);
+        challengeIcon = findViewById(R.id.challenge_icon);
+        notAchievedIndicator = findViewById(R.id.not_achieved_indicator);
         statusTitle = findViewById(R.id.status_title);
-        lockedChallengeIndicator = (ImageView) findViewById(R.id.locked_challenge_indicator);
-        challengeName = (TextView) findViewById(R.id.challenge_name);
-        challengeDescription = (TextView) findViewById(R.id.challenge_description);
-        targetAmountCount = (TextView) findViewById(R.id.target_amount_count);
-        progressTitle = (TextView) findViewById(R.id.progress_title);
-        challengeAmountProgress = (ProgressBar) findViewById(R.id.challenge_amount_progress);
+        lockedChallengeIndicator = findViewById(R.id.locked_challenge_indicator);
+        challengeName = findViewById(R.id.challenge_name);
+        challengeDescription = findViewById(R.id.challenge_description);
+        targetAmountCount = findViewById(R.id.target_amount_count);
+        progressTitle = findViewById(R.id.progress_title);
+        challengeAmountProgress = findViewById(R.id.challenge_amount_progress);
         challengeAmountProgress.setProgress(1);
-        targetAmountDescription = (TextView) findViewById(R.id.target_amount_description);
-        targetActionCount = (TextView) findViewById(R.id.target_action_count);
-        challengeActionProgress = (ProgressBar) findViewById(R.id.challenge_action_progress);
+        targetAmountDescription = findViewById(R.id.target_amount_description);
+        targetActionCount = findViewById(R.id.target_action_count);
+        challengeActionProgress = findViewById(R.id.challenge_action_progress);
         challengeActionProgress.setProgress(1);
-        targetActionDescription = (TextView) findViewById(R.id.target_action_description);
-        statusIcon = (ImageView) findViewById(R.id.status_icon);
-        statusDescription = (TextView) findViewById(R.id.status_description);
-        backBtn = (ImageButton) findViewById(R.id.back_btn);
+        targetActionDescription = findViewById(R.id.target_action_description);
+        statusIcon = findViewById(R.id.status_icon);
+        statusDescription = findViewById(R.id.status_description);
+        backBtn = findViewById(R.id.back_btn);
         separator = findViewById(R.id.separator);
     }
 
@@ -145,7 +142,7 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
 
     private void handleUnlocked()
     {
-        if (!game.getIsUnlocked())
+        if (!game.isUnlocked())
         {
             lockedChallengeIndicator.setVisibility(View.VISIBLE);
             notAchievedIndicator.setVisibility(View.VISIBLE);
