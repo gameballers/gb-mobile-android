@@ -31,6 +31,21 @@ public class Game
     @SerializedName("ActivationLevel")
     @Expose
     private int activationLevel;
+    @SerializedName("RewardFrubies")
+    @Expose
+    private int rewardFrubies;
+    @SerializedName("RewardPoints")
+    @Expose
+    private int rewardPoints;
+    @SerializedName("HighScore")
+    @Expose
+    private Integer highScore;
+    @SerializedName("HighScoreAmount")
+    @Expose
+    private Integer highScoreAmount;
+    @SerializedName("AmountUnit")
+    @Expose
+    private String amountUnit;
     @SerializedName("LevelName")
     @Expose
     private String levelName;
@@ -236,5 +251,28 @@ public class Game
         return mileStones;
     }
 
+    public int getRewardFrubies()
+    {
+        return rewardFrubies;
+    }
 
+    public int getRewardPoints()
+    {
+        return rewardPoints;
+    }
+
+    public Integer getHighScore()
+    {
+        return highScore;
+    }
+
+    public Integer getHighScoreAmount()
+    {
+        return highScoreAmount;
+    }
+
+    public String getAmountUnit()
+    {
+        return amountUnit;
+    }
 }

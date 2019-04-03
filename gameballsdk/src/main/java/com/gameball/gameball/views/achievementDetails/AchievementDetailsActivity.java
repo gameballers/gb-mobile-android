@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.Animation;
@@ -21,6 +22,8 @@ import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.ImageDownloader;
 import com.gameball.gameball.utils.ProgressBarAnimation;
 import com.google.gson.Gson;
+
+import java.util.Objects;
 
 public class AchievementDetailsActivity extends AppCompatActivity implements View.OnClickListener
 {
@@ -43,14 +46,14 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
     private TextView targetAmountCount;
     private TextView progressTitle;
     private ProgressBar challengeAmountProgress;
-    private TextView targetAmountDescription;
+    private TextView milestoneDescription;
+    private TextView rewardTxt;
     private TextView targetActionCount;
     private ProgressBar challengeActionProgress;
-    private TextView targetActionDescription;
     private ImageView statusIcon;
     private TextView statusDescription;
     private ImageButton backBtn;
-    private View separator;
+    private ConstraintLayout milestoneLayout;
 
     Game game;
     ClientBotSettings clientBotSettings;
@@ -94,17 +97,17 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
         challengeDescription = findViewById(R.id.challenge_description);
         targetAmountCount = findViewById(R.id.target_amount_count);
         progressTitle = findViewById(R.id.progress_title);
-        challengeAmountProgress = findViewById(R.id.challenge_amount_progress);
+        challengeAmountProgress = findViewById(R.id.milestone_amount_progress);
         challengeAmountProgress.setProgress(1);
-        targetAmountDescription = findViewById(R.id.target_amount_description);
+        milestoneDescription = findViewById(R.id.milestone_description);
+        rewardTxt = findViewById(R.id.mileStone_reward_text);
         targetActionCount = findViewById(R.id.target_action_count);
-        challengeActionProgress = findViewById(R.id.challenge_action_progress);
+        challengeActionProgress = findViewById(R.id.milestone_action_progress);
         challengeActionProgress.setProgress(1);
-        targetActionDescription = findViewById(R.id.target_action_description);
         statusIcon = findViewById(R.id.status_icon);
         statusDescription = findViewById(R.id.status_description);
         backBtn = findViewById(R.id.back_btn);
-        separator = findViewById(R.id.separator);
+        milestoneLayout = findViewById(R.id.mileStones_layout);
     }
 
     private void prepView()
@@ -147,8 +150,6 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
             lockedChallengeIndicator.setVisibility(View.VISIBLE);
             notAchievedIndicator.setVisibility(View.VISIBLE);
             statusIcon.setImageResource(R.drawable.ic_status_locked);
-            progressTitle.setVisibility(View.GONE);
-            separator.setVisibility(View.GONE);
 
             String statusSuffix = "";
             switch (game.getActivationCriteriaTypeId())
@@ -165,7 +166,7 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
         }
         else
         {
-            separator.setVisibility(View.VISIBLE);
+            milestoneLayout.setVisibility(View.VISIBLE);
             lockedChallengeIndicator.setVisibility(View.GONE);
             progressTitle.startAnimation(fadeIn);
             if(game.getAchievedCount() > 0)
@@ -194,16 +195,18 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
                     showActionProgress();
                     break;
             }
+
+            rewardTxt.setText(String.format("%d %s | %d %s",game.getRewardFrubies(),
+                    getString(R.string.frubies),game.getRewardPoints(),getString(R.string.points)));
         }
     }
 
     private void showActionProgress()
     {
-        targetActionCount.setVisibility(View.VISIBLE);
         challengeActionProgress.setVisibility(View.VISIBLE);
-        targetActionDescription.setVisibility(View.VISIBLE);
+        targetActionCount.setVisibility(View.VISIBLE);
         targetActionCount.setText(game.getTargetActionsCount() + "");
-        targetActionDescription.setText(String.format("only %d %s remaining to achive this challenge",
+        milestoneDescription.setText(String.format("only %d %s remaining to achive this challenge",
                 game.getTargetActionsCount() - game.getAchievedActionsCount(), ""));
 
         final ProgressBarAnimation actionProgressBarAnimation = new ProgressBarAnimation(challengeActionProgress,
@@ -235,17 +238,22 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
 
         targetActionCount.startAnimation(fadeIn);
         challengeActionProgress.startAnimation(fadeIn);
-        targetActionDescription.startAnimation(fadeIn);
+        milestoneDescription.startAnimation(fadeIn);
     }
 
     private void showAmountProgress()
     {
-        targetAmountCount.setVisibility(View.VISIBLE);
         challengeAmountProgress.setVisibility(View.VISIBLE);
-        targetAmountDescription.setVisibility(View.VISIBLE);
-        targetAmountCount.setText(game.getTargetAmount() + "");
-        targetAmountDescription.setText(String.format("only %d %s remaining to achive this challenge",
+        targetAmountCount.setVisibility(View.VISIBLE);
+
+        String targetAmountStr = "" + game.getTargetAmount();
+        if(game.getAmountUnit() != null)
+            targetAmountStr += " " + game.getAmountUnit();
+        targetAmountCount.setText(targetAmountStr);
+
+        milestoneDescription.setText(String.format("only %d %s remaining to achive this challenge",
                 game.getTargetAmount() - game.getCurrentAmount(), ""));
+
         if(game.getAmountCompletedPercentage() == 0)
             challengeAmountProgress.setProgress(0);
         final ProgressBarAnimation amountProgressBarAnimation = new ProgressBarAnimation(challengeAmountProgress,
@@ -279,7 +287,7 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
 
         targetAmountCount.startAnimation(fadeIn);
         challengeAmountProgress.startAnimation(fadeIn);
-        targetAmountDescription.startAnimation(fadeIn);
+        milestoneDescription.startAnimation(fadeIn);
     }
 
 
