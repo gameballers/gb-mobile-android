@@ -158,9 +158,10 @@ public class SharedPreferencesUtils {
         putString(PreferencesContract.PLAYER_CATEGORY_ID, gson.toJson(playerCategoryId));
     }
 
-    public Integer getPlayerCategoryId()
+    public int getPlayerCategoryId()
     {
-        return getInt(PreferencesContract.PLAYER_CATEGORY_ID,  -1);
+        return pref.getInt(PreferencesContract.PLAYER_CATEGORY_ID,  -1);
+
     }
 
     private static final class PreferencesContract {

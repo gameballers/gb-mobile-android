@@ -6,6 +6,7 @@ import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.Game;
+import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class AchievementsPresenter implements AchievemetsContract.Presenter
     {
         view.showLoadingIndicator();
         remoteDataSource.getWithUnlocks(sharedPreferencesUtils.getPlayerId())
-                .subscribe(new SingleObserver<BaseResponse<ArrayList<Game>>>()
+                .subscribe(new SingleObserver<BaseResponse<GetWithUnlocksWrapper>>()
                 {
                     @Override
                     public void onSubscribe(Disposable d)
@@ -44,10 +45,10 @@ public class AchievementsPresenter implements AchievemetsContract.Presenter
                     }
 
                     @Override
-                    public void onSuccess(BaseResponse<ArrayList<Game>> arrayListBaseResponse)
+                    public void onSuccess(BaseResponse<GetWithUnlocksWrapper> arrayListBaseResponse)
                     {
                         view.hideLoadingIndicator();
-                        view.fillAchievements(arrayListBaseResponse.getResponse());
+                        view.fillAchievements(arrayListBaseResponse.getResponse().getGames());
                     }
 
                     @Override

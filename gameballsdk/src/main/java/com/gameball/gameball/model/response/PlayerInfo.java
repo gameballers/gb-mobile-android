@@ -3,11 +3,18 @@ package com.gameball.gameball.model.response;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class PlayerDetailsResponse {
+public class PlayerInfo
+{
 
-    @SerializedName("Name")
+    @SerializedName("DisplayName")
     @Expose
-    private String name;
+    private String displayName;
+    @SerializedName("FirstName")
+    @Expose
+    private String firstName;
+    @SerializedName("LastName")
+    @Expose
+    private String lastName;
     @SerializedName("Email")
     @Expose
     private String email;
@@ -43,11 +50,11 @@ public class PlayerDetailsResponse {
     private Level level;
 
     public String getName() {
-        return name;
+        return displayName;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.displayName= name;
     }
 
     public String getEmail() {
@@ -138,4 +145,13 @@ public class PlayerDetailsResponse {
         this.level = level;
     }
 
+    public String getFirstName()
+    {
+        return firstName;
+    }
+
+    public String getLastName()
+    {
+        return lastName;
+    }
 }
