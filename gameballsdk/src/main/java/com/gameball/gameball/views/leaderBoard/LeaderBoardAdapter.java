@@ -9,17 +9,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
-import com.gameball.gameball.model.response.PlayerDetailsResponse;
-import com.gameball.gameball.network.utils.DownloadImage;
+import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.utils.ImageDownloader;
 
 import java.util.ArrayList;
 
 public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ItemRowHolder> {
     private Context mContext;
-    private ArrayList<PlayerDetailsResponse> mData;
+    private ArrayList<PlayerInfo> mData;
 
-    public LeaderBoardAdapter(Context context, ArrayList<PlayerDetailsResponse> data) {
+    public LeaderBoardAdapter(Context context, ArrayList<PlayerInfo> data) {
         this.mData = data;
         this.mContext = context;
     }
@@ -35,7 +34,7 @@ public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.
 
     @Override
     public void onBindViewHolder(ItemRowHolder holder, int position) {
-        PlayerDetailsResponse item = mData.get(position);
+        PlayerInfo item = mData.get(position);
 
         holder.playerName.setText(item.getName());
         holder.playerCurrentLevelName.setText(item.getLevel().getName());
@@ -45,7 +44,7 @@ public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.
                     item.getLevel().getIcon().getFileName());
     }
 
-    public void setmData(ArrayList<PlayerDetailsResponse> mData)
+    public void setmData(ArrayList<PlayerInfo> mData)
     {
         this.mData = mData;
     }

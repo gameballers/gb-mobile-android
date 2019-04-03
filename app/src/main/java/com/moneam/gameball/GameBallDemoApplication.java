@@ -14,7 +14,8 @@ public class GameBallDemoApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        GameBallApp.getInstance(this).init("8fdfd2dffd-9mnvhu25d6c3d" ,"SomeGuid16",
+        GameBallApp.getInstance(this).init("8fdfd2dffd-9mnvhu25d6c3d" ,
+                "assy2@gameball.co",
                 3, R.mipmap.ic_launcher);
 
         // TODO: 8/23/2018
