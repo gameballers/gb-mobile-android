@@ -21,7 +21,7 @@ import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.ImageDownloader;
-import com.gameball.gameball.views.achievementDetails.AchievementDetailsActivity;
+import com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -118,7 +118,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             final int pos = getLayoutPosition();
             int pos1 = getAdapterPosition();
             if (pos == pos1) {
-                Intent intent = new Intent(mContext, AchievementDetailsActivity.class);
+                Intent intent = new Intent(mContext, ChallengeDetailsActivity.class);
                 intent.putExtra(Constants.GAME_OBJ_KEY,new Gson().toJson(mData.get(pos)));
                 mContext.startActivity(intent);
             }

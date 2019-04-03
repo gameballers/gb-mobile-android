@@ -84,7 +84,7 @@ public class Game
     private String userMessage;
     @SerializedName("Milestones")
     @Expose
-    private ArrayList<MileStone> mileStones;
+    private ArrayList<Milestone> milestones;
 
     public String getGameName() {
         return gameName;
@@ -246,9 +246,9 @@ public class Game
         this.userMessage = userMessage;
     }
 
-    public ArrayList<MileStone> getMileStones()
+    public ArrayList<Milestone> getMilestones()
     {
-        return mileStones;
+        return milestones;
     }
 
     public int getRewardFrubies()

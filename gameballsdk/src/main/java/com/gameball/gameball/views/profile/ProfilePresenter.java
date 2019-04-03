@@ -68,7 +68,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
                         @Override
                         public void onError(Throwable e)
                         {
-
+                            view.hideLoadingIndicator();
                         }
                     });
         }
@@ -77,6 +77,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
     @Override
     public void getWithUnlocks()
     {
+        view.showLoadingIndicator();
         profileRemoteDataSource.getWithUnlocks(sharedPreferencesUtils.getPlayerId())
                 .subscribe(new SingleObserver<BaseResponse<GetWithUnlocksWrapper>>()
                 {
@@ -91,12 +92,14 @@ public class ProfilePresenter implements ProfileContract.Presenter
                     {
                         localDataSource.games = arrayListBaseResponse.getResponse().getGames();
                         view.fillAchievements(localDataSource.games);
+                        view.hideLoadingIndicator();
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
                         e.printStackTrace();
+                        view.hideLoadingIndicator();
                     }
                 });
     }

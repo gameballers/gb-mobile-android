@@ -1,4 +1,4 @@
-package com.gameball.gameball.views.achievementDetails;
+package com.gameball.gameball.views.challengeDetails;
 
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -6,6 +6,8 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -23,9 +25,7 @@ import com.gameball.gameball.utils.ImageDownloader;
 import com.gameball.gameball.utils.ProgressBarAnimation;
 import com.google.gson.Gson;
 
-import java.util.Objects;
-
-public class AchievementDetailsActivity extends AppCompatActivity implements View.OnClickListener
+public class ChallengeDetailsActivity extends AppCompatActivity implements View.OnClickListener
 {
 
     public static final int AMOUNT_BASED = 1;
@@ -53,10 +53,12 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
     private ImageView statusIcon;
     private TextView statusDescription;
     private ImageButton backBtn;
+    private RecyclerView milestonesRecyclerView;
     private ConstraintLayout milestoneLayout;
 
     Game game;
     ClientBotSettings clientBotSettings;
+    MilestonesAdapter adapter;
     Animation zoomIn;
     Animation fadeIn;
     Animation translate;
@@ -78,6 +80,7 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
         String  gameStr = getIntent().getStringExtra(Constants.GAME_OBJ_KEY);
         game = new Gson().fromJson(gameStr, Game.class);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
+        adapter = new MilestonesAdapter(this, game.getMilestones());
         zoomIn = AnimationUtils.loadAnimation(this, R.anim.zoom_in);
         zoomIn.setDuration(500);
         fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
@@ -108,10 +111,15 @@ public class AchievementDetailsActivity extends AppCompatActivity implements Vie
         statusDescription = findViewById(R.id.status_description);
         backBtn = findViewById(R.id.back_btn);
         milestoneLayout = findViewById(R.id.mileStones_layout);
+        milestonesRecyclerView = findViewById(R.id.milestones_recyclerView);
     }
 
     private void prepView()
     {
+        milestonesRecyclerView.setNestedScrollingEnabled(false);
+        milestonesRecyclerView.setHasFixedSize(true);
+        milestonesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        milestonesRecyclerView.setAdapter(adapter);
         backBtn.setOnClickListener(this);
     }
 
