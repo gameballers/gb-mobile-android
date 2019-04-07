@@ -19,7 +19,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_grey_curved_bottom"
-                android:paddingBottom="55dp"
+                android:paddingBottom="30dp"
                 >
 
                 <ImageView
@@ -99,6 +99,24 @@
                     tool:text="challenge description challenge description challenge description"
                     android:textColor="#828282"
                     android:textSize="16sp"
+                    />
+
+                <TextView
+                    android:id="@+id/challenge_reward_txt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/challenge_description"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="3dp"
+                    android:drawableStart="@drawable/ic_gift"
+                    android:drawableLeft="@drawable/ic_gift"
+                    android:drawablePadding="5dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="12sp"
+                    tool:text="30 Frubies | 30 Points"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    tool:visibility="visible"
                     />
 
 

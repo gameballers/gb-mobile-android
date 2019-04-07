@@ -31,6 +31,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     public static final int AMOUNT_BASED = 1;
     public static final int ACTION_BASED = 2;
     public static final int ACTION_AND_AMOUNT_BASED = 3;
+    public static final int HIGH_SCORE_BASED = 4;
 
     public static final int ACTIVATION_FRIBIES_BASED = 2;
     public static final int ACTIVATION_LEVEL_BASED = 3;
@@ -47,7 +48,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     private TextView progressTitle;
     private ProgressBar challengeAmountProgress;
     private TextView milestoneDescription;
-    private TextView rewardTxt;
+    private TextView milestoneRewardTxt;
+    private TextView challengeRewardTxt;
     private TextView targetActionCount;
     private ProgressBar challengeActionProgress;
     private ImageView statusIcon;
@@ -103,7 +105,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         challengeAmountProgress = findViewById(R.id.milestone_amount_progress);
         challengeAmountProgress.setProgress(1);
         milestoneDescription = findViewById(R.id.milestone_description);
-        rewardTxt = findViewById(R.id.mileStone_reward_text);
+        milestoneRewardTxt = findViewById(R.id.mileStone_reward_text);
+        challengeRewardTxt = findViewById(R.id.challenge_reward_txt);
         targetActionCount = findViewById(R.id.target_action_count);
         challengeActionProgress = findViewById(R.id.milestone_action_progress);
         challengeActionProgress.setProgress(1);
@@ -204,8 +207,19 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
                     break;
             }
 
-            rewardTxt.setText(String.format("%d %s | %d %s",game.getRewardFrubies(),
-                    getString(R.string.frubies),game.getRewardPoints(),getString(R.string.points)));
+            String challengeRewardStr = String.format("%d %s | %d %s",game.getRewardFrubies(),
+                    getString(R.string.frubies),game.getRewardPoints(),getString(R.string.points));
+
+            if(game.getMilestones().size() > 0)
+            {
+                milestoneRewardTxt.setText(challengeRewardStr);
+            }
+            else
+            {
+                challengeRewardTxt.setVisibility(View.VISIBLE);
+                milestoneRewardTxt.setVisibility(View.GONE);
+                challengeRewardTxt.setText(challengeRewardStr);
+            }
         }
     }
 
