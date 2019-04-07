@@ -48,10 +48,12 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private View profileLoadingIndicatorBg;
 
 
-    AchievementsAdapter achievementsAdapter;
-    ProfileContract.Presenter presenter;
-    ClientBotSettings clientBotSettings;
-    float playerProgress;
+    private AchievementsAdapter achievementsAdapter;
+    private ProfileContract.Presenter presenter;
+    private ClientBotSettings clientBotSettings;
+    private float playerProgress;
+    private Animation fadeIn;
+    private Animation zoomInX;
 
     MainContainerContract.View mainContainerView;
 
@@ -77,6 +79,11 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         achievementsAdapter = new AchievementsAdapter(getContext(), new ArrayList<Game>());
         presenter = new ProfilePresenter(getContext(), this);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
+
+        fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
+        fadeIn.setDuration(700);
+        zoomInX = AnimationUtils.loadAnimation(getContext(),R.anim.zoom_in_x_only);
+        zoomInX.setDuration(400);
     }
 
     private void initView() {
@@ -107,10 +114,6 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
 
     private void applyAnimation()
     {
-        Animation fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
-        fadeIn.setDuration(700);
-        Animation zoomInX = AnimationUtils.loadAnimation(getContext(),R.anim.zoom_in_x_only);
-        zoomInX.setDuration(400);
         ProgressBarAnimation progressBarAnimation = new ProgressBarAnimation(levelProgress,0,
                 playerProgress);
         progressBarAnimation.setDuration(700);
@@ -165,6 +168,28 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     {
         profileLoadingIndicator.setVisibility(View.GONE);
         profileLoadingIndicatorBg.setVisibility(View.GONE);
-        applyAnimation();
+        Animation fadeOut = AnimationUtils.loadAnimation(getContext(),
+                android.R.anim.fade_out);
+        fadeOut.setDuration(100);
+        profileLoadingIndicatorBg.setAnimation(fadeOut);
+        fadeOut.setAnimationListener(new Animation.AnimationListener()
+        {
+            @Override
+            public void onAnimationStart(Animation animation)
+            {
+                applyAnimation();
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation)
+            {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation)
+            {
+
+            }
+        });
     }
 }

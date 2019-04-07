@@ -21,7 +21,7 @@ import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.ImageDownloader;
-import com.gameball.gameball.views.achievementDetails.AchievementDetailsActivity;
+import com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -30,8 +30,8 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     private Context mContext;
     private ArrayList<Game> mData;
     private ClientBotSettings clientBotSettings;
-    Animation translate;
-    Animation fadeIn;
+    private Animation translate;
+    private Animation fadeIn;
 
     public AchievementsAdapter(Context context, ArrayList<Game> data) {
         this.mData = data;
@@ -59,7 +59,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             ImageDownloader.downloadImage(mContext, holder.achievementsLogo, item.getIcon());
 
         holder.achievementName.setText(item.getGameName());
-        if(item.getIsUnlocked())
+        if(item.isUnlocked())
         {
             if(item.getActionsAndAmountCompletedPercentage() > 0)
             {
@@ -118,7 +118,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             final int pos = getLayoutPosition();
             int pos1 = getAdapterPosition();
             if (pos == pos1) {
-                Intent intent = new Intent(mContext, AchievementDetailsActivity.class);
+                Intent intent = new Intent(mContext, ChallengeDetailsActivity.class);
                 intent.putExtra(Constants.GAME_OBJ_KEY,new Gson().toJson(mData.get(pos)));
                 mContext.startActivity(intent);
             }
