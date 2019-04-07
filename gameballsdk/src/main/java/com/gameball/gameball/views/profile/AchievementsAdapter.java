@@ -55,18 +55,25 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     @Override
     public void onBindViewHolder(ItemRowHolder holder, int position) {
         Game item = mData.get(position);
+
+        if(item.getBehaviorTypeId() == ChallengeDetailsActivity.HIGH_SCORE_BASED)
+        {
+            if(item.getHighScore() != null)
+                holder.challengeRewardPts.setText(String.format("%d %s", item.getHighScore(),
+                    item.getAmountUnit()));
+            else
+                holder.challengeRewardPts.setVisibility(View.GONE);
+        }
+        else
+            holder.challengeRewardPts.setText(String.format("%d %s", item.getRewardPoints(),
+                mContext.getString(R.string.pts)));
+        
         if(item.getIcon() != null && !item.getIcon().isEmpty())
             ImageDownloader.downloadImage(mContext, holder.achievementsLogo, item.getIcon());
 
         holder.achievementName.setText(item.getGameName());
         if(item.isUnlocked())
         {
-            if(item.getActionsAndAmountCompletedPercentage() > 0)
-            {
-                holder.achievementProgress.setProgress((int) item.getActionsAndAmountCompletedPercentage());
-                holder.achievementProgress.setVisibility(View.VISIBLE);
-            }
-
             if(item.getActionsAndAmountCompletedPercentage() == 100)
             {
                 holder.notAchievedIndicator.setVisibility(View.GONE);
@@ -74,10 +81,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
 
             holder.lockedAchievementIndicator.setVisibility(View.GONE);
         }
-
-        LayerDrawable progressDrawable = (LayerDrawable) holder.achievementProgress.getProgressDrawable();
-        progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
-                PorterDuff.Mode.SRC_IN);
+        
         holder.itemview.startAnimation(fadeIn);
 //        holder.itemview.startAnimation(translate);
     }
@@ -96,9 +100,9 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         public View itemview;
         public ImageView achievementsLogo;
         public TextView achievementName;
-        public ProgressBar achievementProgress;
         public View notAchievedIndicator;
         public ImageView lockedAchievementIndicator;
+        public TextView challengeRewardPts;
 
 
         public ItemRowHolder(View itemView) {
@@ -106,7 +110,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             this.itemview = itemView;
             achievementsLogo = itemView.findViewById(R.id.achievements_logo);
             achievementName = itemView.findViewById(R.id.achievements_name);
-            achievementProgress = itemView.findViewById(R.id.achievements_progress);
+            challengeRewardPts = itemView.findViewById(R.id.challenge_reward_points);
             notAchievedIndicator = itemView.findViewById(R.id.not_achieved_indicator);
             lockedAchievementIndicator = itemView.findViewById(R.id.locked_achievement_indicator);
 
