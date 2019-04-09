@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.PlayerDetailsResponse;
+import com.gameball.gameball.model.response.PlayerInfo;
 
 import java.util.ArrayList;
 
@@ -36,7 +36,7 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         presenter = new LeaderBoardPresenter(getContext(),this);
-        leaderBoardAdapter = new LeaderBoardAdapter(getContext(), new ArrayList<PlayerDetailsResponse>());
+        leaderBoardAdapter = new LeaderBoardAdapter(getContext(), new ArrayList<PlayerInfo>());
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
 
     }
@@ -71,7 +71,7 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
     }
 
     @Override
-    public void fillLeaderBoard(ArrayList<PlayerDetailsResponse> leaderBoard)
+    public void fillLeaderBoard(ArrayList<PlayerInfo> leaderBoard)
     {
         leaderBoardAdapter.setmData(leaderBoard);
         leaderBoardAdapter.notifyDataSetChanged();

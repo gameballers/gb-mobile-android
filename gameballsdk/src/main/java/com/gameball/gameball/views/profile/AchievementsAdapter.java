@@ -21,7 +21,7 @@ import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.ImageDownloader;
-import com.gameball.gameball.views.achievementDetails.AchievementDetailsActivity;
+import com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -30,8 +30,8 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     private Context mContext;
     private ArrayList<Game> mData;
     private ClientBotSettings clientBotSettings;
-    Animation translate;
-    Animation fadeIn;
+    private Animation translate;
+    private Animation fadeIn;
 
     public AchievementsAdapter(Context context, ArrayList<Game> data) {
         this.mData = data;
@@ -55,18 +55,25 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     @Override
     public void onBindViewHolder(ItemRowHolder holder, int position) {
         Game item = mData.get(position);
+
+        if(item.getBehaviorTypeId() == ChallengeDetailsActivity.HIGH_SCORE_BASED)
+        {
+            if(item.getHighScore() != null)
+                holder.challengeRewardPts.setText(String.format("%d %s", item.getHighScore(),
+                    item.getAmountUnit()));
+            else
+                holder.challengeRewardPts.setVisibility(View.GONE);
+        }
+        else
+            holder.challengeRewardPts.setText(String.format("%d %s", item.getRewardPoints(),
+                mContext.getString(R.string.pts)));
+        
         if(item.getIcon() != null && !item.getIcon().isEmpty())
             ImageDownloader.downloadImage(mContext, holder.achievementsLogo, item.getIcon());
 
         holder.achievementName.setText(item.getGameName());
-        if(item.getIsUnlocked())
+        if(item.isUnlocked())
         {
-            if(item.getActionsAndAmountCompletedPercentage() > 0)
-            {
-                holder.achievementProgress.setProgress((int) item.getActionsAndAmountCompletedPercentage());
-                holder.achievementProgress.setVisibility(View.VISIBLE);
-            }
-
             if(item.getActionsAndAmountCompletedPercentage() == 100)
             {
                 holder.notAchievedIndicator.setVisibility(View.GONE);
@@ -74,10 +81,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
 
             holder.lockedAchievementIndicator.setVisibility(View.GONE);
         }
-
-        LayerDrawable progressDrawable = (LayerDrawable) holder.achievementProgress.getProgressDrawable();
-        progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
-                PorterDuff.Mode.SRC_IN);
+        
         holder.itemview.startAnimation(fadeIn);
 //        holder.itemview.startAnimation(translate);
     }
@@ -96,9 +100,9 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         public View itemview;
         public ImageView achievementsLogo;
         public TextView achievementName;
-        public ProgressBar achievementProgress;
         public View notAchievedIndicator;
         public ImageView lockedAchievementIndicator;
+        public TextView challengeRewardPts;
 
 
         public ItemRowHolder(View itemView) {
@@ -106,7 +110,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             this.itemview = itemView;
             achievementsLogo = itemView.findViewById(R.id.achievements_logo);
             achievementName = itemView.findViewById(R.id.achievements_name);
-            achievementProgress = itemView.findViewById(R.id.achievements_progress);
+            challengeRewardPts = itemView.findViewById(R.id.challenge_reward_points);
             notAchievedIndicator = itemView.findViewById(R.id.not_achieved_indicator);
             lockedAchievementIndicator = itemView.findViewById(R.id.locked_achievement_indicator);
 
@@ -118,7 +122,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             final int pos = getLayoutPosition();
             int pos1 = getAdapterPosition();
             if (pos == pos1) {
-                Intent intent = new Intent(mContext, AchievementDetailsActivity.class);
+                Intent intent = new Intent(mContext, ChallengeDetailsActivity.class);
                 intent.putExtra(Constants.GAME_OBJ_KEY,new Gson().toJson(mData.get(pos)));
                 mContext.startActivity(intent);
             }
