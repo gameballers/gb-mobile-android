@@ -13,6 +13,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingBottom="40dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         >
 
             <RelativeLayout
@@ -59,8 +61,8 @@
 
                 <ImageButton
                     android:id="@+id/back_btn"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
                     android:src="@drawable/ic_arrow_left"
                     android:layout_marginStart="15dp"
                     android:layout_marginLeft="15dp"
@@ -132,7 +134,7 @@
                 >
 
                 <TextView
-                    android:id="@+id/progress_title"
+                    android:id="@+id/milestone_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     tools:layout_constraintStart_toStartOf="parent"
@@ -149,8 +151,8 @@
                     android:id="@+id/milestones_recyclerView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    tools:layout_constraintTop_toBottomOf="@id/progress_title"
-                    tools:layout_constraintStart_toStartOf="@id/progress_title"
+                    tools:layout_constraintTop_toBottomOf="@id/milestone_title"
+                    tools:layout_constraintStart_toStartOf="@id/milestone_title"
                     tools:layout_constraintEnd_toEndOf="parent"
                     tools:layout_constraintRight_toRightOf="parent"
                     android:layout_marginEnd="30dp"
@@ -184,6 +186,144 @@
                     />
 
             </android.support.constraint.ConstraintLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/challenge_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tool:visibility="visible"
+            android:visibility="gone"
+            >
+
+            <TextView
+                android:id="@+id/progress_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginTop="20dp"
+                android:text="@string/progress"
+                android:textSize="20sp"
+                style="@style/text_title_style"
+                />
+
+            <TextView
+                android:id="@+id/challenge_target_amount_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/progress_title"
+                android:layout_alignEnd="@id/challenge_amount_progress"
+                android:layout_alignRight="@id/challenge_amount_progress"
+                tool:text="10"
+                android:textSize="14sp"
+                android:textColor="#4a4a4a"
+                android:textStyle="bold"
+                tool:visibility="visible"
+                android:visibility="gone"
+                />
+
+            <ProgressBar
+                android:id="@+id/challenge_amount_progress"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_below="@id/challenge_target_amount_count"
+                android:layout_alignStart="@id/progress_title"
+                android:layout_alignLeft="@id/progress_title"
+                android:layout_marginEnd="50dp"
+                android:layout_marginRight="50dp"
+                android:progress="0"
+                android:layout_marginTop="5dp"
+                tool:progress="50"
+                android:progressDrawable="@drawable/level_progress_drawable"
+                android:elevation="1dp"
+                android:visibility="gone"
+                tool:visibility="visible"
+
+                />
+
+            <TextView
+                android:id="@+id/challenge_amount_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/challenge_amount_progress"
+                android:layout_alignEnd="@id/challenge_amount_progress"
+                android:layout_alignRight="@id/challenge_amount_progress"
+                android:layout_alignLeft="@id/challenge_amount_progress"
+                android:layout_below="@id/challenge_amount_progress"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                tool:text="amount description"
+                android:textColor="#4a4a4a"
+                android:textSize="14sp"
+                tool:visibility="visible"
+                android:visibility="gone"
+                />
+
+            <TextView
+                android:id="@+id/challenge_target_action_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/challenge_amount_description"
+                android:layout_alignEnd="@id/challenge_action_progress"
+                android:layout_alignRight="@id/challenge_action_progress"
+                android:layout_marginTop="15dp"
+                tool:text="10"
+                android:textSize="14sp"
+                android:textColor="#4a4a4a"
+                android:textStyle="bold"
+                tool:visibility="visible"
+                android:visibility="gone"
+                />
+
+            <ProgressBar
+                android:id="@+id/challenge_action_progress"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_below="@id/challenge_target_action_count"
+                android:layout_alignStart="@id/progress_title"
+                android:layout_alignLeft="@id/progress_title"
+                android:layout_marginEnd="50dp"
+                android:layout_marginRight="50dp"
+                android:layout_marginTop="5dp"
+                tool:progress="50"
+                android:progress="0"
+                android:progressDrawable="@drawable/level_progress_drawable"
+                android:elevation="1dp"
+                tool:visibility="visible"
+                android:visibility="gone"
+                />
+
+            <TextView
+                android:id="@+id/challenge_action_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/challenge_action_progress"
+                android:layout_alignEnd="@id/challenge_action_progress"
+                android:layout_alignRight="@id/challenge_action_progress"
+                android:layout_alignLeft="@id/challenge_action_progress"
+                android:layout_below="@id/challenge_action_progress"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                tool:text="amount description"
+                android:textColor="#4a4a4a"
+                android:textSize="14sp"
+                tool:visibility="visible"
+                android:visibility="gone"
+                />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_below="@id/challenge_action_description"
+                android:layout_marginStart="50dp"
+                android:layout_marginEnd="50dp"
+                android:background="@drawable/dash_line_separator"
+                android:layout_marginTop="25dp"
+                />
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/status_title"

@@ -4,8 +4,8 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
     android:paddingStart="15dp"
     android:paddingEnd="15dp"
     android:background="@drawable/bg_white_st_grey_r8"
@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:src="@drawable/ic_flag_black"
+        android:src="@drawable/ic_flag"
         />
 
     <TextView
@@ -29,8 +29,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/milestone_icon"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp"
         android:textColor="@android:color/black"
         tools:text="Place 5 things"
         android:textSize="14sp"
@@ -93,7 +93,7 @@
         />
 
     <TextView
-        android:id="@+id/target_amount_count"
+        android:id="@+id/milestone_target_amount_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/milestone_amount_progress"
@@ -108,7 +108,7 @@
         />
 
     <TextView
-        android:id="@+id/target_action_count"
+        android:id="@+id/milestone_target_action_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/milestone_action_progress"
