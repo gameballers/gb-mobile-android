@@ -98,17 +98,22 @@ public class GameBallApp {
                 String deviceToken = SharedPreferencesUtils.getInstance().getDeviceToken();
                 String playerId = SharedPreferencesUtils.getInstance().getPlayerId();
                 String clientId = SharedPreferencesUtils.getInstance().getClientId();
+                int playerCategoryId = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
 
                 if (deviceToken != null && mDeviceToken != null && mDeviceToken.equals(deviceToken)
                         && clientId.equals(mClientID)
                         && playerId != null && mPlayerID != null
-                        && mPlayerID.equals(playerId)) {
+                        && mPlayerID.equals(playerId)
+                        && playerCategoryId != -1
+                        && playerCategoryId == mPlayerCategoryID) {
                     Log.d(TAG, "Device already registered");
                     return deviceToken;
                 } else {
                     SharedPreferencesUtils.getInstance().clearData();
                     SharedPreferencesUtils.getInstance().putClientId(mClientID);
                     SharedPreferencesUtils.getInstance().putPlayerId(mPlayerID);
+                    SharedPreferencesUtils.getInstance().putPlayerCategoryId(mPlayerCategoryID);
+
                 }
 
 
@@ -205,14 +210,19 @@ public class GameBallApp {
         getBotSettings();
     }
 
-    public void init(String clientID,String playerId, @DrawableRes int notificationIcon)
+    public void init(String clientID, int playerCategoryID, @DrawableRes int notificationIcon)
     {
-        init(clientID, playerId,0, notificationIcon);
+        init(clientID, "", playerCategoryID, notificationIcon);
+    }
+
+    public void init(String clientID, @DrawableRes int notificationIcon)
+    {
+        init(clientID, "",0, notificationIcon);
     }
 
     public void registerPlayer(@NonNull String playerID)
     {
-        registerPlayer(playerID,3);
+        registerPlayer(playerID,0);
     }
 
     public void registerPlayer(@NonNull String playerID, int playerCategoryId)

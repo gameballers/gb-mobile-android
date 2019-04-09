@@ -18,28 +18,28 @@ public class PlayerRegisterRequest {
     private String gender;
     @SerializedName("Age")
     @Expose
-    private Integer age;
+    private int age;
     @SerializedName("DateOfBirth")
     @Expose
     private String dateOfBirth;
     @SerializedName("PlayerCategoryID")
     @Expose
-    private Integer playerCategoryID;
+    private int playerCategoryID;
     @SerializedName("PlayerUniqueID")
     @Expose
     private String playerUniqueID;
     @SerializedName("CurrentLevel")
     @Expose
-    private Integer currentLevel;
+    private int currentLevel;
     @SerializedName("AccFrubies")
     @Expose
-    private Integer accFrubies;
+    private int accFrubies;
     @SerializedName("AccPoints")
     @Expose
-    private Integer accPoints;
+    private int accPoints;
     @SerializedName("StatusId")
     @Expose
-    private Integer statusId;
+    private int statusId;
     @SerializedName("ClientID")
     @Expose
     private String clientID;

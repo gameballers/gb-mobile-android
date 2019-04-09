@@ -2,7 +2,7 @@ package com.gameball.gameball.views.profile;
 
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.Level;
-import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.PlayerDetailsResponse;
 
 import java.util.ArrayList;
 
@@ -10,7 +10,7 @@ public interface ProfileContract
 {
     interface View
     {
-        void fillPlayerData(PlayerInfo playerInfo, Level nextLevel);
+        void fillPlayerData(PlayerDetailsResponse playerDetails , Level nextLevel);
 
         void fillAchievements(ArrayList<Game> games);
 
@@ -21,7 +21,7 @@ public interface ProfileContract
 
     interface Presenter
     {
-        void getPlayerInfo(boolean fromLocal);
+        void getPlayerDetails();
 
         void getWithUnlocks();
     }

@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -17,14 +16,12 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.utils.DisplayUtils;
 
 public class MainContainerFragment extends DialogFragment implements MainContainerContract.View {
@@ -37,10 +34,8 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     private TabLayout tabs;
     private ViewPager viewPager;
     private ConstraintLayout headerParent;
-    ProgressBar loadingIndicator;
 
     TabsAdapter tabsAdapter;
-    MainContainerContract.Presenter presenter;
     ClientBotSettings clientBotSettings;
 
     @Override
@@ -51,7 +46,6 @@ public class MainContainerFragment extends DialogFragment implements MainContain
 
     private void initComponents() {
         tabsAdapter = new TabsAdapter(getChildFragmentManager());
-        presenter = new MainContainerPresenter(this);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
     }
 
@@ -61,8 +55,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         rootView = inflater.inflate(R.layout.fragment_main_container, container, false);
         initView();
         setupBotSettings();
-//        prepView();
-        presenter.getPlayerInfo();
+        prepView();
         return rootView;
     }
 
@@ -107,16 +100,12 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         tabs = rootView.findViewById(R.id.tabs);
         viewPager = rootView.findViewById(R.id.view_pager);
         headerParent = rootView.findViewById(R.id.header);
-        loadingIndicator = rootView.findViewById(R.id.loading_indicator);
     }
 
     private void setupBotSettings()
     {
         headerParent.setBackgroundColor(Color.parseColor(clientBotSettings.getBotMainColor()));
         tabs.setSelectedTabIndicatorColor(Color.parseColor(clientBotSettings.getBotMainColor()));
-//        LayerDrawable loadingIndicatorDrawable = (LayerDrawable) loadingIndicator.getProgressDrawable();
-        loadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
-                PorterDuff.Mode.SRC_IN);
     }
 
     private void prepView() {
@@ -164,32 +153,12 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     }
 
     @Override
-    public void setPlayerName(String name)
-    {
-        txtPlayerName.setText(name);
-    }
-
-    @Override
-    public void setPlayerEmail(String  email)
-    {
-        txtPlayerEmail.setText(email);
-    }
-
-    @Override
-    public void onProfileInfoLoaded(PlayerInfo playerInfo)
-    {
-        if(playerInfo.getName() != null && !playerInfo.getName().isEmpty())
-            txtPlayerName.setText(playerInfo.getName());
-        prepView();
-    }
-
-    @Override
     public void showLoadingIndicator() {
-        loadingIndicator.setVisibility(View.VISIBLE);
+
     }
 
     @Override
     public void hideLoadingIndicator() {
-        loadingIndicator.setVisibility(View.GONE);
+
     }
 }

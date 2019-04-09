@@ -5,7 +5,7 @@ import android.content.Context;
 import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
-import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.PlayerDetailsResponse;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
     {
         view.showLoadingIndicator();
         profileRemoteDataSource.getLeaderBoard(sharedPreferencesUtils.getPlayerId())
-                .subscribe(new SingleObserver<BaseResponse<ArrayList<PlayerInfo>>>()
+                .subscribe(new SingleObserver<BaseResponse<ArrayList<PlayerDetailsResponse>>>()
                 {
                     @Override
                     public void onSubscribe(Disposable d)
@@ -44,7 +44,7 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
                     }
 
                     @Override
-                    public void onSuccess(BaseResponse<ArrayList<PlayerInfo>> arrayListBaseResponse)
+                    public void onSuccess(BaseResponse<ArrayList<PlayerDetailsResponse>> arrayListBaseResponse)
                     {
                         view.fillLeaderBoard(arrayListBaseResponse.getResponse());
                         view.hideLoadingIndicator();

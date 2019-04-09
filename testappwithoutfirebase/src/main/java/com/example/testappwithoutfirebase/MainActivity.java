@@ -16,7 +16,6 @@ import com.gameball.gameball.network.api.GameBallApi;
 public class MainActivity extends AppCompatActivity {
 
     EditText playerIDField;
-    EditText playerCategoryID;
 
     private GameBallApp gameBallApp;
 
@@ -26,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         playerIDField = findViewById(R.id.player_id_filed);
-        playerCategoryID = findViewById(R.id.playerCategoryID);
 
         gameBallApp = GameBallApp.getInstance(MainActivity.this.getApplicationContext());
 
@@ -37,16 +35,8 @@ public class MainActivity extends AppCompatActivity {
             {
                 if(!playerIDField.getText().toString().trim().isEmpty())
                 {
-                    if(!playerCategoryID.getText().toString().trim().isEmpty())
-                        gameBallApp.registerPlayer(playerIDField.getText().toString().trim(),
-                                Integer.parseInt(playerCategoryID.getText().toString().trim()));
-                    else
-                        gameBallApp.registerPlayer(playerIDField.getText().toString());
+                    gameBallApp.registerPlayer(playerIDField.getText().toString());
                 }
-                else
-                    Toast.makeText(MainActivity.this,
-                            "playerID cannot be empty", Toast.LENGTH_SHORT).show();
-
             }
         });
 

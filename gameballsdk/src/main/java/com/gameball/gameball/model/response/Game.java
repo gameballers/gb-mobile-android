@@ -3,8 +3,6 @@ package com.gameball.gameball.model.response;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
-
 public class Game
 {
     @SerializedName("GameName")
@@ -31,21 +29,6 @@ public class Game
     @SerializedName("ActivationLevel")
     @Expose
     private int activationLevel;
-    @SerializedName("RewardFrubies")
-    @Expose
-    private int rewardFrubies;
-    @SerializedName("RewardPoints")
-    @Expose
-    private int rewardPoints;
-    @SerializedName("HighScore")
-    @Expose
-    private Integer highScore;
-    @SerializedName("HighScoreAmount")
-    @Expose
-    private Integer highScoreAmount;
-    @SerializedName("AmountUnit")
-    @Expose
-    private String amountUnit;
     @SerializedName("LevelName")
     @Expose
     private String levelName;
@@ -82,9 +65,6 @@ public class Game
     @SerializedName("UserMessage")
     @Expose
     private String userMessage;
-    @SerializedName("Milestones")
-    @Expose
-    private ArrayList<Milestone> milestones;
 
     public String getGameName() {
         return gameName;
@@ -118,7 +98,7 @@ public class Game
         this.description = description;
     }
 
-    public Boolean isUnlocked() {
+    public Boolean getIsUnlocked() {
         return isUnlocked;
     }
 
@@ -206,7 +186,7 @@ public class Game
         this.actionsAndAmountCompletedPercentage = actionsAndAmountCompletedPercentage;
     }
 
-    public Boolean isRepeatable() {
+    public Boolean getIsRepeatable() {
         return isRepeatable;
     }
 
@@ -244,35 +224,5 @@ public class Game
 
     public void setUserMessage(String userMessage) {
         this.userMessage = userMessage;
-    }
-
-    public ArrayList<Milestone> getMilestones()
-    {
-        return milestones;
-    }
-
-    public int getRewardFrubies()
-    {
-        return rewardFrubies;
-    }
-
-    public int getRewardPoints()
-    {
-        return rewardPoints;
-    }
-
-    public Integer getHighScore()
-    {
-        return highScore;
-    }
-
-    public Integer getHighScoreAmount()
-    {
-        return highScoreAmount;
-    }
-
-    public String getAmountUnit()
-    {
-        return amountUnit;
     }
 }
