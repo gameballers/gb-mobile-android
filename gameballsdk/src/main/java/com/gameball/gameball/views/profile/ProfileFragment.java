@@ -1,24 +1,14 @@
 package com.gameball.gameball.views.profile;
 
-import android.content.res.ColorStateList;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.ClipDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,16 +18,15 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.Level;
-import com.gameball.gameball.model.response.PlayerDetailsResponse;
-import com.gameball.gameball.utils.Constants;
+import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.utils.ImageDownloader;
 import com.gameball.gameball.utils.ProgressBarAnimation;
+import com.gameball.gameball.views.mainContainer.MainContainerContract;
 
 import java.util.ArrayList;
 
@@ -59,9 +48,14 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private View profileLoadingIndicatorBg;
 
 
-    AchievementsAdapter achievementsAdapter;
-    ProfileContract.Presenter presenter;
-    ClientBotSettings clientBotSettings;
+    private AchievementsAdapter achievementsAdapter;
+    private ProfileContract.Presenter presenter;
+    private ClientBotSettings clientBotSettings;
+    private float playerProgress;
+    private Animation fadeIn;
+    private Animation zoomInX;
+
+    MainContainerContract.View mainContainerView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,7 +70,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         initView();
         setupBotSettings();
         prepView();
-        presenter.getPlayerDetails();
+        presenter.getPlayerInfo(true);
         presenter.getWithUnlocks();
         return rootView;
     }
@@ -85,6 +79,11 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         achievementsAdapter = new AchievementsAdapter(getContext(), new ArrayList<Game>());
         presenter = new ProfilePresenter(getContext(), this);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
+
+        fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
+        fadeIn.setDuration(700);
+        zoomInX = AnimationUtils.loadAnimation(getContext(),R.anim.zoom_in_x_only);
+        zoomInX.setDuration(400);
     }
 
     private void initView() {
@@ -109,16 +108,14 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
                 PorterDuff.Mode.SRC_IN);
         achievemetTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        profileLoadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
+                PorterDuff.Mode.SRC_IN);
     }
 
-    private void applyAnimation(PlayerDetailsResponse playerDetails, Level nextLevel)
+    private void applyAnimation()
     {
-        Animation fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
-        fadeIn.setDuration(700);
-        Animation zoomInX = AnimationUtils.loadAnimation(getContext(),R.anim.zoom_in_x_only);
-        zoomInX.setDuration(400);
         ProgressBarAnimation progressBarAnimation = new ProgressBarAnimation(levelProgress,0,
-                (playerDetails.getAccFrubies() * 100 )/nextLevel.getLevelFrubies());
+                playerProgress);
         progressBarAnimation.setDuration(700);
         progressBarAnimation.setFillAfter(true);
 
@@ -139,18 +136,17 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     }
 
     @Override
-    public void fillPlayerData(PlayerDetailsResponse playerDetails , Level nextLevel)
+    public void fillPlayerData(PlayerInfo playerInfo, Level nextLevel)
     {
-        levelName.setText(playerDetails.getLevel().getName());
-        if(playerDetails.getLevel().getIcon() != null)
+        levelName.setText(playerInfo.getLevel().getName());
+        if(playerInfo.getLevel().getIcon() != null)
             ImageDownloader.downloadImage(getContext(), levelLogo,
-                    playerDetails.getLevel().getIcon().getFileName());
+                    playerInfo.getLevel().getIcon().getFileName());
         frubiesForNextLevel.setText(nextLevel.getLevelFrubies() + "");
-        currentPointsValue.setText(playerDetails.getAccPoints() + "");
-        currentFrubiesValue.setText(playerDetails.getLevel().getLevelFrubies() + "");
+        currentPointsValue.setText(playerInfo.getAccPoints() + "");
+        currentFrubiesValue.setText(playerInfo.getLevel().getLevelFrubies() + "");
         achievemetTitle.setVisibility(View.VISIBLE);
-        applyAnimation(playerDetails, nextLevel);
-
+        playerProgress = (playerInfo.getAccFrubies() * 100 )/nextLevel.getLevelFrubies();
     }
 
     @Override
@@ -172,5 +168,28 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     {
         profileLoadingIndicator.setVisibility(View.GONE);
         profileLoadingIndicatorBg.setVisibility(View.GONE);
+        Animation fadeOut = AnimationUtils.loadAnimation(getContext(),
+                android.R.anim.fade_out);
+        fadeOut.setDuration(100);
+        profileLoadingIndicatorBg.setAnimation(fadeOut);
+        fadeOut.setAnimationListener(new Animation.AnimationListener()
+        {
+            @Override
+            public void onAnimationStart(Animation animation)
+            {
+                applyAnimation();
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation)
+            {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation)
+            {
+
+            }
+        });
     }
 }
