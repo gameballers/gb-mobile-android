@@ -287,6 +287,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     {
         progressBar.setVisibility(View.VISIBLE);
         actionCountTxt.setVisibility(View.VISIBLE);
+        description.setVisibility(View.VISIBLE);
+
         actionCountTxt.setText(game.getTargetActionsCount() + "");
         description.setText(String.format("only %d %s remaining to achive this challenge",
                 game.getTargetActionsCount() - game.getAchievedActionsCount(), ""));
@@ -330,6 +332,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     {
         progressBar.setVisibility(View.VISIBLE);
         amountCountTxt.setVisibility(View.VISIBLE);
+        description.setVisibility(View.VISIBLE);
 
         String targetAmountStr = "" + game.getTargetAmount();
         if (game.getAmountUnit() != null)
