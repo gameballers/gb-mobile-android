@@ -4,9 +4,9 @@ import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
-import com.gameball.gameball.model.response.PlayerInfoResponse;
-import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.Game;
+import com.gameball.gameball.model.response.Level;
+import com.gameball.gameball.model.response.PlayerDetailsResponse;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Config;
 
@@ -32,14 +32,17 @@ public interface GameBallApi {
     @POST(Config.Push)
     Single<Response<Void>> push(@Header("token") String token);
 
-    @GET(Config.PlayerInfo)
-    Single<BaseResponse<PlayerInfoResponse>> getPlayerDetails(@Query("externalId") String playerId);
+    @GET(Config.PlayerDetails)
+    Single<BaseResponse<PlayerDetailsResponse>> getPlayerDetails(@Query("externalId") String playerId);
 
     @GET(Config.GetWithUnlocks)
-    Single<BaseResponse<GetWithUnlocksWrapper>> getWithUnlocks(@Query("externalId") String playerId);
+    Single<BaseResponse<ArrayList<Game>>> getWithUnlocks(@Query("externalId") String playerId);
+
+    @GET(Config.GetNextLevel)
+    Single<BaseResponse<Level>> getNextLevel(@Query("externalId") String playerId);
 
     @GET(Config.GetLeaderBoard)
-    Single<BaseResponse<ArrayList<PlayerInfo>>> getLeaderBoard(@Query("externalId") String playerId);
+    Single<BaseResponse<ArrayList<PlayerDetailsResponse>>> getLeaderBoard(@Query("externalId") String playerId);
 
     @GET(Config.GetBotSettings)
     Single<BaseResponse<ClientBotSettings>> getBotSettings();

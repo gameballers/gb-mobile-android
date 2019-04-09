@@ -3,10 +3,9 @@ package com.gameball.gameball.network.profileRemote;
 import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
+import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.Level;
-import com.gameball.gameball.model.response.PlayerInfo;
-import com.gameball.gameball.model.response.PlayerInfoResponse;
+import com.gameball.gameball.model.response.PlayerDetailsResponse;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
 import com.google.gson.Gson;
@@ -44,7 +43,7 @@ public class ProfileRemoteDataSource implements DataSourceContract
     }
 
     @Override
-    public Single<BaseResponse<PlayerInfoResponse>> getPlayerInfo(String playerId)
+    public Single<BaseResponse<PlayerDetailsResponse>> getPlayerDetails(String playerId)
     {
         return gameBallApi.getPlayerDetails(playerId)
                 .subscribeOn(Schedulers.io())
@@ -52,7 +51,7 @@ public class ProfileRemoteDataSource implements DataSourceContract
     }
 
     @Override
-    public Single<BaseResponse<GetWithUnlocksWrapper>> getWithUnlocks(String playerId)
+    public Single<BaseResponse<ArrayList<Game>>> getWithUnlocks(String playerId)
     {
         return gameBallApi.getWithUnlocks(playerId)
                 .subscribeOn(Schedulers.io())
@@ -60,7 +59,15 @@ public class ProfileRemoteDataSource implements DataSourceContract
     }
 
     @Override
-    public Single<BaseResponse<ArrayList<PlayerInfo>>> getLeaderBoard(String playerId)
+    public Single<BaseResponse<Level>> getNextLevel(String playerId)
+    {
+        return gameBallApi.getNextLevel(playerId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public Single<BaseResponse<ArrayList<PlayerDetailsResponse>>> getLeaderBoard(String playerId)
     {
         return gameBallApi.getLeaderBoard(playerId)
                 .subscribeOn(Schedulers.io())

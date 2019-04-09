@@ -16,14 +16,13 @@
         android:src="@drawable/ic_diamond"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/achievements_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="5dp"
         android:gravity="center"
         android:textColor="@android:color/black"
         android:textSize="12sp"
@@ -32,21 +31,22 @@
         app:layout_constraintTop_toBottomOf="@id/achievements_logo"
         tools:text="Name" />
 
-    <TextView
-        android:id="@+id/challenge_reward_points"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+    <ProgressBar
+        android:id="@+id/achievements_progress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="0dp"
+        android:layout_height="5dp"
+        android:layout_marginTop="5dp"
+        android:progress="50"
+        android:progressDrawable="@drawable/level_progress_drawable"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/achievements_name"
         android:elevation="1dp"
+        tools:visibility="visible"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
-        android:textColor="@android:color/black"
-        android:textSize="12sp"
-        tools:text="30 Pts"
-        android:textStyle="bold"
         />
 
     <View
