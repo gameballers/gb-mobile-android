@@ -14,6 +14,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -36,33 +37,51 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     public static final int ACTION_AND_AMOUNT_BASED = 3;
     public static final int HIGH_SCORE_BASED = 4;
 
-    public static final int ACTIVATION_FRIBIES_BASED = 2;
+    public static final int ACTIVATION_FRUBIES_BASED = 2;
     public static final int ACTIVATION_LEVEL_BASED = 3;
 
 
     private ImageView challengeIcon;
     private View notAchievedIndicator;
     private ImageView lockedChallengeIndicator;
-    private TextView statusTitle;
     private TextView challengeName;
     private TextView challengeDescription;
-    private TextView milestoneTargetAmountCount;
-    private TextView challengeTargetAmountCount;
+
+    //mileStone views
+    private ConstraintLayout milestoneLayout;
     private TextView milestoneTitle;
+    private RecyclerView milestonesRecyclerView;
+    private TextView milestoneTargetAmountCount;
+    private TextView milestoneTargetActionCount;
     private ProgressBar milestoneAmountProgress;
+    private ProgressBar milestoneActionProgress;
     private TextView milestoneDescription;
     private TextView milestoneRewardTxt;
-    private TextView challengeRewardTxt;
-    private TextView milestoneTargetActionCount;
-    private TextView challengeTargetActionCount;
-    private ProgressBar milestoneActionProgress;
-    private ImageView statusIcon;
-    private TextView statusDescription;
-    private ImageButton backBtn;
-    private RecyclerView milestonesRecyclerView;
-    private ConstraintLayout milestoneLayout;
+
+    //normal challenge views
     private RelativeLayout challengeLayout;
     private TextView progressTitle;
+    private TextView challengeTargetAmountCount;
+    private TextView challengeTargetActionCount;
+    private TextView challengeAmountDescription;
+    private TextView challengeActionDescription;
+    private ProgressBar challengeAmountProgress;
+    private ProgressBar challengeActionProgress;
+    private TextView challengeRewardTxt;
+
+    //high score views
+    private RelativeLayout highScoreLayout;
+    private TextView highScoreTitle;
+    private TextView highScoreValue;
+
+    //status views
+    private LinearLayout statusLayout;
+    private TextView statusTitle;
+    private ImageView statusIcon;
+    private TextView statusDescription;
+
+    private ImageButton backBtn;
+
 
     Game game;
     ClientBotSettings clientBotSettings;
@@ -70,10 +89,6 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     Animation zoomIn;
     Animation fadeIn;
     Animation translate;
-    private TextView challengeAmountDescription;
-    private TextView challengeActionDescription;
-    private ProgressBar challengeAmountProgress;
-    private ProgressBar challengeActionProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -135,6 +150,10 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         challengeAmountProgress.setProgress(1);
         challengeActionProgress = findViewById(R.id.challenge_action_progress);
         challengeActionProgress.setProgress(1);
+        highScoreLayout = findViewById(R.id.high_score_layout);
+        highScoreTitle = findViewById(R.id.high_score_title);
+        highScoreValue = findViewById(R.id.high_score_value);
+        statusLayout = findViewById(R.id.status_layout);
     }
 
 
@@ -184,6 +203,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         statusTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
         milestoneTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
         progressTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        highScoreTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
 
     }
 
@@ -198,7 +218,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
             String statusSuffix = "";
             switch (game.getActivationCriteriaTypeId())
             {
-                case ACTIVATION_FRIBIES_BASED:
+                case ACTIVATION_FRUBIES_BASED:
                     statusSuffix = game.getActivationFrubes() + " " + getString(R.string.frubies);
                     break;
                 case ACTIVATION_LEVEL_BASED:
@@ -210,7 +230,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         } else
         {
             lockedChallengeIndicator.setVisibility(View.GONE);
-            if (game.getAchievedCount() > 0)
+            if (game.getAchievedCount() > 0 || game.getBehaviorTypeId() == 5)
             {
                 notAchievedIndicator.setVisibility(View.GONE);
                 statusIcon.setImageResource(R.drawable.ic_status_achieved);
@@ -226,7 +246,14 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
             {
                 milestoneLayout.setVisibility(View.VISIBLE);
                 milestoneTitle.startAnimation(fadeIn);
-            } else if(game.getBehaviorTypeId() != HIGH_SCORE_BASED)
+            } else if(game.getBehaviorTypeId() == HIGH_SCORE_BASED)
+            {
+                highScoreValue.setText(String.format("%d %s",game.getHighScore(),
+                        game.getAmountUnit()));
+                highScoreLayout.setVisibility(View.VISIBLE);
+                statusLayout.setVisibility(View.GONE);
+            }
+            else
             {
                 challengeLayout.setVisibility(View.VISIBLE);
                 progressTitle.startAnimation(fadeIn);
@@ -241,9 +268,9 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
                     else
                         showActionProgress(challengeActionProgress, challengeTargetActionCount,
                                 challengeActionDescription);
-                        break;
+                    break;
                 case AMOUNT_BASED:
-                    if(game.getMilestones().size() > 0)
+                    if (game.getMilestones().size() > 0)
                         showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
                                 milestoneDescription);
                     else
@@ -251,14 +278,13 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
                                 challengeAmountDescription);
                     break;
                 case ACTION_AND_AMOUNT_BASED:
-                    if(game.getMilestones().size() > 0)
+                    if (game.getMilestones().size() > 0)
                     {
                         showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
                                 milestoneDescription);
                         showActionProgress(milestoneActionProgress, milestoneTargetActionCount,
                                 milestoneDescription);
-                    }
-                    else
+                    } else
                     {
                         showAmountProgress(challengeAmountProgress, challengeTargetAmountCount,
                                 challengeAmountDescription);
