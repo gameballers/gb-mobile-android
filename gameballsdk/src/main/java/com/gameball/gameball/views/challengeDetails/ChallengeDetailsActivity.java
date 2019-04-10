@@ -171,15 +171,6 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     }
 
 
-    private void fillView()
-    {
-        challengeName.setText(game.getGameName());
-        challengeDescription.setText(game.getDescription());
-        ImageDownloader.downloadImage(this, challengeIcon, game.getIcon());
-        handleUnlocked();
-        applyAnimation();
-    }
-
     private void applyAnimation()
     {
         challengeName.startAnimation(fadeIn);
@@ -207,105 +198,143 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
     }
 
-    private void handleUnlocked()
+    private void fillView()
+    {
+        challengeName.setText(game.getGameName());
+        challengeDescription.setText(game.getDescription());
+        ImageDownloader.downloadImage(this, challengeIcon, game.getIcon());
+        setupView();
+        applyAnimation();
+    }
+
+    private void setupView()
     {
         if (!game.isUnlocked())
         {
-            lockedChallengeIndicator.setVisibility(View.VISIBLE);
-            notAchievedIndicator.setVisibility(View.VISIBLE);
-            statusIcon.setImageResource(R.drawable.ic_status_locked);
-
-            String statusSuffix = "";
-            switch (game.getActivationCriteriaTypeId())
-            {
-                case ACTIVATION_FRUBIES_BASED:
-                    statusSuffix = game.getActivationFrubes() + " " + getString(R.string.frubies);
-                    break;
-                case ACTIVATION_LEVEL_BASED:
-                    statusSuffix = getString(R.string.reach_level) + " " + game.getActivationLevel();
-
-            }
-            statusDescription.setText(String.format("%s %s %s %s", getString(R.string.locked),
-                    getString(R.string.you_need_to), statusSuffix, getString(R.string.to_unlock_this_level)));
+            setupLockedStatus();
         } else
         {
             lockedChallengeIndicator.setVisibility(View.GONE);
-            if (game.getAchievedCount() > 0 || game.getBehaviorTypeId() == 5)
-            {
-                notAchievedIndicator.setVisibility(View.GONE);
-                statusIcon.setImageResource(R.drawable.ic_status_achieved);
-                statusDescription.setText(String.format("%s (%d)", getString(R.string.achieved), game.getAchievedCount()));
-            } else
-            {
-                notAchievedIndicator.setVisibility(View.VISIBLE);
-                statusIcon.setImageResource(R.drawable.ic_status_keep_going);
-                statusDescription.setText(R.string.keep_going);
-            }
 
-            if (game.getMilestones().size() > 0)
+            if (isChallengeAchieved())
             {
-                milestoneLayout.setVisibility(View.VISIBLE);
-                milestoneTitle.startAnimation(fadeIn);
-            } else if(game.getBehaviorTypeId() == HIGH_SCORE_BASED)
-            {
-                highScoreValue.setText(String.format("%d %s",game.getHighScore(),
-                        game.getAmountUnit()));
-                highScoreLayout.setVisibility(View.VISIBLE);
-                statusLayout.setVisibility(View.GONE);
+                setupAchievedStatus();
             }
             else
             {
-                challengeLayout.setVisibility(View.VISIBLE);
-                progressTitle.startAnimation(fadeIn);
+                setupNotAchievedStatus();
             }
 
-            switch (game.getBehaviorTypeId())
-            {
-                case ACTION_BASED:
-                    if (game.getMilestones().size() > 0)
-                        showActionProgress(milestoneActionProgress, milestoneTargetActionCount,
-                                milestoneDescription);
-                    else
-                        showActionProgress(challengeActionProgress, challengeTargetActionCount,
-                                challengeActionDescription);
-                    break;
-                case AMOUNT_BASED:
-                    if (game.getMilestones().size() > 0)
-                        showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
-                                milestoneDescription);
-                    else
-                        showAmountProgress(challengeAmountProgress, challengeTargetAmountCount,
-                                challengeAmountDescription);
-                    break;
-                case ACTION_AND_AMOUNT_BASED:
-                    if (game.getMilestones().size() > 0)
-                    {
-                        showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
-                                milestoneDescription);
-                        showActionProgress(milestoneActionProgress, milestoneTargetActionCount,
-                                milestoneDescription);
-                    } else
-                    {
-                        showAmountProgress(challengeAmountProgress, challengeTargetAmountCount,
-                                challengeAmountDescription);
-                        showActionProgress(challengeActionProgress, challengeTargetActionCount,
-                                challengeActionDescription);
-                    }
-                    break;
-            }
+            setupViewsByBehaviourTypeId();
+        }
+    }
 
-            String challengeRewardStr = String.format("%d %s | %d %s", game.getRewardFrubies(),
-                    getString(R.string.frubies), game.getRewardPoints(), getString(R.string.points));
+    private boolean isChallengeAchieved()
+    {
+        return game.getAchievedCount() > 0 || game.getBehaviorTypeId() == 5 ||
+                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScore() != null &&
+                        game.getHighScore() > 0);
+    }
 
-            if (game.getMilestones().size() > 0)
-            {
-                milestoneRewardTxt.setText(challengeRewardStr);
-            } else
-            {
-                challengeRewardTxt.setVisibility(View.VISIBLE);
-                milestoneRewardTxt.setVisibility(View.GONE);
-                challengeRewardTxt.setText(challengeRewardStr);
-            }
+    private void setupLockedStatus()
+    {
+        lockedChallengeIndicator.setVisibility(View.VISIBLE);
+        notAchievedIndicator.setVisibility(View.VISIBLE);
+        statusIcon.setImageResource(R.drawable.ic_status_locked);
+
+        String statusSuffix = "";
+        switch (game.getActivationCriteriaTypeId())
+        {
+            case ACTIVATION_FRUBIES_BASED:
+                statusSuffix = game.getActivationFrubes() + " " + getString(R.string.frubies);
+                break;
+            case ACTIVATION_LEVEL_BASED:
+                statusSuffix = getString(R.string.reach_level) + " " + game.getActivationLevel();
+
+        }
+        statusDescription.setText(String.format("%s %s %s %s", getString(R.string.locked),
+                getString(R.string.you_need_to), statusSuffix, getString(R.string.to_unlock_this_level)));
+    }
+
+    private void setupAchievedStatus()
+    {
+        notAchievedIndicator.setVisibility(View.GONE);
+        statusIcon.setImageResource(R.drawable.ic_status_achieved);
+        statusDescription.setText(String.format("%s (%d)", getString(R.string.achieved), game.getAchievedCount()));
+    }
+
+    private void setupNotAchievedStatus()
+    {
+        notAchievedIndicator.setVisibility(View.VISIBLE);
+        statusIcon.setImageResource(R.drawable.ic_status_keep_going);
+        statusDescription.setText(R.string.keep_going);
+    }
+
+    private void setupViewsByBehaviourTypeId()
+    {
+        String challengeRewardStr = String.format("%d %s | %d %s", game.getRewardFrubies(),
+                getString(R.string.frubies), game.getRewardPoints(), getString(R.string.points));
+
+        if (game.getMilestones().size() > 0)
+        {
+            milestoneLayout.setVisibility(View.VISIBLE);
+            challengeRewardTxt.setVisibility(View.GONE);
+            milestoneTitle.startAnimation(fadeIn);
+            milestoneRewardTxt.setText(challengeRewardStr);
+            setupProgressbarBehaviour();
+        } else if (game.getBehaviorTypeId() == HIGH_SCORE_BASED)
+        {
+            highScoreValue.setText(String.format("%d %s", game.getHighScore(),
+                    game.getAmountUnit()));
+            highScoreLayout.setVisibility(View.VISIBLE);
+            statusLayout.setVisibility(View.GONE);
+        } else
+        {
+            challengeLayout.setVisibility(View.VISIBLE);
+            challengeRewardTxt.setVisibility(View.VISIBLE);
+            progressTitle.startAnimation(fadeIn);
+            challengeRewardTxt.startAnimation(fadeIn);
+
+            challengeRewardTxt.setText(challengeRewardStr);
+            setupProgressbarBehaviour();
+        }
+    }
+
+    private void setupProgressbarBehaviour()
+    {
+        switch (game.getBehaviorTypeId())
+        {
+            case ACTION_BASED:
+                if (game.getMilestones().size() > 0)
+                    showActionProgress(milestoneActionProgress, milestoneTargetActionCount,
+                            milestoneDescription);
+                else
+                    showActionProgress(challengeActionProgress, challengeTargetActionCount,
+                            challengeActionDescription);
+                break;
+            case AMOUNT_BASED:
+                if (game.getMilestones().size() > 0)
+                    showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
+                            milestoneDescription);
+                else
+                    showAmountProgress(challengeAmountProgress, challengeTargetAmountCount,
+                            challengeAmountDescription);
+                break;
+            case ACTION_AND_AMOUNT_BASED:
+                if (game.getMilestones().size() > 0)
+                {
+                    showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
+                            milestoneDescription);
+                    showActionProgress(milestoneActionProgress, milestoneTargetActionCount,
+                            milestoneDescription);
+                } else
+                {
+                    showAmountProgress(challengeAmountProgress, challengeTargetAmountCount,
+                            challengeAmountDescription);
+                    showActionProgress(challengeActionProgress, challengeTargetActionCount,
+                            challengeActionDescription);
+                }
+                break;
         }
     }
 

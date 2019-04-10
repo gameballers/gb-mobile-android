@@ -51,7 +51,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
 
 
     private AchievementsAdapter achievementsAdapter;
-    private QuestsAdapter questsAdapter;
+    private AchievementsAdapter questChallengesAdapter;
     private ProfileContract.Presenter presenter;
     private ClientBotSettings clientBotSettings;
     private float playerProgress;
@@ -80,7 +80,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
 
     private void initComponents() {
         achievementsAdapter = new AchievementsAdapter(getContext(), new ArrayList<Game>());
-        questsAdapter = new QuestsAdapter(getContext(), new ArrayList<Quest>());
+        questChallengesAdapter= new AchievementsAdapter(getContext(), new ArrayList<Game>());
         presenter = new ProfilePresenter(getContext(), this);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
 
@@ -141,8 +141,20 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
 
         questsRecyclerView.setHasFixedSize(true);
         questsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        questsRecyclerView.setAdapter(questsAdapter);
+        questsRecyclerView.setAdapter(questChallengesAdapter);
         questsRecyclerView.setNestedScrollingEnabled(false);
+    }
+
+    private ArrayList<Game> buildQuestChallengesArray(ArrayList<Quest> quests)
+    {
+        ArrayList<Game> games = new ArrayList<>();
+
+        for (Quest quest: quests)
+        {
+            games.addAll(quest.getQuestChallenges());
+        }
+
+        return games;
     }
 
     @Override
@@ -165,8 +177,8 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         achievementsAdapter.setmData(games);
         achievementsAdapter.notifyDataSetChanged();
 
-        questsAdapter.setmData(quests);
-        questsAdapter.notifyDataSetChanged();
+        questChallengesAdapter.setmData(buildQuestChallengesArray(quests));
+        questChallengesAdapter.notifyDataSetChanged();
     }
 
     @Override
