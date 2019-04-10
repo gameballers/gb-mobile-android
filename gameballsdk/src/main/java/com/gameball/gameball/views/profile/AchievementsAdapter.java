@@ -74,7 +74,12 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         holder.achievementName.setText(item.getGameName());
         if(item.isUnlocked())
         {
-            if(item.getActionsAndAmountCompletedPercentage() == 100)
+            if(item.getBehaviorTypeId() == ChallengeDetailsActivity.HIGH_SCORE_BASED)
+            {
+                if(item.getHighScore() != null && item.getHighScore() > 0)
+                    holder.notAchievedIndicator.setVisibility(View.GONE);
+            }
+            else if(item.getActionsAndAmountCompletedPercentage() == 100)
             {
                 holder.notAchievedIndicator.setVisibility(View.GONE);
             }
