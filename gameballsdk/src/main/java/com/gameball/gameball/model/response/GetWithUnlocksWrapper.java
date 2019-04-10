@@ -7,6 +7,10 @@ import java.util.ArrayList;
 
 public class GetWithUnlocksWrapper
 {
+
+    @SerializedName("Quests")
+    @Expose
+    private ArrayList<Quest> quests;
     @SerializedName("Challenges")
     @Expose
     private ArrayList<Game> games;
@@ -19,5 +23,10 @@ public class GetWithUnlocksWrapper
     public void setGames(ArrayList<Game> games)
     {
         this.games = games;
+    }
+
+    public ArrayList<Quest> getQuests()
+    {
+        return quests;
     }
 }

@@ -173,6 +173,21 @@
             tools:orientation="vertical"
             tools:spanCount="3" />
 
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/quests_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/achievements_recyclerView"
+            tools:itemCount="9"
+            tools:layoutManager="android.support.v7.widget.GridLayoutManager"
+            tools:listitem="@layout/quest_item_layout"
+            tools:orientation="vertical"
+            tools:spanCount="3" />
+
+
+
         <View
             android:id="@+id/profile_data_loading_indicator_bg"
             android:layout_width="match_parent"
