@@ -112,10 +112,10 @@ public class MainContainerFragment extends DialogFragment implements MainContain
 
     private void setupBotSettings()
     {
-        headerParent.setBackgroundColor(Color.parseColor(clientBotSettings.getBotMainColor()));
-        tabs.setSelectedTabIndicatorColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        headerParent.setBackgroundColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
+        tabs.setSelectedTabIndicatorColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
 //        LayerDrawable loadingIndicatorDrawable = (LayerDrawable) loadingIndicator.getProgressDrawable();
-        loadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
+        loadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()),
                 PorterDuff.Mode.SRC_IN);
     }
 
@@ -131,14 +131,14 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         });
         setupTabsIcons();
         tabs.getTabAt(tabs.getSelectedTabPosition()).getIcon().
-                setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+                setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
 
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
         {
             @Override
             public void onTabSelected(TabLayout.Tab tab)
             {
-                tab.getIcon().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+                tab.getIcon().setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
             }
 
             @Override

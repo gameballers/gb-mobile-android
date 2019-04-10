@@ -51,12 +51,12 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     private ConstraintLayout milestoneLayout;
     private TextView milestoneTitle;
     private RecyclerView milestonesRecyclerView;
-    private TextView milestoneTargetAmountCount;
-    private TextView milestoneTargetActionCount;
-    private ProgressBar milestoneAmountProgress;
-    private ProgressBar milestoneActionProgress;
-    private TextView milestoneDescription;
-    private TextView milestoneRewardTxt;
+//    private TextView milestoneTargetAmountCount;
+//    private TextView milestoneTargetActionCount;
+//    private ProgressBar milestoneAmountProgress;
+//    private ProgressBar milestoneActionProgress;
+//    private TextView milestoneDescription;
+//    private TextView milestoneRewardTxt;
 
     //normal challenge views
     private RelativeLayout challengeLayout;
@@ -125,18 +125,18 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         lockedChallengeIndicator = findViewById(R.id.locked_challenge_indicator);
         challengeName = findViewById(R.id.challenge_name);
         challengeDescription = findViewById(R.id.challenge_description);
-        milestoneTargetAmountCount = findViewById(R.id.milestone_target_amount_count);
+//        milestoneTargetAmountCount = findViewById(R.id.milestone_target_amount_count);
         challengeTargetAmountCount = findViewById(R.id.challenge_target_amount_count);
         milestoneTitle = findViewById(R.id.milestone_title);
-        milestoneAmountProgress = findViewById(R.id.milestone_amount_progress);
-        milestoneAmountProgress.setProgress(1);
-        milestoneDescription = findViewById(R.id.milestone_description);
-        milestoneRewardTxt = findViewById(R.id.mileStone_reward_text);
+//        milestoneAmountProgress = findViewById(R.id.milestone_amount_progress);
+//        milestoneAmountProgress.setProgress(1);
+//        milestoneDescription = findViewById(R.id.milestone_description);
+//        milestoneRewardTxt = findViewById(R.id.mileStone_reward_text);
         challengeRewardTxt = findViewById(R.id.challenge_reward_txt);
-        milestoneTargetActionCount = findViewById(R.id.milestone_target_action_count);
+//        milestoneTargetActionCount = findViewById(R.id.milestone_target_action_count);
         challengeTargetActionCount = findViewById(R.id.challenge_target_action_count);
-        milestoneActionProgress = findViewById(R.id.milestone_action_progress);
-        milestoneActionProgress.setProgress(1);
+//        milestoneActionProgress = findViewById(R.id.milestone_action_progress);
+//        milestoneActionProgress.setProgress(1);
         statusIcon = findViewById(R.id.status_icon);
         statusDescription = findViewById(R.id.status_description);
         backBtn = findViewById(R.id.back_btn);
@@ -164,7 +164,6 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
             DisplayUtils.statusBarColorToSolid(this, "#000000");
         }
         milestonesRecyclerView.setNestedScrollingEnabled(false);
-        milestonesRecyclerView.setHasFixedSize(true);
         milestonesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         milestonesRecyclerView.setAdapter(adapter);
         backBtn.setOnClickListener(this);
@@ -181,20 +180,21 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
     private void setupBotSettings()
     {
-        LayerDrawable amountProgress = (LayerDrawable) milestoneAmountProgress.getProgressDrawable();
-        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
-        LayerDrawable actionProgress = (LayerDrawable) milestoneActionProgress.getProgressDrawable();
-        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+//        milestone botsettings
+//        LayerDrawable amountProgress = (LayerDrawable) milestoneAmountProgress.getProgressDrawable();
+//        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
+//        LayerDrawable actionProgress = (LayerDrawable) milestoneActionProgress.getProgressDrawable();
+//        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
 
-        amountProgress = (LayerDrawable) challengeAmountProgress.getProgressDrawable();
-        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
-        actionProgress = (LayerDrawable) challengeActionProgress.getProgressDrawable();
-        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+        LayerDrawable amountProgress = (LayerDrawable) challengeAmountProgress.getProgressDrawable();
+        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
+        LayerDrawable actionProgress = (LayerDrawable) challengeActionProgress.getProgressDrawable();
+        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
 
-        statusTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
-        milestoneTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
-        progressTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
-        highScoreTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        statusTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
+        milestoneTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
+        progressTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
+        highScoreTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
 
     }
 
@@ -280,8 +280,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
             milestoneLayout.setVisibility(View.VISIBLE);
             challengeRewardTxt.setVisibility(View.GONE);
             milestoneTitle.startAnimation(fadeIn);
-            milestoneRewardTxt.setText(challengeRewardStr);
-            setupProgressbarBehaviour();
+//            milestoneRewardTxt.setText(challengeRewardStr);
         } else if (game.getBehaviorTypeId() == HIGH_SCORE_BASED)
         {
             highScoreValue.setText(String.format("%d %s", game.getHighScore(),
@@ -305,35 +304,35 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         switch (game.getBehaviorTypeId())
         {
             case ACTION_BASED:
-                if (game.getMilestones().size() > 0)
-                    showActionProgress(milestoneActionProgress, milestoneTargetActionCount,
-                            milestoneDescription);
-                else
+//                if (game.getMilestones().size() > 0)
+//                    showActionProgress(milestoneActionProgress, milestoneTargetActionCount,
+//                            milestoneDescription);
+//                else
                     showActionProgress(challengeActionProgress, challengeTargetActionCount,
                             challengeActionDescription);
                 break;
             case AMOUNT_BASED:
-                if (game.getMilestones().size() > 0)
-                    showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
-                            milestoneDescription);
-                else
+//                if (game.getMilestones().size() > 0)
+//                    showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
+//                            milestoneDescription);
+//                else
                     showAmountProgress(challengeAmountProgress, challengeTargetAmountCount,
                             challengeAmountDescription);
                 break;
             case ACTION_AND_AMOUNT_BASED:
-                if (game.getMilestones().size() > 0)
-                {
-                    showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
-                            milestoneDescription);
-                    showActionProgress(milestoneActionProgress, milestoneTargetActionCount,
-                            milestoneDescription);
-                } else
-                {
+//                if (game.getMilestones().size() > 0)
+//                {
+//                    showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
+//                            milestoneDescription);
+//                    showActionProgress(milestoneActionProgress, milestoneTargetActionCount,
+//                            milestoneDescription);
+//                } else
+//                {
                     showAmountProgress(challengeAmountProgress, challengeTargetAmountCount,
                             challengeAmountDescription);
                     showActionProgress(challengeActionProgress, challengeTargetActionCount,
                             challengeActionDescription);
-                }
+//                }
                 break;
         }
     }

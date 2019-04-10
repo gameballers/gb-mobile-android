@@ -110,10 +110,10 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private void setupBotSettings()
     {
         LayerDrawable progressDrawable = (LayerDrawable) levelProgress.getProgressDrawable();
-        progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
+        progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()),
                 PorterDuff.Mode.SRC_IN);
-        achievemetTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
-        profileLoadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
+        achievemetTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
+        profileLoadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()),
                 PorterDuff.Mode.SRC_IN);
     }
 

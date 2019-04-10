@@ -60,7 +60,7 @@ public class AchievementsFragment extends Fragment implements AchievemetsContrac
 
     private void setupBotSettings()
     {
-        achievementTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        achievementTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
     }
 
     @Override

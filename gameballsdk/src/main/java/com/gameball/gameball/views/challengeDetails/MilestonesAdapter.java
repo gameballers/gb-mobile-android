@@ -81,10 +81,10 @@ public class MilestonesAdapter extends RecyclerView.Adapter<MilestonesAdapter.It
     private void setUpBotSettings(ItemRowHolder holder)
     {
         LayerDrawable amountProgress = (LayerDrawable) holder.milestoneAmountProgress.getProgressDrawable();
-        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
 
         LayerDrawable actionProgress = (LayerDrawable) holder.milestoneActionProgress.getProgressDrawable();
-        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
     }
 
     @Override
