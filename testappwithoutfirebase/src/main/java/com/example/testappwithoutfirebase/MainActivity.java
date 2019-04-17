@@ -71,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                Action action = new Action("11",20);
-                GameBallApp.getInstance(MainActivity.this).AddAction(action);
             }
         });
 
@@ -81,8 +79,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                Action action = new Action("45");
-                GameBallApp.getInstance(MainActivity.this).AddAction(action);
             }
         });
 

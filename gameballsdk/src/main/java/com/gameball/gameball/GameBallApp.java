@@ -109,6 +109,7 @@ public class GameBallApp {
                     SharedPreferencesUtils.getInstance().clearData();
                     SharedPreferencesUtils.getInstance().putClientId(mClientID);
                     SharedPreferencesUtils.getInstance().putPlayerId(mPlayerID);
+                    SharedPreferencesUtils.getInstance().putPlayerCategoryId(mPlayerCategoryID);
                 }
 
 
@@ -207,12 +208,22 @@ public class GameBallApp {
 
     public void init(String clientID,String playerId, @DrawableRes int notificationIcon)
     {
-        init(clientID, playerId,0, notificationIcon);
+        if(SharedPreferencesUtils.getInstance().getPlayerCategoryId() != -1)
+            mPlayerCategoryID = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
+        else
+            mPlayerCategoryID = 1;
+
+        init(clientID, playerId,mPlayerCategoryID, notificationIcon);
     }
 
     public void registerPlayer(@NonNull String playerID)
     {
-        registerPlayer(playerID,3);
+        if(SharedPreferencesUtils.getInstance().getPlayerCategoryId() != -1)
+            mPlayerCategoryID = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
+        else
+            mPlayerCategoryID = 1;
+
+        registerPlayer(playerID,mPlayerCategoryID);
     }
 
     public void registerPlayer(@NonNull String playerID, int playerCategoryId)

@@ -159,6 +159,7 @@
                 android:layout_marginRight="30dp"
                 tool:layoutManager="android.support.v7.widget.LinearLayoutManager"
                 tool:listitem="@layout/milestone_item_layout"
+                tool:itemCount="3"
                 />
 
             <FrameLayout
