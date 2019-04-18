@@ -107,7 +107,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         String gameStr = getIntent().getStringExtra(Constants.GAME_OBJ_KEY);
         game = new Gson().fromJson(gameStr, Game.class);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
-        adapter = new MilestonesAdapter(this, game.getMilestones());
+        adapter = new MilestonesAdapter(this, game.getMilestones(),game.getBehaviorTypeId());
         zoomIn = AnimationUtils.loadAnimation(this, R.anim.zoom_in);
         zoomIn.setDuration(500);
         fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);

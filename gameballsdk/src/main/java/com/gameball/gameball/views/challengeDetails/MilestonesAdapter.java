@@ -22,17 +22,23 @@ import com.gameball.gameball.utils.ProgressBarAnimation;
 
 import java.util.ArrayList;
 
+import static com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity.ACTION_AND_AMOUNT_BASED;
+import static com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity.ACTION_BASED;
+import static com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity.AMOUNT_BASED;
+
 public class MilestonesAdapter extends RecyclerView.Adapter<MilestonesAdapter.ItemRowHolder>
 {
     private Context mContext;
     private ArrayList<Milestone> mData;
     private ClientBotSettings clientBotSettings;
+    private int behaviourTypeId;
 
-    public MilestonesAdapter(Context context, ArrayList<Milestone> data)
+    public MilestonesAdapter(Context context, ArrayList<Milestone> data, int behaviourTypeId)
     {
         this.mData = data;
         this.mContext = context;
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
+        this.behaviourTypeId = behaviourTypeId;
     }
 
     @Override
@@ -53,11 +59,20 @@ public class MilestonesAdapter extends RecyclerView.Adapter<MilestonesAdapter.It
 
         holder.milestoneDescription.setText(item.getDescription());
 
-        if(item.getTargetAmount() != null)
-            showAmountProgress(item, holder);
+        switch (behaviourTypeId)
+        {
+            case ACTION_BASED:
+                showActionProgress(item, holder);
+                break;
+            case AMOUNT_BASED:
+                showAmountProgress(item, holder);
+                break;
+            case ACTION_AND_AMOUNT_BASED:
+                showAmountProgress(item, holder);
+                showActionProgress(item, holder);
+                break;
 
-        if(item.getTargetActionCount() != null)
-            showActionProgress(item, holder);
+        }
 
         if(isMilestoneComplete(item))
             holder.milestoneIcon.setImageResource(R.drawable.ic_complete);
