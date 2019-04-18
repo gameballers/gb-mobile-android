@@ -91,7 +91,10 @@ public class Action
         }
         this.playerId = SharedPreferencesUtils.getInstance().getPlayerId();
         this.isPositive = true;
-        this.playerCategoryID = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
+        if(SharedPreferencesUtils.getInstance().getPlayerCategoryId() != -1)
+        {
+            this.playerCategoryID = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
+        }
         if(amount != -1)
         {
             this.amount = amount;

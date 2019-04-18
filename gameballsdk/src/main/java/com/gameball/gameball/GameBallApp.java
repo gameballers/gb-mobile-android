@@ -210,16 +210,12 @@ public class GameBallApp {
 
     public void init(String clientID,String playerId, @DrawableRes int notificationIcon)
     {
-        mPlayerCategoryID = 1;
-
-        init(clientID, playerId,mPlayerCategoryID, notificationIcon);
+        init(clientID, playerId,-1, notificationIcon);
     }
 
     public void registerPlayer(@NonNull String playerID)
     {
-            mPlayerCategoryID = 1;
-
-        registerPlayer(playerID,mPlayerCategoryID);
+        registerPlayer(playerID,-1);
     }
 
     public void registerPlayer(@NonNull String playerID, int playerCategoryId)
