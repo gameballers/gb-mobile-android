@@ -10,6 +10,7 @@ import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
 
 import io.reactivex.SingleObserver;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 public class ProfilePresenter implements ProfileContract.Presenter
@@ -19,6 +20,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
     LocalDataSource localDataSource;
     ProfileRemoteDataSource profileRemoteDataSource;
     SharedPreferencesUtils sharedPreferencesUtils;
+    CompositeDisposable disposable;
 
     public ProfilePresenter(Context context, ProfileContract.View view)
     {
@@ -27,6 +29,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
         profileRemoteDataSource = ProfileRemoteDataSource.getInstance();
         localDataSource = LocalDataSource.getInstance();
         sharedPreferencesUtils = SharedPreferencesUtils.getInstance();
+        disposable = new CompositeDisposable();
     }
 
     @Override
@@ -45,7 +48,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
                         @Override
                         public void onSubscribe(Disposable d)
                         {
-
+                            disposable.add(d);
                         }
 
                         @Override
@@ -78,7 +81,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
                     @Override
                     public void onSubscribe(Disposable d)
                     {
-
+                        disposable.add(d);
                     }
 
                     @Override
@@ -98,5 +101,11 @@ public class ProfilePresenter implements ProfileContract.Presenter
                         view.hideLoadingIndicator();
                     }
                 });
+    }
+
+    @Override
+    public void unsubscribe()
+    {
+        disposable.clear();
     }
 }

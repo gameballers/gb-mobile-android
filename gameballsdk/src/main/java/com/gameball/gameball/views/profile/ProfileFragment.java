@@ -1,9 +1,12 @@
 package com.gameball.gameball.views.profile;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -30,6 +33,7 @@ import com.gameball.gameball.utils.ProgressBarAnimation;
 import com.gameball.gameball.views.mainContainer.MainContainerContract;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ProfileFragment extends Fragment  implements ProfileContract.View
 {
@@ -216,5 +220,19 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
 
             }
         });
+    }
+
+    @Override
+    public void onStop()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
+        {
+            PowerManager pm = (PowerManager) (getContext()).getSystemService(Context.POWER_SERVICE);
+            if((pm.isInteractive()))
+            {
+                presenter.unsubscribe();
+            }
+        }
+        super.onStop();
     }
 }

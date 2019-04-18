@@ -1,6 +1,7 @@
 package com.gameball.gameball.views.leaderBoard;
 
 import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.utils.BasePresenter;
 
 import java.util.ArrayList;
 
@@ -15,7 +16,7 @@ public interface LeaderBoardContract
         void hideLoadingIndicator();
     }
 
-    interface Presenter
+    interface Presenter extends BasePresenter
     {
         void getLeaderBoard();
     }

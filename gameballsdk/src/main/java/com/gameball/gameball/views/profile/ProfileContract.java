@@ -4,6 +4,7 @@ import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.Quest;
+import com.gameball.gameball.utils.BasePresenter;
 
 import java.util.ArrayList;
 
@@ -20,7 +21,7 @@ public interface ProfileContract
         void hideLoadingIndicator();
     }
 
-    interface Presenter
+    interface Presenter extends BasePresenter
     {
         void getPlayerInfo(boolean fromLocal);
 

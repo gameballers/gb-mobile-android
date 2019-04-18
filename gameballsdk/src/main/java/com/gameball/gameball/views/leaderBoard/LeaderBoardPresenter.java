@@ -11,6 +11,7 @@ import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
 import java.util.ArrayList;
 
 import io.reactivex.SingleObserver;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
@@ -20,6 +21,7 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
     LocalDataSource localDataSource;
     ProfileRemoteDataSource profileRemoteDataSource;
     SharedPreferencesUtils sharedPreferencesUtils;
+    CompositeDisposable disposable;
 
     public LeaderBoardPresenter(Context context, LeaderBoardContract.View view)
     {
@@ -28,6 +30,7 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
         localDataSource = LocalDataSource.getInstance();
         profileRemoteDataSource = ProfileRemoteDataSource.getInstance();
         sharedPreferencesUtils = SharedPreferencesUtils.getInstance();
+        disposable = new CompositeDisposable();
     }
 
     @Override
@@ -40,7 +43,7 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
                     @Override
                     public void onSubscribe(Disposable d)
                     {
-
+                        disposable.add(d);
                     }
 
                     @Override
@@ -56,5 +59,11 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
                         view.hideLoadingIndicator();
                     }
                 });
+    }
+
+    @Override
+    public void unsubscribe()
+    {
+        disposable.clear();
     }
 }
