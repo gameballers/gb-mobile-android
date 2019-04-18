@@ -76,6 +76,7 @@ public class GameBallApp {
         if (this.mContext == null) {
             this.mContext = context;
             gameBallApi = Network.getInstance().getGameBallApi();
+            SharedPreferencesUtils.init(mContext, new Gson());
         }
     }
 
@@ -98,10 +99,12 @@ public class GameBallApp {
                 String deviceToken = SharedPreferencesUtils.getInstance().getDeviceToken();
                 String playerId = SharedPreferencesUtils.getInstance().getPlayerId();
                 String clientId = SharedPreferencesUtils.getInstance().getClientId();
+                int playerCategoryId = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
 
                 if (deviceToken != null && mDeviceToken != null && mDeviceToken.equals(deviceToken)
                         && clientId.equals(mClientID)
                         && playerId != null && mPlayerID != null
+                        && playerCategoryId == mPlayerCategoryID
                         && mPlayerID.equals(playerId)) {
                     Log.d(TAG, "Device already registered");
                     return deviceToken;
@@ -164,14 +167,13 @@ public class GameBallApp {
                 });
     }
 
-    public void init(@NonNull String clientID, String playerID, int playerCategoryId, @DrawableRes int notificationIcon) {
+    public void init(@NonNull String clientID, String playerID, int playerCategoryId,
+                     @DrawableRes int notificationIcon) {
         // TODO: 8/23/2018
         this.mClientID = clientID;
         this.mPlayerID = playerID;
         this.mPlayerCategoryID = playerCategoryId;
         mNotificationIcon = notificationIcon;
-
-        SharedPreferencesUtils.init(mContext, new Gson());
 
         SharedPreferencesUtils.getInstance().putClientId(clientID);
 
@@ -208,19 +210,13 @@ public class GameBallApp {
 
     public void init(String clientID,String playerId, @DrawableRes int notificationIcon)
     {
-        if(SharedPreferencesUtils.getInstance().getPlayerCategoryId() != -1)
-            mPlayerCategoryID = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
-        else
-            mPlayerCategoryID = 1;
+        mPlayerCategoryID = 1;
 
         init(clientID, playerId,mPlayerCategoryID, notificationIcon);
     }
 
     public void registerPlayer(@NonNull String playerID)
     {
-        if(SharedPreferencesUtils.getInstance().getPlayerCategoryId() != -1)
-            mPlayerCategoryID = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
-        else
             mPlayerCategoryID = 1;
 
         registerPlayer(playerID,mPlayerCategoryID);
@@ -383,7 +379,7 @@ public class GameBallApp {
      *               amount: is needed if the challenge is amount based
      *               playerCategoryID: us needed if you have multi users categories(default value is 0)
      */
-    public void AddAction(Action action) {
+    public void addAction(Action action) {
         gameBallApi.addNewAtion(action).
                 subscribeOn(Schedulers.io())
                 .retry()
