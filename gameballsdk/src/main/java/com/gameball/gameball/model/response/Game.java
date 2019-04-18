@@ -49,7 +49,7 @@ public class Game
     @SerializedName("LevelName")
     @Expose
     private String levelName;
-    @SerializedName("BehaviorTypeId")
+        @SerializedName("BehaviorTypeId")
     @Expose
     private int behaviorTypeId;
     @SerializedName("TargetActionsCount")

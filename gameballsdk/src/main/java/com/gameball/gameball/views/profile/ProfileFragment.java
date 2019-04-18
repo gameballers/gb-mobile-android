@@ -24,6 +24,7 @@ import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.Quest;
 import com.gameball.gameball.utils.ImageDownloader;
 import com.gameball.gameball.utils.ProgressBarAnimation;
 import com.gameball.gameball.views.mainContainer.MainContainerContract;
@@ -44,11 +45,13 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private TextView currentFrubiesTitle;
     private TextView currentPointTitle;
     private RecyclerView achievementsRecyclerView;
+    private RecyclerView questsRecyclerView;
     private ProgressBar profileLoadingIndicator;
     private View profileLoadingIndicatorBg;
 
 
     private AchievementsAdapter achievementsAdapter;
+    private AchievementsAdapter questChallengesAdapter;
     private ProfileContract.Presenter presenter;
     private ClientBotSettings clientBotSettings;
     private float playerProgress;
@@ -77,6 +80,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
 
     private void initComponents() {
         achievementsAdapter = new AchievementsAdapter(getContext(), new ArrayList<Game>());
+        questChallengesAdapter= new AchievementsAdapter(getContext(), new ArrayList<Game>());
         presenter = new ProfilePresenter(getContext(), this);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
 
@@ -95,6 +99,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         currentPointsValue = rootView.findViewById(R.id.current_points_value);
         achievemetTitle = rootView.findViewById(R.id.achievements_title);
         achievementsRecyclerView = rootView.findViewById(R.id.achievements_recyclerView);
+        questsRecyclerView = rootView.findViewById(R.id.quests_recyclerView);
         profileLoadingIndicator = rootView.findViewById(R.id.profile_data_loading_indicator);
         profileLoadingIndicatorBg = rootView.findViewById(R.id.profile_data_loading_indicator_bg);
         currentPointTitle = rootView.findViewById(R.id.points_title);
@@ -105,10 +110,10 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private void setupBotSettings()
     {
         LayerDrawable progressDrawable = (LayerDrawable) levelProgress.getProgressDrawable();
-        progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
+        progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()),
                 PorterDuff.Mode.SRC_IN);
-        achievemetTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
-        profileLoadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
+        achievemetTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
+        profileLoadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()),
                 PorterDuff.Mode.SRC_IN);
     }
 
@@ -133,6 +138,23 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         achievementsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         achievementsRecyclerView.setAdapter(achievementsAdapter);
         achievementsRecyclerView.setNestedScrollingEnabled(false);
+
+        questsRecyclerView.setHasFixedSize(true);
+        questsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        questsRecyclerView.setAdapter(questChallengesAdapter);
+        questsRecyclerView.setNestedScrollingEnabled(false);
+    }
+
+    private ArrayList<Game> buildQuestChallengesArray(ArrayList<Quest> quests)
+    {
+        ArrayList<Game> games = new ArrayList<>();
+
+        for (Quest quest: quests)
+        {
+            games.addAll(quest.getQuestChallenges());
+        }
+
+        return games;
     }
 
     @Override
@@ -150,10 +172,13 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     }
 
     @Override
-    public void fillAchievements(ArrayList<Game> games)
+    public void onWithUnlocksLoaded(ArrayList<Game> games, ArrayList<Quest> quests)
     {
         achievementsAdapter.setmData(games);
         achievementsAdapter.notifyDataSetChanged();
+
+        questChallengesAdapter.setmData(buildQuestChallengesArray(quests));
+        questChallengesAdapter.notifyDataSetChanged();
     }
 
     @Override

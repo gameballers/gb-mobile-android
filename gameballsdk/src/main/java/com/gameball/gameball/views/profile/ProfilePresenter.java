@@ -1,22 +1,16 @@
 package com.gameball.gameball.views.profile;
 
 import android.content.Context;
-import android.util.Pair;
 
 import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
-import com.gameball.gameball.model.response.Level;
-import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
 
-import io.reactivex.Single;
 import io.reactivex.SingleObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.BiFunction;
 
 public class ProfilePresenter implements ProfileContract.Presenter
 {
@@ -91,7 +85,9 @@ public class ProfilePresenter implements ProfileContract.Presenter
                     public void onSuccess(BaseResponse<GetWithUnlocksWrapper> arrayListBaseResponse)
                     {
                         localDataSource.games = arrayListBaseResponse.getResponse().getGames();
-                        view.fillAchievements(localDataSource.games);
+                        localDataSource.quests = arrayListBaseResponse.getResponse().getQuests();
+
+                        view.onWithUnlocksLoaded(localDataSource.games, localDataSource.quests);
                         view.hideLoadingIndicator();
                     }
 

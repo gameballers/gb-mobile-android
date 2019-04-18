@@ -155,12 +155,12 @@ public class SharedPreferencesUtils {
 
     public void putPlayerCategoryId(Integer playerCategoryId)
     {
-        putString(PreferencesContract.PLAYER_CATEGORY_ID, gson.toJson(playerCategoryId));
+        putInt(PreferencesContract.PLAYER_CATEGORY_ID, playerCategoryId);
     }
 
     public int getPlayerCategoryId()
     {
-        return pref.getInt(PreferencesContract.PLAYER_CATEGORY_ID,  -1);
+        return getInt(PreferencesContract.PLAYER_CATEGORY_ID,  -1);
 
     }
 
@@ -171,8 +171,6 @@ public class SharedPreferencesUtils {
         private static final String CLIENT_ID = "CLIENT_ID";
         private static final String CLIENT_BOT_SETTINGS = "BOT_SETTINGS";
         private static final String PLAYER_CATEGORY_ID = "PLAYER_CATEGORY_ID";
-
-
     }
 
 }

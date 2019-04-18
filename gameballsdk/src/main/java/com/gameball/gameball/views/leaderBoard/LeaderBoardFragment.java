@@ -61,7 +61,7 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
 
     private void setupBotSettings()
     {
-        leaderTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        leaderTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
     }
 
     private void prepView() {
