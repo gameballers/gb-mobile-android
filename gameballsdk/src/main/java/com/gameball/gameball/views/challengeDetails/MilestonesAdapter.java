@@ -21,6 +21,7 @@ import com.gameball.gameball.model.response.Milestone;
 import com.gameball.gameball.utils.ProgressBarAnimation;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import static com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity.ACTION_AND_AMOUNT_BASED;
 import static com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity.ACTION_BASED;
@@ -53,8 +54,8 @@ public class MilestonesAdapter extends RecyclerView.Adapter<MilestonesAdapter.It
     public void onBindViewHolder(ItemRowHolder holder, int position)
     {
         Milestone item = mData.get(position);
-        holder.mileStoneRewardText.setText(String.format("%d %s | %d %s",item.getRewardFrubies(),
-                mContext.getString(R.string.frubies), item.getRewardPoints(),
+        holder.mileStoneRewardText.setText(String.format(Locale.getDefault(),
+                "%d %s | %d %s",item.getRewardFrubies(), mContext.getString(R.string.frubies), item.getRewardPoints(),
                 mContext.getString(R.string.points)));
 
         holder.milestoneDescription.setText(item.getDescription());
@@ -117,7 +118,8 @@ public class MilestonesAdapter extends RecyclerView.Adapter<MilestonesAdapter.It
     {
         holder.milestoneActionProgress.setVisibility(View.VISIBLE);
         holder.targetActionCount.setVisibility(View.VISIBLE);
-        holder.targetActionCount.setText(milestone.getTargetActionCount() + "");
+        holder.targetActionCount.setText(String.format(Locale.getDefault(),
+                "%d", milestone.getTargetActionCount()));
 //        holder.milestoneDescription.setText(String.format("only %d %s remaining to achive this challenge",
 //                milestone.getTargetActionCount() - milestone.getAchievedActionsCount(), ""));
 
@@ -159,7 +161,8 @@ public class MilestonesAdapter extends RecyclerView.Adapter<MilestonesAdapter.It
         holder.milestoneAmountProgress.setVisibility(View.VISIBLE);
         holder.targetAmountCount.setVisibility(View.VISIBLE);
 
-        String targetAmountStr = "" + milestone.getTargetAmount();
+        String targetAmountStr = String.format(Locale.getDefault(),
+                "%d", milestone.getTargetAmount());
 
         holder.targetAmountCount.setText(targetAmountStr);
 

@@ -213,6 +213,13 @@ public class GameBallApp {
         init(clientID, playerId,-1, notificationIcon);
     }
 
+    public void init(String clientID, @DrawableRes int notificationIcon)
+    {
+        init(clientID, null,-1, notificationIcon);
+    }
+
+
+
     public void registerPlayer(@NonNull String playerID)
     {
         registerPlayer(playerID,-1);

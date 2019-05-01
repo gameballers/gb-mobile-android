@@ -29,6 +29,8 @@ import com.gameball.gameball.utils.ImageDownloader;
 import com.gameball.gameball.utils.ProgressBarAnimation;
 import com.google.gson.Gson;
 
+import java.util.Locale;
+
 public class ChallengeDetailsActivity extends AppCompatActivity implements View.OnClickListener
 {
 
@@ -242,25 +244,30 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         notAchievedIndicator.setVisibility(View.VISIBLE);
         statusIcon.setImageResource(R.drawable.ic_status_locked);
 
-        String statusSuffix = "";
+        String statusPrefix = "";
         switch (game.getActivationCriteriaTypeId())
         {
             case ACTIVATION_FRUBIES_BASED:
-                statusSuffix = game.getActivationFrubes() + " " + getString(R.string.frubies);
+                statusPrefix = String.format(Locale.getDefault(),"%s %d %s",
+                        getString(R.string.you_need_to), game.getActivationFrubies(),
+                        getString(R.string.frubies));
                 break;
             case ACTIVATION_LEVEL_BASED:
-                statusSuffix = getString(R.string.reach_level) + " " + game.getActivationLevel();
+                statusPrefix = String.format(Locale.getDefault(),"%s %d",
+                        getString(R.string.reach_level), game.getActivationLevel());
 
         }
-        statusDescription.setText(String.format("%s %s %s %s", getString(R.string.locked),
-                getString(R.string.you_need_to), statusSuffix, getString(R.string.to_unlock_this_level)));
+        statusDescription.setText(String.format(Locale.getDefault(),
+                "%s %s %s", getString(R.string.locked), statusPrefix,
+                getString(R.string.to_unlock_this_level)));
     }
 
     private void setupAchievedStatus()
     {
         notAchievedIndicator.setVisibility(View.GONE);
         statusIcon.setImageResource(R.drawable.ic_status_achieved);
-        statusDescription.setText(String.format("%s (%d)", getString(R.string.achieved), game.getAchievedCount()));
+        statusDescription.setText(String.format(Locale.getDefault(),
+                "%s (%d)", getString(R.string.achieved), game.getAchievedCount()));
     }
 
     private void setupNotAchievedStatus()
@@ -272,8 +279,9 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
     private void setupViewsByBehaviourTypeId()
     {
-        String challengeRewardStr = String.format("%d %s | %d %s", game.getRewardFrubies(),
-                getString(R.string.frubies), game.getRewardPoints(), getString(R.string.points));
+        String challengeRewardStr = String.format(Locale.getDefault(),
+                "%d %s | %d %s", game.getRewardFrubies(), getString(R.string.frubies),
+                game.getRewardPoints(), getString(R.string.points));
 
         if (game.getMilestones().size() > 0)
         {
@@ -283,8 +291,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 //            milestoneRewardTxt.setText(challengeRewardStr);
         } else if (game.getBehaviorTypeId() == HIGH_SCORE_BASED)
         {
-            highScoreValue.setText(String.format("%d %s", game.getHighScore(),
-                    game.getAmountUnit()));
+            highScoreValue.setText(String.format(Locale.getDefault(),"%d %s",
+                    game.getHighScore(), game.getAmountUnit()));
             highScoreLayout.setVisibility(View.VISIBLE);
             statusLayout.setVisibility(View.GONE);
         } else
@@ -343,8 +351,10 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         actionCountTxt.setVisibility(View.VISIBLE);
         description.setVisibility(View.VISIBLE);
 
-        actionCountTxt.setText(game.getTargetActionsCount() + "");
-        description.setText(String.format("only %d %s remaining to achive this challenge",
+        actionCountTxt.setText(String.format(Locale.getDefault(),
+                "%d", game.getTargetActionsCount()));
+        description.setText(String.format(Locale.getDefault(),
+                "only %d %s remaining to achive this challenge",
                 game.getTargetActionsCount() - game.getAchievedActionsCount(), ""));
 
         if (game.getAmountCompletedPercentage() == 0)
@@ -388,12 +398,14 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         amountCountTxt.setVisibility(View.VISIBLE);
         description.setVisibility(View.VISIBLE);
 
-        String targetAmountStr = "" + game.getTargetAmount();
+        String targetAmountStr = String.format(Locale.getDefault(),
+                "%d", game.getTargetAmount());
         if (game.getAmountUnit() != null)
             targetAmountStr += " " + game.getAmountUnit();
         amountCountTxt.setText(targetAmountStr);
 
-        description.setText(String.format("only %d %s remaining to achive this challenge",
+        description.setText(String.format(Locale.getDefault(),
+                "only %d %s remaining to achive this challenge",
                 game.getTargetAmount() - game.getCurrentAmount(), ""));
 
         if (game.getAmountCompletedPercentage() == 0)

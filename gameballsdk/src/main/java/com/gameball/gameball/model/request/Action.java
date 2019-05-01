@@ -64,7 +64,7 @@ public class Action
         this(null,null,challengeApiIds, amount);
     }
 
-    public Action(String challengeApiId,String questApiId, ArrayList<String> challengeApiIds,
+    private Action(String challengeApiId,String questApiId, ArrayList<String> challengeApiIds,
                   int amount) throws IllegalArgumentException
     {
         if(challengeApiId != null)

@@ -25,6 +25,7 @@ import com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapter.ItemRowHolder> {
     private Context mContext;
@@ -59,13 +60,15 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         if(item.getBehaviorTypeId() == ChallengeDetailsActivity.HIGH_SCORE_BASED)
         {
             if(item.getHighScore() != null)
-                holder.challengeRewardPts.setText(String.format("%d %s", item.getHighScore(),
+                holder.challengeRewardPts.setText(String.format(Locale.getDefault(),
+                        "%d %s", item.getHighScore(),
                     item.getAmountUnit()));
             else
                 holder.challengeRewardPts.setVisibility(View.GONE);
         }
         else
-            holder.challengeRewardPts.setText(String.format("%d %s", item.getRewardPoints(),
+            holder.challengeRewardPts.setText(String.format(Locale.getDefault(),
+                    "%d %s", item.getRewardPoints(),
                 mContext.getString(R.string.pts)));
         
         if(item.getIcon() != null && !item.getIcon().isEmpty())

@@ -134,7 +134,7 @@ public class Game
         this.activationCriteriaTypeId = activationCriteriaTypeId;
     }
 
-    public int getActivationFrubes() {
+    public int getActivationFrubies() {
         return activationFrubes;
     }
 

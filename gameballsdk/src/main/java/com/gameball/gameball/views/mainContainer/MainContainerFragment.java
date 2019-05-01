@@ -157,6 +157,8 @@ public class MainContainerFragment extends DialogFragment implements MainContain
             }
         });
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+            tabs.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
     }
 
     private void setupTabsIcons() {
