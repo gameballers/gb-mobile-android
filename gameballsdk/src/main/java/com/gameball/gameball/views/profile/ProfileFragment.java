@@ -33,6 +33,7 @@ import com.gameball.gameball.utils.ProgressBarAnimation;
 import com.gameball.gameball.views.mainContainer.MainContainerContract;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Objects;
 
 public class ProfileFragment extends Fragment  implements ProfileContract.View
@@ -168,9 +169,12 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         if(playerInfo.getLevel().getIcon() != null)
             ImageDownloader.downloadImage(getContext(), levelLogo,
                     playerInfo.getLevel().getIcon().getFileName());
-        frubiesForNextLevel.setText(nextLevel.getLevelFrubies() + "");
-        currentPointsValue.setText(playerInfo.getAccPoints() + "");
-        currentFrubiesValue.setText(playerInfo.getLevel().getLevelFrubies() + "");
+        frubiesForNextLevel.setText(String.format(Locale.getDefault(),
+                "%d", nextLevel.getLevelFrubies()));
+        currentPointsValue.setText(String.format(Locale.getDefault(),
+                "%d", playerInfo.getAccPoints()));
+        currentFrubiesValue.setText(String.format(Locale.getDefault(),
+                "%d", playerInfo.getLevel().getLevelFrubies()));
         achievemetTitle.setVisibility(View.VISIBLE);
         playerProgress = (playerInfo.getAccFrubies() * 100 )/nextLevel.getLevelFrubies();
     }

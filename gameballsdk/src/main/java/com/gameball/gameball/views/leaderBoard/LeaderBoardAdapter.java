@@ -13,6 +13,7 @@ import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.utils.ImageDownloader;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ItemRowHolder> {
     private Context mContext;
@@ -38,7 +39,8 @@ public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.
 
         holder.playerName.setText(item.getName());
         holder.playerCurrentLevelName.setText(item.getLevel().getName());
-        holder.frubiesValue.setText(String.format("%d",item.getAccFrubies()));
+        holder.frubiesValue.setText(String.format(Locale.getDefault(),
+                "%d",item.getAccFrubies()));
         if(item.getLevel().getIcon() != null)
             ImageDownloader.downloadImage(mContext, holder.playerLevelLogo,
                     item.getLevel().getIcon().getFileName());
