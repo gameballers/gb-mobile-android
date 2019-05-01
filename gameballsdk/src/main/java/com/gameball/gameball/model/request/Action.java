@@ -64,7 +64,7 @@ public class Action
         this(null,null,challengeApiIds, amount);
     }
 
-    public Action(String challengeApiId,String questApiId, ArrayList<String> challengeApiIds,
+    private Action(String challengeApiId,String questApiId, ArrayList<String> challengeApiIds,
                   int amount) throws IllegalArgumentException
     {
         if(challengeApiId != null)
@@ -91,7 +91,10 @@ public class Action
         }
         this.playerId = SharedPreferencesUtils.getInstance().getPlayerId();
         this.isPositive = true;
-        this.playerCategoryID = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
+        if(SharedPreferencesUtils.getInstance().getPlayerCategoryId() != -1)
+        {
+            this.playerCategoryID = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
+        }
         if(amount != -1)
         {
             this.amount = amount;

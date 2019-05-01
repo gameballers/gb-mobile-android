@@ -14,6 +14,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
+import java.util.Locale;
+
 public class DisplayUtils {
     public static float convertPixelsToDp(float px) {
         DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
@@ -54,5 +56,13 @@ public class DisplayUtils {
             View decore = window.getDecorView();
             decore.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         }
+    }
+
+    public static boolean isRTL()
+    {
+        Locale locale = Locale.getDefault();
+        final int directionality = Character.getDirectionality(locale.getDisplayName().charAt(0));
+        return directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
+                directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC;
     }
 }

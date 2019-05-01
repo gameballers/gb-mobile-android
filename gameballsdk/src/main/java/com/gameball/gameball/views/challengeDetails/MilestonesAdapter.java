@@ -21,18 +21,25 @@ import com.gameball.gameball.model.response.Milestone;
 import com.gameball.gameball.utils.ProgressBarAnimation;
 
 import java.util.ArrayList;
+import java.util.Locale;
+
+import static com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity.ACTION_AND_AMOUNT_BASED;
+import static com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity.ACTION_BASED;
+import static com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity.AMOUNT_BASED;
 
 public class MilestonesAdapter extends RecyclerView.Adapter<MilestonesAdapter.ItemRowHolder>
 {
     private Context mContext;
     private ArrayList<Milestone> mData;
     private ClientBotSettings clientBotSettings;
+    private int behaviourTypeId;
 
-    public MilestonesAdapter(Context context, ArrayList<Milestone> data)
+    public MilestonesAdapter(Context context, ArrayList<Milestone> data, int behaviourTypeId)
     {
         this.mData = data;
         this.mContext = context;
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
+        this.behaviourTypeId = behaviourTypeId;
     }
 
     @Override
@@ -47,17 +54,26 @@ public class MilestonesAdapter extends RecyclerView.Adapter<MilestonesAdapter.It
     public void onBindViewHolder(ItemRowHolder holder, int position)
     {
         Milestone item = mData.get(position);
-        holder.mileStoneRewardText.setText(String.format("%d %s | %d %s",item.getRewardFrubies(),
-                mContext.getString(R.string.frubies), item.getRewardPoints(),
+        holder.mileStoneRewardText.setText(String.format(Locale.getDefault(),
+                "%d %s | %d %s",item.getRewardFrubies(), mContext.getString(R.string.frubies), item.getRewardPoints(),
                 mContext.getString(R.string.points)));
 
         holder.milestoneDescription.setText(item.getDescription());
 
-        if(item.getTargetAmount() != null)
-            showAmountProgress(item, holder);
+        switch (behaviourTypeId)
+        {
+            case ACTION_BASED:
+                showActionProgress(item, holder);
+                break;
+            case AMOUNT_BASED:
+                showAmountProgress(item, holder);
+                break;
+            case ACTION_AND_AMOUNT_BASED:
+                showAmountProgress(item, holder);
+                showActionProgress(item, holder);
+                break;
 
-        if(item.getTargetActionCount() != null)
-            showActionProgress(item, holder);
+        }
 
         if(isMilestoneComplete(item))
             holder.milestoneIcon.setImageResource(R.drawable.ic_complete);
@@ -102,7 +118,8 @@ public class MilestonesAdapter extends RecyclerView.Adapter<MilestonesAdapter.It
     {
         holder.milestoneActionProgress.setVisibility(View.VISIBLE);
         holder.targetActionCount.setVisibility(View.VISIBLE);
-        holder.targetActionCount.setText(milestone.getTargetActionCount() + "");
+        holder.targetActionCount.setText(String.format(Locale.getDefault(),
+                "%d", milestone.getTargetActionCount()));
 //        holder.milestoneDescription.setText(String.format("only %d %s remaining to achive this challenge",
 //                milestone.getTargetActionCount() - milestone.getAchievedActionsCount(), ""));
 
@@ -144,7 +161,8 @@ public class MilestonesAdapter extends RecyclerView.Adapter<MilestonesAdapter.It
         holder.milestoneAmountProgress.setVisibility(View.VISIBLE);
         holder.targetAmountCount.setVisibility(View.VISIBLE);
 
-        String targetAmountStr = "" + milestone.getTargetAmount();
+        String targetAmountStr = String.format(Locale.getDefault(),
+                "%d", milestone.getTargetAmount());
 
         holder.targetAmountCount.setText(targetAmountStr);
 

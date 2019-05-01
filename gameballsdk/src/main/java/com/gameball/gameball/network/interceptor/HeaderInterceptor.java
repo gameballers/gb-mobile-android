@@ -5,6 +5,7 @@ import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.utils.Constants;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -22,6 +23,8 @@ public class HeaderInterceptor implements Interceptor
         if (SharedPreferencesUtils.getInstance().getClientId() != null)
             builder.addHeader(Constants.APIKey,
                     SharedPreferencesUtils.getInstance().getClientId());
+
+        builder.addHeader(Constants.LangKey, Locale.getDefault().getLanguage());
 
         request = builder.build();
         return chain.proceed(request);

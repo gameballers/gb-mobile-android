@@ -1,7 +1,10 @@
 package com.gameball.gameball.views.leaderBoard;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -87,5 +90,20 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
     public void hideLoadingIndicator()
     {
         loadingIndicator.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onStop()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
+        {
+            PowerManager pm = (PowerManager) (getContext()).getSystemService(Context.POWER_SERVICE);
+            if((pm.isInteractive()))
+            {
+                presenter.unsubscribe();
+            }
+        }
+
+        super.onStop();
     }
 }

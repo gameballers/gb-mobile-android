@@ -1,6 +1,7 @@
 package com.gameball.gameball.views.mainContainer;
 
 import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.utils.BasePresenter;
 import com.gameball.gameball.utils.BaseView;
 
 public interface MainContainerContract {
@@ -14,7 +15,7 @@ public interface MainContainerContract {
 
     }
 
-    interface Presenter
+    interface Presenter extends BasePresenter
     {
         void getPlayerInfo();
     }

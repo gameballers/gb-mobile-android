@@ -1,11 +1,14 @@
 package com.gameball.gameball.views.mainContainer;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
@@ -154,6 +157,8 @@ public class MainContainerFragment extends DialogFragment implements MainContain
             }
         });
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+            tabs.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
     }
 
     private void setupTabsIcons() {
@@ -191,5 +196,19 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     @Override
     public void hideLoadingIndicator() {
         loadingIndicator.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onStop()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
+        {
+            PowerManager pm = (PowerManager) (getContext()).getSystemService(Context.POWER_SERVICE);
+            if((pm.isInteractive()))
+            {
+                presenter.unsubscribe();
+            }
+        }
+        super.onStop();
     }
 }
