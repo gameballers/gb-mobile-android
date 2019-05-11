@@ -9,8 +9,11 @@ import com.gameball.gameball.views.leaderBoard.LeaderBoardFragment;
 import com.gameball.gameball.views.profile.ProfileFragment;
 
 public class TabsAdapter extends FragmentPagerAdapter {
-    public TabsAdapter(FragmentManager fm) {
+    private boolean enableLeaderboard;
+
+    public TabsAdapter(FragmentManager fm, boolean enableLeaderboard) {
         super(fm);
+        this.enableLeaderboard = enableLeaderboard;
     }
 
     @Override
@@ -19,7 +22,8 @@ public class TabsAdapter extends FragmentPagerAdapter {
             case 0:
                 return new ProfileFragment();
             case 1:
-                return new LeaderBoardFragment();
+                if (enableLeaderboard)
+                    return new LeaderBoardFragment();
             case 2:
                 return new AchievementsFragment();
             case 3:
@@ -31,6 +35,9 @@ public class TabsAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 2;
+        if(enableLeaderboard)
+            return 2;
+        else
+            return 1;
     }
 }

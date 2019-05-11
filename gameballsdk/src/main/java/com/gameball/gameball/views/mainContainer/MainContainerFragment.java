@@ -53,9 +53,9 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     }
 
     private void initComponents() {
-        tabsAdapter = new TabsAdapter(getChildFragmentManager());
-        presenter = new MainContainerPresenter(this);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
+        tabsAdapter = new TabsAdapter(getChildFragmentManager(), clientBotSettings.isEnableLeaderboard());
+        presenter = new MainContainerPresenter(this);
     }
 
     @Nullable
@@ -162,10 +162,20 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     }
 
     private void setupTabsIcons() {
-        tabs.getTabAt(0).setIcon(R.drawable.ic_profile);
+        for (int i =0; i < tabs.getTabCount();i++)
+        {
+            switch (i)
+            {
+                case 0:
+                    tabs.getTabAt(0).setIcon(R.drawable.ic_profile);
+                break;
+                case 1:
+                    tabs.getTabAt(1).setIcon(R.drawable.ic_trophy);
+                    break;
 //        tabs.getTabAt(1).setIcon(R.drawable.ic_flag_black);
-        tabs.getTabAt(1).setIcon(R.drawable.ic_trophy);
 //        tabs.getTabAt(3).setIcon(R.drawable.ic_trophy);
+            }
+        }
     }
 
     @Override
