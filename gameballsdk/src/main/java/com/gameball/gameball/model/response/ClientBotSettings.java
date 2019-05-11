@@ -35,6 +35,9 @@ public class ClientBotSettings
     @SerializedName("ButtonLink")
     @Expose
     private String buttonLink;
+    @SerializedName("EnableLeaderboard")
+    @Expose
+    private boolean enableLeaderboard;
 
     public Integer getClientId()
     {
@@ -84,5 +87,10 @@ public class ClientBotSettings
     public String getButtonLink()
     {
         return buttonLink;
+    }
+
+    public boolean isEnableLeaderboard()
+    {
+        return enableLeaderboard;
     }
 }
