@@ -18,14 +18,11 @@ import android.widget.Toast;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
-import com.gameball.gameball.model.request.RewardPointsBody;
+import com.gameball.gameball.model.request.HoldPointBody;
+import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.network.Callback;
-import com.gameball.gameball.utils.SHA1Hasher;
 
-import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
@@ -59,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
         prepView();
         changeLang(Locale.getDefault().getLanguage());
+
     }
 
     public void navigateToFragment(Fragment fragment)

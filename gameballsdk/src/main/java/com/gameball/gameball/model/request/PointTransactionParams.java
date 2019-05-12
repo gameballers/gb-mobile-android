@@ -11,7 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class RewardPointsBody
+public class PointTransactionParams
 {
     @SerializedName("PlayerUniqueID")
     @Expose
@@ -29,17 +29,16 @@ public class RewardPointsBody
     @Expose
     private String bodyHashed;
 
-    public RewardPointsBody(int amount, String transactionOnClientSystemId, String transactionKey)
+    public PointTransactionParams(String transactionKey)
     {
+        playerUniqueID = SharedPreferencesUtils.getInstance().getPlayerId();
+
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
                 Locale.ENGLISH);
         SimpleDateFormat simpleDateFormatHash = new SimpleDateFormat("yyMMddHHmmss",
                 Locale.ENGLISH);
         Date transactionDate = Calendar.getInstance().getTime();
 
-        playerUniqueID = SharedPreferencesUtils.getInstance().getPlayerId();
-        this.amount = amount;
-        this.transactionOnClientSystemId = transactionOnClientSystemId;
         this.transactionTime = simpleDateFormat.format(transactionDate);
         try
         {
@@ -49,5 +48,55 @@ public class RewardPointsBody
         {
             e.printStackTrace();
         }
+    }
+
+    public String getPlayerUniqueID()
+    {
+        return playerUniqueID;
+    }
+
+    public void setPlayerUniqueID(String playerUniqueID)
+    {
+        this.playerUniqueID = playerUniqueID;
+    }
+
+    public Integer getAmount()
+    {
+        return amount;
+    }
+
+    public void setAmount(Integer amount)
+    {
+        this.amount = amount;
+    }
+
+    public String getTransactionOnClientSystemId()
+    {
+        return transactionOnClientSystemId;
+    }
+
+    public void setTransactionOnClientSystemId(String transactionOnClientSystemId)
+    {
+        this.transactionOnClientSystemId = transactionOnClientSystemId;
+    }
+
+    public String getTransactionTime()
+    {
+        return transactionTime;
+    }
+
+    public void setTransactionTime(String transactionTime)
+    {
+        this.transactionTime = transactionTime;
+    }
+
+    public String getBodyHashed()
+    {
+        return bodyHashed;
+    }
+
+    public void setBodyHashed(String bodyHashed)
+    {
+        this.bodyHashed = bodyHashed;
     }
 }

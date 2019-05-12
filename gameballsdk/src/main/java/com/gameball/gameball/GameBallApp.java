@@ -26,15 +26,17 @@ import android.widget.Toast;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
-import com.gameball.gameball.model.request.RewardPointsBody;
+import com.gameball.gameball.model.request.PointTransactionParams;
+import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
+import com.gameball.gameball.model.response.HoldPointsResponse;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
-import com.gameball.gameball.network.transactionRemote.TransactionDataSourceContract;
 import com.gameball.gameball.network.transactionRemote.TransactionRemoteDataSource;
 import com.gameball.gameball.views.mainContainer.MainContainerFragment;
 import com.google.firebase.FirebaseApp;
@@ -396,9 +398,9 @@ public class GameBallApp {
                 .subscribe();
     }
 
-    public void rewardPoints(RewardPointsBody body, final Callback callback)
+    public void rewardPoints(RewardPointBody body, final Callback callback)
     {
-        transactionRemoteDataSource.RewardPoints(body)
+        transactionRemoteDataSource.rewardPoints(body)
                 .subscribe(new CompletableObserver()
                 {
                     @Override
@@ -411,6 +413,31 @@ public class GameBallApp {
                     public void onComplete()
                     {
                         callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
+    }
+
+    public void holdPoints(HoldPointBody body, final Callback<HoldPointsResponse> callback)
+    {
+        transactionRemoteDataSource.holdPoints(body)
+                .subscribe(new SingleObserver<BaseResponse<HoldPointsResponse>>()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onSuccess(BaseResponse<HoldPointsResponse> holdPointsResponseBaseResponse)
+                    {
+                        callback.onSuccess(holdPointsResponseBaseResponse.getResponse());
                     }
 
                     @Override

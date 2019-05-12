@@ -1,11 +1,14 @@
 package com.gameball.gameball.network.api;
 
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
-import com.gameball.gameball.model.request.RewardPointsBody;
+import com.gameball.gameball.model.request.PointTransactionParams;
+import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
+import com.gameball.gameball.model.response.HoldPointsResponse;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
@@ -49,5 +52,9 @@ public interface GameBallApi {
     Completable addNewAtion(@Body Action actionBody);
 
     @POST(Config.RewardPoints)
-    Completable rewardPoints(@Body RewardPointsBody rewardPointsBody);
+    Completable rewardPoints(@Body RewardPointBody rewardPointsBody);
+
+    @POST(Config.HoldPoints)
+    Single<BaseResponse<HoldPointsResponse>> holdPoints(@Body HoldPointBody body);
+
 }
