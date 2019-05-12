@@ -27,11 +27,15 @@ import android.widget.Toast;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
+import com.gameball.gameball.model.request.RewardPointsBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
+import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
+import com.gameball.gameball.network.transactionRemote.TransactionDataSourceContract;
+import com.gameball.gameball.network.transactionRemote.TransactionRemoteDataSource;
 import com.gameball.gameball.views.mainContainer.MainContainerFragment;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -42,6 +46,7 @@ import com.google.gson.Gson;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.SingleObserver;
@@ -71,12 +76,14 @@ public class GameBallApp {
     private int mNotificationIcon;
     private String mDeviceToken;
     private GameBallApi gameBallApi;
+    private TransactionRemoteDataSource transactionRemoteDataSource;
 
     private GameBallApp(Context context) {
         if (this.mContext == null) {
             this.mContext = context;
             gameBallApi = Network.getInstance().getGameBallApi();
             SharedPreferencesUtils.init(mContext, new Gson());
+            transactionRemoteDataSource = TransactionRemoteDataSource.getInstance();
         }
     }
 
@@ -387,6 +394,31 @@ public class GameBallApp {
                 subscribeOn(Schedulers.io())
                 .retry()
                 .subscribe();
+    }
+
+    public void rewardPoints(RewardPointsBody body, final Callback callback)
+    {
+        transactionRemoteDataSource.RewardPoints(body)
+                .subscribe(new CompletableObserver()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
     }
 
 

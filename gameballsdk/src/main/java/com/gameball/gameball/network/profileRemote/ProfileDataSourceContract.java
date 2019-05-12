@@ -14,7 +14,7 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 
 
-public interface DataSourceContract
+public interface ProfileDataSourceContract
 {
     Single<BaseResponse<PlayerInfoResponse>> getPlayerInfo(String playerId);
     Single<BaseResponse<GetWithUnlocksWrapper>> getWithUnlocks(String playerId);

@@ -7,7 +7,7 @@ import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
-import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
+import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.CompositeDisposable;
@@ -15,18 +15,18 @@ import io.reactivex.disposables.Disposable;
 
 public class ProfilePresenter implements ProfileContract.Presenter
 {
-    Context context;
-    ProfileContract.View view;
-    LocalDataSource localDataSource;
-    ProfileRemoteDataSource profileRemoteDataSource;
-    SharedPreferencesUtils sharedPreferencesUtils;
-    CompositeDisposable disposable;
+    private Context context;
+    private ProfileContract.View view;
+    private LocalDataSource localDataSource;
+    private ProfileRemoteProfileDataSource profileRemoteDataSource;
+    private SharedPreferencesUtils sharedPreferencesUtils;
+    private CompositeDisposable disposable;
 
     public ProfilePresenter(Context context, ProfileContract.View view)
     {
         this.context = context;
         this.view = view;
-        profileRemoteDataSource = ProfileRemoteDataSource.getInstance();
+        profileRemoteDataSource = ProfileRemoteProfileDataSource.getInstance();
         localDataSource = LocalDataSource.getInstance();
         sharedPreferencesUtils = SharedPreferencesUtils.getInstance();
         disposable = new CompositeDisposable();

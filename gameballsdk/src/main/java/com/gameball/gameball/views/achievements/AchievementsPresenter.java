@@ -5,29 +5,26 @@ import android.content.Context;
 import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
-import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
-import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
-
-import java.util.ArrayList;
+import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 
 public class AchievementsPresenter implements AchievemetsContract.Presenter
 {
-    Context context;
-    AchievemetsContract.View view;
-    LocalDataSource localDataSource;
-    ProfileRemoteDataSource remoteDataSource;
-    SharedPreferencesUtils sharedPreferencesUtils;
+    private Context context;
+    private AchievemetsContract.View view;
+    private LocalDataSource localDataSource;
+    private ProfileRemoteProfileDataSource remoteDataSource;
+    private SharedPreferencesUtils sharedPreferencesUtils;
 
     public AchievementsPresenter(Context context, AchievemetsContract.View view)
     {
         this.context = context;
         this.view = view;
         localDataSource = LocalDataSource.getInstance();
-        remoteDataSource = ProfileRemoteDataSource.getInstance();
+        remoteDataSource = ProfileRemoteProfileDataSource.getInstance();
         sharedPreferencesUtils = SharedPreferencesUtils.getInstance();
     }
 

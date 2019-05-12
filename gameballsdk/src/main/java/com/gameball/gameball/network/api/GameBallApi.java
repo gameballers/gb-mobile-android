@@ -2,6 +2,7 @@ package com.gameball.gameball.network.api;
 
 import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
+import com.gameball.gameball.model.request.RewardPointsBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
@@ -47,5 +48,6 @@ public interface GameBallApi {
     @POST(Config.AddNewAction)
     Completable addNewAtion(@Body Action actionBody);
 
-
+    @POST(Config.RewardPoints)
+    Completable rewardPoints(@Body RewardPointsBody rewardPointsBody);
 }
