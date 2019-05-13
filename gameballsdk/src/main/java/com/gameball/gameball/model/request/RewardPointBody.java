@@ -4,7 +4,7 @@ public class RewardPointBody extends PointTransactionParams
 {
     public RewardPointBody(int amount, String transactionOnClientSystemId, String transactionKey)
     {
-        super(transactionKey);
+        super(amount,transactionKey);
         setAmount(amount);
         setTransactionOnClientSystemId(transactionOnClientSystemId);
 

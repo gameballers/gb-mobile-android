@@ -31,6 +31,11 @@ public class PointTransactionParams
 
     public PointTransactionParams(String transactionKey)
     {
+        this(0,transactionKey);
+    }
+
+    public PointTransactionParams(int amount, String transactionKey)
+    {
         playerUniqueID = SharedPreferencesUtils.getInstance().getPlayerId();
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
@@ -40,10 +45,16 @@ public class PointTransactionParams
         Date transactionDate = Calendar.getInstance().getTime();
 
         this.transactionTime = simpleDateFormat.format(transactionDate);
+
+        String amountStr = "";
+        if(amount > 0)
+            amountStr = amount + "";
+
         try
         {
             bodyHashed = SHA1Hasher.sha1(playerUniqueID + ":" +
-                    simpleDateFormatHash.format(transactionDate) + ":" + transactionKey);
+                    simpleDateFormatHash.format(transactionDate) + ":" + amountStr +
+                    ":" + transactionKey);
         } catch (NoSuchAlgorithmException e)
         {
             e.printStackTrace();

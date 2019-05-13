@@ -18,8 +18,11 @@ import android.widget.Toast;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.HoldPointBody;
+import com.gameball.gameball.model.request.RedeemPointBody;
 import com.gameball.gameball.model.request.RewardPointBody;
+import com.gameball.gameball.model.response.HoldPointsResponse;
 import com.gameball.gameball.network.Callback;
 
 import java.util.ArrayList;
@@ -56,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
         prepView();
         changeLang(Locale.getDefault().getLanguage());
-
     }
 
     public void navigateToFragment(Fragment fragment)
@@ -129,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 registerPlayer();
                 break;
             case R.id.btn_show_profile:
-                showProfile();
+                holdRedeemPoints();
                 break;
             case R.id.add_challenge_id_btn:
                 challengeApiIdField.setError(null);
@@ -147,6 +149,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
         }
+    }
+
+    private void holdRedeemPoints()
+    {
+
+        gameBallApp.holdPoints(new HoldPointBody(10,"33138", "5sdfd2dvvd-9mnvhu25d6c3d"),
+                new Callback<HoldPointsResponse>()
+                {
+                    @Override
+                    public void onSuccess(HoldPointsResponse holdPointsResponse)
+                    {
+                        Log.i("hold_response","sucess");
+                        gameBallApp.redeemPoints(new RedeemPointBody(10,
+                                holdPointsResponse.getHoldReference(), "123123123123",
+                                "5sdfd2dvvd-9mnvhu25d6c3d"), new Callback()
+                        {
+                            @Override
+                            public void onSuccess(Object o)
+                            {
+                                Log.i("redeem_response","sucess");
+                            }
+
+                            @Override
+                            public void onError(Throwable e)
+                            {
+                                Log.i("redeem_response","error");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        Log.i("hold_response","error");
+                        Log.e("HoldError",e.getMessage());
+                    }
+                });
     }
 
     private void showProfile()

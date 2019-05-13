@@ -26,9 +26,11 @@ import android.widget.Toast;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.request.PointTransactionParams;
+import com.gameball.gameball.model.request.RedeemPointBody;
 import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
@@ -398,6 +400,31 @@ public class GameBallApp {
                 .subscribe();
     }
 
+    public void generateOTP(GenerateOTPBody body, final Callback callback)
+    {
+        transactionRemoteDataSource.generateOtp(body)
+                .subscribe(new CompletableObserver()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
+    }
+
     public void rewardPoints(RewardPointBody body, final Callback callback)
     {
         transactionRemoteDataSource.rewardPoints(body)
@@ -438,6 +465,31 @@ public class GameBallApp {
                     public void onSuccess(BaseResponse<HoldPointsResponse> holdPointsResponseBaseResponse)
                     {
                         callback.onSuccess(holdPointsResponseBaseResponse.getResponse());
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
+    }
+
+    public void redeemPoints(RedeemPointBody body, final Callback callback)
+    {
+        transactionRemoteDataSource.redeemPoints(body)
+                .subscribe(new CompletableObserver()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        callback.onSuccess(null);
                     }
 
                     @Override

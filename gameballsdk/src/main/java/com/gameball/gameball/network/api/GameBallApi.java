@@ -2,8 +2,9 @@ package com.gameball.gameball.network.api;
 
 import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.request.HoldPointBody;
+import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
-import com.gameball.gameball.model.request.PointTransactionParams;
+import com.gameball.gameball.model.request.RedeemPointBody;
 import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
@@ -57,4 +58,9 @@ public interface GameBallApi {
     @POST(Config.HoldPoints)
     Single<BaseResponse<HoldPointsResponse>> holdPoints(@Body HoldPointBody body);
 
+    @POST(Config.RedeemPoints)
+    Completable redeemPoints(@Body RedeemPointBody body);
+
+    @POST(Config.GenerateOTP)
+    Completable generateOTP(@Body GenerateOTPBody body);
 }

@@ -1,10 +1,18 @@
 package com.gameball.gameball.model.request;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class HoldPointBody extends PointTransactionParams
 {
-    public HoldPointBody(int amount, String transactionKey)
+    @SerializedName("OTP")
+    @Expose
+    private String otp;
+
+    public HoldPointBody(int amount, String otp, String transactionKey)
     {
-        super(transactionKey);
+        super(amount,transactionKey);
+        this.otp = otp;
         setAmount(amount);
     }
 }

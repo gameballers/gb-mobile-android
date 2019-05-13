@@ -1,7 +1,9 @@
 package com.gameball.gameball.network.transactionRemote;
 
+import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.PointTransactionParams;
+import com.gameball.gameball.model.request.RedeemPointBody;
 import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.HoldPointsResponse;
@@ -51,6 +53,22 @@ public class TransactionRemoteDataSource implements TransactionDataSourceContrac
     public Single<BaseResponse<HoldPointsResponse>> holdPoints(HoldPointBody body)
     {
         return gameBallApi.holdPoints(body)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public Completable redeemPoints(RedeemPointBody body)
+    {
+        return gameBallApi.redeemPoints(body)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public Completable generateOtp(GenerateOTPBody body)
+    {
+        return gameBallApi.generateOTP(body)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
