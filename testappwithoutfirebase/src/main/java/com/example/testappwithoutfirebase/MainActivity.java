@@ -18,10 +18,8 @@ import android.widget.Toast;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
-import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.HoldPointBody;
-import com.gameball.gameball.model.request.RedeemPointBody;
-import com.gameball.gameball.model.request.RewardPointBody;
+import com.gameball.gameball.model.request.ReverseHeldPointsbody;
 import com.gameball.gameball.model.response.HoldPointsResponse;
 import com.gameball.gameball.network.Callback;
 
@@ -154,29 +152,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void holdRedeemPoints()
     {
 
-        gameBallApp.holdPoints(new HoldPointBody(10,"33138", "5sdfd2dvvd-9mnvhu25d6c3d"),
+        gameBallApp.holdPoints(new HoldPointBody(10,"52546", "5sdfd2dvvd-9mnvhu25d6c3d"),
                 new Callback<HoldPointsResponse>()
                 {
                     @Override
                     public void onSuccess(HoldPointsResponse holdPointsResponse)
                     {
                         Log.i("hold_response","sucess");
-                        gameBallApp.redeemPoints(new RedeemPointBody(10,
-                                holdPointsResponse.getHoldReference(), "123123123123",
-                                "5sdfd2dvvd-9mnvhu25d6c3d"), new Callback()
-                        {
-                            @Override
-                            public void onSuccess(Object o)
-                            {
-                                Log.i("redeem_response","sucess");
-                            }
+                        gameBallApp.reverseHeldPoint(new ReverseHeldPointsbody(holdPointsResponse.getHoldReference(),
+                                        "5sdfd2dvvd-9mnvhu25d6c3d"),
+                                new Callback()
+                                {
+                                    @Override
+                                    public void onSuccess(Object o)
+                                    {
+                                        Log.i("reverse_held_points","sucess");
+                                    }
 
-                            @Override
-                            public void onError(Throwable e)
-                            {
-                                Log.i("redeem_response","error");
-                            }
-                        });
+                                    @Override
+                                    public void onError(Throwable e)
+                                    {
+                                        Log.i("reverse_held_points","error");
+                                        Log.i("reverse_held_error",e.getMessage());
+                                    }
+                                });
                     }
 
                     @Override

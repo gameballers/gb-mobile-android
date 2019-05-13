@@ -31,6 +31,7 @@ import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.request.PointTransactionParams;
 import com.gameball.gameball.model.request.RedeemPointBody;
+import com.gameball.gameball.model.request.ReverseHeldPointsbody;
 import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
@@ -478,6 +479,31 @@ public class GameBallApp {
     public void redeemPoints(RedeemPointBody body, final Callback callback)
     {
         transactionRemoteDataSource.redeemPoints(body)
+                .subscribe(new CompletableObserver()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
+    }
+
+    public void reverseHeldPoint(ReverseHeldPointsbody body, final Callback callback)
+    {
+        transactionRemoteDataSource.reverseHeldPoints(body)
                 .subscribe(new CompletableObserver()
                 {
                     @Override

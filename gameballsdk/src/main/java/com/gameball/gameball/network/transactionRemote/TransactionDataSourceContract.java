@@ -4,6 +4,7 @@ import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.PointTransactionParams;
 import com.gameball.gameball.model.request.RedeemPointBody;
+import com.gameball.gameball.model.request.ReverseHeldPointsbody;
 import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.HoldPointsResponse;
@@ -17,4 +18,5 @@ public interface TransactionDataSourceContract
     Single<BaseResponse<HoldPointsResponse>> holdPoints(HoldPointBody body);
     Completable redeemPoints(RedeemPointBody body);
     Completable generateOtp(GenerateOTPBody body);
+    Completable reverseHeldPoints(ReverseHeldPointsbody body);
 }
