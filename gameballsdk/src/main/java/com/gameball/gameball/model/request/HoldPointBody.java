@@ -9,7 +9,7 @@ public class HoldPointBody extends PointTransactionParams
     @Expose
     private String otp;
 
-    public HoldPointBody(int amount, String otp, String transactionKey)
+    public HoldPointBody(double amount, String otp, String transactionKey)
     {
         super(amount,transactionKey,true);
         this.otp = otp;

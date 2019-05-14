@@ -9,7 +9,7 @@ public class RedeemPointBody extends PointTransactionParams
     @Expose
     private String holdReference;
 
-    public RedeemPointBody(int amount, String holdReference,
+    public RedeemPointBody(double amount, String holdReference,
                            String transactionOnClientSystemId, String transactionKey)
     {
         super(amount,transactionKey,true);

@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId())
         {
             case R.id.register_btn:
-                registerPlayer();
+                showProfile();
                 break;
             case R.id.btn_show_profile:
                 holdRedeemPoints();
@@ -171,22 +171,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void holdRedeemPoints()
     {
-        gameBallApp.getPlayerBalance(new GetPlayerBalanceBody("5sdfd2dvvd-9mnvhu25d6c3d"),
-                new Callback<PlayerBalanceResponse>()
+        gameBallApp.holdPoints(new HoldPointBody(10, "08773", "5sdfd2dvvd-9mnvhu25d6c3d"),
+                new Callback<HoldPointsResponse>()
                 {
                     @Override
-                    public void onSuccess(PlayerBalanceResponse playerBalanceResponse)
+                    public void onSuccess(HoldPointsResponse holdPointsResponse)
                     {
-
+                        Log.i("hold_response", holdPointsResponse.getHoldReference());
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
-
+                        Log.i("hold_response", e.getMessage());
                     }
-                }
-        );
+                });
     }
 
     private void showProfile()

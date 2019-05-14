@@ -18,7 +18,7 @@ public class PointTransactionParams
     private String playerUniqueID;
     @SerializedName("Amount")
     @Expose
-    private Integer amount;
+    private Double amount;
     @SerializedName("TransactionOnClientSystemId")
     @Expose
     private String transactionOnClientSystemId;
@@ -34,7 +34,7 @@ public class PointTransactionParams
         this(0,transactionKey,dateNeeded);
     }
 
-    PointTransactionParams(int amount, String transactionKey, boolean isDateNeeded)
+    PointTransactionParams(double amount, String transactionKey, boolean isDateNeeded)
     {
         playerUniqueID = SharedPreferencesUtils.getInstance().getPlayerId();
 
@@ -76,12 +76,12 @@ public class PointTransactionParams
         this.playerUniqueID = playerUniqueID;
     }
 
-    public Integer getAmount()
+    public Double getAmount()
     {
         return amount;
     }
 
-    void setAmount(Integer amount)
+    void setAmount(Double amount)
     {
         this.amount = amount;
     }
