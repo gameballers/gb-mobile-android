@@ -18,9 +18,13 @@ import android.widget.Toast;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.GenerateOTPBody;
+import com.gameball.gameball.model.request.GetPlayerBalanceBody;
 import com.gameball.gameball.model.request.HoldPointBody;
+import com.gameball.gameball.model.request.RedeemPointBody;
 import com.gameball.gameball.model.request.ReverseHeldPointsbody;
 import com.gameball.gameball.model.response.HoldPointsResponse;
+import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.network.Callback;
 
 import java.util.ArrayList;
@@ -57,6 +61,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
         prepView();
         changeLang(Locale.getDefault().getLanguage());
+
+//        gameBallApp.generateOTP(new GenerateOTPBody("5sdfd2dvvd-9mnvhu25d6c3d"),
+//                new Callback()
+//                {
+//                    @Override
+//                    public void onSuccess(Object o)
+//                    {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e)
+//                    {
+//
+//                    }
+//                });
     }
 
     public void navigateToFragment(Fragment fragment)
@@ -151,40 +171,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void holdRedeemPoints()
     {
-
-        gameBallApp.holdPoints(new HoldPointBody(10,"52546", "5sdfd2dvvd-9mnvhu25d6c3d"),
-                new Callback<HoldPointsResponse>()
+        gameBallApp.getPlayerBalance(new GetPlayerBalanceBody("5sdfd2dvvd-9mnvhu25d6c3d"),
+                new Callback<PlayerBalanceResponse>()
                 {
                     @Override
-                    public void onSuccess(HoldPointsResponse holdPointsResponse)
+                    public void onSuccess(PlayerBalanceResponse playerBalanceResponse)
                     {
-                        Log.i("hold_response","sucess");
-                        gameBallApp.reverseHeldPoint(new ReverseHeldPointsbody(holdPointsResponse.getHoldReference(),
-                                        "5sdfd2dvvd-9mnvhu25d6c3d"),
-                                new Callback()
-                                {
-                                    @Override
-                                    public void onSuccess(Object o)
-                                    {
-                                        Log.i("reverse_held_points","sucess");
-                                    }
 
-                                    @Override
-                                    public void onError(Throwable e)
-                                    {
-                                        Log.i("reverse_held_points","error");
-                                        Log.i("reverse_held_error",e.getMessage());
-                                    }
-                                });
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
-                        Log.i("hold_response","error");
-                        Log.e("HoldError",e.getMessage());
+
                     }
-                });
+                }
+        );
     }
 
     private void showProfile()

@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.request.GenerateOTPBody;
+import com.gameball.gameball.model.request.GetPlayerBalanceBody;
 import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.request.PointTransactionParams;
@@ -36,6 +37,7 @@ import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.HoldPointsResponse;
+import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
@@ -501,7 +503,7 @@ public class GameBallApp {
                 });
     }
 
-    public void reverseHeldPoint(ReverseHeldPointsbody body, final Callback callback)
+    public void reverseHeldPoints(ReverseHeldPointsbody body, final Callback callback)
     {
         transactionRemoteDataSource.reverseHeldPoints(body)
                 .subscribe(new CompletableObserver()
@@ -516,6 +518,31 @@ public class GameBallApp {
                     public void onComplete()
                     {
                         callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
+    }
+
+    public void getPlayerBalance(GetPlayerBalanceBody body, final Callback<PlayerBalanceResponse> callback)
+    {
+        transactionRemoteDataSource.getPlayerBalance(body)
+                .subscribe(new SingleObserver<BaseResponse<PlayerBalanceResponse>>()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onSuccess(BaseResponse<PlayerBalanceResponse> playerBalanceResponseBaseResponse)
+                    {
+                        callback.onSuccess(playerBalanceResponseBaseResponse.getResponse());
                     }
 
                     @Override

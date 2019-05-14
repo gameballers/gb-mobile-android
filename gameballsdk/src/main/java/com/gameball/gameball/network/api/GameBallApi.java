@@ -1,6 +1,7 @@
 package com.gameball.gameball.network.api;
 
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.GetPlayerBalanceBody;
 import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
@@ -11,6 +12,7 @@ import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
 import com.gameball.gameball.model.response.HoldPointsResponse;
+import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
@@ -67,4 +69,7 @@ public interface GameBallApi {
 
     @POST(Config.ReverseHeld)
     Completable reverseHeldPoints(@Body ReverseHeldPointsbody body);
+
+    @POST(Config.GetPlayerBalance)
+    Single<BaseResponse<PlayerBalanceResponse>> getPlayerBalance(@Body GetPlayerBalanceBody body);
 }

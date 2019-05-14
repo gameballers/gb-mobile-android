@@ -18,4 +18,12 @@ public class HoldPointsResponse
     {
         this.holdReference = holdReference;
     }
+
+    @Override
+    public String toString()
+    {
+        return "HoldPointsResponse{" +
+                "holdReference='" + holdReference + '\'' +
+                '}';
+    }
 }

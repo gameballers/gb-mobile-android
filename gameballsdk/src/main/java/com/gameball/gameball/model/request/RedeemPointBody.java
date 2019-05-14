@@ -12,7 +12,7 @@ public class RedeemPointBody extends PointTransactionParams
     public RedeemPointBody(int amount, String holdReference,
                            String transactionOnClientSystemId, String transactionKey)
     {
-        super(amount,transactionKey);
+        super(amount,transactionKey,true);
         this.holdReference = holdReference;
         setAmount(amount);
         setTransactionOnClientSystemId(transactionOnClientSystemId);

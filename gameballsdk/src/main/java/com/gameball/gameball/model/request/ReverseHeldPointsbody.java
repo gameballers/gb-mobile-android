@@ -12,7 +12,7 @@ public class ReverseHeldPointsbody extends PointTransactionParams
 
     public ReverseHeldPointsbody(String holdReference, String transactionKey)
     {
-        super(transactionKey);
+        super(transactionKey, true);
         this.holdReference = holdReference;
 
     }

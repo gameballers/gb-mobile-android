@@ -1,12 +1,14 @@
 package com.gameball.gameball.network.transactionRemote;
 
 import com.gameball.gameball.model.request.GenerateOTPBody;
+import com.gameball.gameball.model.request.GetPlayerBalanceBody;
 import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.RedeemPointBody;
 import com.gameball.gameball.model.request.ReverseHeldPointsbody;
 import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.HoldPointsResponse;
+import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
 import com.google.gson.Gson;
@@ -77,6 +79,14 @@ public class TransactionRemoteDataSource implements TransactionDataSourceContrac
     public Completable reverseHeldPoints(ReverseHeldPointsbody body)
     {
         return gameBallApi.reverseHeldPoints(body)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public Single<BaseResponse<PlayerBalanceResponse>> getPlayerBalance(GetPlayerBalanceBody body)
+    {
+        return gameBallApi.getPlayerBalance(body)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

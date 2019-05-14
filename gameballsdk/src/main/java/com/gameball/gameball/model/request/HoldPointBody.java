@@ -11,7 +11,7 @@ public class HoldPointBody extends PointTransactionParams
 
     public HoldPointBody(int amount, String otp, String transactionKey)
     {
-        super(amount,transactionKey);
+        super(amount,transactionKey,true);
         this.otp = otp;
         setAmount(amount);
     }

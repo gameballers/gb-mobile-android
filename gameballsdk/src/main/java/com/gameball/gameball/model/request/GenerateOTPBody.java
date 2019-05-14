@@ -4,6 +4,6 @@ public class GenerateOTPBody extends PointTransactionParams
 {
     public GenerateOTPBody(String transactionKey)
     {
-        super(transactionKey);
+        super(transactionKey,true);
     }
 }

@@ -29,32 +29,37 @@ public class PointTransactionParams
     @Expose
     private String bodyHashed;
 
-    public PointTransactionParams(String transactionKey)
+    PointTransactionParams(String transactionKey, boolean dateNeeded)
     {
-        this(0,transactionKey);
+        this(0,transactionKey,dateNeeded);
     }
 
-    public PointTransactionParams(int amount, String transactionKey)
+    PointTransactionParams(int amount, String transactionKey, boolean isDateNeeded)
     {
         playerUniqueID = SharedPreferencesUtils.getInstance().getPlayerId();
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
-                Locale.ENGLISH);
-        SimpleDateFormat simpleDateFormatHash = new SimpleDateFormat("yyMMddHHmmss",
-                Locale.ENGLISH);
-        Date transactionDate = Calendar.getInstance().getTime();
+        String hashDate = "";
+        if(isDateNeeded)
+        {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+                    Locale.ENGLISH);
+            SimpleDateFormat simpleDateFormatHash = new SimpleDateFormat("yyMMddHHmmss",
+                    Locale.ENGLISH);
+            Date transactionDate = Calendar.getInstance().getTime();
 
-        this.transactionTime = simpleDateFormat.format(transactionDate);
+            this.transactionTime = simpleDateFormat.format(transactionDate);
+            hashDate = simpleDateFormatHash.format(transactionDate);
+        }
 
         String amountStr = "";
         if(amount > 0)
             amountStr = amount + "";
 
+
         try
         {
             bodyHashed = SHA1Hasher.sha1(playerUniqueID + ":" +
-                    simpleDateFormatHash.format(transactionDate) + ":" + amountStr +
-                    ":" + transactionKey);
+                    hashDate + ":" + amountStr + ":" + transactionKey);
         } catch (NoSuchAlgorithmException e)
         {
             e.printStackTrace();
@@ -76,7 +81,7 @@ public class PointTransactionParams
         return amount;
     }
 
-    public void setAmount(Integer amount)
+    void setAmount(Integer amount)
     {
         this.amount = amount;
     }
@@ -86,7 +91,7 @@ public class PointTransactionParams
         return transactionOnClientSystemId;
     }
 
-    public void setTransactionOnClientSystemId(String transactionOnClientSystemId)
+    void setTransactionOnClientSystemId(String transactionOnClientSystemId)
     {
         this.transactionOnClientSystemId = transactionOnClientSystemId;
     }
