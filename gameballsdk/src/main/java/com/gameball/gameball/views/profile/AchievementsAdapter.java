@@ -59,17 +59,19 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
 
         if(item.getBehaviorTypeId() == ChallengeDetailsActivity.HIGH_SCORE_BASED)
         {
-            if(item.getHighScore() != null)
+            if(item.getHighScore() != null && item.getHighScore() > 0)
                 holder.challengeRewardPts.setText(String.format(Locale.getDefault(),
                         "%d %s", item.getHighScore(),
                     item.getAmountUnit()));
             else
                 holder.challengeRewardPts.setVisibility(View.GONE);
         }
-        else
+        else if(item.getRewardPoints() > 0)
             holder.challengeRewardPts.setText(String.format(Locale.getDefault(),
                     "%d %s", item.getRewardPoints(),
                 mContext.getString(R.string.pts)));
+        else
+            holder.challengeRewardPts.setVisibility(View.GONE);
         
         if(item.getIcon() != null && !item.getIcon().isEmpty())
             ImageDownloader.downloadImage(mContext, holder.achievementsLogo, item.getIcon());
