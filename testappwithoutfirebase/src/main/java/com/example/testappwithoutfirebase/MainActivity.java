@@ -146,10 +146,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId())
         {
             case R.id.register_btn:
-                showProfile();
+                registerPlayer();
                 break;
             case R.id.btn_show_profile:
-                holdRedeemPoints();
+                showProfile();
                 break;
             case R.id.add_challenge_id_btn:
                 challengeApiIdField.setError(null);

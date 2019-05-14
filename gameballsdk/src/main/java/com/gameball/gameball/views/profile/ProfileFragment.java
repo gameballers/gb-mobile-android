@@ -34,7 +34,6 @@ import com.gameball.gameball.views.mainContainer.MainContainerContract;
 
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Objects;
 
 public class ProfileFragment extends Fragment  implements ProfileContract.View
 {
@@ -46,7 +45,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private TextView frubiesForNextLevel;
     private TextView currentFrubiesValue;
     private TextView currentPointsValue;
-    private TextView achievemetTitle;
+//    private TextView achievemetTitle;
     private TextView currentFrubiesTitle;
     private TextView currentPointTitle;
     private RecyclerView achievementsRecyclerView;
@@ -102,7 +101,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         frubiesForNextLevel = rootView.findViewById(R.id.frubies_for_next_level);
         currentFrubiesValue = rootView.findViewById(R.id.current_frubies_value);
         currentPointsValue = rootView.findViewById(R.id.current_points_value);
-        achievemetTitle = rootView.findViewById(R.id.achievements_title);
+//        achievemetTitle = rootView.findViewById(R.id.achievements_title);
         achievementsRecyclerView = rootView.findViewById(R.id.achievements_recyclerView);
         questsRecyclerView = rootView.findViewById(R.id.quests_recyclerView);
         profileLoadingIndicator = rootView.findViewById(R.id.profile_data_loading_indicator);
@@ -117,7 +116,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         LayerDrawable progressDrawable = (LayerDrawable) levelProgress.getProgressDrawable();
         progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()),
                 PorterDuff.Mode.SRC_IN);
-        achievemetTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
+//        achievemetTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
         profileLoadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()),
                 PorterDuff.Mode.SRC_IN);
     }
@@ -135,7 +134,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         currentPointsValue.startAnimation(fadeIn);
         currentFrubiesTitle.startAnimation(fadeIn);
         currentPointTitle.startAnimation(fadeIn);
-        achievemetTitle.startAnimation(fadeIn);
+//        achievemetTitle.startAnimation(fadeIn);
     }
 
     private void prepView() {
@@ -175,7 +174,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
                 "%d", playerInfo.getAccPoints()));
         currentFrubiesValue.setText(String.format(Locale.getDefault(),
                 "%d", playerInfo.getLevel().getLevelFrubies()));
-        achievemetTitle.setVisibility(View.VISIBLE);
+//        achievemetTitle.setVisibility(View.VISIBLE);
         playerProgress = (playerInfo.getAccFrubies() * 100 )/nextLevel.getLevelFrubies();
     }
 
