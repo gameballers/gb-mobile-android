@@ -4,7 +4,7 @@ import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
-import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
+import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.CompositeDisposable;
@@ -12,17 +12,17 @@ import io.reactivex.disposables.Disposable;
 
 public class MainContainerPresenter implements MainContainerContract.Presenter
 {
-    MainContainerContract.View view;
-    LocalDataSource localDataSource;
-    ProfileRemoteDataSource profileRemoteDataSource;
-    SharedPreferencesUtils sharedPreferencesUtils;
-    CompositeDisposable disposable;
+    private MainContainerContract.View view;
+    private LocalDataSource localDataSource;
+    private ProfileRemoteProfileDataSource profileRemoteDataSource;
+    private SharedPreferencesUtils sharedPreferencesUtils;
+    private CompositeDisposable disposable;
 
     public MainContainerPresenter(MainContainerContract.View view)
     {
         this.view = view;
         localDataSource = LocalDataSource.getInstance();
-        profileRemoteDataSource = ProfileRemoteDataSource.getInstance();
+        profileRemoteDataSource = ProfileRemoteProfileDataSource.getInstance();
         sharedPreferencesUtils = SharedPreferencesUtils.getInstance();
         disposable = new CompositeDisposable();
     }

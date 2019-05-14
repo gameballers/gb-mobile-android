@@ -12,4 +12,10 @@ public class Config {
     public static final String GetLeaderBoard = "api/Bots/GetLeaderBoard";
     public static final String GetBotSettings = "api/Bots/GetClientBotSettings";
     public static final String AddNewAction = "api/Integration/AddAction";
+    public static final String RewardPoints = "api/Integration/Transaction/Reward";
+    public static final String HoldPoints = "api/Integration/Transaction/Hold";
+    public static final String RedeemPoints = "api/Integration/Transaction/Redeem";
+    public static final String GenerateOTP = "api/Integration/GenerateOTP";
+    public static final String ReverseHeld = "api/Integration/Transaction/Hold";
+    public static final String GetPlayerBalance = "api/Integration/Transaction/Balance";
 }

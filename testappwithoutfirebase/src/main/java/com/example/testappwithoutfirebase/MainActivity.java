@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -17,6 +18,14 @@ import android.widget.Toast;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.GenerateOTPBody;
+import com.gameball.gameball.model.request.GetPlayerBalanceBody;
+import com.gameball.gameball.model.request.HoldPointBody;
+import com.gameball.gameball.model.request.RedeemPointBody;
+import com.gameball.gameball.model.request.ReverseHeldPointsbody;
+import com.gameball.gameball.model.response.HoldPointsResponse;
+import com.gameball.gameball.model.response.PlayerBalanceResponse;
+import com.gameball.gameball.network.Callback;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -52,6 +61,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
         prepView();
         changeLang(Locale.getDefault().getLanguage());
+
+//        gameBallApp.generateOTP(new GenerateOTPBody("5sdfd2dvvd-9mnvhu25d6c3d"),
+//                new Callback()
+//                {
+//                    @Override
+//                    public void onSuccess(Object o)
+//                    {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e)
+//                    {
+//
+//                    }
+//                });
     }
 
     public void navigateToFragment(Fragment fragment)
@@ -121,10 +146,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId())
         {
             case R.id.register_btn:
-                registerPlayer();
+                showProfile();
                 break;
             case R.id.btn_show_profile:
-                showProfile();
+                holdRedeemPoints();
                 break;
             case R.id.add_challenge_id_btn:
                 challengeApiIdField.setError(null);
@@ -142,6 +167,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
         }
+    }
+
+    private void holdRedeemPoints()
+    {
+        gameBallApp.holdPoints(new HoldPointBody(10, "08773", "5sdfd2dvvd-9mnvhu25d6c3d"),
+                new Callback<HoldPointsResponse>()
+                {
+                    @Override
+                    public void onSuccess(HoldPointsResponse holdPointsResponse)
+                    {
+                        Log.i("hold_response", holdPointsResponse.getHoldReference());
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        Log.i("hold_response", e.getMessage());
+                    }
+                });
     }
 
     private void showProfile()

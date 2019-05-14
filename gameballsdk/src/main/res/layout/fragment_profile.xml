@@ -164,10 +164,11 @@
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/achievements_recyclerView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@id/achievements_title"
+            app:layout_constraintEnd_toEndOf="@id/level_progress"
             app:layout_constraintTop_toBottomOf="@id/achievements_title"
             tools:itemCount="9"
             tools:layoutManager="android.support.v7.widget.GridLayoutManager"
@@ -177,10 +178,11 @@
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/quests_recyclerView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@id/achievements_recyclerView"
+            app:layout_constraintEnd_toEndOf="@id/achievements_recyclerView"
             app:layout_constraintTop_toBottomOf="@id/achievements_recyclerView"
             tools:itemCount="9"
             tools:layoutManager="android.support.v7.widget.GridLayoutManager"

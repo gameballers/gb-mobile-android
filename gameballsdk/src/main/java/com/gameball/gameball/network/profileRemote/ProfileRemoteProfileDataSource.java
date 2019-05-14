@@ -4,7 +4,6 @@ import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
-import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.network.Network;
@@ -19,13 +18,13 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class ProfileRemoteDataSource implements DataSourceContract
+public class ProfileRemoteProfileDataSource implements ProfileDataSourceContract
 {
-    private static ProfileRemoteDataSource instance;
+    private static ProfileRemoteProfileDataSource instance;
     private GameBallApi gameBallApi;
     private Gson jsonFactory;
 
-    private ProfileRemoteDataSource()
+    private ProfileRemoteProfileDataSource()
     {
         jsonFactory = new GsonBuilder()
                 .setPrettyPrinting()
@@ -35,10 +34,10 @@ public class ProfileRemoteDataSource implements DataSourceContract
         gameBallApi = Network.getInstance().getGameBallApi();
     }
 
-    public static ProfileRemoteDataSource getInstance()
+    public static ProfileRemoteProfileDataSource getInstance()
     {
         if(instance == null)
-            instance = new ProfileRemoteDataSource();
+            instance = new ProfileRemoteProfileDataSource();
 
         return instance;
     }

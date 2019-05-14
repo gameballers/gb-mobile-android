@@ -6,7 +6,7 @@ import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.PlayerInfo;
-import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
+import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 
 import java.util.ArrayList;
 
@@ -16,19 +16,19 @@ import io.reactivex.disposables.Disposable;
 
 public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
 {
-    Context context;
-    LeaderBoardContract.View view;
-    LocalDataSource localDataSource;
-    ProfileRemoteDataSource profileRemoteDataSource;
-    SharedPreferencesUtils sharedPreferencesUtils;
-    CompositeDisposable disposable;
+    private Context context;
+    private LeaderBoardContract.View view;
+    private LocalDataSource localDataSource;
+    private ProfileRemoteProfileDataSource profileRemoteDataSource;
+    private SharedPreferencesUtils sharedPreferencesUtils;
+    private CompositeDisposable disposable;
 
     public LeaderBoardPresenter(Context context, LeaderBoardContract.View view)
     {
         this.context = context;
         this.view = view;
         localDataSource = LocalDataSource.getInstance();
-        profileRemoteDataSource = ProfileRemoteDataSource.getInstance();
+        profileRemoteDataSource = ProfileRemoteProfileDataSource.getInstance();
         sharedPreferencesUtils = SharedPreferencesUtils.getInstance();
         disposable = new CompositeDisposable();
     }

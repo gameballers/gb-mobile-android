@@ -26,12 +26,23 @@ import android.widget.Toast;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.GenerateOTPBody;
+import com.gameball.gameball.model.request.GetPlayerBalanceBody;
+import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
+import com.gameball.gameball.model.request.PointTransactionParams;
+import com.gameball.gameball.model.request.RedeemPointBody;
+import com.gameball.gameball.model.request.ReverseHeldPointsbody;
+import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
+import com.gameball.gameball.model.response.HoldPointsResponse;
+import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
+import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
+import com.gameball.gameball.network.transactionRemote.TransactionRemoteDataSource;
 import com.gameball.gameball.views.mainContainer.MainContainerFragment;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -42,6 +53,7 @@ import com.google.gson.Gson;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.SingleObserver;
@@ -71,12 +83,14 @@ public class GameBallApp {
     private int mNotificationIcon;
     private String mDeviceToken;
     private GameBallApi gameBallApi;
+    private TransactionRemoteDataSource transactionRemoteDataSource;
 
     private GameBallApp(Context context) {
         if (this.mContext == null) {
             this.mContext = context;
             gameBallApi = Network.getInstance().getGameBallApi();
             SharedPreferencesUtils.init(mContext, new Gson());
+            transactionRemoteDataSource = TransactionRemoteDataSource.getInstance();
         }
     }
 
@@ -387,6 +401,156 @@ public class GameBallApp {
                 subscribeOn(Schedulers.io())
                 .retry()
                 .subscribe();
+    }
+
+    public void generateOTP(GenerateOTPBody body, final Callback callback)
+    {
+        transactionRemoteDataSource.generateOtp(body)
+                .subscribe(new CompletableObserver()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
+    }
+
+    public void rewardPoints(RewardPointBody body, final Callback callback)
+    {
+        transactionRemoteDataSource.rewardPoints(body)
+                .subscribe(new CompletableObserver()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
+    }
+
+    public void holdPoints(HoldPointBody body, final Callback<HoldPointsResponse> callback)
+    {
+        transactionRemoteDataSource.holdPoints(body)
+                .subscribe(new SingleObserver<BaseResponse<HoldPointsResponse>>()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onSuccess(BaseResponse<HoldPointsResponse> holdPointsResponseBaseResponse)
+                    {
+                        callback.onSuccess(holdPointsResponseBaseResponse.getResponse());
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
+    }
+
+    public void redeemPoints(RedeemPointBody body, final Callback callback)
+    {
+        transactionRemoteDataSource.redeemPoints(body)
+                .subscribe(new CompletableObserver()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
+    }
+
+    public void reverseHeldPoints(ReverseHeldPointsbody body, final Callback callback)
+    {
+        transactionRemoteDataSource.reverseHeldPoints(body)
+                .subscribe(new CompletableObserver()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
+    }
+
+    public void getPlayerBalance(GetPlayerBalanceBody body, final Callback<PlayerBalanceResponse> callback)
+    {
+        transactionRemoteDataSource.getPlayerBalance(body)
+                .subscribe(new SingleObserver<BaseResponse<PlayerBalanceResponse>>()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onSuccess(BaseResponse<PlayerBalanceResponse> playerBalanceResponseBaseResponse)
+                    {
+                        callback.onSuccess(playerBalanceResponseBaseResponse.getResponse());
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
     }
 
 
