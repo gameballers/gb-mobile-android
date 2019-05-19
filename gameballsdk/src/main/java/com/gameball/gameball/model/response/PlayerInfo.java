@@ -1,5 +1,6 @@
 package com.gameball.gameball.model.response;
 
+import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -21,6 +22,9 @@ public class PlayerInfo
     @SerializedName("Gender")
     @Expose
     private String gender;
+    @SerializedName("MobileNumber")
+    @Expose
+    private String mobileNumber;
     @SerializedName("Age")
     @Expose
     private Integer age;
@@ -49,100 +53,9 @@ public class PlayerInfo
     @Expose
     private Level level;
 
-    public String getName() {
+    public String getDisplayName()
+    {
         return displayName;
-    }
-
-    public void setName(String name) {
-        this.displayName= name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public String getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(String dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    public Integer getPlayerCategoryID() {
-        return playerCategoryID;
-    }
-
-    public void setPlayerCategoryID(Integer playerCategoryID) {
-        this.playerCategoryID = playerCategoryID;
-    }
-
-    public String getExternalID() {
-        return externalID;
-    }
-
-    public void setExternalID(String externalID) {
-        this.externalID = externalID;
-    }
-
-    public Integer getCurrentLevel() {
-        return currentLevel;
-    }
-
-    public void setCurrentLevel(Integer currentLevel) {
-        this.currentLevel = currentLevel;
-    }
-
-    public Integer getAccFrubies() {
-        return accFrubies;
-    }
-
-    public void setAccFrubies(Integer accFrubies) {
-        this.accFrubies = accFrubies;
-    }
-
-    public Integer getAccPoints() {
-        return accPoints;
-    }
-
-    public void setAccPoints(Integer accPoints) {
-        this.accPoints = accPoints;
-    }
-
-    public Integer getStatusId() {
-        return statusId;
-    }
-
-    public void setStatusId(Integer statusId) {
-        this.statusId = statusId;
-    }
-
-    public Level getLevel() {
-        return level;
-    }
-
-    public void setLevel(Level level) {
-        this.level = level;
     }
 
     public String getFirstName()
@@ -153,5 +66,149 @@ public class PlayerInfo
     public String getLastName()
     {
         return lastName;
+    }
+
+    public String getEmail()
+    {
+        return email;
+    }
+
+    public String getGender()
+    {
+        return gender;
+    }
+
+    public Integer getAge()
+    {
+        return age;
+    }
+
+    public String getDateOfBirth()
+    {
+        return dateOfBirth;
+    }
+
+    public Integer getPlayerCategoryID()
+    {
+        return playerCategoryID;
+    }
+
+    public String getExternalID()
+    {
+        return externalID;
+    }
+
+    public Integer getCurrentLevel()
+    {
+        return currentLevel;
+    }
+
+    public Integer getAccFrubies()
+    {
+        return accFrubies;
+    }
+
+    public Integer getAccPoints()
+    {
+        return accPoints;
+    }
+
+    public Integer getStatusId()
+    {
+        return statusId;
+    }
+
+    public Level getLevel()
+    {
+        return level;
+    }
+
+    public String getMobileNumber()
+    {
+        return mobileNumber;
+    }
+
+    public static class Builder
+    {
+        private String displayName;
+        private String firstName;
+        private String lastName;
+        private String email;
+        private String gender;
+        private String mobileNumber;
+        private String dateOfBirth;
+
+        public Builder()
+        {
+
+        }
+
+        public Builder withDisplayName(String displayName)
+        {
+            this.displayName = displayName;
+            return this;
+        }
+
+        public Builder withFirstName(String firstName)
+        {
+            this.firstName = firstName;
+
+            return this;
+        }
+
+        public Builder withLastName(String lastName)
+        {
+            this.lastName = lastName;
+
+            return this;
+        }
+
+        public Builder withEmail(String email)
+        {
+            this.email = email;
+            return this;
+        }
+
+        public Builder withGender(String gender)
+        {
+            this.gender = gender;
+
+            return this;
+        }
+
+        public Builder withMobileNumber(String mobileNumber)
+        {
+            this.mobileNumber = mobileNumber;
+
+            return this;
+        }
+
+        public Builder withDateOfBirth(String dateOfBirth)
+        {
+            this.dateOfBirth = dateOfBirth;
+
+            return this;
+        }
+
+        public PlayerInfo build()
+        {
+            PlayerInfo playerInfo = new PlayerInfo();
+            if(this.email == null || this.email.equals(""))
+                playerInfo.email = null;
+            else
+                playerInfo.email = this.email;
+
+            if(this.mobileNumber == null || this.mobileNumber.equals(""))
+                playerInfo.mobileNumber = null;
+            else
+                playerInfo.mobileNumber = this.mobileNumber;
+
+            playerInfo.firstName = this.firstName;
+            playerInfo.lastName = this.lastName;
+            playerInfo.dateOfBirth = this.dateOfBirth;
+            playerInfo.displayName = this.displayName;
+            playerInfo.gender = this.gender;
+            return playerInfo;
+        }
     }
 }

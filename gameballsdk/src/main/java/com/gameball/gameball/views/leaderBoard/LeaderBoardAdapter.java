@@ -37,7 +37,8 @@ public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.
     public void onBindViewHolder(ItemRowHolder holder, int position) {
         PlayerInfo item = mData.get(position);
 
-        holder.playerName.setText(item.getName());
+        if(item.getDisplayName() != null)
+            holder.playerName.setText(item.getDisplayName());
         holder.playerCurrentLevelName.setText(item.getLevel().getName());
         holder.frubiesValue.setText(String.format(Locale.getDefault(),
                 "%d",item.getAccFrubies()));

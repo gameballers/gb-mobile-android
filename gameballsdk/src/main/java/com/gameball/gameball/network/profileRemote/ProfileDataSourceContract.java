@@ -1,6 +1,7 @@
 package com.gameball.gameball.network.profileRemote;
 
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
@@ -21,4 +22,5 @@ public interface ProfileDataSourceContract
     Single<BaseResponse<ArrayList<PlayerInfo>>> getLeaderBoard(String playerId);
     Single<BaseResponse<ClientBotSettings>> getBotSettings();
     Completable AddNewAction(Action actionBody);
+    Completable initializePlayer(PlayerInfoBody body);
 }

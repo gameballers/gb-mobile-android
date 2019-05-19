@@ -1,6 +1,7 @@
 package com.gameball.gameball.network.profileRemote;
 
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
@@ -78,6 +79,14 @@ public class ProfileRemoteProfileDataSource implements ProfileDataSourceContract
     public Completable AddNewAction(Action actionBody)
     {
         return gameBallApi.addNewAtion(actionBody)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public Completable initializePlayer(PlayerInfoBody body)
+    {
+        return gameBallApi.initializePlayer(body)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
