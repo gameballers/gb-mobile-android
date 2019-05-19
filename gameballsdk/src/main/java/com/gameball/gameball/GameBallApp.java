@@ -29,6 +29,7 @@ import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.GetPlayerBalanceBody;
 import com.gameball.gameball.model.request.HoldPointBody;
+import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.request.PointTransactionParams;
 import com.gameball.gameball.model.request.RedeemPointBody;
@@ -38,10 +39,12 @@ import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.HoldPointsResponse;
 import com.gameball.gameball.model.response.PlayerBalanceResponse;
+import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
+import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 import com.gameball.gameball.network.transactionRemote.TransactionRemoteDataSource;
 import com.gameball.gameball.views.GameBallMainActivity;
 import com.gameball.gameball.views.mainContainer.MainContainerFragment;
@@ -85,6 +88,8 @@ public class GameBallApp {
     private String mDeviceToken;
     private GameBallApi gameBallApi;
     private TransactionRemoteDataSource transactionRemoteDataSource;
+    private ProfileRemoteProfileDataSource profileRemoteProfileDataSource;
+
 
     private GameBallApp(Context context) {
         if (this.mContext == null) {
@@ -92,6 +97,7 @@ public class GameBallApp {
             gameBallApi = Network.getInstance().getGameBallApi();
             SharedPreferencesUtils.init(mContext, new Gson());
             transactionRemoteDataSource = TransactionRemoteDataSource.getInstance();
+            profileRemoteProfileDataSource = ProfileRemoteProfileDataSource.getInstance();
         }
     }
 
@@ -267,6 +273,34 @@ public class GameBallApp {
         {
             Log.e(TAG, "Player registration: playerID cannot be empty");
         }
+    }
+
+    public void editPlayerInfo(@NonNull PlayerInfo playerInfo)
+    {
+        PlayerInfoBody body = new PlayerInfoBody(playerInfo);
+
+        profileRemoteProfileDataSource.initializePlayer(body)
+                .retry()
+                .subscribe(new CompletableObserver()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        Log.i("add_player_info","success");
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        Log.i("add_player_info",e.getMessage());
+                    }
+                });
     }
 
     private void sendNotification(final String messageBody) {

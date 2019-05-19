@@ -192,8 +192,10 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     @Override
     public void onProfileInfoLoaded(PlayerInfo playerInfo)
     {
-        if(playerInfo.getName() != null && !playerInfo.getName().isEmpty())
-            txtPlayerName.setText(playerInfo.getName());
+        if(playerInfo.getDisplayName() != null && !playerInfo.getDisplayName().isEmpty())
+            txtPlayerName.setText(playerInfo.getDisplayName());
+        if(playerInfo.getEmail() != null && !playerInfo.getEmail().isEmpty())
+            txtPlayerEmail.setText(playerInfo.getEmail());
         prepView();
     }
 

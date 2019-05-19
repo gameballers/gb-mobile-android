@@ -18,4 +18,5 @@ public class Config {
     public static final String GenerateOTP = "api/Integration/GenerateOTP";
     public static final String ReverseHeld = "api/Integration/Transaction/Hold";
     public static final String GetPlayerBalance = "api/Integration/Transaction/Balance";
+    public static final String InitializePlayer = "api/Integration/InitializePlayer";
 }
