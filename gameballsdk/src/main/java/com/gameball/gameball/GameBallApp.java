@@ -43,6 +43,7 @@ import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
 import com.gameball.gameball.network.transactionRemote.TransactionRemoteDataSource;
+import com.gameball.gameball.views.GameBallMainActivity;
 import com.gameball.gameball.views.mainContainer.MainContainerFragment;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -375,16 +376,19 @@ public class GameBallApp {
                 .subscribe(new Consumer<ClientBotSettings>() {
                     @Override
                     public void accept(ClientBotSettings clientBotSettings) throws Exception {
-                        FragmentTransaction ft = fragmentManager.beginTransaction();
-
-                        Fragment prev = fragmentManager
-                                .findFragmentByTag(TAG_GAMEBALL_PROFILE_DIALOG);
-                        if (prev != null) {
-                            ft.remove(prev);
-                        }
-                        ft.addToBackStack(null);
-                        DialogFragment dialogFragment = new MainContainerFragment();
-                        dialogFragment.show(ft, TAG_GAMEBALL_PROFILE_DIALOG);
+//                        FragmentTransaction ft = fragmentManager.beginTransaction();
+//
+//                        Fragment prev = fragmentManager
+//                                .findFragmentByTag(TAG_GAMEBALL_PROFILE_DIALOG);
+//                        if (prev != null) {
+//                            ft.remove(prev);
+//                        }
+//                        ft.addToBackStack(null);
+//                        DialogFragment dialogFragment = new MainContainerFragment();
+//                        dialogFragment.show(ft, TAG_GAMEBALL_PROFILE_DIALOG);
+                        Intent intent = new Intent(mContext, GameBallMainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        mContext.startActivity(intent);
                     }
                 });
     }

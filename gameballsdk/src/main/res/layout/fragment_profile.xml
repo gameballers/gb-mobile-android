@@ -196,7 +196,7 @@
                 app:layout_constraintEnd_toStartOf="@id/vertical_guideline"
                 app:layout_constraintTop_toTopOf="@id/frubies_title"
                 tools:text="3,000"
-                android:fontFamily="sans-serif-light"
+                android:fontFamily="@font/montserrat_light"
                 />
 
             <TextView
@@ -229,8 +229,7 @@
                 app:layout_constraintStart_toEndOf="@id/points_title"
                 app:layout_constraintTop_toTopOf="@id/frubies_title"
                 tools:text="3,000"
-
-                android:fontFamily="sans-serif-light"/>
+                android:fontFamily="@font/montserrat_light"/>
 
         </android.support.constraint.ConstraintLayout>
 

@@ -163,7 +163,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
-            DisplayUtils.statusBarColorToSolid(this, "#000000");
+            DisplayUtils.statusBarColorToSolid(this, clientBotSettings.getButtonBackgroundColor());
         }
         milestonesRecyclerView.setNestedScrollingEnabled(false);
         milestonesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
