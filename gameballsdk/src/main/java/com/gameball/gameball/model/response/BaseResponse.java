@@ -15,7 +15,7 @@ public class BaseResponse<T> {
     private boolean success;
     @SerializedName("ErrorMsg")
     @Expose
-    private Object errorMsg;
+    private String errorMsg;
 
     public T getResponse() {
         return response;
@@ -25,7 +25,7 @@ public class BaseResponse<T> {
         return success;
     }
 
-    public Object getErrorMsg() {
+    public String getErrorMsg() {
         return errorMsg;
     }
 }

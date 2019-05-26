@@ -72,9 +72,9 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class GameBallApp {
     private static final String TAG = GameBallApp.class.getSimpleName();
-    private static final String APPLICATION_ID = "1:252563989296:android:cf5a4f42fc122b54";
+    private String APPLICATION_ID = "1:252563989296:android:cf5a4f42fc122b54";
     private static final String API_KEY = "AIzaSyCk3X3ZleIQjnaV-QBij9M57iBatAewMGg";
-    private static final String SENDER_ID = "252563989296";
+    private String SENDER_ID = "252563989296";
     private static final String MAIN_ACTIVITY_ACTION = "GAME_BALL_MAIN_ACTIVITY";
     private static final String TAG_GAMEBALL_PROFILE_DIALOG = "gameball_profile_dialog";
 
@@ -161,31 +161,44 @@ public class GameBallApp {
         }).subscribeOn(Schedulers.io());
     }
 
-    private void getBotSettings() {
-        gameBallApi.getBotSettings()
+    private ClientBotSettings getBotSettings() {
+        BaseResponse<ClientBotSettings> response = gameBallApi.getBotSettings()
                 .subscribeOn(Schedulers.io())
                 .retry()
-                .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
+                .blockingGet();
 
-                    }
-
-                    @Override
-                    public void onSuccess(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) {
-                        SharedPreferencesUtils.getInstance().putClientBotSettings(
-                                clientBotSettingsBaseResponse.getResponse());
-
-                        Log.i("bot_settings", new Gson().toJson(
-                                SharedPreferencesUtils.getInstance().getClientBotSettings()));
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.i("bot_settings_error", e.getMessage());
-                    }
-                });
+        if(response.isSuccess())
+        {
+            SharedPreferencesUtils.getInstance().putClientBotSettings(
+                                response.getResponse());
+            return response.getResponse();
+        }
+        else
+        {
+            Log.i("bot_settings_error", response.getErrorMsg());
+            return null;
+        }
+//                .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) {
+//                        SharedPreferencesUtils.getInstance().putClientBotSettings(
+//                                clientBotSettingsBaseResponse.getResponse());
+//
+//                        Log.i("bot_settings", new Gson().toJson(
+//                                SharedPreferencesUtils.getInstance().getClientBotSettings()));
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Log.i("bot_settings_error", e.getMessage());
+//                    }
+//                });
     }
 
     public void init(@NonNull String clientID, String playerID, int playerCategoryId,
@@ -197,6 +210,11 @@ public class GameBallApp {
         mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.getInstance().putClientId(clientID);
+        ClientBotSettings botSettings = getBotSettings();
+
+        APPLICATION_ID = botSettings.getClientFireBase().getApplicationId();
+        SENDER_ID = botSettings.getClientFireBase().getSenderId();
+        // TODO: chaneg ApiKey
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setApplicationId(APPLICATION_ID) // Required for Analytics.
@@ -226,7 +244,6 @@ public class GameBallApp {
                 }
             });
         }
-        getBotSettings();
     }
 
     public void init(String clientID,String playerId, @DrawableRes int notificationIcon)
