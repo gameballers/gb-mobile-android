@@ -40,3 +40,5 @@ dependencies {
     implementation project(':gameballsdk')
 //    implementation ('com.gameball:gameball:0.1@aar'){transitive=true}
 }
+
+apply plugin: 'com.google.gms.google-services'

@@ -12,10 +12,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -31,13 +29,13 @@ import com.gameball.gameball.model.request.GetPlayerBalanceBody;
 import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
-import com.gameball.gameball.model.request.PointTransactionParams;
 import com.gameball.gameball.model.request.RedeemPointBody;
 import com.gameball.gameball.model.request.ReverseHeldPointsbody;
 import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.HoldPointsResponse;
+import com.gameball.gameball.model.response.NotificationBody;
 import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
@@ -46,14 +44,15 @@ import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 import com.gameball.gameball.network.transactionRemote.TransactionRemoteDataSource;
+import com.gameball.gameball.utils.DialogManager;
 import com.gameball.gameball.views.GameBallMainActivity;
-import com.gameball.gameball.views.mainContainer.MainContainerFragment;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
@@ -72,9 +71,12 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class GameBallApp {
     private static final String TAG = GameBallApp.class.getSimpleName();
-    private String APPLICATION_ID = "1:252563989296:android:cf5a4f42fc122b54";
-    private static final String API_KEY = "AIzaSyCk3X3ZleIQjnaV-QBij9M57iBatAewMGg";
-    private String SENDER_ID = "252563989296";
+//    private String APPLICATION_ID = "1:252563989296:android:cf5a4f42fc122b54";
+//    private String API_KEY = "AIzaSyCk3X3ZleIQjnaV-QBij9M57iBatAewMGg";
+//    private String SENDER_ID = "252563989296";
+    private String APPLICATION_ID = null;
+    private String API_KEY = null;
+    private String SENDER_ID = null;
     private static final String MAIN_ACTIVITY_ACTION = "GAME_BALL_MAIN_ACTIVITY";
     private static final String TAG_GAMEBALL_PROFILE_DIALOG = "gameball_profile_dialog";
 
@@ -108,12 +110,13 @@ public class GameBallApp {
         return ourInstance;
     }
 
-    private Completable registerDevice() {
-        return Completable.fromCallable(new Callable<String>() {
+    private void registerDevice() {
+        Completable.fromCallable(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                mDeviceToken = FirebaseInstanceId.getInstance(GameBallFirebaseApp)
-                        .getToken(SENDER_ID, "FCM");
+                if(GameBallFirebaseApp != null)
+                    mDeviceToken = FirebaseInstanceId.getInstance(GameBallFirebaseApp)
+                            .getToken(SENDER_ID, "FCM");
 
                 Log.d(TAG, "Game ball sdk token = " + mDeviceToken);
 
@@ -136,11 +139,13 @@ public class GameBallApp {
                     SharedPreferencesUtils.getInstance().putPlayerCategoryId(mPlayerCategoryID);
                 }
 
-
                 PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
                 registerDeviceRequest.setPlayerUniqueID(mPlayerID);
-                registerDeviceRequest.setPlayerCategoryID(mPlayerCategoryID);
-                registerDeviceRequest.setDeviceToken(mDeviceToken);
+                if(mPlayerCategoryID != -1)
+                    registerDeviceRequest.setPlayerCategoryID(mPlayerCategoryID);
+
+                if(deviceToken != null)
+                    registerDeviceRequest.setDeviceToken(mDeviceToken);
 
                 Log.i("register_body",new Gson().toJson(registerDeviceRequest));
 
@@ -158,7 +163,28 @@ public class GameBallApp {
 
                 return mDeviceToken;
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CompletableObserver()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        Log.i("asdasd","adsadasd");
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        Log.e("e",e.getMessage());
+                    }
+                });
     }
 
     private ClientBotSettings getBotSettings() {
@@ -169,8 +195,7 @@ public class GameBallApp {
 
         if(response.isSuccess())
         {
-            SharedPreferencesUtils.getInstance().putClientBotSettings(
-                                response.getResponse());
+            SharedPreferencesUtils.getInstance().putClientBotSettings(response.getResponse());
             return response.getResponse();
         }
         else
@@ -212,37 +237,30 @@ public class GameBallApp {
         SharedPreferencesUtils.getInstance().putClientId(clientID);
         ClientBotSettings botSettings = getBotSettings();
 
-        APPLICATION_ID = botSettings.getClientFireBase().getApplicationId();
-        SENDER_ID = botSettings.getClientFireBase().getSenderId();
-        // TODO: chaneg ApiKey
-
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setApplicationId(APPLICATION_ID) // Required for Analytics.
-                .setApiKey(API_KEY) // Required for Auth.
-                .build();
-
-        // Initialize with secondary app.
-        FirebaseApp.initializeApp(mContext, options, TAG);
-
-        // Retrieve secondary app.
-        GameBallFirebaseApp = FirebaseApp.getInstance(TAG);
-        if(playerID != null && !playerID.trim().isEmpty())
+        if(botSettings.getClientFireBase() != null)
         {
-            registerDevice().subscribe(new io.reactivex.functions.Action()
+            APPLICATION_ID = botSettings.getClientFireBase().getApplicationId();
+            API_KEY = botSettings.getClientFireBase().getWebApiKey();
+            SENDER_ID = botSettings.getClientFireBase().getSenderId();
+            // TODO: chaneg ApiKey
+
+            if (APPLICATION_ID != null && API_KEY != null && SENDER_ID != null)
             {
-                @Override
-                public void run()
-                {
-                    // pass
-                }
-            }, new Consumer<Throwable>()
+                FirebaseOptions options = new FirebaseOptions.Builder()
+                        .setApplicationId(APPLICATION_ID) // Required for Analytics.
+                        .setApiKey(API_KEY) // Required for Auth.
+                        .build();
+
+                // Initialize with secondary app.
+                FirebaseApp.initializeApp(mContext, options, TAG);
+
+                // Retrieve secondary app.
+                GameBallFirebaseApp = FirebaseApp.getInstance(TAG);
+            }
+            if (playerID != null && !playerID.trim().isEmpty())
             {
-                @Override
-                public void accept(Throwable throwable)
-                {
-                    // pass
-                }
-            });
+                registerDevice();
+            }
         }
     }
 
@@ -270,21 +288,7 @@ public class GameBallApp {
             mPlayerID = playerID;
             mPlayerCategoryID = playerCategoryId;
 
-            registerDevice().subscribe(new io.reactivex.functions.Action()
-            {
-                @Override
-                public void run()
-                {
-                    // pass
-                }
-            }, new Consumer<Throwable>()
-            {
-                @Override
-                public void accept(Throwable throwable)
-                {
-                    // pass
-                }
-            });
+            registerDevice();
         }
         else
         {
@@ -320,7 +324,7 @@ public class GameBallApp {
                 });
     }
 
-    private void sendNotification(final String messageBody) {
+    private void sendNotification(final NotificationBody messageBody) {
         Intent intent = new Intent(MAIN_ACTIVITY_ACTION);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0 /* Request code */, intent,
@@ -330,8 +334,8 @@ public class GameBallApp {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(mContext, channelId)
-                        .setContentTitle("Game Ball Demo")
-                        .setContentText(messageBody)
+                        .setContentTitle(messageBody.getTitle())
+                        .setContentText(messageBody.getTitle())
                         .setAutoCancel(true)
                         .setSmallIcon(mNotificationIcon)
                         .setSound(defaultSoundUri)
@@ -342,7 +346,9 @@ public class GameBallApp {
             @Override
             public void run()
             {
-                Toast.makeText(mContext, messageBody, Toast.LENGTH_SHORT).show();
+
+                DialogManager.showCustomNotification(mContext,messageBody);
+//                Toast.makeText(mContext, messageBody, Toast.LENGTH_SHORT).show();
             }
         },100);
 
@@ -360,9 +366,17 @@ public class GameBallApp {
     }
 
     public boolean isGameBallNotification(RemoteMessage remoteMessage) {
-        if (remoteMessage != null && SENDER_ID.equals(remoteMessage.getFrom())
+        Log.i("aslkdjas","askdhasjkdh");
+        if (remoteMessage != null && Boolean.valueOf(remoteMessage.getData().get("isGB"))
                 && remoteMessage.getNotification() != null) {
-            sendNotification(remoteMessage.getNotification().getBody());
+
+            Map<String,String> notificationData = remoteMessage.getData();
+            NotificationBody notificationBody = new NotificationBody();
+            notificationBody.setTitle(notificationData.get("title"));
+            notificationBody.setBody(notificationData.get("body"));
+            notificationBody.setIcon(notificationData.get("icon"));
+
+            sendNotification(notificationBody);
             return true;
         }
         return false;
@@ -455,7 +469,26 @@ public class GameBallApp {
         gameBallApi.addNewAtion(action).
                 subscribeOn(Schedulers.io())
                 .retry()
-                .subscribe();
+                .subscribe(new CompletableObserver()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        Log.i("dasd","asdas");
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        Log.i("dasd","asdas");
+                    }
+                });
     }
 
     public void generateOTP(GenerateOTPBody body, final Callback callback)

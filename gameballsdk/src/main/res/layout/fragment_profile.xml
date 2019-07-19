@@ -18,11 +18,12 @@
 
         <ImageView
             android:id="@+id/level_logo"
-            android:layout_width="76dp"
-            android:layout_height="76dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:layout_marginStart="30dp"
             android:layout_marginLeft="30dp"
             android:layout_marginTop="30dp"
+            tools:background="@drawable/ic_diamond"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -232,6 +233,17 @@
                 android:fontFamily="@font/montserrat_light"/>
 
         </android.support.constraint.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/achievements_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/frubies_and_points_container"
+            app:layout_constraintStart_toStartOf="@id/level_logo"
+            android:layout_marginTop="20dp"
+            android:textSize="20sp"
+            style="@style/text_title_style"
+            />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/achievements_recyclerView"

@@ -14,6 +14,9 @@ public class ClientFireBase
     @SerializedName("SenderId")
     @Expose
     private String senderId;
+    @SerializedName("WebAPIKey")
+    @Expose
+    private String webApiKey;
     @SerializedName("ClientId")
     @Expose
     private int clientId;
@@ -36,5 +39,10 @@ public class ClientFireBase
     public int getClientId()
     {
         return clientId;
+    }
+
+    public String getWebApiKey()
+    {
+        return webApiKey;
     }
 }

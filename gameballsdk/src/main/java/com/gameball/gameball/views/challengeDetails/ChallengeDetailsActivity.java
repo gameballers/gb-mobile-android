@@ -53,12 +53,6 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     private ConstraintLayout milestoneLayout;
     private TextView milestoneTitle;
     private RecyclerView milestonesRecyclerView;
-//    private TextView milestoneTargetAmountCount;
-//    private TextView milestoneTargetActionCount;
-//    private ProgressBar milestoneAmountProgress;
-//    private ProgressBar milestoneActionProgress;
-//    private TextView milestoneDescription;
-//    private TextView milestoneRewardTxt;
 
     //normal challenge views
     private RelativeLayout challengeLayout;
@@ -127,18 +121,10 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         lockedChallengeIndicator = findViewById(R.id.locked_challenge_indicator);
         challengeName = findViewById(R.id.challenge_name);
         challengeDescription = findViewById(R.id.challenge_description);
-//        milestoneTargetAmountCount = findViewById(R.id.milestone_target_amount_count);
         challengeTargetAmountCount = findViewById(R.id.challenge_target_amount_count);
         milestoneTitle = findViewById(R.id.milestone_title);
-//        milestoneAmountProgress = findViewById(R.id.milestone_amount_progress);
-//        milestoneAmountProgress.setProgress(1);
-//        milestoneDescription = findViewById(R.id.milestone_description);
-//        milestoneRewardTxt = findViewById(R.id.mileStone_reward_text);
         challengeRewardTxt = findViewById(R.id.challenge_reward_txt);
-//        milestoneTargetActionCount = findViewById(R.id.milestone_target_action_count);
         challengeTargetActionCount = findViewById(R.id.challenge_target_action_count);
-//        milestoneActionProgress = findViewById(R.id.milestone_action_progress);
-//        milestoneActionProgress.setProgress(1);
         statusIcon = findViewById(R.id.status_icon);
         statusDescription = findViewById(R.id.status_description);
         backBtn = findViewById(R.id.back_btn);
@@ -182,12 +168,6 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
     private void setupBotSettings()
     {
-//        milestone botsettings
-//        LayerDrawable amountProgress = (LayerDrawable) milestoneAmountProgress.getProgressDrawable();
-//        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
-//        LayerDrawable actionProgress = (LayerDrawable) milestoneActionProgress.getProgressDrawable();
-//        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
-
         LayerDrawable amountProgress = (LayerDrawable) challengeAmountProgress.getProgressDrawable();
         amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
         LayerDrawable actionProgress = (LayerDrawable) challengeActionProgress.getProgressDrawable();
@@ -309,6 +289,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
     private void setupProgressbarBehaviour()
     {
+        if (!game.isRepeatable())
+
         switch (game.getBehaviorTypeId())
         {
             case ACTION_BASED:
@@ -342,6 +324,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
                             challengeActionDescription);
 //                }
                 break;
+            default:
+                challengeLayout.setVisibility(View.GONE);
         }
     }
 

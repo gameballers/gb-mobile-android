@@ -35,11 +35,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText playerIDField;
     private Button registerBtn;
     private EditText challengeApiIdField;
+    private EditText apiKeyField;
     private Button addChallengeIdBtn;
     private RecyclerView challengeApiIdsRecyclerview;
     private Button submitActionsBtn;
     private Button btnShowProfile;
     private Button changeLangBtn;
+    private Button apiKeyBtn;
 
     private ChallengeApiIDAdapter adapter;
     private PopupMenu langPopupMenu;
@@ -105,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         submitActionsBtn = findViewById(R.id.submit_actions_btn);
         btnShowProfile = findViewById(R.id.btn_show_profile);
         changeLangBtn = findViewById(R.id.change_lang_btn);
+        apiKeyField = findViewById(R.id.api_key_field);
+        apiKeyBtn = findViewById(R.id.api_key_btn);
     }
 
     private void prepView()
@@ -118,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         submitActionsBtn.setOnClickListener(this);
         btnShowProfile.setOnClickListener(this);
         changeLangBtn.setOnClickListener(this);
+        apiKeyBtn.setOnClickListener(this);
 
 
         langPopupMenu = new PopupMenu(this,changeLangBtn);
@@ -160,6 +165,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.change_lang_btn:
                 langPopupMenu.show();
+                break;
+            case R.id.api_key_btn:
+                if(!apiKeyField.getText().toString().trim().isEmpty())
+                {
+                    gameBallApp.init(apiKeyField.getText().toString(),R.mipmap.ic_launcher);
+                }
+                else
+                    Toast.makeText(this,
+                            "Api key cannot be empty",
+                            Toast.LENGTH_LONG).show();
                 break;
 
         }
