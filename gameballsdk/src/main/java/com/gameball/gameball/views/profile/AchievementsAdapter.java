@@ -77,6 +77,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
             ImageDownloader.downloadImage(mContext, holder.achievementsLogo, item.getIcon());
 
         holder.achievementName.setText(item.getGameName());
+
         if(item.isUnlocked())
         {
             if(item.getBehaviorTypeId() == ChallengeDetailsActivity.HIGH_SCORE_BASED)

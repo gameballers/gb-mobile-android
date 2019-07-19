@@ -38,6 +38,9 @@ public class ClientBotSettings
     @SerializedName("EnableLeaderboard")
     @Expose
     private boolean enableLeaderboard;
+    @SerializedName("ClientFirebase")
+    @Expose
+    private ClientFireBase clientFireBase;
 
     public Integer getClientId()
     {
@@ -92,5 +95,10 @@ public class ClientBotSettings
     public boolean isEnableLeaderboard()
     {
         return enableLeaderboard;
+    }
+
+    public ClientFireBase getClientFireBase()
+    {
+        return clientFireBase;
     }
 }

@@ -11,7 +11,7 @@ public class Config {
     public static final String GetNextLevel = "api/Bots/GetNextLevel";
     public static final String GetLeaderBoard = "api/Bots/GetLeaderBoard";
     public static final String GetBotSettings = "api/Bots/GetClientBotSettings";
-    public static final String AddNewAction = "api/Integration/AddAction";
+    public static final String AddNewAction = "api/Integration/Action";
     public static final String RewardPoints = "api/Integration/Transaction/Reward";
     public static final String HoldPoints = "api/Integration/Transaction/Hold";
     public static final String RedeemPoints = "api/Integration/Transaction/Redeem";

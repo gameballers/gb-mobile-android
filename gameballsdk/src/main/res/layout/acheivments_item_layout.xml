@@ -11,8 +11,8 @@
 
     <ImageView
         android:id="@+id/achievements_logo"
-        android:layout_width="76dp"
-        android:layout_height="76dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:src="@drawable/ic_diamond"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -61,8 +61,8 @@
 
     <ImageView
         android:id="@+id/locked_achievement_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:background="@drawable/bg_dark_gery_round"
         android:padding="3dp"
         android:src="@drawable/ic_lock_white"
