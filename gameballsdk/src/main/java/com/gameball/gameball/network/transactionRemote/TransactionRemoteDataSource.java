@@ -4,6 +4,7 @@ import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.GetPlayerBalanceBody;
 import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.RedeemPointBody;
+import com.gameball.gameball.model.request.ReferralBody;
 import com.gameball.gameball.model.request.ReverseHeldPointsbody;
 import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
@@ -87,6 +88,14 @@ public class TransactionRemoteDataSource implements TransactionDataSourceContrac
     public Single<BaseResponse<PlayerBalanceResponse>> getPlayerBalance(GetPlayerBalanceBody body)
     {
         return gameBallApi.getPlayerBalance(body)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public Completable addReferral(ReferralBody body)
+    {
+        return gameBallApi.addReferral(body)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

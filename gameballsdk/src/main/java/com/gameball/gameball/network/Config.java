@@ -19,4 +19,5 @@ public class Config {
     public static final String ReverseHeld = "api/Integration/Transaction/Hold";
     public static final String GetPlayerBalance = "api/Integration/Transaction/Balance";
     public static final String InitializePlayer = "api/Integration/InitializePlayer";
+    public static final String referral = "api/integration/referral";
 }

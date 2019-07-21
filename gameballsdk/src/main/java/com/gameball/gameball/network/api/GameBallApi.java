@@ -7,6 +7,7 @@ import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.request.RedeemPointBody;
+import com.gameball.gameball.model.request.ReferralBody;
 import com.gameball.gameball.model.request.ReverseHeldPointsbody;
 import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
@@ -71,9 +72,14 @@ public interface GameBallApi {
     @POST(Config.ReverseHeld)
     Completable reverseHeldPoints(@Body ReverseHeldPointsbody body);
 
+    @POST(Config.referral)
+    Completable addReferral(@Body ReferralBody body);
+
     @POST(Config.GetPlayerBalance)
     Single<BaseResponse<PlayerBalanceResponse>> getPlayerBalance(@Body GetPlayerBalanceBody body);
 
     @POST(Config.InitializePlayer)
     Completable initializePlayer(@Body PlayerInfoBody body);
+
+
 }

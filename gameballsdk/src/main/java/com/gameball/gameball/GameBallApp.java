@@ -30,6 +30,7 @@ import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.request.RedeemPointBody;
+import com.gameball.gameball.model.request.ReferralBody;
 import com.gameball.gameball.model.request.ReverseHeldPointsbody;
 import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
@@ -187,43 +188,30 @@ public class GameBallApp {
                 });
     }
 
-    private ClientBotSettings getBotSettings() {
-        BaseResponse<ClientBotSettings> response = gameBallApi.getBotSettings()
+    private void getBotSettings() {
+        gameBallApi.getBotSettings()
                 .subscribeOn(Schedulers.io())
-                .retry()
-                .blockingGet();
+                .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
 
-        if(response.isSuccess())
-        {
-            SharedPreferencesUtils.getInstance().putClientBotSettings(response.getResponse());
-            return response.getResponse();
-        }
-        else
-        {
-            Log.i("bot_settings_error", response.getErrorMsg());
-            return null;
-        }
-//                .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>() {
-//                    @Override
-//                    public void onSubscribe(Disposable d) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onSuccess(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) {
-//                        SharedPreferencesUtils.getInstance().putClientBotSettings(
-//                                clientBotSettingsBaseResponse.getResponse());
-//
-//                        Log.i("bot_settings", new Gson().toJson(
-//                                SharedPreferencesUtils.getInstance().getClientBotSettings()));
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        Log.i("bot_settings_error", e.getMessage());
-//                    }
-//                });
+                    }
+
+                    @Override
+                    public void onSuccess(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse)
+                    {
+                        SharedPreferencesUtils.getInstance().
+                                putClientBotSettings(clientBotSettingsBaseResponse.getResponse());
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        Log.i("bot_settings_error", e.getMessage());
+                    }
+                });
     }
 
     public void init(@NonNull String clientID, String playerID, int playerCategoryId,
@@ -235,34 +223,80 @@ public class GameBallApp {
         mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.getInstance().putClientId(clientID);
-        ClientBotSettings botSettings = getBotSettings();
-
-        if(botSettings.getClientFireBase() != null)
-        {
-            APPLICATION_ID = botSettings.getClientFireBase().getApplicationId();
-            API_KEY = botSettings.getClientFireBase().getWebApiKey();
-            SENDER_ID = botSettings.getClientFireBase().getSenderId();
-            // TODO: chaneg ApiKey
-
-            if (APPLICATION_ID != null && API_KEY != null && SENDER_ID != null)
-            {
-                FirebaseOptions options = new FirebaseOptions.Builder()
-                        .setApplicationId(APPLICATION_ID) // Required for Analytics.
-                        .setApiKey(API_KEY) // Required for Auth.
-                        .build();
-
-                // Initialize with secondary app.
-                FirebaseApp.initializeApp(mContext, options, TAG);
-
-                // Retrieve secondary app.
-                GameBallFirebaseApp = FirebaseApp.getInstance(TAG);
-            }
-            if (playerID != null && !playerID.trim().isEmpty())
-            {
-                registerDevice();
-            }
-        }
+        getBotSettings();
+        initializeFirebase();
     }
+
+    private void initializeFirebase()
+    {
+        Observable.fromCallable(new Callable<Boolean>()
+        {
+            @Override
+            public Boolean call() throws Exception
+            {
+                return SharedPreferencesUtils.getInstance().getClientBotSettings() != null;
+            }
+        })
+                .flatMap(new Function<Boolean, ObservableSource<ClientBotSettings>>()
+                {
+                    @Override
+                    public ObservableSource<ClientBotSettings> apply(Boolean aBoolean) throws Exception
+                    {
+                        if (aBoolean)
+                            return Observable.just(SharedPreferencesUtils.getInstance()
+                                    .getClientBotSettings());
+                        return gameBallApi.getBotSettings().flatMapObservable(new Function<BaseResponse<ClientBotSettings>, ObservableSource<? extends ClientBotSettings>>() {
+                            @Override
+                            public ObservableSource<? extends ClientBotSettings> apply(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) throws Exception {
+                                return Observable.just(clientBotSettingsBaseResponse.getResponse());
+                            }
+                        });
+                    }
+                }).doOnNext(new Consumer<ClientBotSettings>()
+        {
+            @Override
+            public void accept(ClientBotSettings clientBotSettings) throws Exception
+            {
+                SharedPreferencesUtils.getInstance().putClientBotSettings(clientBotSettings);
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<ClientBotSettings>()
+                {
+                    @Override
+                    public void accept(ClientBotSettings botSettings) throws Exception
+                    {
+                        if(botSettings.getClientFireBase() != null)
+                        {
+                            APPLICATION_ID = botSettings.getClientFireBase().getApplicationId();
+                            API_KEY = botSettings.getClientFireBase().getWebApiKey();
+                            SENDER_ID = botSettings.getClientFireBase().getSenderId();
+                            // TODO: chaneg ApiKey
+
+                            if (APPLICATION_ID != null && API_KEY != null && SENDER_ID != null)
+                            {
+                                FirebaseOptions options = new FirebaseOptions.Builder()
+                                        .setApplicationId(APPLICATION_ID) // Required for Analytics.
+                                        .setApiKey(API_KEY) // Required for Auth.
+                                        .build();
+
+                                // Initialize with secondary app.
+                                FirebaseApp.initializeApp(mContext, options, TAG);
+
+                                // Retrieve secondary app.
+                                GameBallFirebaseApp = FirebaseApp.getInstance(TAG);
+                            }
+                            if (mPlayerID!= null && !mPlayerID.trim().isEmpty())
+                            {
+                                registerDevice();
+                            }
+                        }
+
+                    }
+                });
+    }
+
 
     public void init(String clientID,String playerId, @DrawableRes int notificationIcon)
     {
@@ -441,16 +475,6 @@ public class GameBallApp {
                 .subscribe(new Consumer<ClientBotSettings>() {
                     @Override
                     public void accept(ClientBotSettings clientBotSettings) throws Exception {
-//                        FragmentTransaction ft = fragmentManager.beginTransaction();
-//
-//                        Fragment prev = fragmentManager
-//                                .findFragmentByTag(TAG_GAMEBALL_PROFILE_DIALOG);
-//                        if (prev != null) {
-//                            ft.remove(prev);
-//                        }
-//                        ft.addToBackStack(null);
-//                        DialogFragment dialogFragment = new MainContainerFragment();
-//                        dialogFragment.show(ft, TAG_GAMEBALL_PROFILE_DIALOG);
                         Intent intent = new Intent(mContext, GameBallMainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         mContext.startActivity(intent);
@@ -631,6 +655,32 @@ public class GameBallApp {
                     public void onSuccess(BaseResponse<PlayerBalanceResponse> playerBalanceResponseBaseResponse)
                     {
                         callback.onSuccess(playerBalanceResponseBaseResponse.getResponse());
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        callback.onError(e);
+                    }
+                });
+    }
+
+    public void addReferral(ReferralBody body, final Callback callback)
+    {
+        transactionRemoteDataSource.addReferral(body)
+                .subscribe(new CompletableObserver()
+                {
+
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        callback.onSuccess(new Object());
                     }
 
                     @Override
