@@ -72,9 +72,6 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class GameBallApp {
     private static final String TAG = GameBallApp.class.getSimpleName();
-//    private String APPLICATION_ID = "1:252563989296:android:cf5a4f42fc122b54";
-//    private String API_KEY = "AIzaSyCk3X3ZleIQjnaV-QBij9M57iBatAewMGg";
-//    private String SENDER_ID = "252563989296";
     private String APPLICATION_ID = null;
     private String API_KEY = null;
     private String SENDER_ID = null;
@@ -204,6 +201,7 @@ public class GameBallApp {
                     {
                         SharedPreferencesUtils.getInstance().
                                 putClientBotSettings(clientBotSettingsBaseResponse.getResponse());
+                        initializeFirebase(clientBotSettingsBaseResponse.getResponse());
                     }
 
                     @Override
@@ -224,77 +222,34 @@ public class GameBallApp {
 
         SharedPreferencesUtils.getInstance().putClientId(clientID);
         getBotSettings();
-        initializeFirebase();
     }
 
-    private void initializeFirebase()
+    private void initializeFirebase(ClientBotSettings botSettings)
     {
-        Observable.fromCallable(new Callable<Boolean>()
+        if(botSettings.getClientFireBase() != null)
         {
-            @Override
-            public Boolean call() throws Exception
+            APPLICATION_ID = botSettings.getClientFireBase().getApplicationId();
+            API_KEY = botSettings.getClientFireBase().getWebApiKey();
+            SENDER_ID = botSettings.getClientFireBase().getSenderId();
+
+            if (APPLICATION_ID != null && API_KEY != null && SENDER_ID != null)
             {
-                return SharedPreferencesUtils.getInstance().getClientBotSettings() != null;
+                FirebaseOptions options = new FirebaseOptions.Builder()
+                        .setApplicationId(APPLICATION_ID) // Required for Analytics.
+                        .setApiKey(API_KEY) // Required for Auth.
+                        .build();
+
+                // Initialize with secondary app.
+                FirebaseApp.initializeApp(mContext, options, TAG);
+
+                // Retrieve secondary app.
+                GameBallFirebaseApp = FirebaseApp.getInstance(TAG);
             }
-        })
-                .flatMap(new Function<Boolean, ObservableSource<ClientBotSettings>>()
-                {
-                    @Override
-                    public ObservableSource<ClientBotSettings> apply(Boolean aBoolean) throws Exception
-                    {
-                        if (aBoolean)
-                            return Observable.just(SharedPreferencesUtils.getInstance()
-                                    .getClientBotSettings());
-                        return gameBallApi.getBotSettings().flatMapObservable(new Function<BaseResponse<ClientBotSettings>, ObservableSource<? extends ClientBotSettings>>() {
-                            @Override
-                            public ObservableSource<? extends ClientBotSettings> apply(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) throws Exception {
-                                return Observable.just(clientBotSettingsBaseResponse.getResponse());
-                            }
-                        });
-                    }
-                }).doOnNext(new Consumer<ClientBotSettings>()
-        {
-            @Override
-            public void accept(ClientBotSettings clientBotSettings) throws Exception
+            if (mPlayerID!= null && !mPlayerID.trim().isEmpty())
             {
-                SharedPreferencesUtils.getInstance().putClientBotSettings(clientBotSettings);
+                registerDevice();
             }
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<ClientBotSettings>()
-                {
-                    @Override
-                    public void accept(ClientBotSettings botSettings) throws Exception
-                    {
-                        if(botSettings.getClientFireBase() != null)
-                        {
-                            APPLICATION_ID = botSettings.getClientFireBase().getApplicationId();
-                            API_KEY = botSettings.getClientFireBase().getWebApiKey();
-                            SENDER_ID = botSettings.getClientFireBase().getSenderId();
-                            // TODO: chaneg ApiKey
-
-                            if (APPLICATION_ID != null && API_KEY != null && SENDER_ID != null)
-                            {
-                                FirebaseOptions options = new FirebaseOptions.Builder()
-                                        .setApplicationId(APPLICATION_ID) // Required for Analytics.
-                                        .setApiKey(API_KEY) // Required for Auth.
-                                        .build();
-
-                                // Initialize with secondary app.
-                                FirebaseApp.initializeApp(mContext, options, TAG);
-
-                                // Retrieve secondary app.
-                                GameBallFirebaseApp = FirebaseApp.getInstance(TAG);
-                            }
-                            if (mPlayerID!= null && !mPlayerID.trim().isEmpty())
-                            {
-                                registerDevice();
-                            }
-                        }
-
-                    }
-                });
+        }
     }
 
 

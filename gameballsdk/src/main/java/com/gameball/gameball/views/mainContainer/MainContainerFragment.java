@@ -116,7 +116,6 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     {
         headerParent.setBackgroundColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
         tabs.setSelectedTabIndicatorColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
-//        LayerDrawable loadingIndicatorDrawable = (LayerDrawable) loadingIndicator.getProgressDrawable();
         loadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()),
                 PorterDuff.Mode.SRC_IN);
     }
@@ -171,8 +170,6 @@ public class MainContainerFragment extends DialogFragment implements MainContain
                 case 1:
                     tabs.getTabAt(1).setIcon(R.drawable.ic_trophy);
                     break;
-//        tabs.getTabAt(1).setIcon(R.drawable.ic_flag_black);
-//        tabs.getTabAt(3).setIcon(R.drawable.ic_trophy);
             }
         }
     }

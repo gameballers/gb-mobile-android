@@ -45,6 +45,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private TextView frubiesForNextLevel;
     private TextView currentFrubiesValue;
     private TextView currentPointsValue;
+    private TextView nextLevelTitle;
 //    private TextView achievemetTitle;
     private TextView currentFrubiesTitle;
     private TextView currentPointTitle;
@@ -99,6 +100,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         levelName = rootView.findViewById(R.id.level_name);
         levelProgress = rootView.findViewById(R.id.level_progress);
         frubiesForNextLevel = rootView.findViewById(R.id.frubies_for_next_level);
+        nextLevelTitle = rootView.findViewById(R.id.next_level_title);
         currentFrubiesValue = rootView.findViewById(R.id.current_frubies_value);
         currentPointsValue = rootView.findViewById(R.id.current_points_value);
 //        achievemetTitle = rootView.findViewById(R.id.achievements_title);
@@ -168,14 +170,24 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         if(playerInfo.getLevel().getIcon() != null)
             ImageDownloader.downloadImage(getContext(), levelLogo,
                     playerInfo.getLevel().getIcon().getFileName());
-        frubiesForNextLevel.setText(String.format(Locale.getDefault(),
-                "%d", nextLevel.getLevelFrubies()));
+
         currentPointsValue.setText(String.format(Locale.getDefault(),
                 "%d", playerInfo.getAccPoints()));
         currentFrubiesValue.setText(String.format(Locale.getDefault(),
                 "%d", playerInfo.getLevel().getLevelFrubies()));
-//        achievemetTitle.setVisibility(View.VISIBLE);
-        playerProgress = (playerInfo.getAccFrubies() * 100 )/nextLevel.getLevelFrubies();
+
+        if(nextLevel != null)
+        {
+            frubiesForNextLevel.setText(String.format(Locale.getDefault(),
+                    "%d", nextLevel.getLevelFrubies()));
+            playerProgress = (playerInfo.getAccFrubies() * 100) / nextLevel.getLevelFrubies();
+        }
+        else
+        {
+            frubiesForNextLevel.setVisibility(View.GONE);
+            levelProgress.setVisibility(View.GONE);
+            nextLevelTitle.setVisibility(View.GONE);
+        }
     }
 
     @Override
