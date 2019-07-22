@@ -277,55 +277,40 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
             statusLayout.setVisibility(View.GONE);
         } else
         {
-            challengeLayout.setVisibility(View.VISIBLE);
+            if (!game.isRepeatable() && isChallengeAchieved())
+                challengeLayout.setVisibility(View.GONE);
+            else
+            {
+                challengeLayout.setVisibility(View.VISIBLE);
+                setupProgressbarBehaviour();
+            }
+
             challengeRewardTxt.setVisibility(View.VISIBLE);
             progressTitle.startAnimation(fadeIn);
             challengeRewardTxt.startAnimation(fadeIn);
 
             challengeRewardTxt.setText(challengeRewardStr);
-            setupProgressbarBehaviour();
         }
     }
 
     private void setupProgressbarBehaviour()
     {
-        if (!game.isRepeatable())
-
-        switch (game.getBehaviorTypeId())
+            switch (game.getBehaviorTypeId())
         {
             case ACTION_BASED:
-//                if (game.getMilestones().size() > 0)
-//                    showActionProgress(milestoneActionProgress, milestoneTargetActionCount,
-//                            milestoneDescription);
-//                else
                     showActionProgress(challengeActionProgress, challengeTargetActionCount,
                             challengeActionDescription);
                 break;
             case AMOUNT_BASED:
-//                if (game.getMilestones().size() > 0)
-//                    showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
-//                            milestoneDescription);
-//                else
                     showAmountProgress(challengeAmountProgress, challengeTargetAmountCount,
                             challengeAmountDescription);
                 break;
             case ACTION_AND_AMOUNT_BASED:
-//                if (game.getMilestones().size() > 0)
-//                {
-//                    showAmountProgress(milestoneAmountProgress, milestoneTargetAmountCount,
-//                            milestoneDescription);
-//                    showActionProgress(milestoneActionProgress, milestoneTargetActionCount,
-//                            milestoneDescription);
-//                } else
-//                {
                     showAmountProgress(challengeAmountProgress, challengeTargetAmountCount,
                             challengeAmountDescription);
                     showActionProgress(challengeActionProgress, challengeTargetActionCount,
                             challengeActionDescription);
-//                }
                 break;
-            default:
-                challengeLayout.setVisibility(View.GONE);
         }
     }
 

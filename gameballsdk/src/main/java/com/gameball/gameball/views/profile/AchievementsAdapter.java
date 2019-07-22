@@ -27,6 +27,8 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import static com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity.HIGH_SCORE_BASED;
+
 public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapter.ItemRowHolder> {
     private Context mContext;
     private ArrayList<Game> mData;
@@ -57,7 +59,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     public void onBindViewHolder(ItemRowHolder holder, int position) {
         Game item = mData.get(position);
 
-        if(item.getBehaviorTypeId() == ChallengeDetailsActivity.HIGH_SCORE_BASED)
+        if(item.getBehaviorTypeId() == HIGH_SCORE_BASED)
         {
             if(item.getHighScore() != null && item.getHighScore() > 0)
                 holder.challengeRewardPts.setText(String.format(Locale.getDefault(),
@@ -80,9 +82,8 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
 
         if(item.isUnlocked())
         {
-            if(item.getBehaviorTypeId() == ChallengeDetailsActivity.HIGH_SCORE_BASED)
+            if(isChallengeAchieved(item))
             {
-                if(item.getHighScore() != null && item.getHighScore() > 0)
                     holder.notAchievedIndicator.setVisibility(View.GONE);
             }
             else if(item.getActionsAndAmountCompletedPercentage() == 100)
@@ -95,6 +96,13 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         
         holder.itemview.startAnimation(fadeIn);
 //        holder.itemview.startAnimation(translate);
+    }
+
+    private boolean isChallengeAchieved(Game game)
+    {
+        return game.getAchievedCount() > 0 || game.getBehaviorTypeId() == 5 ||
+                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScore() != null &&
+                        game.getHighScore() > 0);
     }
 
     public void setmData(ArrayList<Game> mData)

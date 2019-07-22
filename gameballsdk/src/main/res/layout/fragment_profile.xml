@@ -120,6 +120,7 @@
             app:layout_constraintTop_toBottomOf="@id/level_name" />
 
         <TextView
+            android:id="@+id/next_level_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
@@ -251,8 +252,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             app:layout_constraintStart_toStartOf="@id/level_logo"
-            app:layout_constraintEnd_toEndOf="@id/level_progress"
+            app:layout_constraintEnd_toEndOf="@id/level_name"
             app:layout_constraintTop_toBottomOf="@id/frubies_and_points_container"
+            android:layout_marginEnd="30dp"
+            android:layout_marginRight="30dp"
             tools:itemCount="9"
             tools:layoutManager="android.support.v7.widget.GridLayoutManager"
             tools:listitem="@layout/acheivments_item_layout"
