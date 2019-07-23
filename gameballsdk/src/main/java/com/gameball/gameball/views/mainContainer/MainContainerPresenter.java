@@ -3,6 +3,7 @@ package com.gameball.gameball.views.mainContainer;
 import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
+import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 
@@ -49,7 +50,7 @@ public class MainContainerPresenter implements MainContainerContract.Presenter
                         localDataSource.nextLevel = playerInfoResponseBaseResponse.getResponse().
                                 getNextLevel();
                         view.hideLoadingIndicator();
-                        view.onProfileInfoLoaded(localDataSource.playerInfo);
+                        view.onProfileInfoLoaded(localDataSource.playerInfo, localDataSource.nextLevel);
                     }
 
                     @Override

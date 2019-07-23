@@ -33,45 +33,6 @@ public class ProfilePresenter implements ProfileContract.Presenter
     }
 
     @Override
-    public void getPlayerInfo(boolean fromLocal)
-    {
-        if(fromLocal)
-        {
-            view.fillPlayerData(localDataSource.playerInfo,localDataSource.nextLevel);
-        }
-        else
-        {
-            view.showLoadingIndicator();
-            profileRemoteDataSource.getPlayerInfo(sharedPreferencesUtils.getPlayerId())
-                    .subscribe(new SingleObserver<BaseResponse<PlayerInfoResponse>>()
-                    {
-                        @Override
-                        public void onSubscribe(Disposable d)
-                        {
-                            disposable.add(d);
-                        }
-
-                        @Override
-                        public void onSuccess(BaseResponse<PlayerInfoResponse> playerInfoResponseBaseResponse)
-                        {
-                            localDataSource.playerInfo = playerInfoResponseBaseResponse.getResponse().
-                                    getPlayerInfo();
-                            localDataSource.nextLevel = playerInfoResponseBaseResponse.getResponse().
-                                    getNextLevel();
-                            view.hideLoadingIndicator();
-                            view.fillPlayerData(localDataSource.playerInfo, localDataSource.nextLevel);
-                        }
-
-                        @Override
-                        public void onError(Throwable e)
-                        {
-                            view.hideLoadingIndicator();
-                        }
-                    });
-        }
-    }
-
-    @Override
     public void getWithUnlocks()
     {
         view.showLoadingIndicator();

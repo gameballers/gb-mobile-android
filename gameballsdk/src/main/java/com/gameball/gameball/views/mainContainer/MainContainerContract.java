@@ -1,5 +1,6 @@
 package com.gameball.gameball.views.mainContainer;
 
+import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.utils.BasePresenter;
 import com.gameball.gameball.utils.BaseView;
@@ -8,11 +9,7 @@ public interface MainContainerContract {
 
     interface View extends BaseView
     {
-        void setPlayerName(String name);
-        void setPlayerEmail(String email);
-
-        void onProfileInfoLoaded(PlayerInfo playerInfo);
-
+        void onProfileInfoLoaded(PlayerInfo playerInfo, Level nextLevel);
     }
 
     interface Presenter extends BasePresenter
