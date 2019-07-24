@@ -2,7 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@android:color/white"
+    >
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/leaderboard_title"
@@ -12,7 +20,7 @@
         android:layout_marginStart="30dp"
         android:layout_marginLeft="30dp"
         android:layout_marginTop="30dp"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:text="@string/leaderboard" />
 
     <TextView
@@ -33,22 +41,12 @@
         android:visibility="gone"
         tools:text="Last 3 months"
         />
-
-    <View
-        android:id="@+id/separator"
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_below="@id/leaderboard_title"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="30dp"
-        android:background="#a5a5a5" />
-
+        
     <android.support.v7.widget.RecyclerView
         android:id="@+id/leaderboard_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/separator"
+        android:layout_below="@id/leaderboard_title"
         android:layout_marginTop="10dp"
         tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
         tools:listitem="@layout/leaderboard_item_layout" />
@@ -61,6 +59,8 @@
         android:layout_centerHorizontal="true"
         android:visibility="gone"
         />
+
+    </RelativeLayout>
 
 
 </RelativeLayout>
