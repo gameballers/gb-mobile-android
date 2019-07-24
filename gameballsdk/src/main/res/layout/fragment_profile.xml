@@ -32,7 +32,7 @@
             android:layout_alignLeft="@id/achievements_title"
             android:layout_marginEnd="25dp"
             android:layout_marginRight="25dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
 
             tools:itemCount="9"
             tools:layoutManager="android.support.v7.widget.GridLayoutManager"
