@@ -139,7 +139,7 @@
                     android:id="@+id/frubies_and_points_container"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="25dp"
                     android:background="#f2f2f2"
                     app:layout_constraintTop_toBottomOf="@id/frubies_for_next_level">
 
@@ -253,7 +253,7 @@
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="57dp"
+                android:layout_height="51dp"
                 app:contentInsetStart="0dp"
                 app:layout_collapseMode="pin"
                 android:background="@android:color/white"
