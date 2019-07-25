@@ -5,10 +5,10 @@ import com.google.gson.annotations.SerializedName;
 
 public class PlayerInfoResponse
 {
-    @SerializedName("PlayerInfo")
+    @SerializedName("playerInfo")
     @Expose
     private PlayerInfo playerInfo;
-    @SerializedName("NextLevel")
+    @SerializedName("nextLevel")
     @Expose
     private Level nextLevel;
 

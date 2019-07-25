@@ -4,7 +4,7 @@ package com.gameball.gameball.network;
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
  */
 public class Config {
-    public static final String PlayerRegistration = "api/integration/RegisterPlayerDevice";
+    public static final String PlayerRegistration = "api/v1.0/integrations/RegisterPlayerDevice";
     public static final String Push = "api/Integration/Push";
     public static final String PlayerInfo = "api/v1.0/Bots/PlayerInfo";
     public static final String GetWithUnlocks = "api/v1.0/Bots/challenges";
@@ -18,6 +18,6 @@ public class Config {
     public static final String GenerateOTP = "api/Integration/GenerateOTP";
     public static final String ReverseHeld = "api/Integration/Transaction/Hold";
     public static final String GetPlayerBalance = "api/Integration/Transaction/Balance";
-    public static final String InitializePlayer = "api/Integration/InitializePlayer";
+    public static final String InitializePlayer = "api/v1.0/Integration/InitializePlayer";
     public static final String referral = "api/integration/referral";
 }
