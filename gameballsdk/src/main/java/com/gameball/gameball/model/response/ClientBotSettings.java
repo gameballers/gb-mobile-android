@@ -11,30 +11,12 @@ public class ClientBotSettings
     @SerializedName("botMainColor")
     @Expose
     private String botMainColor;
-    @SerializedName("buttonBackgroundColor")
-    @Expose
-    private String buttonBackgroundColor;
-    @SerializedName("buttonFlagColor")
-    @Expose
-    private String buttonFlagColor;
-    @SerializedName("buttonSariColor")
-    @Expose
-    private String buttonSariColor;
     @SerializedName("Shape")
     @Expose
     private String shape;
     @SerializedName("Direction")
     @Expose
     private String direction;
-    @SerializedName("offlineStatemessage")
-    @Expose
-    private String offlineStatemessage;
-    @SerializedName("button")
-    @Expose
-    private String button;
-    @SerializedName("buttonLink")
-    @Expose
-    private String buttonLink;
     @SerializedName("enableLeaderboard")
     @Expose
     private boolean enableLeaderboard;
@@ -73,21 +55,6 @@ public class ClientBotSettings
         return botMainColor;
     }
 
-    public String getButtonBackgroundColor()
-    {
-        return buttonBackgroundColor;
-    }
-
-    public String getButtonFlagColor()
-    {
-        return buttonFlagColor;
-    }
-
-    public String getButtonSariColor()
-    {
-        return buttonSariColor;
-    }
-
     public String getShape()
     {
         return shape;
@@ -98,21 +65,6 @@ public class ClientBotSettings
         return direction;
     }
 
-    public String getOfflineStatemessage()
-    {
-        return offlineStatemessage;
-    }
-
-    public String getButton()
-    {
-        return button;
-    }
-
-    public String getButtonLink()
-    {
-        return buttonLink;
-    }
-
     public boolean isEnableLeaderboard()
     {
         return enableLeaderboard;
@@ -121,5 +73,40 @@ public class ClientBotSettings
     public ClientFireBase getClientFireBase()
     {
         return clientFireBase;
+    }
+
+    public boolean isReferralOn()
+    {
+        return isReferralOn;
+    }
+
+    public boolean isEnableNotifications()
+    {
+        return enableNotifications;
+    }
+
+    public boolean isBotDarkTheme()
+    {
+        return isBotDarkTheme;
+    }
+
+    public boolean isRankPointsVisible()
+    {
+        return isRankPointsVisible;
+    }
+
+    public boolean isWalletPointsVisible()
+    {
+        return isWalletPointsVisible;
+    }
+
+    public String getRankPointsName()
+    {
+        return rankPointsName;
+    }
+
+    public String getWalletPointsName()
+    {
+        return walletPointsName;
     }
 }
