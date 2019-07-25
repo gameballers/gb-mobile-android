@@ -267,7 +267,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
                 "%d %s | %d %s", game.getRewardFrubies(), getString(R.string.frubies),
                 game.getRewardPoints(), getString(R.string.points));
 
-        if (game.getMilestones().size() > 0)
+        if (game.getMilestones() != null && game.getMilestones().size() > 0)
         {
             milestoneLayout.setVisibility(View.VISIBLE);
             challengeRewardTxt.setVisibility(View.GONE);

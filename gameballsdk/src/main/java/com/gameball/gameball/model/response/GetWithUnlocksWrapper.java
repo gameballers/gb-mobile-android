@@ -8,10 +8,10 @@ import java.util.ArrayList;
 public class GetWithUnlocksWrapper
 {
 
-    @SerializedName("Quests")
+    @SerializedName("quests")
     @Expose
     private ArrayList<Quest> quests;
-    @SerializedName("Challenges")
+    @SerializedName("challenges")
     @Expose
     private ArrayList<Game> games;
 

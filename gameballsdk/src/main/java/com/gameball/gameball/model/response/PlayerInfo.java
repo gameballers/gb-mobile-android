@@ -51,7 +51,7 @@ public class PlayerInfo
     @SerializedName("isActive")
     @Expose
     private boolean isActive;
-    @SerializedName("Level")
+    @SerializedName("level")
     @Expose
     private Level level;
     @SerializedName("referralCode")

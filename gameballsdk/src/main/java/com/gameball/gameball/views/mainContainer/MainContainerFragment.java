@@ -166,7 +166,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
             @Override
             public void onClick(View v)
             {
-                dismiss();
+                getActivity().finish();
             }
         });
         setupTabsIcons();

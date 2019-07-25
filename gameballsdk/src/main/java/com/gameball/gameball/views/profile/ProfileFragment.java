@@ -110,10 +110,11 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     {
         ArrayList<Game> games = new ArrayList<>();
 
-        for (Quest quest: quests)
-        {
-            games.addAll(quest.getQuestChallenges());
-        }
+        if(quests != null)
+            for (Quest quest: quests)
+            {
+                games.addAll(quest.getQuestChallenges());
+            }
 
         return games;
     }

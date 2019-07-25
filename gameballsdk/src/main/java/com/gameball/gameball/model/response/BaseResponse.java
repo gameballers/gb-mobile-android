@@ -10,10 +10,10 @@ public class BaseResponse<T> {
     @SerializedName("response")
     @Expose
     private T response;
-    @SerializedName("Success")
+    @SerializedName("success")
     @Expose
     private boolean success;
-    @SerializedName("ErrorMsg")
+    @SerializedName("errorMsg")
     @Expose
     private String errorMsg;
 
