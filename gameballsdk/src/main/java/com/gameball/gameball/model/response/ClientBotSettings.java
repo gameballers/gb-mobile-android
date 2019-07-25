@@ -8,16 +8,16 @@ public class ClientBotSettings
     @SerializedName("ClientId")
     @Expose
     private Integer clientId;
-    @SerializedName("BotMainColor")
+    @SerializedName("botMainColor")
     @Expose
     private String botMainColor;
-    @SerializedName("ButtonBackgroundColor")
+    @SerializedName("buttonBackgroundColor")
     @Expose
     private String buttonBackgroundColor;
-    @SerializedName("ButtonFlagColor")
+    @SerializedName("buttonFlagColor")
     @Expose
     private String buttonFlagColor;
-    @SerializedName("ButtonSariColor")
+    @SerializedName("buttonSariColor")
     @Expose
     private String buttonSariColor;
     @SerializedName("Shape")
@@ -26,21 +26,42 @@ public class ClientBotSettings
     @SerializedName("Direction")
     @Expose
     private String direction;
-    @SerializedName("OfflineStatemessage")
+    @SerializedName("offlineStatemessage")
     @Expose
     private String offlineStatemessage;
-    @SerializedName("Button")
+    @SerializedName("button")
     @Expose
     private String button;
-    @SerializedName("ButtonLink")
+    @SerializedName("buttonLink")
     @Expose
     private String buttonLink;
-    @SerializedName("EnableLeaderboard")
+    @SerializedName("enableLeaderboard")
     @Expose
     private boolean enableLeaderboard;
+    @SerializedName("isReferralOn")
+    @Expose
+    private boolean isReferralOn;
+    @SerializedName("enableNotifications")
+    @Expose
+    private boolean enableNotifications;
     @SerializedName("ClientFirebase")
     @Expose
     private ClientFireBase clientFireBase;
+    @SerializedName("isBotDarkTheme")
+    @Expose
+    private boolean isBotDarkTheme;
+    @SerializedName("isRankPointsVisible")
+    @Expose
+    private boolean isRankPointsVisible;
+    @SerializedName("isWalletPointsVisible")
+    @Expose
+    private boolean isWalletPointsVisible;
+    @SerializedName("rankPointsName")
+    @Expose
+    private String rankPointsName;
+    @SerializedName("walletPointsName")
+    @Expose
+    private String walletPointsName;
 
     public Integer getClientId()
     {
