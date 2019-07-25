@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="10dp"
-    android:layout_marginTop="5dp"
+    android:layout_marginTop="10dp"
     android:layout_marginEnd="10dp"
-    android:layout_marginBottom="5dp">
+    android:layout_marginBottom="10dp">
 
     <ImageView
         android:id="@+id/achievements_logo"
@@ -47,7 +47,7 @@
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
         android:textColor="@android:color/black"
-        android:textSize="12sp"
+        android:textSize="10sp"
         tools:text="30 Pts"
         android:textStyle="bold"
         android:maxLines="2"

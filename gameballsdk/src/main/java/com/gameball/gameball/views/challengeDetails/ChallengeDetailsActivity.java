@@ -74,6 +74,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     private LinearLayout statusLayout;
     private TextView statusTitle;
     private ImageView statusIcon;
+    private TextView status;
     private TextView statusDescription;
 
     private ImageButton backBtn;
@@ -126,7 +127,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         challengeRewardTxt = findViewById(R.id.challenge_reward_txt);
         challengeTargetActionCount = findViewById(R.id.challenge_target_action_count);
         statusIcon = findViewById(R.id.status_icon);
-        statusDescription = findViewById(R.id.status_description);
+        status = findViewById(R.id.status_description);
+        statusDescription = findViewById(R.id.achieved_count);
         backBtn = findViewById(R.id.back_btn);
         challengeAmountDescription = findViewById(R.id.challenge_amount_description);
         challengeActionDescription = findViewById(R.id.challenge_action_description);
@@ -163,7 +165,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         challengeName.startAnimation(fadeIn);
         statusIcon.startAnimation(fadeIn);
         challengeDescription.startAnimation(fadeIn);
-        statusDescription.startAnimation(fadeIn);
+        status.startAnimation(fadeIn);
     }
 
     private void setupBotSettings()
@@ -237,6 +239,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
                         getString(R.string.reach_level), game.getActivationLevel());
 
         }
+        status.setText(getResources().getString(R.string.locked));
         statusDescription.setText(String.format(Locale.getDefault(),
                 "%s %s %s", getString(R.string.locked), statusPrefix,
                 getString(R.string.to_unlock_this_level)));
@@ -246,15 +249,16 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     {
         notAchievedIndicator.setVisibility(View.GONE);
         statusIcon.setImageResource(R.drawable.ic_status_achieved);
-        statusDescription.setText(String.format(Locale.getDefault(),
-                "%s (%d)", getString(R.string.achieved), game.getAchievedCount()));
+        status.setText(String.format(Locale.getDefault(),
+                "%s", getString(R.string.achieved)));
+        statusDescription.setText(String.format(Locale.getDefault(), "%d time(s)",game.getAchievedCount()));
     }
 
     private void setupNotAchievedStatus()
     {
         notAchievedIndicator.setVisibility(View.VISIBLE);
         statusIcon.setImageResource(R.drawable.ic_status_keep_going);
-        statusDescription.setText(R.string.keep_going);
+        status.setText(R.string.keep_going);
     }
 
     private void setupViewsByBehaviourTypeId()
