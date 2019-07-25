@@ -1,7 +1,9 @@
 package com.example.testappwithoutfirebase;
 
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -22,6 +24,10 @@ import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.response.HoldPointsResponse;
 import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.network.Callback;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -60,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         prepView();
         changeLang(Locale.getDefault().getLanguage());
 
+        daynamicLinkTest();
+
 //        gameBallApp.generateOTP(new GenerateOTPBody("5sdfd2dvvd-9mnvhu25d6c3d"),
 //                new Callback()
 //                {
@@ -75,6 +83,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //
 //                    }
 //                });
+    }
+
+    private void daynamicLinkTest()
+    {
+        gameBallApp.isUserReferred(this, getIntent());
     }
 
     public void navigateToFragment(Fragment fragment)

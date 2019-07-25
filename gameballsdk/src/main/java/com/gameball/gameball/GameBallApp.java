@@ -1,5 +1,6 @@
 package com.gameball.gameball;
 
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -47,12 +48,17 @@ import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSourc
 import com.gameball.gameball.network.transactionRemote.TransactionRemoteDataSource;
 import com.gameball.gameball.utils.DialogManager;
 import com.gameball.gameball.views.GameBallMainActivity;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -642,6 +648,38 @@ public class GameBallApp {
                     public void onError(Throwable e)
                     {
                         callback.onError(e);
+                    }
+                });
+    }
+
+    public void isUserReferred(Activity activity, Intent intent)
+    {
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(intent)
+                .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                        // Get deep link from result (may be null if no link is found)
+                        Uri deepLink = null;
+                        if (pendingDynamicLinkData != null) {
+                            deepLink = pendingDynamicLinkData.getLink();
+
+                            String query = deepLink.getQueryParameter("ReferralCode");
+                        }
+
+
+                        // Handle the deep link. For example, open the linked
+                        // content, or apply promotional credit to the user's
+                        // account.
+                        // ...
+
+                        // ...
+                    }
+                })
+                .addOnFailureListener(activity, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(this.getClass().getSimpleName(), "getDynamicLink:onFailure", e);
                     }
                 });
     }
