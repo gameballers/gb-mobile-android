@@ -151,7 +151,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
-            DisplayUtils.statusBarColorToSolid(this, clientBotSettings.getButtonBackgroundColor());
+            DisplayUtils.statusBarColorToSolid(this, clientBotSettings.getBotMainColor());
         }
         milestonesRecyclerView.setNestedScrollingEnabled(false);
         milestonesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -171,14 +171,14 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     private void setupBotSettings()
     {
         LayerDrawable amountProgress = (LayerDrawable) challengeAmountProgress.getProgressDrawable();
-        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
+        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
         LayerDrawable actionProgress = (LayerDrawable) challengeActionProgress.getProgressDrawable();
-        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()), PorterDuff.Mode.SRC_IN);
+        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
 
-        statusTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
-        milestoneTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
-        progressTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
-        highScoreTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
+        statusTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        milestoneTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        progressTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        highScoreTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
 
     }
 

@@ -5,18 +5,9 @@ import com.google.gson.annotations.SerializedName;
 
 public class ClientBotSettings
 {
-    @SerializedName("ClientId")
-    @Expose
-    private Integer clientId;
     @SerializedName("botMainColor")
     @Expose
     private String botMainColor;
-    @SerializedName("Shape")
-    @Expose
-    private String shape;
-    @SerializedName("Direction")
-    @Expose
-    private String direction;
     @SerializedName("enableLeaderboard")
     @Expose
     private boolean enableLeaderboard;
@@ -26,7 +17,7 @@ public class ClientBotSettings
     @SerializedName("enableNotifications")
     @Expose
     private boolean enableNotifications;
-    @SerializedName("ClientFirebase")
+    @SerializedName("clientFirebase")
     @Expose
     private ClientFireBase clientFireBase;
     @SerializedName("isBotDarkTheme")
@@ -45,24 +36,9 @@ public class ClientBotSettings
     @Expose
     private String walletPointsName;
 
-    public Integer getClientId()
-    {
-        return clientId;
-    }
-
     public String getBotMainColor()
     {
         return botMainColor;
-    }
-
-    public String getShape()
-    {
-        return shape;
-    }
-
-    public String getDirection()
-    {
-        return direction;
     }
 
     public boolean isEnableLeaderboard()
