@@ -1,9 +1,7 @@
 package com.example.testappwithoutfirebase;
 
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -22,14 +20,10 @@ import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.request.HoldPointBody;
 import com.gameball.gameball.model.response.HoldPointsResponse;
-import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.network.Callback;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
-import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
@@ -66,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         prepView();
         changeLang(Locale.getDefault().getLanguage());
 
-        daynamicLinkTest();
 
 //        gameBallApp.generateOTP(new GenerateOTPBody("5sdfd2dvvd-9mnvhu25d6c3d"),
 //                new Callback()
@@ -173,8 +166,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     challengeApiIdField.setError("field cannot be empty");
                 break;
             case R.id.submit_actions_btn:
-                if (adapter.getmData().size() > 0)
-                    addAction();
+//                if (adapter.getmData().size() > 0)
+                    //Todo: addAction test method to be implemented
+
+                    Action action = new Action();
+
+                HashMap<String, Object> metaData = new HashMap<>();
+                metaData.put("Amount", 1000);
+
+                action.addEvent("Buy", metaData);
+
+                gameBallApp.addAction(action);
                 break;
             case R.id.change_lang_btn:
                 langPopupMenu.show();
@@ -238,20 +240,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else
             Toast.makeText(MainActivity.this,
                     "playerID cannot be empty", Toast.LENGTH_SHORT).show();
-    }
-
-    private void addAction()
-    {
-        ArrayList<String> challengeApiIds = adapter.getmData();
-
-        Action action;
-
-        if (challengeApiIds.size() > 1)
-            action = new Action(challengeApiIds);
-        else
-            action = new Action(challengeApiIds.get(0), null);
-
-        gameBallApp.addAction(action);
     }
 
     private void changeLang(String lang)
