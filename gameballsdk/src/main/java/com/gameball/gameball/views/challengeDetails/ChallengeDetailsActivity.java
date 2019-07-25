@@ -184,7 +184,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
     private void fillView()
     {
-        challengeName.setText(game.getGameName());
+        if(game.getGameName() != null)
+            challengeName.setText(game.getGameName());
         challengeDescription.setText(game.getDescription());
         ImageDownloader.downloadImage(this, challengeIcon, game.getIcon());
         setupView();

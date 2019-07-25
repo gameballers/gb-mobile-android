@@ -78,7 +78,8 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         if(item.getIcon() != null && !item.getIcon().isEmpty())
             ImageDownloader.downloadImage(mContext, holder.achievementsLogo, item.getIcon());
 
-        holder.achievementName.setText(item.getGameName());
+        if(item.getGameName() != null)
+            holder.achievementName.setText(String.format(Locale.getDefault(),item.getGameName()));
 
         if(item.isUnlocked())
         {
