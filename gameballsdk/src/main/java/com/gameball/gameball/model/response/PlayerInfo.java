@@ -6,52 +6,60 @@ import com.google.gson.annotations.SerializedName;
 
 public class PlayerInfo
 {
-
-    @SerializedName("DisplayName")
+    @SerializedName("playerId")
+    @Expose
+    private Integer playerId;
+    @SerializedName("displayName")
     @Expose
     private String displayName;
-    @SerializedName("FirstName")
+    @SerializedName("firstName")
     @Expose
     private String firstName;
-    @SerializedName("LastName")
+    @SerializedName("lastName")
     @Expose
     private String lastName;
-    @SerializedName("Email")
+    @SerializedName("email")
     @Expose
     private String email;
-    @SerializedName("Gender")
+    @SerializedName("gender")
     @Expose
     private String gender;
-    @SerializedName("MobileNumber")
+    @SerializedName("mobileNumber")
     @Expose
     private String mobileNumber;
-    @SerializedName("Age")
-    @Expose
-    private Integer age;
-    @SerializedName("DateOfBirth")
+    @SerializedName("dateOfBirth")
     @Expose
     private String dateOfBirth;
-    @SerializedName("PlayerCategoryID")
+    @SerializedName("playerCategoryId")
     @Expose
     private Integer playerCategoryID;
-    @SerializedName("ExternalID")
+    @SerializedName("externalId")
     @Expose
     private String externalID;
-    @SerializedName("CurrentLevel")
+    @SerializedName("currentLevel")
     @Expose
     private Integer currentLevel;
-    @SerializedName("AccFrubies")
+    @SerializedName("accFrubies")
     @Expose
     private Integer accFrubies;
-    @SerializedName("AccPoints")
+    @SerializedName("accPoints")
     @Expose
     private Integer accPoints;
-    @SerializedName("StatusId")
+    @SerializedName("joinDate")
     @Expose
-    private Integer statusId;
-    @SerializedName("Level")
+    private String joinDate;
+    @SerializedName("isActive")
+    @Expose
+    private boolean isActive;
+    @SerializedName("level")
     @Expose
     private Level level;
+    @SerializedName("referralCode")
+    @Expose
+    private String referralCode;
+    @SerializedName("dynamicLink")
+    @Expose
+    private String dynamicLink;
 
     public String getDisplayName()
     {
@@ -76,11 +84,6 @@ public class PlayerInfo
     public String getGender()
     {
         return gender;
-    }
-
-    public Integer getAge()
-    {
-        return age;
     }
 
     public String getDateOfBirth()
@@ -113,11 +116,6 @@ public class PlayerInfo
         return accPoints;
     }
 
-    public Integer getStatusId()
-    {
-        return statusId;
-    }
-
     public Level getLevel()
     {
         return level;
@@ -126,6 +124,31 @@ public class PlayerInfo
     public String getMobileNumber()
     {
         return mobileNumber;
+    }
+
+    public Integer getPlayerId()
+    {
+        return playerId;
+    }
+
+    public String getJoinDate()
+    {
+        return joinDate;
+    }
+
+    public boolean isActive()
+    {
+        return isActive;
+    }
+
+    public String getReferralCode()
+    {
+        return referralCode;
+    }
+
+    public String getDynamicLink()
+    {
+        return dynamicLink;
     }
 
     public static class Builder

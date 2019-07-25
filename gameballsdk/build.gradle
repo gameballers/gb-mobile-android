@@ -13,7 +13,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        buildConfigField 'String', 'MAIN_HOST', '"http://3.17.74.152:8092"'
+        buildConfigField 'String', 'MAIN_HOST', '"https://gb-api.azurewebsites.net/"'
     }
 
     buildTypes {

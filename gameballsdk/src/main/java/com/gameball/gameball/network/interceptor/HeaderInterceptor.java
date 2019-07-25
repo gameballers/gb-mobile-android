@@ -20,8 +20,13 @@ public class HeaderInterceptor implements Interceptor
         Request.Builder builder = request.newBuilder();
 
         if (SharedPreferencesUtils.getInstance().getClientId() != null)
-            builder.addHeader(Constants.APIKey,
-                    SharedPreferencesUtils.getInstance().getClientId());
+        {
+//            builder.addHeader(Constants.APIKey,
+//                    SharedPreferencesUtils.getInstance().getClientId());
+            builder.addHeader("ClientId",
+                    "1");
+
+        }
 
         builder.addHeader(Constants.LangKey, Locale.getDefault().getLanguage());
 

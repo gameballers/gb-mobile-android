@@ -89,9 +89,9 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
 
     private void setupBotSettings()
     {
-        profileLoadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getButtonBackgroundColor()),
+        profileLoadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
                 PorterDuff.Mode.SRC_IN);
-        achievementTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
+        achievementTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
     }
 
     private void prepView() {
@@ -110,10 +110,11 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     {
         ArrayList<Game> games = new ArrayList<>();
 
-        for (Quest quest: quests)
-        {
-            games.addAll(quest.getQuestChallenges());
-        }
+        if(quests != null)
+            for (Quest quest: quests)
+            {
+                games.addAll(quest.getQuestChallenges());
+            }
 
         return games;
     }

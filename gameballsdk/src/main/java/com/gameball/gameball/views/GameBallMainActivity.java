@@ -22,7 +22,7 @@ public class GameBallMainActivity extends AppCompatActivity
         setContentView(R.layout.activity_gameball_main);
         ClientBotSettings botSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
 
-        DisplayUtils.statusBarColorToSolid(this,botSettings.getButtonBackgroundColor());
+        DisplayUtils.statusBarColorToSolid(this,botSettings.getBotMainColor());
 
         navigateToFragment(new MainContainerFragment());
 

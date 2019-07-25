@@ -5,91 +5,40 @@ import com.google.gson.annotations.SerializedName;
 
 public class ClientBotSettings
 {
-    @SerializedName("ClientId")
-    @Expose
-    private Integer clientId;
-    @SerializedName("BotMainColor")
+    @SerializedName("botMainColor")
     @Expose
     private String botMainColor;
-    @SerializedName("ButtonBackgroundColor")
-    @Expose
-    private String buttonBackgroundColor;
-    @SerializedName("ButtonFlagColor")
-    @Expose
-    private String buttonFlagColor;
-    @SerializedName("ButtonSariColor")
-    @Expose
-    private String buttonSariColor;
-    @SerializedName("Shape")
-    @Expose
-    private String shape;
-    @SerializedName("Direction")
-    @Expose
-    private String direction;
-    @SerializedName("OfflineStatemessage")
-    @Expose
-    private String offlineStatemessage;
-    @SerializedName("Button")
-    @Expose
-    private String button;
-    @SerializedName("ButtonLink")
-    @Expose
-    private String buttonLink;
-    @SerializedName("EnableLeaderboard")
+    @SerializedName("enableLeaderboard")
     @Expose
     private boolean enableLeaderboard;
-    @SerializedName("ClientFirebase")
+    @SerializedName("isReferralOn")
+    @Expose
+    private boolean isReferralOn;
+    @SerializedName("enableNotifications")
+    @Expose
+    private boolean enableNotifications;
+    @SerializedName("clientFirebase")
     @Expose
     private ClientFireBase clientFireBase;
-
-    public Integer getClientId()
-    {
-        return clientId;
-    }
+    @SerializedName("isBotDarkTheme")
+    @Expose
+    private boolean isBotDarkTheme;
+    @SerializedName("isRankPointsVisible")
+    @Expose
+    private boolean isRankPointsVisible;
+    @SerializedName("isWalletPointsVisible")
+    @Expose
+    private boolean isWalletPointsVisible;
+    @SerializedName("rankPointsName")
+    @Expose
+    private String rankPointsName;
+    @SerializedName("walletPointsName")
+    @Expose
+    private String walletPointsName;
 
     public String getBotMainColor()
     {
         return botMainColor;
-    }
-
-    public String getButtonBackgroundColor()
-    {
-        return buttonBackgroundColor;
-    }
-
-    public String getButtonFlagColor()
-    {
-        return buttonFlagColor;
-    }
-
-    public String getButtonSariColor()
-    {
-        return buttonSariColor;
-    }
-
-    public String getShape()
-    {
-        return shape;
-    }
-
-    public String getDirection()
-    {
-        return direction;
-    }
-
-    public String getOfflineStatemessage()
-    {
-        return offlineStatemessage;
-    }
-
-    public String getButton()
-    {
-        return button;
-    }
-
-    public String getButtonLink()
-    {
-        return buttonLink;
     }
 
     public boolean isEnableLeaderboard()
@@ -100,5 +49,40 @@ public class ClientBotSettings
     public ClientFireBase getClientFireBase()
     {
         return clientFireBase;
+    }
+
+    public boolean isReferralOn()
+    {
+        return isReferralOn;
+    }
+
+    public boolean isEnableNotifications()
+    {
+        return enableNotifications;
+    }
+
+    public boolean isBotDarkTheme()
+    {
+        return isBotDarkTheme;
+    }
+
+    public boolean isRankPointsVisible()
+    {
+        return isRankPointsVisible;
+    }
+
+    public boolean isWalletPointsVisible()
+    {
+        return isWalletPointsVisible;
+    }
+
+    public String getRankPointsName()
+    {
+        return rankPointsName;
+    }
+
+    public String getWalletPointsName()
+    {
+        return walletPointsName;
     }
 }
