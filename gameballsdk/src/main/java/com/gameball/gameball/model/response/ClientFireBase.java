@@ -5,26 +5,15 @@ import com.google.gson.annotations.SerializedName;
 
 public class ClientFireBase
 {
-    @SerializedName("id")
-    @Expose
-    private int id;
-    @SerializedName("ApplicationId")
+    @SerializedName("applicationId")
     @Expose
     private String applicationId;
-    @SerializedName("SenderId")
+    @SerializedName("senderId")
     @Expose
     private String senderId;
-    @SerializedName("WebAPIKey")
+    @SerializedName("webAPIKey")
     @Expose
     private String webApiKey;
-    @SerializedName("ClientId")
-    @Expose
-    private int clientId;
-
-    public int getId()
-    {
-        return id;
-    }
 
     public String getApplicationId()
     {
@@ -34,11 +23,6 @@ public class ClientFireBase
     public String getSenderId()
     {
         return senderId;
-    }
-
-    public int getClientId()
-    {
-        return clientId;
     }
 
     public String getWebApiKey()
