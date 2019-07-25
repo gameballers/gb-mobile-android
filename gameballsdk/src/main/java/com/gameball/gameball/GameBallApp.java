@@ -450,7 +450,7 @@ public class GameBallApp {
      *               amount: is needed if the challenge is amount based
      *               playerCategoryID: us needed if you have multi users categories(default value is 0)
      */
-    public void addAction(Action action) {
+    public void addAction(Action action, final Callback callback) {
         gameBallApi.addNewAtion(action).
                 subscribeOn(Schedulers.io())
                 .retry()
@@ -465,13 +465,15 @@ public class GameBallApp {
                     @Override
                     public void onComplete()
                     {
-                        Log.i("dasd","asdas");
+                        Log.i("action:","action successfull");
+                        callback.onSuccess(new Object());
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
-                        Log.i("dasd","asdas");
+                        Log.e("action:","action error");
+                        callback.onError(e);
                     }
                 });
     }

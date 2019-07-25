@@ -176,7 +176,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 action.addEvent("Buy", metaData);
 
-                gameBallApp.addAction(action);
+                gameBallApp.addAction(action, new Callback()
+                {
+                    @Override
+                    public void onSuccess(Object o)
+                    {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+
+                    }
+                });
                 break;
             case R.id.change_lang_btn:
                 langPopupMenu.show();
