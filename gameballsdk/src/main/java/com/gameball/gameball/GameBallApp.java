@@ -230,6 +230,16 @@ public class GameBallApp {
         getBotSettings();
     }
 
+    public void init(String clientID,String playerId, @DrawableRes int notificationIcon)
+    {
+        init(clientID, playerId,-1, notificationIcon);
+    }
+
+    public void init(String clientID, @DrawableRes int notificationIcon)
+    {
+        init(clientID, null,-1, notificationIcon);
+    }
+
     private void initializeFirebase(ClientBotSettings botSettings)
     {
         if(botSettings.getClientFireBase() != null)
@@ -259,17 +269,6 @@ public class GameBallApp {
     }
 
 
-    public void init(String clientID,String playerId, @DrawableRes int notificationIcon)
-    {
-        init(clientID, playerId,-1, notificationIcon);
-    }
-
-    public void init(String clientID, @DrawableRes int notificationIcon)
-    {
-        init(clientID, null,-1, notificationIcon);
-    }
-
-
 
     public void registerPlayer(@NonNull String playerID)
     {
@@ -291,7 +290,7 @@ public class GameBallApp {
         }
     }
 
-    public void editPlayerInfo(@NonNull PlayerInfo playerInfo)
+    public void editPlayerInfo(@NonNull PlayerInfo playerInfo, Callback callback)
     {
         PlayerInfoBody body = new PlayerInfoBody(playerInfo);
 

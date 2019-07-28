@@ -10,8 +10,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -24,7 +22,6 @@ import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.ProgressBarAnimation;
 import com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity;
 import com.google.gson.Gson;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -117,7 +114,7 @@ public class ReferralChallengesAdapter extends RecyclerView.Adapter<ReferralChal
             challengeAchievedCount = itemView.findViewById(R.id.challenge_achieved_count);
             challengeName = itemView.findViewById(R.id.challenge_name);
             challengeRewardTxt = itemView.findViewById(R.id.challenge_reward_txt);
-            challengeProgress = itemView.findViewById(R.id.challenge_amount_progress);
+            challengeProgress = itemView.findViewById(R.id.challenge_event_progress);
 
             itemView.setOnClickListener(this);
         }

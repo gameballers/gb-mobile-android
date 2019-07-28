@@ -3,12 +3,8 @@ package com.gameball.gameball.views.challengeDetails;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -54,20 +50,13 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     private TextView challengeName;
     private TextView challengeDescription;
 
-    //mileStone views
-    private ConstraintLayout milestoneLayout;
-    private TextView milestoneTitle;
-    private RecyclerView milestonesRecyclerView;
 
     //normal challenge views
     private RelativeLayout challengeLayout;
     private TextView progressTitle;
-    private TextView challengeTargetAmountCount;
-    private TextView challengeTargetActionCount;
-    private TextView challengeAmountDescription;
-    private TextView challengeActionDescription;
-    private ProgressBar challengeAmountProgress;
-    private ProgressBar challengeActionProgress;
+    private TextView challengeTargetEventCount;
+    private TextView challengeEventDescription;
+    private ProgressBar challengeEventProgress;
     private TextView challengeRewardTxt;
 
     //high score views
@@ -127,24 +116,17 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         lockedChallengeIndicator = findViewById(R.id.locked_challenge_indicator);
         challengeName = findViewById(R.id.challenge_name);
         challengeDescription = findViewById(R.id.challenge_description);
-        challengeTargetAmountCount = findViewById(R.id.challenge_target_amount_count);
-        milestoneTitle = findViewById(R.id.milestone_title);
+        challengeTargetEventCount = findViewById(R.id.challenge_target_event_count);
         challengeRewardTxt = findViewById(R.id.challenge_reward_txt);
-        challengeTargetActionCount = findViewById(R.id.challenge_target_action_count);
         statusIcon = findViewById(R.id.status_icon);
         status = findViewById(R.id.status_description);
         statusDescription = findViewById(R.id.achieved_count);
         backBtn = findViewById(R.id.back_btn);
-        challengeAmountDescription = findViewById(R.id.challenge_amount_description);
-        challengeActionDescription = findViewById(R.id.challenge_action_description);
-        milestoneLayout = findViewById(R.id.mileStones_layout);
-        milestonesRecyclerView = findViewById(R.id.milestones_recyclerView);
+        challengeEventDescription = findViewById(R.id.challenge_event_description);
         challengeLayout = findViewById(R.id.challenge_layout);
         progressTitle = findViewById(R.id.progress_title);
-        challengeAmountProgress = findViewById(R.id.challenge_amount_progress);
-        challengeAmountProgress.setProgress(1);
-        challengeActionProgress = findViewById(R.id.challenge_action_progress);
-        challengeActionProgress.setProgress(1);
+        challengeEventProgress = findViewById(R.id.challenge_event_progress);
+        challengeEventProgress.setProgress(1);
         highScoreLayout = findViewById(R.id.high_score_layout);
         highScoreTitle = findViewById(R.id.high_score_title);
         highScoreValue = findViewById(R.id.high_score_value);
@@ -154,13 +136,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
     private void prepView()
     {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-        {
-            DisplayUtils.statusBarColorToSolid(this, clientBotSettings.getBotMainColor());
-        }
-        milestonesRecyclerView.setNestedScrollingEnabled(false);
-        milestonesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        milestonesRecyclerView.setAdapter(adapter);
+        DisplayUtils.statusBarColorToSolid(this, clientBotSettings.getBotMainColor());
+
         backBtn.setOnClickListener(this);
     }
 
@@ -175,13 +152,10 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
     private void setupBotSettings()
     {
-        LayerDrawable amountProgress = (LayerDrawable) challengeAmountProgress.getProgressDrawable();
-        amountProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
-        LayerDrawable actionProgress = (LayerDrawable) challengeActionProgress.getProgressDrawable();
-        actionProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
+        LayerDrawable eventProgress = (LayerDrawable) challengeEventProgress.getProgressDrawable();
+        eventProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
 
         statusTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
-        milestoneTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
         progressTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
         highScoreTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
 
@@ -232,23 +206,12 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         notAchievedIndicator.setVisibility(View.VISIBLE);
         statusIcon.setImageResource(R.drawable.ic_status_locked);
 
-        String statusPrefix = "";
-        switch (game.getActivationCriteriaTypeId())
-        {
-            case ACTIVATION_FRUBIES_BASED:
-                statusPrefix = String.format(Locale.getDefault(),"%s %d %s",
-                        getString(R.string.you_need_to), game.getActivationFrubies(),
-                        clientBotSettings.getWalletPointsName());
-                break;
-            case ACTIVATION_LEVEL_BASED:
-                statusPrefix = String.format(Locale.getDefault(),"%s %d",
-                        getString(R.string.reach_level), game.getActivationLevel());
+        String statusPrefix = String.format(Locale.getDefault(),"%s %d %s",
+                getString(R.string.reach_level), game.getActivationLevel(),
+                getString(R.string.to_unlock_this_challenge));
 
-        }
         status.setText(getResources().getString(R.string.locked));
-        statusDescription.setText(String.format(Locale.getDefault(),
-                "%s %s %s", getString(R.string.locked), statusPrefix,
-                getString(R.string.to_unlock_this_level)));
+        statusDescription.setText(statusPrefix);
     }
 
     private void setupAchievedStatus()
@@ -273,21 +236,18 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
                 "%d %s | %d %s", game.getRewardFrubies(), clientBotSettings.getWalletPointsName(),
                 game.getRewardPoints(), clientBotSettings.getRankPointsName());
 
-        if (game.getMilestones() != null && game.getMilestones().size() > 0)
+        if (game.getBehaviorTypeId() == HIGH_SCORE_BASED)
         {
-            milestoneLayout.setVisibility(View.VISIBLE);
-            challengeRewardTxt.setVisibility(View.GONE);
-            milestoneTitle.startAnimation(fadeIn);
-//            milestoneRewardTxt.setText(challengeRewardStr);
-        } else if (game.getBehaviorTypeId() == HIGH_SCORE_BASED)
-        {
-            highScoreValue.setText(String.format(Locale.getDefault(),"%d %s",
-                    game.getHighScore(), game.getAmountUnit()));
-            highScoreLayout.setVisibility(View.VISIBLE);
-            statusLayout.setVisibility(View.GONE);
+            if(game.getHighScore() != null)
+            {
+                highScoreValue.setText(String.format(Locale.getDefault(), "%d %s",
+                        game.getHighScore(), game.getAmountUnit()));
+                highScoreLayout.setVisibility(View.VISIBLE);
+                statusLayout.setVisibility(View.GONE);
+            }
         } else
         {
-            if ((!game.isRepeatable() && isChallengeAchieved()) || isShowProgressLayout())
+            if (isHideProgressLayout())
                 challengeLayout.setVisibility(View.GONE);
             else
             {
@@ -303,103 +263,52 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         }
     }
 
-    private boolean isShowProgressLayout()
+    private boolean isHideProgressLayout()
     {
         int behaviorTypeId = game.getBehaviorTypeId();
         return behaviorTypeId == BIRTHDAY || behaviorTypeId == JOIN_ANNIVERSARY
-                || behaviorTypeId == UPON_LOGIN || game.isReferral();
+                || behaviorTypeId == UPON_LOGIN || (game.isReferral() && isChallengeAchieved())
+                || (!game.isRepeatable() && isChallengeAchieved());
     }
 
     private void setupProgressbarBehaviour()
     {
             switch (game.getBehaviorTypeId())
         {
-            case ACTION_BASED:
-                    showActionProgress(challengeActionProgress, challengeTargetActionCount,
-                            challengeActionDescription);
-                break;
-            case AMOUNT_BASED:
-                    showAmountProgress(challengeAmountProgress, challengeTargetAmountCount,
-                            challengeAmountDescription);
-                break;
-            case ACTION_AND_AMOUNT_BASED:
-                    showAmountProgress(challengeAmountProgress, challengeTargetAmountCount,
-                            challengeAmountDescription);
-                    showActionProgress(challengeActionProgress, challengeTargetActionCount,
-                            challengeActionDescription);
+            case EVENT_BASED:
+                    showEventProgress(challengeEventProgress, challengeTargetEventCount,
+                            challengeEventDescription);
                 break;
         }
     }
 
-    private void showActionProgress(final ProgressBar progressBar, TextView actionCountTxt, TextView description)
+    private void showEventProgress(final ProgressBar progressBar, TextView eventCountTxt, TextView description)
     {
         progressBar.setVisibility(View.VISIBLE);
-        actionCountTxt.setVisibility(View.VISIBLE);
+        eventCountTxt.setVisibility(View.VISIBLE);
         description.setVisibility(View.VISIBLE);
 
-        actionCountTxt.setText(String.format(Locale.getDefault(),
-                "%d", game.getTargetActionsCount()));
-        description.setText(String.format(Locale.getDefault(),
-                "only %d %s remaining to achive this challenge",
-                game.getTargetActionsCount() - game.getAchievedActionsCount(), ""));
-
-        if (game.getAmountCompletedPercentage() == 0)
-            progressBar.setProgress(0);
-
-        final ProgressBarAnimation actionProgressBarAnimation = new ProgressBarAnimation(progressBar,
-                0, (int) game.getActionsCompletedPercentage());
-        actionProgressBarAnimation.setDuration(700);
-        actionProgressBarAnimation.setFillAfter(true);
-        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
-        fadeIn.setDuration(1000);
-        fadeIn.setAnimationListener(new Animation.AnimationListener()
-        {
-            @Override
-            public void onAnimationStart(Animation animation)
-            {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation)
-            {
-                progressBar.startAnimation(actionProgressBarAnimation);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation)
-            {
-
-            }
-        });
-
-        actionCountTxt.startAnimation(fadeIn);
-        progressBar.startAnimation(fadeIn);
-        description.startAnimation(fadeIn);
-    }
-
-    private void showAmountProgress(final ProgressBar progressBar, TextView amountCountTxt, TextView description)
-    {
-        progressBar.setVisibility(View.VISIBLE);
-        amountCountTxt.setVisibility(View.VISIBLE);
-        description.setVisibility(View.VISIBLE);
-
-        String targetAmountStr = String.format(Locale.getDefault(),
+        String targetEventStr = String.format(Locale.getDefault(),
                 "%d", game.getTargetAmount());
-        if (game.getAmountUnit() != null)
-            targetAmountStr += " " + game.getAmountUnit();
-        amountCountTxt.setText(targetAmountStr);
+        if (game.isReferral() && game.getAmountUnit() != null)
+            targetEventStr += " " + game.getAmountUnit();
+        else
+            eventCountTxt.setVisibility(View.GONE);
+        eventCountTxt.setText(targetEventStr);
 
-        description.setText(String.format(Locale.getDefault(),
-                "only %d %s remaining to achive this challenge",
+        if(game.isReferral())
+            description.setText(String.format(Locale.getDefault(),
+                "%d friend(s) remaining to achieve this badge",
                 game.getTargetAmount() - game.getCurrentAmount(), ""));
+        else
+            description.setText(getString(R.string.track_your_progress));
 
         if (game.getAmountCompletedPercentage() == 0)
             progressBar.setProgress(0);
-        final ProgressBarAnimation amountProgressBarAnimation = new ProgressBarAnimation(progressBar,
-                0, (int) game.getAmountCompletedPercentage());
-        amountProgressBarAnimation.setDuration(700);
-        amountProgressBarAnimation.setFillAfter(true);
+        final ProgressBarAnimation eventProgressBarAnimation = new ProgressBarAnimation(progressBar,
+                0, (int) game.getCompletionPercentage());
+        eventProgressBarAnimation.setDuration(700);
+        eventProgressBarAnimation.setFillAfter(true);
 
 
         Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
@@ -415,7 +324,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
             @Override
             public void onAnimationEnd(Animation animation)
             {
-                progressBar.startAnimation(amountProgressBarAnimation);
+                progressBar.startAnimation(eventProgressBarAnimation);
             }
 
             @Override
@@ -425,7 +334,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
             }
         });
 
-        amountCountTxt.startAnimation(fadeIn);
+        eventCountTxt.startAnimation(fadeIn);
         progressBar.startAnimation(fadeIn);
         description.startAnimation(fadeIn);
     }
