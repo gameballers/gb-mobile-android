@@ -21,4 +21,8 @@
     <string name="high_score">High Score</string>
     <string name="ok">Ok</string>
     <string name="hello">Hello</string>
+    <string name="we_value_friendship">We value Friendship</string>
+    <string name="we_value_friendship_txt">Refer a friend to us and get reward once they signup. Share the below link with your friends.</string>
+    <string name="share">share</string>
+    <string name="your_rank_is">Your rank is</string>
 </resources>

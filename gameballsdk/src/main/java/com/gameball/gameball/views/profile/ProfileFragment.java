@@ -23,8 +23,6 @@ import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
-import com.gameball.gameball.model.response.Level;
-import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.Quest;
 import com.gameball.gameball.views.mainContainer.MainContainerContract;
 
@@ -40,8 +38,8 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private View profileLoadingIndicatorBg;
 
 
-    private AchievementsAdapter achievementsAdapter;
-    private AchievementsAdapter questChallengesAdapter;
+    private ChallengesAdapter challengesAdapter;
+    private ChallengesAdapter questChallengesAdapter;
     private ProfileContract.Presenter presenter;
     private ClientBotSettings clientBotSettings;
     private Animation fadeIn;
@@ -67,8 +65,8 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     }
 
     private void initComponents() {
-        achievementsAdapter = new AchievementsAdapter(getContext(), new ArrayList<Game>());
-        questChallengesAdapter= new AchievementsAdapter(getContext(), new ArrayList<Game>());
+        challengesAdapter = new ChallengesAdapter(getContext(), new ArrayList<Game>());
+        questChallengesAdapter= new ChallengesAdapter(getContext(), new ArrayList<Game>());
         presenter = new ProfilePresenter(getContext(), this);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
 
@@ -97,7 +95,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private void prepView() {
         achievementsRecyclerView.setHasFixedSize(true);
         achievementsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        achievementsRecyclerView.setAdapter(achievementsAdapter);
+        achievementsRecyclerView.setAdapter(challengesAdapter);
         achievementsRecyclerView.setNestedScrollingEnabled(false);
 
         questsRecyclerView.setHasFixedSize(true);
@@ -122,8 +120,8 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     @Override
     public void onWithUnlocksLoaded(ArrayList<Game> games, ArrayList<Quest> quests)
     {
-        achievementsAdapter.setmData(games);
-        achievementsAdapter.notifyDataSetChanged();
+        challengesAdapter.setmData(games);
+        challengesAdapter.notifyDataSetChanged();
 
         questChallengesAdapter.setmData(buildQuestChallengesArray(quests));
         questChallengesAdapter.notifyDataSetChanged();

@@ -16,7 +16,7 @@ import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
-import com.gameball.gameball.views.profile.AchievementsAdapter;
+import com.gameball.gameball.views.profile.ChallengesAdapter;
 
 import java.util.ArrayList;
 
@@ -27,14 +27,14 @@ public class AchievementsFragment extends Fragment implements AchievemetsContrac
     private ProgressBar loadingIndicator;
     private TextView achievementTitle;
 
-    AchievementsAdapter achievementsAdapter;
+    ChallengesAdapter challengesAdapter;
     AchievemetsContract.Presenter presenter;
     ClientBotSettings clientBotSettings;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        achievementsAdapter = new AchievementsAdapter(getContext(), new ArrayList<Game>());
+        challengesAdapter = new ChallengesAdapter(getContext(), new ArrayList<Game>());
         presenter = new AchievementsPresenter(getContext(), this);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
     }
@@ -55,7 +55,7 @@ public class AchievementsFragment extends Fragment implements AchievemetsContrac
         loadingIndicator = rootView.findViewById(R.id.loading_indicator);
         achievementsRecyclerView.setHasFixedSize(true);
         achievementsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        achievementsRecyclerView.setAdapter(achievementsAdapter);
+        achievementsRecyclerView.setAdapter(challengesAdapter);
     }
 
     private void setupBotSettings()
@@ -66,8 +66,8 @@ public class AchievementsFragment extends Fragment implements AchievemetsContrac
     @Override
     public void fillAchievements(ArrayList<Game> games)
     {
-        achievementsAdapter.setmData(games);
-        achievementsAdapter.notifyDataSetChanged();
+        challengesAdapter.setmData(games);
+        challengesAdapter.notifyDataSetChanged();
     }
 
     @Override

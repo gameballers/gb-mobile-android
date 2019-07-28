@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector android:autoMirrored="true"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid android:color="@color/colorPrimary"/>
+            <corners
+                android:bottomRightRadius="100dp"
+                android:topRightRadius="100dp"/>
+        </shape>
+    </item>
+
+</selector>

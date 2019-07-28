@@ -73,7 +73,8 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     private void initComponents()
     {
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
-        tabsAdapter = new TabsAdapter(getChildFragmentManager(), clientBotSettings.isEnableLeaderboard());
+        tabsAdapter = new TabsAdapter(getChildFragmentManager(),
+                clientBotSettings.isEnableLeaderboard(), clientBotSettings.isReferralOn());
         presenter = new MainContainerPresenter(this);
 
         fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
@@ -153,6 +154,8 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         LayerDrawable progressDrawable = (LayerDrawable) levelProgress.getProgressDrawable();
         progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
                 PorterDuff.Mode.SRC_IN);
+        currentFrubiesTitle.setText(clientBotSettings.getWalletPointsName());
+        currentPointTitle.setText(clientBotSettings.getRankPointsName());
 
     }
 
@@ -208,8 +211,13 @@ public class MainContainerFragment extends DialogFragment implements MainContain
                     tabs.getTabAt(0).setIcon(R.drawable.ic_trophy);
                     break;
                 case 1:
-                    tabs.getTabAt(1).setIcon(R.drawable.ic_leaderboard);
+                    if (clientBotSettings.isEnableLeaderboard())
+                        tabs.getTabAt(1).setIcon(R.drawable.ic_leaderboard);
+                    else if(clientBotSettings.isReferralOn())
+                        tabs.getTabAt(1).setIcon(R.drawable.ic_referral);
                     break;
+                case 2:
+                    tabs.getTabAt(2).setIcon(R.drawable.ic_referral);
             }
         }
     }

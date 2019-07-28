@@ -654,7 +654,7 @@ public class GameBallApp {
                 });
     }
 
-    public void isUserReferred(Activity activity, Intent intent)
+    public void addReferral(Activity activity, Intent intent)
     {
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(intent)

@@ -38,6 +38,11 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     public static final int ACTION_BASED = 2;
     public static final int ACTION_AND_AMOUNT_BASED = 3;
     public static final int HIGH_SCORE_BASED = 4;
+    public static final int UPON_LOGIN = 5;
+    public static final int NON_CUMULATIVE_AMOUNT_BASED = 6;
+    public static final int BIRTHDAY = 7;
+    public static final int JOIN_ANNIVERSARY = 8;
+    public static final int EVENT_BASED = 9;
 
     public static final int ACTIVATION_FRUBIES_BASED = 2;
     public static final int ACTIVATION_LEVEL_BASED = 3;
@@ -233,7 +238,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
             case ACTIVATION_FRUBIES_BASED:
                 statusPrefix = String.format(Locale.getDefault(),"%s %d %s",
                         getString(R.string.you_need_to), game.getActivationFrubies(),
-                        getString(R.string.frubies));
+                        clientBotSettings.getWalletPointsName());
                 break;
             case ACTIVATION_LEVEL_BASED:
                 statusPrefix = String.format(Locale.getDefault(),"%s %d",
@@ -265,8 +270,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     private void setupViewsByBehaviourTypeId()
     {
         String challengeRewardStr = String.format(Locale.getDefault(),
-                "%d %s | %d %s", game.getRewardFrubies(), getString(R.string.frubies),
-                game.getRewardPoints(), getString(R.string.points));
+                "%d %s | %d %s", game.getRewardFrubies(), clientBotSettings.getWalletPointsName(),
+                game.getRewardPoints(), clientBotSettings.getRankPointsName());
 
         if (game.getMilestones() != null && game.getMilestones().size() > 0)
         {
@@ -282,7 +287,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
             statusLayout.setVisibility(View.GONE);
         } else
         {
-            if (!game.isRepeatable() && isChallengeAchieved())
+            if ((!game.isRepeatable() && isChallengeAchieved()) || isShowProgressLayout())
                 challengeLayout.setVisibility(View.GONE);
             else
             {
@@ -296,6 +301,13 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
             challengeRewardTxt.setText(challengeRewardStr);
         }
+    }
+
+    private boolean isShowProgressLayout()
+    {
+        int behaviorTypeId = game.getBehaviorTypeId();
+        return behaviorTypeId == BIRTHDAY || behaviorTypeId == JOIN_ANNIVERSARY
+                || behaviorTypeId == UPON_LOGIN || game.isReferral();
     }
 
     private void setupProgressbarBehaviour()

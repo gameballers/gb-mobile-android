@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void daynamicLinkTest()
     {
-        gameBallApp.isUserReferred(this, getIntent());
+        gameBallApp.addReferral(this, getIntent());
     }
 
     public void navigateToFragment(Fragment fragment)
