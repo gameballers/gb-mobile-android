@@ -37,7 +37,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
     {
         if(localDataSource.games != null)
         {
-            view.onWithUnlocksLoaded(localDataSource.games, localDataSource.quests);
+            view.onWithUnlocksLoaded(localDataSource.games);
             return;
         }
         view.showLoadingIndicator();
@@ -54,9 +54,8 @@ public class ProfilePresenter implements ProfileContract.Presenter
                     public void onSuccess(BaseResponse<GetWithUnlocksWrapper> arrayListBaseResponse)
                     {
                         localDataSource.games = arrayListBaseResponse.getResponse().getGames();
-                        localDataSource.quests = arrayListBaseResponse.getResponse().getQuests();
 
-                        view.onWithUnlocksLoaded(localDataSource.games, localDataSource.quests);
+                        view.onWithUnlocksLoaded(localDataSource.games);
                         view.hideLoadingIndicator();
                     }
 

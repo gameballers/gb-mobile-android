@@ -160,6 +160,7 @@ public class PlayerInfo
         private String gender;
         private String mobileNumber;
         private String dateOfBirth;
+        private String joinDate;
 
         public Builder()
         {
@@ -213,6 +214,12 @@ public class PlayerInfo
             return this;
         }
 
+        public Builder withJoinDate(String joinDate)
+        {
+            this.joinDate = joinDate;
+            return this;
+        }
+
         public PlayerInfo build()
         {
             PlayerInfo playerInfo = new PlayerInfo();
@@ -231,6 +238,7 @@ public class PlayerInfo
             playerInfo.dateOfBirth = this.dateOfBirth;
             playerInfo.displayName = this.displayName;
             playerInfo.gender = this.gender;
+            playerInfo.joinDate = this.joinDate;
             return playerInfo;
         }
     }

@@ -14,7 +14,6 @@ public class LocalDataSource
     public PlayerInfo playerInfo;
     public Level nextLevel;
     public ArrayList<Game> games;
-    public ArrayList<Quest> quests;
 
     private LocalDataSource()
     {
@@ -26,5 +25,10 @@ public class LocalDataSource
             instance = new LocalDataSource();
 
         return instance;
+    }
+
+    public void clear()
+    {
+        instance = new LocalDataSource();
     }
 }

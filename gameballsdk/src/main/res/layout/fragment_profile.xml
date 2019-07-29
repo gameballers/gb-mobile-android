@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
     android:background="@android:color/white"
-    android:fillViewport="true">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    >
 
         <TextView
             android:id="@+id/achievements_title"
@@ -26,7 +22,7 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/achievements_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_below="@id/achievements_title"
             android:layout_alignStart="@id/achievements_title"
             android:layout_alignLeft="@id/achievements_title"
@@ -39,23 +35,6 @@
             tools:listitem="@layout/acheivments_item_layout"
             tools:orientation="vertical"
             tools:spanCount="3" />
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/quests_recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/achievements_recyclerView"
-            android:layout_alignStart="@id/achievements_recyclerView"
-            android:layout_alignLeft="@id/achievements_recyclerView"
-            android:layout_alignEnd="@id/achievements_recyclerView"
-            android:layout_alignRight="@id/achievements_recyclerView"
-            android:layout_marginTop="5dp"
-            tools:itemCount="9"
-            tools:layoutManager="android.support.v7.widget.GridLayoutManager"
-            tools:listitem="@layout/quest_item_layout"
-            tools:orientation="vertical"
-            tools:spanCount="3" />
-
 
         <View
             android:id="@+id/profile_data_loading_indicator_bg"
@@ -71,5 +50,4 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             android:layout_centerInParent="true"/>
-    </RelativeLayout>
-</android.support.v4.widget.NestedScrollView>
+</RelativeLayout>

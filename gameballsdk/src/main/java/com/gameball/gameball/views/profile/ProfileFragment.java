@@ -33,13 +33,11 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     View rootView;
     private TextView achievementTitle;
     private RecyclerView achievementsRecyclerView;
-    private RecyclerView questsRecyclerView;
     private ProgressBar profileLoadingIndicator;
     private View profileLoadingIndicatorBg;
 
 
     private ChallengesAdapter challengesAdapter;
-    private ChallengesAdapter questChallengesAdapter;
     private ProfileContract.Presenter presenter;
     private ClientBotSettings clientBotSettings;
     private Animation fadeIn;
@@ -66,12 +64,11 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
 
     private void initComponents() {
         challengesAdapter = new ChallengesAdapter(getContext(), new ArrayList<Game>());
-        questChallengesAdapter= new ChallengesAdapter(getContext(), new ArrayList<Game>());
         presenter = new ProfilePresenter(getContext(), this);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
 
         fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
-        fadeIn.setDuration(700);
+        fadeIn.setDuration(500);
         zoomInX = AnimationUtils.loadAnimation(getContext(),R.anim.zoom_in_x_only);
         zoomInX.setDuration(400);
     }
@@ -79,7 +76,6 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private void initView() {
         achievementTitle = rootView.findViewById(R.id.achievements_title);
         achievementsRecyclerView = rootView.findViewById(R.id.achievements_recyclerView);
-        questsRecyclerView = rootView.findViewById(R.id.quests_recyclerView);
         profileLoadingIndicator = rootView.findViewById(R.id.profile_data_loading_indicator);
         profileLoadingIndicatorBg = rootView.findViewById(R.id.profile_data_loading_indicator_bg);
 
@@ -96,12 +92,6 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         achievementsRecyclerView.setHasFixedSize(true);
         achievementsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         achievementsRecyclerView.setAdapter(challengesAdapter);
-        achievementsRecyclerView.setNestedScrollingEnabled(false);
-
-        questsRecyclerView.setHasFixedSize(true);
-        questsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        questsRecyclerView.setAdapter(questChallengesAdapter);
-        questsRecyclerView.setNestedScrollingEnabled(false);
     }
 
     private ArrayList<Game> buildQuestChallengesArray(ArrayList<Quest> quests)
@@ -118,13 +108,10 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     }
 
     @Override
-    public void onWithUnlocksLoaded(ArrayList<Game> games, ArrayList<Quest> quests)
+    public void onWithUnlocksLoaded(ArrayList<Game> games)
     {
         challengesAdapter.setmData(games);
         challengesAdapter.notifyDataSetChanged();
-
-        questChallengesAdapter.setmData(buildQuestChallengesArray(quests));
-        questChallengesAdapter.notifyDataSetChanged();
     }
 
     @Override

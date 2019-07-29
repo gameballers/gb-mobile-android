@@ -197,7 +197,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
     private boolean isChallengeAchieved()
     {
-        return game.getAchievedCount() > 0 || game.getBehaviorTypeId() == 5 ||
+        return game.getAchievedCount() > 0 || game.getBehaviorTypeId() == UPON_LOGIN ||
                 (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScore() != null &&
                         game.getHighScore() > 0);
     }
@@ -214,6 +214,11 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
         status.setText(getResources().getString(R.string.locked));
         statusDescription.setText(statusPrefix);
+
+        String challengeRewardStr = String.format(Locale.getDefault(),
+                "%d %s | %d %s", game.getRewardFrubies(), clientBotSettings.getWalletPointsName(),
+                game.getRewardPoints(), clientBotSettings.getRankPointsName());
+        challengeRewardTxt.setText(challengeRewardStr);
     }
 
     private void setupAchievedStatus()
@@ -247,7 +252,6 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
                 highScoreValue.setText(String.format(Locale.getDefault(), "%d %s",
                         game.getHighScore(), game.getAmountUnit()));
                 highScoreLayout.setVisibility(View.VISIBLE);
-                statusLayout.setVisibility(View.GONE);
                 if(game.isRepeatable())
                     isRepeatableHighScoreText.setVisibility(View.VISIBLE);
 
