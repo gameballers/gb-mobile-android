@@ -12,7 +12,7 @@ public interface ProfileContract
 {
     interface View
     {
-        void onWithUnlocksLoaded(ArrayList<Game> games, ArrayList<Quest> quests);
+        void onWithUnlocksLoaded(ArrayList<Game> games);
 
         void showLoadingIndicator();
 

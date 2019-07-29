@@ -49,7 +49,6 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     private TextView levelName;
     private ProgressBar levelProgress;
     private TextView nextLevelTitle;
-    private TextView frubiesForNextLevel;
     private TextView currentFrubiesValue;
     private TextView currentPointsValue;
     private View loadingIndicatorBg;
@@ -138,7 +137,6 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         levelName = rootView.findViewById(R.id.level_name);
         levelProgress = rootView.findViewById(R.id.level_progress);
         nextLevelTitle = rootView.findViewById(R.id.next_level_title);
-        frubiesForNextLevel = rootView.findViewById(R.id.frubies_for_next_level);
         currentFrubiesValue = rootView.findViewById(R.id.current_frubies_value);
         currentPointsValue = rootView.findViewById(R.id.current_points_value);
         currentFrubiesTitle = rootView.findViewById(R.id.frubies_title);
@@ -247,14 +245,16 @@ public class MainContainerFragment extends DialogFragment implements MainContain
 
         if (nextLevel != null)
         {
-            frubiesForNextLevel.setText(String.format(Locale.getDefault(),
-                    "%d", nextLevel.getLevelFrubies()));
+            nextLevelTitle.setText(String.format(Locale.getDefault(),
+                    "%s %d %s",getString(R.string.next_level_at), nextLevel.getLevelFrubies(),
+                    clientBotSettings.getRankPointsName()));
             playerProgress = (playerInfo.getAccFrubies() * 100) / nextLevel.getLevelFrubies();
         } else
         {
-            frubiesForNextLevel.setVisibility(View.GONE);
+            nextLevelTitle.setVisibility(View.GONE);
             levelProgress.setVisibility(View.GONE);
             nextLevelTitle.setVisibility(View.GONE);
+
         }
 
         applyAnimation();
@@ -266,14 +266,16 @@ public class MainContainerFragment extends DialogFragment implements MainContain
                 playerProgress);
         progressBarAnimation.setDuration(700);
         progressBarAnimation.setFillAfter(true);
+        if(nextLevelTitle.getVisibility() == View.GONE)
+            levelProgress.setVisibility(View.GONE);
+        else
+            levelProgress.startAnimation(progressBarAnimation);
 
-        levelProgress.startAnimation(progressBarAnimation);
         levelName.startAnimation(fadeIn);
         currentFrubiesValue.startAnimation(fadeIn);
         currentPointsValue.startAnimation(fadeIn);
         currentFrubiesTitle.startAnimation(fadeIn);
         currentPointTitle.startAnimation(fadeIn);
-//        achievemetTitle.startAnimation(fadeIn);
     }
 
     @Override

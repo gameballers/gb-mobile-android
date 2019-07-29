@@ -123,18 +123,6 @@
                     app:layout_constraintStart_toStartOf="@id/level_progress"
                     app:layout_constraintTop_toBottomOf="@id/level_progress" />
 
-                <TextView
-                    android:id="@+id/frubies_for_next_level"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:textColor="#adadad"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="@id/level_progress"
-                    app:layout_constraintTop_toBottomOf="@id/level_progress"
-                    tools:text="4000" />
-
 
                 <android.support.constraint.ConstraintLayout
                     android:id="@+id/frubies_and_points_container"
@@ -142,7 +130,7 @@
                     android:layout_height="40dp"
                     android:layout_marginTop="25dp"
                     android:background="#f2f2f2"
-                    app:layout_constraintTop_toBottomOf="@id/frubies_for_next_level">
+                    app:layout_constraintTop_toBottomOf="@id/level_logo">
 
                     <android.support.constraint.Guideline
                         android:id="@+id/vertical_guideline"

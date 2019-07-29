@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -18,8 +17,7 @@ import android.widget.Toast;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
-import com.gameball.gameball.model.request.HoldPointBody;
-import com.gameball.gameball.model.response.HoldPointsResponse;
+import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 
 import java.util.ArrayList;
@@ -172,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Action action = new Action();
 
                 HashMap<String, Object> metaData = new HashMap<>();
-                metaData.put("Amount", 1000);
+                metaData.put("Amount", 1500);
 
                 action.addEvent("Buy", metaData);
 
@@ -210,21 +208,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void holdRedeemPoints()
     {
-        gameBallApp.holdPoints(new HoldPointBody(10, "08773", "5sdfd2dvvd-9mnvhu25d6c3d"),
-                new Callback<HoldPointsResponse>()
-                {
-                    @Override
-                    public void onSuccess(HoldPointsResponse holdPointsResponse)
-                    {
-                        Log.i("hold_response", holdPointsResponse.getHoldReference());
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        Log.i("hold_response", e.getMessage());
-                    }
-                });
+//        gameBallApp.holdPoints(new HoldPointBody(10, "08773", "5sdfd2dvvd-9mnvhu25d6c3d"),
+//                new Callback<HoldPointsResponse>()
+//                {
+//                    @Override
+//                    public void onSuccess(HoldPointsResponse holdPointsResponse)
+//                    {
+//                        Log.i("hold_response", holdPointsResponse.getHoldReference());
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e)
+//                    {
+//                        Log.i("hold_response", e.getMessage());
+//                    }
+//                });
     }
 
     private void showProfile()
@@ -247,9 +245,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             if (!playerCategoryID.getText().toString().trim().isEmpty())
                 gameBallApp.registerPlayer(playerIDField.getText().toString().trim(),
-                        Integer.parseInt(playerCategoryID.getText().toString().trim()));
+                        Integer.parseInt(playerCategoryID.getText().toString().trim()),
+                        new Callback<PlayerRegisterResponse>()
+                        {
+                            @Override
+                            public void onSuccess(PlayerRegisterResponse playerRegisterResponse)
+                            {
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e)
+                            {
+
+                            }
+                        });
             else
-                gameBallApp.registerPlayer(playerIDField.getText().toString());
+                gameBallApp.registerPlayer(playerIDField.getText().toString(),
+                        new Callback<PlayerRegisterResponse>()
+                        {
+                            @Override
+                            public void onSuccess(PlayerRegisterResponse playerRegisterResponse)
+                            {
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e)
+                            {
+
+                            }
+                        });
         } else
             Toast.makeText(MainActivity.this,
                     "playerID cannot be empty", Toast.LENGTH_SHORT).show();

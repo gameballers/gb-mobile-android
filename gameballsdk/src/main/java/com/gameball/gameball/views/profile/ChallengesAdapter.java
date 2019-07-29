@@ -47,7 +47,6 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View row = inflater.inflate(R.layout.acheivments_item_layout, parent, false);
         ItemRowHolder rh = new ItemRowHolder(row);
-        rh.setIsRecyclable(false);
         return rh;
     }
 
@@ -90,8 +89,8 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
 
             holder.lockedAchievementIndicator.setVisibility(View.GONE);
         }
-        
-        holder.itemview.startAnimation(fadeIn);
+
+//        holder.itemview.startAnimation(fadeIn);
 //        holder.itemview.startAnimation(translate);
     }
 

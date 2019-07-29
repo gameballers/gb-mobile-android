@@ -58,11 +58,10 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -76,17 +75,17 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
  */
-public class GameBallApp {
+public class GameBallApp
+{
     private static final String TAG = GameBallApp.class.getSimpleName();
+    private static final String MAIN_ACTIVITY_ACTION = "GAME_BALL_MAIN_ACTIVITY";
+    private static final String TAG_GAMEBALL_PROFILE_DIALOG = "gameball_profile_dialog";
+    private static GameBallApp ourInstance;
     private String APPLICATION_ID = null;
     private String API_KEY = null;
     private String SENDER_ID = null;
-    private static final String MAIN_ACTIVITY_ACTION = "GAME_BALL_MAIN_ACTIVITY";
-    private static final String TAG_GAMEBALL_PROFILE_DIALOG = "gameball_profile_dialog";
-
-    private static GameBallApp ourInstance;
     private Context mContext;
-    private FirebaseApp GameBallFirebaseApp;
+    private FirebaseApp clientFirebaseApp;
     private String mClientID;
     private String mPlayerID;
     private Integer mPlayerCategoryID;
@@ -97,8 +96,10 @@ public class GameBallApp {
     private ProfileRemoteProfileDataSource profileRemoteProfileDataSource;
 
 
-    private GameBallApp(Context context) {
-        if (this.mContext == null) {
+    private GameBallApp(Context context)
+    {
+        if (this.mContext == null)
+        {
             this.mContext = context;
             gameBallApi = Network.getInstance().getGameBallApi();
             SharedPreferencesUtils.init(mContext, new Gson());
@@ -107,69 +108,64 @@ public class GameBallApp {
         }
     }
 
-    public static GameBallApp getInstance(Context context) {
-        if (ourInstance == null) {
+    public static GameBallApp getInstance(Context context)
+    {
+        if (ourInstance == null)
+        {
             ourInstance = new GameBallApp(context);
         }
         return ourInstance;
     }
 
-    private void registerDevice() {
-        Completable.fromCallable(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-//                if(GameBallFirebaseApp != null)
-//                    mDeviceToken = FirebaseInstanceId.getInstance(GameBallFirebaseApp)
-//                            .getToken(SENDER_ID, "FCM");
-
-                Log.d(TAG, "Game ball sdk token = " + mDeviceToken);
-
-                String deviceToken = SharedPreferencesUtils.getInstance().getDeviceToken();
-                String playerId = SharedPreferencesUtils.getInstance().getPlayerId();
-                String clientId = SharedPreferencesUtils.getInstance().getClientId();
-                int playerCategoryId = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
-
-                if (deviceToken != null && mDeviceToken != null && mDeviceToken.equals(deviceToken)
-                        && clientId.equals(mClientID)
-                        && playerId != null && mPlayerID != null
-                        && playerCategoryId == mPlayerCategoryID
-                        && mPlayerID.equals(playerId)) {
-                    Log.d(TAG, "Device already registered");
-                    return deviceToken;
-                } else {
-                    SharedPreferencesUtils.getInstance().clearData();
-                    SharedPreferencesUtils.getInstance().putClientId(mClientID);
-                    SharedPreferencesUtils.getInstance().putPlayerId(mPlayerID);
-                    SharedPreferencesUtils.getInstance().putPlayerCategoryId(mPlayerCategoryID);
-                }
-
-                PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
-                registerDeviceRequest.setPlayerUniqueID(mPlayerID);
-                if(mPlayerCategoryID != -1)
-                    registerDeviceRequest.setPlayerCategoryID(mPlayerCategoryID);
-
-                if(deviceToken != null)
-                    registerDeviceRequest.setDeviceToken(mDeviceToken);
-
-                Log.i("register_body",new Gson().toJson(registerDeviceRequest));
-
-                BaseResponse<PlayerRegisterResponse> response = gameBallApi
-                        .registrationPlayer(registerDeviceRequest)
-                        .blockingGet();
-
-                if (response.isSuccess()) {
-                    SharedPreferencesUtils.getInstance().putDeviceToken(mDeviceToken);
-                }
-                else
-                {
-                    response.getErrorMsg();
-                }
-
-                return mDeviceToken;
+    private void registerDevice(final Callback<PlayerRegisterResponse> callback)
+    {
+        if(clientFirebaseApp != null)
+        {
+            try
+            {
+                mDeviceToken = FirebaseInstanceId.getInstance(clientFirebaseApp)
+                        .getToken(SENDER_ID, "FCM");
+            } catch (IOException e)
+            {
+                e.printStackTrace();
             }
-        }).subscribeOn(Schedulers.io())
+        }
+
+        String deviceToken = SharedPreferencesUtils.getInstance().getDeviceToken();
+        String playerId = SharedPreferencesUtils.getInstance().getPlayerId();
+        String clientId = SharedPreferencesUtils.getInstance().getClientId();
+        int playerCategoryId = SharedPreferencesUtils.getInstance().getPlayerCategoryId();
+
+        if (deviceToken != null && mDeviceToken != null && mDeviceToken.equals(deviceToken)
+                && clientId.equals(mClientID)
+                && playerId != null && mPlayerID != null
+                && playerCategoryId == mPlayerCategoryID
+                && mPlayerID.equals(playerId))
+        {
+            Log.d(TAG, "Device already registered");
+            return;
+        } else
+        {
+            SharedPreferencesUtils.getInstance().clearData();
+            SharedPreferencesUtils.getInstance().putClientId(mClientID);
+            SharedPreferencesUtils.getInstance().putPlayerId(mPlayerID);
+            SharedPreferencesUtils.getInstance().putPlayerCategoryId(mPlayerCategoryID);
+        }
+
+        PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
+        registerDeviceRequest.setPlayerUniqueID(mPlayerID);
+        if (mPlayerCategoryID != -1)
+            registerDeviceRequest.setPlayerCategoryID(mPlayerCategoryID);
+
+        if (deviceToken != null)
+            registerDeviceRequest.setDeviceToken(mDeviceToken);
+
+        Log.i("register_body", new Gson().toJson(registerDeviceRequest));
+
+        gameBallApi.registrationPlayer(registerDeviceRequest)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CompletableObserver()
+                .subscribe(new SingleObserver<BaseResponse<PlayerRegisterResponse>>()
                 {
                     @Override
                     public void onSubscribe(Disposable d)
@@ -178,21 +174,25 @@ public class GameBallApp {
                     }
 
                     @Override
-                    public void onComplete()
+                    public void onSuccess(BaseResponse<PlayerRegisterResponse> playerRegisterResponseBaseResponse)
                     {
-                        Log.i("asdasd","adsadasd");
+                        if(callback != null)
+                            callback.onSuccess(playerRegisterResponseBaseResponse.getResponse());
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
-                        Log.e("e",e.getMessage());
+                        if(callback != null)
+                            callback.onError(e);
                     }
                 });
     }
 
-    private void getBotSettings() {
+    private void getBotSettings()
+    {
         gameBallApi.getBotSettings()
+                .retry()
                 .subscribeOn(Schedulers.io())
                 .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>()
                 {
@@ -219,7 +219,8 @@ public class GameBallApp {
     }
 
     public void init(@NonNull String clientID, String playerID, int playerCategoryId,
-                     @DrawableRes int notificationIcon) {
+                     @DrawableRes int notificationIcon)
+    {
         // TODO: 8/23/2018
         this.mClientID = clientID;
         this.mPlayerID = playerID;
@@ -230,19 +231,19 @@ public class GameBallApp {
         getBotSettings();
     }
 
-    public void init(String clientID,String playerId, @DrawableRes int notificationIcon)
+    public void init(String clientID, String playerId, @DrawableRes int notificationIcon)
     {
-        init(clientID, playerId,-1, notificationIcon);
+        init(clientID, playerId, -1, notificationIcon);
     }
 
     public void init(String clientID, @DrawableRes int notificationIcon)
     {
-        init(clientID, null,-1, notificationIcon);
+        init(clientID, null, -1, notificationIcon);
     }
 
     private void initializeFirebase(ClientBotSettings botSettings)
     {
-        if(botSettings.getClientFireBase() != null)
+        if (botSettings.getClientFireBase() != null)
         {
             APPLICATION_ID = botSettings.getClientFireBase().getApplicationId();
             API_KEY = botSettings.getClientFireBase().getWebApiKey();
@@ -251,40 +252,41 @@ public class GameBallApp {
             if (APPLICATION_ID != null && API_KEY != null && SENDER_ID != null)
             {
                 FirebaseOptions options = new FirebaseOptions.Builder()
-                        .setApplicationId(APPLICATION_ID) // Required for Analytics.
-                        .setApiKey(API_KEY) // Required for Auth.
+                        .setApplicationId(APPLICATION_ID)
+                        .setApiKey(API_KEY)
+                        .setGcmSenderId(SENDER_ID)
                         .build();
 
                 // Initialize with secondary app.
                 FirebaseApp.initializeApp(mContext, options, TAG);
 
                 // Retrieve secondary app.
-                GameBallFirebaseApp = FirebaseApp.getInstance(TAG);
+                clientFirebaseApp = FirebaseApp.getInstance(TAG);
             }
-            if (mPlayerID!= null && !mPlayerID.trim().isEmpty())
+            if (mPlayerID != null && !mPlayerID.trim().isEmpty())
             {
-                registerDevice();
+                registerDevice(null);
             }
         }
     }
 
 
-
-    public void registerPlayer(@NonNull String playerID)
+    public void registerPlayer(@NonNull String playerID,
+                               @NonNull Callback<PlayerRegisterResponse> callback)
     {
-        registerPlayer(playerID,-1);
+        registerPlayer(playerID, -1, callback);
     }
 
-    public void registerPlayer(@NonNull String playerID, int playerCategoryId)
+    public void registerPlayer(@NonNull String playerID, int playerCategoryId,
+                               @NonNull Callback<PlayerRegisterResponse> callback)
     {
-        if(!playerID.trim().isEmpty())
+        if (!playerID.trim().isEmpty())
         {
             mPlayerID = playerID;
             mPlayerCategoryID = playerCategoryId;
 
-            registerDevice();
-        }
-        else
+            registerDevice(callback);
+        } else
         {
             Log.e(TAG, "Player registration: playerID cannot be empty");
         }
@@ -307,18 +309,19 @@ public class GameBallApp {
                     @Override
                     public void onComplete()
                     {
-                        Log.i("add_player_info","success");
+                        Log.i("add_player_info", "success");
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
-                        Log.i("add_player_info",e.getMessage());
+                        Log.i("add_player_info", e.getMessage());
                     }
                 });
     }
 
-    private void sendNotification(final NotificationBody messageBody) {
+    private void sendNotification(final NotificationBody messageBody)
+    {
         Intent intent = new Intent(MAIN_ACTIVITY_ACTION);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0 /* Request code */, intent,
@@ -341,16 +344,17 @@ public class GameBallApp {
             public void run()
             {
 
-                DialogManager.showCustomNotification(mContext,messageBody);
+                DialogManager.showCustomNotification(mContext, messageBody);
 //                Toast.makeText(mContext, messageBody, Toast.LENGTH_SHORT).show();
             }
-        },100);
+        }, 100);
 
         NotificationManager notificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Since android Oreo notification channel is needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
             NotificationChannel channel = new NotificationChannel(channelId, "Game Ball Demo",
                     NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(channel);
@@ -359,12 +363,14 @@ public class GameBallApp {
         notificationManager.notify(999999999 /* ID of notification */, notificationBuilder.build());
     }
 
-    public boolean isGameBallNotification(RemoteMessage remoteMessage) {
-        Log.i("aslkdjas","askdhasjkdh");
+    public boolean isGameBallNotification(RemoteMessage remoteMessage)
+    {
+        Log.i("aslkdjas", "askdhasjkdh");
         if (remoteMessage != null && Boolean.valueOf(remoteMessage.getData().get("isGB"))
-                && remoteMessage.getNotification() != null) {
+                && remoteMessage.getNotification() != null)
+        {
 
-            Map<String,String> notificationData = remoteMessage.getData();
+            Map<String, String> notificationData = remoteMessage.getData();
             NotificationBody notificationBody = new NotificationBody();
             notificationBody.setTitle(notificationData.get("title"));
             notificationBody.setBody(notificationData.get("body"));
@@ -380,10 +386,12 @@ public class GameBallApp {
      * Use Show profile method where ever you like.
      * It just shows the profile of the user that contains the user details, user achievements and the leader board.
      * basically call this method when ever you want to allow the user to see his profile.
+     *
      * @param activity if you are using an activity send an instance of the activity to be able to show the profile
      */
-    public void showProfile(AppCompatActivity activity) throws  Exception{
-        if(SharedPreferencesUtils.getInstance().getPlayerId() == null)
+    public void showProfile(AppCompatActivity activity) throws Exception
+    {
+        if (SharedPreferencesUtils.getInstance().getPlayerId() == null)
         {
             throw new RuntimeException(TAG + ": User is not logged in yet!");
         }
@@ -394,10 +402,12 @@ public class GameBallApp {
     /**
      * It just shows the profile of the user that contains the user details, user achievements and the leader board.
      * basically call this method when ever you want to allow the user to see his profile.
+     *
      * @param fragment if you are using a fragment send an instance of the fragment to be able to show the profile
      */
-    public void showProfile(Fragment fragment) throws Exception{
-        if(SharedPreferencesUtils.getInstance().getPlayerId() == null)
+    public void showProfile(Fragment fragment) throws Exception
+    {
+        if (SharedPreferencesUtils.getInstance().getPlayerId() == null)
         {
             throw new RuntimeException(TAG + ": User is not logged in yet!");
         }
@@ -405,36 +415,50 @@ public class GameBallApp {
         showProfile(fragment.getChildFragmentManager());
     }
 
-    private void showProfile(final FragmentManager fragmentManager) {
-        Observable.fromCallable(new Callable<Boolean>() {
+    private void showProfile(final FragmentManager fragmentManager)
+    {
+        Observable.fromCallable(new Callable<Boolean>()
+        {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() throws Exception
+            {
                 ClientBotSettings clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
                 return clientBotSettings != null;
             }
-        }).flatMap(new Function<Boolean, ObservableSource<ClientBotSettings>>() {
+        }).flatMap(new Function<Boolean, ObservableSource<ClientBotSettings>>()
+        {
             @Override
-            public ObservableSource<ClientBotSettings> apply(Boolean aBoolean) throws Exception {
-                if (aBoolean) {
+            public ObservableSource<ClientBotSettings> apply(Boolean aBoolean) throws Exception
+            {
+                if (aBoolean)
+                {
                     return Observable.just(SharedPreferencesUtils.getInstance().getClientBotSettings());
                 }
-                return gameBallApi.getBotSettings().flatMapObservable(new Function<BaseResponse<ClientBotSettings>, ObservableSource<? extends ClientBotSettings>>() {
+                return gameBallApi.getBotSettings().flatMapObservable(new Function<BaseResponse<ClientBotSettings>, ObservableSource<? extends ClientBotSettings>>()
+                {
                     @Override
-                    public ObservableSource<? extends ClientBotSettings> apply(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) throws Exception {
+                    public ObservableSource<? extends ClientBotSettings> apply(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) throws Exception
+                    {
                         return Observable.just(clientBotSettingsBaseResponse.getResponse());
                     }
                 });
             }
-        }).doOnNext(new Consumer<ClientBotSettings>() {
-            @Override
-            public void accept(ClientBotSettings clientBotSettings) throws Exception {
-                SharedPreferencesUtils.getInstance().putClientBotSettings(clientBotSettings);
-            }
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<ClientBotSettings>() {
+        })
+                .doOnNext(new Consumer<ClientBotSettings>()
+                {
                     @Override
-                    public void accept(ClientBotSettings clientBotSettings) throws Exception {
+                    public void accept(ClientBotSettings clientBotSettings) throws Exception
+                    {
+                        SharedPreferencesUtils.getInstance().putClientBotSettings(clientBotSettings);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<ClientBotSettings>()
+                {
+                    @Override
+                    public void accept(ClientBotSettings clientBotSettings) throws Exception
+                    {
                         Intent intent = new Intent(mContext, GameBallMainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         mContext.startActivity(intent);
@@ -444,12 +468,14 @@ public class GameBallApp {
 
     /**
      * use AddAction when ever you want to trigger that an action is done by the user.
+     *
      * @param action the method requires and action object that requires the challengeApiId
      *               another two paramaeters are optional.
      *               amount: is needed if the challenge is amount based
      *               playerCategoryID: us needed if you have multi users categories(default value is 0)
      */
-    public void addAction(Action action, final Callback callback) {
+    public void addAction(Action action, final Callback callback)
+    {
         gameBallApi.addNewAtion(action).
                 subscribeOn(Schedulers.io())
                 .retry()
@@ -464,20 +490,20 @@ public class GameBallApp {
                     @Override
                     public void onComplete()
                     {
-                        Log.i("action:","action successfull");
+                        Log.i("action:", "action successfull");
                         callback.onSuccess(new Object());
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
-                        Log.e("action:","action error");
+                        Log.e("action:", "action error");
                         callback.onError(e);
                     }
                 });
     }
 
-    public void generateOTP(GenerateOTPBody body, final Callback callback)
+    private void generateOTP(GenerateOTPBody body, final Callback callback)
     {
         transactionRemoteDataSource.generateOtp(body)
                 .subscribe(new CompletableObserver()
@@ -502,7 +528,7 @@ public class GameBallApp {
                 });
     }
 
-    public void rewardPoints(RewardPointBody body, final Callback callback)
+    private void rewardPoints(RewardPointBody body, final Callback callback)
     {
         transactionRemoteDataSource.rewardPoints(body)
                 .subscribe(new CompletableObserver()
@@ -527,7 +553,7 @@ public class GameBallApp {
                 });
     }
 
-    public void holdPoints(HoldPointBody body, final Callback<HoldPointsResponse> callback)
+    private void holdPoints(HoldPointBody body, final Callback<HoldPointsResponse> callback)
     {
         transactionRemoteDataSource.holdPoints(body)
                 .subscribe(new SingleObserver<BaseResponse<HoldPointsResponse>>()
@@ -552,7 +578,7 @@ public class GameBallApp {
                 });
     }
 
-    public void redeemPoints(RedeemPointBody body, final Callback callback)
+    private void redeemPoints(RedeemPointBody body, final Callback callback)
     {
         transactionRemoteDataSource.redeemPoints(body)
                 .subscribe(new CompletableObserver()
@@ -577,7 +603,7 @@ public class GameBallApp {
                 });
     }
 
-    public void reverseHeldPoints(ReverseHeldPointsbody body, final Callback callback)
+    private void reverseHeldPoints(ReverseHeldPointsbody body, final Callback callback)
     {
         transactionRemoteDataSource.reverseHeldPoints(body)
                 .subscribe(new CompletableObserver()
@@ -602,7 +628,7 @@ public class GameBallApp {
                 });
     }
 
-    public void getPlayerBalance(GetPlayerBalanceBody body, final Callback<PlayerBalanceResponse> callback)
+    private void getPlayerBalance(GetPlayerBalanceBody body, final Callback<PlayerBalanceResponse> callback)
     {
         transactionRemoteDataSource.getPlayerBalance(body)
                 .subscribe(new SingleObserver<BaseResponse<PlayerBalanceResponse>>()
@@ -627,7 +653,7 @@ public class GameBallApp {
                 });
     }
 
-    public void addReferral(ReferralBody body, final Callback callback)
+    private void addReferral(ReferralBody body, final Callback callback)
     {
         transactionRemoteDataSource.addReferral(body)
                 .subscribe(new CompletableObserver()
@@ -657,12 +683,15 @@ public class GameBallApp {
     {
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(intent)
-                .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>() {
+                .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>()
+                {
                     @Override
-                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData)
+                    {
                         // Get deep link from result (may be null if no link is found)
                         Uri deepLink = null;
-                        if (pendingDynamicLinkData != null) {
+                        if (pendingDynamicLinkData != null)
+                        {
                             deepLink = pendingDynamicLinkData.getLink();
 
                             String query = deepLink.getQueryParameter("ReferralCode");
@@ -677,16 +706,19 @@ public class GameBallApp {
                         // ...
                     }
                 })
-                .addOnFailureListener(activity, new OnFailureListener() {
+                .addOnFailureListener(activity, new OnFailureListener()
+                {
                     @Override
-                    public void onFailure(@NonNull Exception e) {
+                    public void onFailure(@NonNull Exception e)
+                    {
                         Log.w(this.getClass().getSimpleName(), "getDynamicLink:onFailure", e);
                     }
                 });
     }
 
 
-    public void showNotification() {
+    public void showNotification()
+    {
         LayoutInflater inflater = (LayoutInflater) mContext
                 .getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.custom_toast_layout, null);
