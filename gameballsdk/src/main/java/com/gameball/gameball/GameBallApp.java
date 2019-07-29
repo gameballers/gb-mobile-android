@@ -118,9 +118,9 @@ public class GameBallApp {
         Completable.fromCallable(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                if(GameBallFirebaseApp != null)
-                    mDeviceToken = FirebaseInstanceId.getInstance(GameBallFirebaseApp)
-                            .getToken(SENDER_ID, "FCM");
+//                if(GameBallFirebaseApp != null)
+//                    mDeviceToken = FirebaseInstanceId.getInstance(GameBallFirebaseApp)
+//                            .getToken(SENDER_ID, "FCM");
 
                 Log.d(TAG, "Game ball sdk token = " + mDeviceToken);
 
@@ -230,6 +230,16 @@ public class GameBallApp {
         getBotSettings();
     }
 
+    public void init(String clientID,String playerId, @DrawableRes int notificationIcon)
+    {
+        init(clientID, playerId,-1, notificationIcon);
+    }
+
+    public void init(String clientID, @DrawableRes int notificationIcon)
+    {
+        init(clientID, null,-1, notificationIcon);
+    }
+
     private void initializeFirebase(ClientBotSettings botSettings)
     {
         if(botSettings.getClientFireBase() != null)
@@ -259,17 +269,6 @@ public class GameBallApp {
     }
 
 
-    public void init(String clientID,String playerId, @DrawableRes int notificationIcon)
-    {
-        init(clientID, playerId,-1, notificationIcon);
-    }
-
-    public void init(String clientID, @DrawableRes int notificationIcon)
-    {
-        init(clientID, null,-1, notificationIcon);
-    }
-
-
 
     public void registerPlayer(@NonNull String playerID)
     {
@@ -291,7 +290,7 @@ public class GameBallApp {
         }
     }
 
-    public void editPlayerInfo(@NonNull PlayerInfo playerInfo)
+    public void editPlayerInfo(@NonNull PlayerInfo playerInfo, Callback callback)
     {
         PlayerInfoBody body = new PlayerInfoBody(playerInfo);
 
@@ -654,7 +653,7 @@ public class GameBallApp {
                 });
     }
 
-    public void isUserReferred(Activity activity, Intent intent)
+    public void addReferral(Activity activity, Intent intent)
     {
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(intent)

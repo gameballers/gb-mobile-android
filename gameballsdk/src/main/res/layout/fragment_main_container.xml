@@ -171,7 +171,7 @@
                         android:drawableLeft="@drawable/ic_diamond_outline"
                         android:drawablePadding="5dp"
                         android:gravity="end|center"
-                        android:text="@string/frubies"
+                        tools:text="@string/frubies"
                         android:textColor="@android:color/black"
                         android:textSize="12sp"
                         app:layout_constraintEnd_toStartOf="@id/current_frubies_value"
@@ -204,7 +204,7 @@
                         android:drawableLeft="@drawable/ic_points"
                         android:drawablePadding="5dp"
                         android:gravity="end|center"
-                        android:text="@string/points"
+                        tools:text="@string/points"
                         android:textColor="@android:color/black"
                         android:textSize="12sp"
                         app:layout_constraintStart_toEndOf="@id/vertical_guideline"
@@ -261,7 +261,7 @@
                 app:layout_scrollFlags="scroll|enterAlways">
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="40dp">
                     <ImageButton
                         android:id="@+id/btn_close"
                         android:layout_width="wrap_content"
@@ -295,10 +295,58 @@
             android:background="@drawable/shadow" />
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/view_pager"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        />
+        app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"
+        >
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/footer"
+            />
+
+        <RelativeLayout
+            android:id="@+id/footer"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:background="#f2f2f2"
+            >
+
+            <ImageView
+                android:id="@+id/gameball_icon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_gameball"
+                />
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@id/gameball_icon"
+                android:text="we run on"
+                android:textSize="10sp"
+                android:layout_marginEnd="5dp"
+                android:textColor="#808080"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/gameball_icon"
+                android:layout_marginStart="5dp"
+                android:text="Gameball"
+                android:textColor="#808080"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

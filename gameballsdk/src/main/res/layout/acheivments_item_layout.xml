@@ -10,7 +10,7 @@
     android:layout_marginBottom="10dp">
 
     <ImageView
-        android:id="@+id/achievements_logo"
+        android:id="@+id/challenge_icon"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:src="@drawable/ic_diamond"
@@ -20,7 +20,7 @@
         />
 
     <TextView
-        android:id="@+id/achievements_name"
+        android:id="@+id/challenge_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp"
@@ -29,7 +29,7 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/achievements_logo"
+        app:layout_constraintTop_toBottomOf="@id/challenge_icon"
         tools:text="Name"
         android:maxLines="2"
         android:ellipsize="end"
@@ -42,7 +42,7 @@
         android:layout_marginTop="3dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/achievements_name"
+        app:layout_constraintTop_toBottomOf="@id/challenge_name"
         android:elevation="1dp"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
@@ -71,7 +71,7 @@
         android:background="@drawable/bg_dark_gery_round"
         android:padding="3dp"
         android:src="@drawable/ic_lock_white"
-        app:layout_constraintEnd_toEndOf="@id/achievements_logo"
-        app:layout_constraintTop_toTopOf="@id/achievements_logo"
+        app:layout_constraintEnd_toEndOf="@id/challenge_icon"
+        app:layout_constraintTop_toTopOf="@id/challenge_icon"
         />
 </android.support.constraint.ConstraintLayout>

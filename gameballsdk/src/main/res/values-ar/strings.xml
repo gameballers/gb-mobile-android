@@ -13,9 +13,10 @@
     <string name="frubies_colen">فروبي:</string>
     <string name="milestones">معالم</string>
     <string name="pts">نقاط</string>
-    <string name="to_unlock_this_level">لتحقيق هذا التحدي</string>
+    <string name="to_unlock_this_challenge">لتحقيق هذا التحدي</string>
     <string name="you_need_to">متبقي</string>
     <string name="reach_level">أنت على بعد</string>
     <string name="next_level_at">المستوى التالي بعد تجميع</string>
     <string name="hello">مرحباً</string>
+    <string name="share">شارك</string>
 </resources>

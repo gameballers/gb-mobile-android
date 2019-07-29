@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:fillViewport="true"
+    android:background="@android:color/white"
+    >
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/we_value_friendshipt_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/we_value_friendship"
+            android:textSize="16sp"
+            android:gravity="center"
+            />
+        
+        <TextView
+            android:id="@+id/we_value_friendship_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/we_value_friendshipt_title"
+            app:layout_constraintStart_toStartOf="@id/we_value_friendshipt_title"
+            app:layout_constraintEnd_toEndOf="@id/we_value_friendshipt_title"
+            android:layout_marginTop="12dp"
+            android:textSize="12sp"
+            android:textColor="#1a1a1a"
+            android:text="@string/we_value_friendship_txt"
+            android:gravity="center"
+            android:fontFamily="@font/montserrat_light"
+            />
+
+        <TextView
+            android:id="@+id/share_link_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            app:layout_constraintTop_toBottomOf="@id/we_value_friendship_text"
+            app:layout_constraintEnd_toEndOf="@id/we_value_friendship_text"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_primary_right_corener_round"
+            android:text="@string/share"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:paddingStart="15dp"
+            android:paddingEnd="20dp"
+            android:clickable="true"
+            />
+
+        <TextView
+            android:id="@+id/referral_link"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="@id/share_link_btn"
+            app:layout_constraintBottom_toBottomOf="@id/share_link_btn"
+            app:layout_constraintStart_toStartOf="@id/we_value_friendship_text"
+            app:layout_constraintEnd_toStartOf="@id/share_link_btn"
+            android:paddingStart="11dp"
+            android:paddingEnd="11dp"
+            android:background="@drawable/bg_grey_left_corener_round"
+            android:textColor="#808080"
+            android:textSize="10sp"
+            tools:text="https://www.gameball.com/sfgG3e56Hs"
+            android:gravity="start|center"
+            android:lines="1"
+            android:ellipsize="end"
+            android:fontFamily="@font/montserrat_light"
+            />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/referral_challenge_ls"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/referral_link"
+            app:layout_constraintStart_toStartOf="@id/referral_link"
+            app:layout_constraintEnd_toEndOf="@id/share_link_btn"
+            android:layout_marginTop="13dp"
+            tools:listitem="@layout/referral_challenge_item_layout"
+            tools:itemCount="3"
+            />
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.v4.widget.NestedScrollView>

@@ -7,13 +7,16 @@ import android.support.v4.app.FragmentPagerAdapter;
 import com.gameball.gameball.views.achievements.AchievementsFragment;
 import com.gameball.gameball.views.leaderBoard.LeaderBoardFragment;
 import com.gameball.gameball.views.profile.ProfileFragment;
+import com.gameball.gameball.views.referral.ReferralFragment;
 
 public class TabsAdapter extends FragmentPagerAdapter {
-    private boolean enableLeaderboard;
+    private boolean isLeaderboardEnabled;
+    private boolean isReferralEnabled;
 
-    public TabsAdapter(FragmentManager fm, boolean enableLeaderboard) {
+    public TabsAdapter(FragmentManager fm, boolean isLeaderboardEnabled, boolean isReferralEnabled) {
         super(fm);
-        this.enableLeaderboard = enableLeaderboard;
+        this.isLeaderboardEnabled = isLeaderboardEnabled;
+        this.isReferralEnabled = isReferralEnabled;
     }
 
     @Override
@@ -22,22 +25,26 @@ public class TabsAdapter extends FragmentPagerAdapter {
             case 0:
                 return new ProfileFragment();
             case 1:
-                if (enableLeaderboard)
+                if (isLeaderboardEnabled)
                     return new LeaderBoardFragment();
+                else if(isReferralEnabled)
+                    return new ReferralFragment();
             case 2:
-                return new AchievementsFragment();
-            case 3:
-                return new Fragment();
+                return new ReferralFragment();
         }
 
-        return null;
+        return new Fragment();
     }
 
     @Override
     public int getCount() {
-        if(enableLeaderboard)
-            return 2;
-        else
-            return 1;
+        int count = 1;
+        if(isReferralEnabled)
+            count ++;
+        if(isLeaderboardEnabled)
+            count ++;
+
+
+        return count;
     }
 }

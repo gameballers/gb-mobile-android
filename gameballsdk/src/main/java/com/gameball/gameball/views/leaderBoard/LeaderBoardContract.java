@@ -14,6 +14,8 @@ public interface LeaderBoardContract
         void showLoadingIndicator();
 
         void hideLoadingIndicator();
+
+        void onPlayerRankReady(int rank, int leaderboardSize);
     }
 
     interface Presenter extends BasePresenter

@@ -35,6 +35,11 @@ public class ProfilePresenter implements ProfileContract.Presenter
     @Override
     public void getWithUnlocks()
     {
+        if(localDataSource.games != null)
+        {
+            view.onWithUnlocksLoaded(localDataSource.games, localDataSource.quests);
+            return;
+        }
         view.showLoadingIndicator();
         profileRemoteDataSource.getWithUnlocks(sharedPreferencesUtils.getPlayerId())
                 .subscribe(new SingleObserver<BaseResponse<GetWithUnlocksWrapper>>()
