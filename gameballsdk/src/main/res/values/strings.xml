@@ -26,4 +26,5 @@
     <string name="we_value_friendship_txt">Refer a friend to us and get reward once they signup. Share the below link with your friends.</string>
     <string name="share">share</string>
     <string name="your_rank_is">Your rank is</string>
+    <string name="is_repeatable_high_score_txt">Break your high score and win this badge again!</string>
 </resources>

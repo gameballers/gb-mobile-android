@@ -63,6 +63,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     private RelativeLayout highScoreLayout;
     private TextView highScoreTitle;
     private TextView highScoreValue;
+    private TextView isRepeatableHighScoreText;
 
     //status views
     private LinearLayout statusLayout;
@@ -131,6 +132,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         highScoreTitle = findViewById(R.id.high_score_title);
         highScoreValue = findViewById(R.id.high_score_value);
         statusLayout = findViewById(R.id.status_layout);
+        isRepeatableHighScoreText = findViewById(R.id.is_repeatable_high_score_txt);
     }
 
 
@@ -235,6 +237,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         String challengeRewardStr = String.format(Locale.getDefault(),
                 "%d %s | %d %s", game.getRewardFrubies(), clientBotSettings.getWalletPointsName(),
                 game.getRewardPoints(), clientBotSettings.getRankPointsName());
+        challengeRewardTxt.setText(challengeRewardStr);
+        challengeRewardTxt.startAnimation(fadeIn);
 
         if (game.getBehaviorTypeId() == HIGH_SCORE_BASED)
         {
@@ -244,6 +248,9 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
                         game.getHighScore(), game.getAmountUnit()));
                 highScoreLayout.setVisibility(View.VISIBLE);
                 statusLayout.setVisibility(View.GONE);
+                if(game.isRepeatable())
+                    isRepeatableHighScoreText.setVisibility(View.VISIBLE);
+
             }
         } else
         {
@@ -255,11 +262,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
                 setupProgressbarBehaviour();
             }
 
-            challengeRewardTxt.setVisibility(View.VISIBLE);
             progressTitle.startAnimation(fadeIn);
-            challengeRewardTxt.startAnimation(fadeIn);
-
-            challengeRewardTxt.setText(challengeRewardStr);
         }
     }
 

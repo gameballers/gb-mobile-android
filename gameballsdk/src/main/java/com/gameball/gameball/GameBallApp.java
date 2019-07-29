@@ -118,9 +118,9 @@ public class GameBallApp {
         Completable.fromCallable(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                if(GameBallFirebaseApp != null)
-                    mDeviceToken = FirebaseInstanceId.getInstance(GameBallFirebaseApp)
-                            .getToken(SENDER_ID, "FCM");
+//                if(GameBallFirebaseApp != null)
+//                    mDeviceToken = FirebaseInstanceId.getInstance(GameBallFirebaseApp)
+//                            .getToken(SENDER_ID, "FCM");
 
                 Log.d(TAG, "Game ball sdk token = " + mDeviceToken);
 

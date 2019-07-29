@@ -111,16 +111,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/challenge_description"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="3dp"
+                android:layout_marginTop="8dp"
                 android:drawableStart="@drawable/ic_gift"
                 android:drawableLeft="@drawable/ic_gift"
                 android:drawablePadding="5dp"
-                android:textColor="#1a1a1a"
+                android:textColor="@android:color/black"
                 android:textSize="10sp"
                 tool:text="30 Frubies | 30 Points"
                 android:textStyle="bold"
-                android:visibility="gone"
-                tool:visibility="visible"
                 android:gravity="center"
                 />
 
@@ -249,8 +247,25 @@
                 android:gravity="center"
                 tool:text="3.56 KM"
                 android:textColor="#1a1a1a"
-                android:textSize="24sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
+                />
+
+            <TextView
+                android:id="@+id/is_repeatable_high_score_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/high_score_value"
+                android:layout_alignStart="@id/high_score_value"
+                android:layout_alignEnd="@id/high_score_value"
+                android:layout_marginTop="8dp"
+                android:textSize="14sp"
+                android:textColor="#aaaaaa"
+                android:text="@string/is_repeatable_high_score_txt"
+                android:gravity="center"
+                android:fontFamily="@font/montserrat_light"
+                android:visibility="gone"
+                tool:visibility="visible"
                 />
         </RelativeLayout>
         
