@@ -152,8 +152,8 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         LayerDrawable progressDrawable = (LayerDrawable) levelProgress.getProgressDrawable();
         progressDrawable.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
                 PorterDuff.Mode.SRC_IN);
-        currentFrubiesTitle.setText(clientBotSettings.getWalletPointsName());
-        currentPointTitle.setText(clientBotSettings.getRankPointsName());
+        currentFrubiesTitle.setText(clientBotSettings.getRankPointsName());
+        currentPointTitle.setText(clientBotSettings.getWalletPointsName());
 
     }
 

@@ -21,10 +21,8 @@ public class HeaderInterceptor implements Interceptor
 
         if (SharedPreferencesUtils.getInstance().getClientId() != null)
         {
-//            builder.addHeader(Constants.APIKey,
-//                    SharedPreferencesUtils.getInstance().getClientId());
-            builder.addHeader("ClientId",
-                    "1");
+            builder.addHeader(Constants.APIKey,
+                    SharedPreferencesUtils.getInstance().getClientId());
 
         }
 

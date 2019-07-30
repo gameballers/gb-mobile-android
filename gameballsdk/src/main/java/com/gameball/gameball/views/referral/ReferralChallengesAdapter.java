@@ -56,8 +56,8 @@ public class ReferralChallengesAdapter extends RecyclerView.Adapter<ReferralChal
             holder.challengeName.setText(item.getGameName());
 
         String rewardStr = String.format(Locale.getDefault(),"%d %s | %d %s",item.getRewardFrubies(),
-                clientBotSettings.getWalletPointsName(), item.getRewardPoints(),
-                clientBotSettings.getRankPointsName());
+                clientBotSettings.getRankPointsName(), item.getRewardPoints(),
+                clientBotSettings.getWalletPointsName());
 
         holder.challengeRewardTxt.setText(rewardStr);
 

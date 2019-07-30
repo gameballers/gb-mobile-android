@@ -73,8 +73,7 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
         if(item.getIcon() != null && !item.getIcon().isEmpty())
             ImageDownloader.downloadImage(mContext, holder.achievementsLogo, item.getIcon());
 
-        if(item.getGameName() != null)
-            holder.achievementName.setText(String.format(Locale.getDefault(),item.getGameName()));
+        holder.achievementName.setText(String.format(Locale.getDefault(),item.getGameName()));
 
         if(item.isUnlocked())
         {

@@ -216,8 +216,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         statusDescription.setText(statusPrefix);
 
         String challengeRewardStr = String.format(Locale.getDefault(),
-                "%d %s | %d %s", game.getRewardFrubies(), clientBotSettings.getWalletPointsName(),
-                game.getRewardPoints(), clientBotSettings.getRankPointsName());
+                "%d %s | %d %s", game.getRewardFrubies(), clientBotSettings.getRankPointsName(),
+                game.getRewardPoints(), clientBotSettings.getWalletPointsName());
         challengeRewardTxt.setText(challengeRewardStr);
     }
 
@@ -240,8 +240,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     private void setupViewsByBehaviourTypeId()
     {
         String challengeRewardStr = String.format(Locale.getDefault(),
-                "%d %s | %d %s", game.getRewardFrubies(), clientBotSettings.getWalletPointsName(),
-                game.getRewardPoints(), clientBotSettings.getRankPointsName());
+                "%d %s | %d %s", game.getRewardFrubies(), clientBotSettings.getRankPointsName(),
+                game.getRewardPoints(), clientBotSettings.getWalletPointsName());
         challengeRewardTxt.setText(challengeRewardStr);
         challengeRewardTxt.startAnimation(fadeIn);
 

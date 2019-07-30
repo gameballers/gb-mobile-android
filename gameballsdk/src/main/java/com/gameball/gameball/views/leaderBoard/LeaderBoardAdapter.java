@@ -45,7 +45,7 @@ public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.
 
 
         holder.rank.setText(String.format(Locale.getDefault(),"%d", position + 1));
-        holder.frubiesTitle.setText(clientBotSettings.getWalletPointsName());
+        holder.frubiesTitle.setText(clientBotSettings.getRankPointsName());
 
         if(position < 3)
             holder.rank.setBackgroundTintList(ColorStateList
