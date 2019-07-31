@@ -65,10 +65,10 @@ import java.util.concurrent.Callable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -105,6 +105,7 @@ public class GameBallApp
             SharedPreferencesUtils.init(mContext, new Gson());
             transactionRemoteDataSource = TransactionRemoteDataSource.getInstance();
             profileRemoteProfileDataSource = ProfileRemoteProfileDataSource.getInstance();
+            SharedPreferencesUtils.getInstance().putClientBotSettings(null);
         }
     }
 
@@ -119,7 +120,7 @@ public class GameBallApp
 
     private void registerDevice(final Callback<PlayerRegisterResponse> callback)
     {
-        if(clientFirebaseApp != null)
+        if (clientFirebaseApp != null)
         {
             try
             {
@@ -176,14 +177,14 @@ public class GameBallApp
                     @Override
                     public void onSuccess(BaseResponse<PlayerRegisterResponse> playerRegisterResponseBaseResponse)
                     {
-                        if(callback != null)
+                        if (callback != null)
                             callback.onSuccess(playerRegisterResponseBaseResponse.getResponse());
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
-                        if(callback != null)
+                        if (callback != null)
                             callback.onError(e);
                     }
                 });
@@ -194,6 +195,7 @@ public class GameBallApp
         gameBallApi.getBotSettings()
                 .retry()
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>()
                 {
                     @Override
@@ -245,6 +247,12 @@ public class GameBallApp
     {
         if (botSettings.getClientFireBase() != null)
         {
+            if(clientFirebaseApp != null &&
+                    clientFirebaseApp.getOptions().getApiKey().equals(API_KEY)
+                    && clientFirebaseApp.getOptions().getGcmSenderId().equals(SENDER_ID)
+                    && clientFirebaseApp.getOptions().getApplicationId() .equals(APPLICATION_ID))
+                return;
+
             APPLICATION_ID = botSettings.getClientFireBase().getApplicationId();
             API_KEY = botSettings.getClientFireBase().getWebApiKey();
             SENDER_ID = botSettings.getClientFireBase().getSenderId();
@@ -434,7 +442,9 @@ public class GameBallApp
                 {
                     return Observable.just(SharedPreferencesUtils.getInstance().getClientBotSettings());
                 }
-                return gameBallApi.getBotSettings().flatMapObservable(new Function<BaseResponse<ClientBotSettings>, ObservableSource<? extends ClientBotSettings>>()
+                return gameBallApi.getBotSettings().flatMapObservable(
+                        new Function<BaseResponse<ClientBotSettings>,
+                                ObservableSource<? extends ClientBotSettings>>()
                 {
                     @Override
                     public ObservableSource<? extends ClientBotSettings> apply(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) throws Exception
@@ -444,20 +454,32 @@ public class GameBallApp
                 });
             }
         })
-                .doOnNext(new Consumer<ClientBotSettings>()
-                {
-                    @Override
-                    public void accept(ClientBotSettings clientBotSettings) throws Exception
-                    {
-                        SharedPreferencesUtils.getInstance().putClientBotSettings(clientBotSettings);
-                    }
-                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<ClientBotSettings>()
+                .subscribe(new Observer<ClientBotSettings>()
                 {
                     @Override
-                    public void accept(ClientBotSettings clientBotSettings) throws Exception
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onNext(ClientBotSettings clientBotSettings)
+                    {
+                        Log.i("client_bot_settings","" + System.currentTimeMillis());
+                        SharedPreferencesUtils.getInstance().putClientBotSettings(clientBotSettings);
+                        Log.i("client_bot_settings","" + System.currentTimeMillis());
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
                     {
                         Intent intent = new Intent(mContext, GameBallMainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

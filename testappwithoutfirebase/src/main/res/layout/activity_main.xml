@@ -34,6 +34,14 @@
             android:textAllCaps="false"
             />
 
+        <Button
+            android:id="@+id/btn_show_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="show profile" />
+
        <TextView
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
@@ -155,12 +163,5 @@
             android:textSize="16sp"
             />
 
-        <Button
-            android:id="@+id/btn_show_profile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:text="show profile" />
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

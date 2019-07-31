@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class LocalDataSource
 {
     public static LocalDataSource instance;
-    
+
     public PlayerInfo playerInfo;
     public Level nextLevel;
     public ArrayList<Game> games;

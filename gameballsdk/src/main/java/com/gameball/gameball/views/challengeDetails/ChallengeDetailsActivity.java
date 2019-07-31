@@ -198,8 +198,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     private boolean isChallengeAchieved()
     {
         return game.getAchievedCount() > 0 || game.getBehaviorTypeId() == UPON_LOGIN ||
-                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScore() != null &&
-                        game.getHighScore() > 0);
+                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScoreAmount() != null &&
+                        game.getHighScoreAmount() > 0);
     }
 
     private void setupLockedStatus()
@@ -247,10 +247,10 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
         if (game.getBehaviorTypeId() == HIGH_SCORE_BASED)
         {
-            if(game.getHighScore() != null)
+            if(game.getHighScoreAmount() != null)
             {
                 highScoreValue.setText(String.format(Locale.getDefault(), "%d %s",
-                        game.getHighScore(), game.getAmountUnit()));
+                        game.getHighScoreAmount(), game.getAmountUnit()));
                 highScoreLayout.setVisibility(View.VISIBLE);
                 if(game.isRepeatable())
                     isRepeatableHighScoreText.setVisibility(View.VISIBLE);

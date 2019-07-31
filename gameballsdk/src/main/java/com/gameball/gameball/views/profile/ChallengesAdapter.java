@@ -56,9 +56,9 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
 
         if(item.getBehaviorTypeId() == HIGH_SCORE_BASED)
         {
-            if(item.getHighScore() != null && item.getHighScore() > 0)
+            if(item.getHighScoreAmount() != null && item.getHighScoreAmount() > 0)
                 holder.challengeRewardPts.setText(String.format(Locale.getDefault(),
-                        "%d %s", item.getHighScore(),
+                        "%d %s", item.getHighScoreAmount(),
                     item.getAmountUnit()));
             else
                 holder.challengeRewardPts.setVisibility(View.GONE);
@@ -96,8 +96,8 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
     private boolean isChallengeAchieved(Game game)
     {
         return game.getAchievedCount() > 0 || game.getBehaviorTypeId() == 5 ||
-                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScore() != null &&
-                        game.getHighScore() > 0);
+                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScoreAmount() != null &&
+                        game.getHighScoreAmount() > 0);
     }
 
     public void setmData(ArrayList<Game> mData)
