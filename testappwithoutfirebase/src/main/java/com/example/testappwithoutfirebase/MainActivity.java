@@ -1,5 +1,6 @@
 package com.example.testappwithoutfirebase;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initView();
         prepView();
-        changeLang(Locale.getDefault().getLanguage());
+//        changeLang(Locale.getDefault().getLanguage());
 
 
 //        gameBallApp.generateOTP(new GenerateOTPBody("5sdfd2dvvd-9mnvhu25d6c3d"),
@@ -170,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Action action = new Action();
 
                 HashMap<String, Object> metaData = new HashMap<>();
-                metaData.put("Amount", 1500);
+                metaData.put("Amount", 1600);
 
                 action.addEvent("Buy", metaData);
 
@@ -290,7 +291,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Configuration config = new Configuration();
         config.locale = locale;
         getBaseContext().getResources().updateConfiguration(config,
-                getBaseContext().getResources().getDisplayMetrics());
-
+                getResources().getDisplayMetrics());
     }
 }

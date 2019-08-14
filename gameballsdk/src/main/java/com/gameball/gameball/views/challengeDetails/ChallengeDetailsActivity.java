@@ -310,7 +310,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         else
             description.setText(getString(R.string.track_your_progress));
 
-        if (game.getAmountCompletedPercentage() == 0)
+        if (game.getCompletionPercentage() == 0)
             progressBar.setProgress(0);
         final ProgressBarAnimation eventProgressBarAnimation = new ProgressBarAnimation(progressBar,
                 0, (int) game.getCompletionPercentage());
