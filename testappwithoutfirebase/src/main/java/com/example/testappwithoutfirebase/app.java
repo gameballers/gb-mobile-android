@@ -15,7 +15,7 @@ public class app extends Application {
     public void onCreate() {
         super.onCreate();
 
-        GameBallApp.getInstance(getApplicationContext()).init("8fdfd2dffd-9mnvhu25d6c3d",
-                "joe",3, R.mipmap.ic_launcher);
+        GameBallApp.getInstance(getApplicationContext()).init("aa3672f6e9ca41a1b2b54543bd7753c0",
+                "badr",3, R.mipmap.ic_launcher);
     }
 }

@@ -2,6 +2,8 @@ package com.gameball.gameball.views.profile;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,9 +58,9 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
 
         if(item.getBehaviorTypeId() == HIGH_SCORE_BASED)
         {
-            if(item.getHighScoreAmount() != null && item.getHighScoreAmount() > 0)
+            if(item.getHighScore() != null && item.getHighScore() > 0)
                 holder.challengeRewardPts.setText(String.format(Locale.getDefault(),
-                        "%d %s", item.getHighScoreAmount(),
+                        "%d %s", item.getHighScore(),
                     item.getAmountUnit()));
             else
                 holder.challengeRewardPts.setVisibility(View.GONE);
@@ -80,6 +82,14 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
             if(isChallengeAchieved(item))
             {
                     holder.notAchievedIndicator.setVisibility(View.GONE);
+                    if(item.getAchievedCount() > 1)
+                    {
+                        holder.achievedCount.setText(String.format(Locale.getDefault(),
+                                "%d", item.getAchievedCount()));
+                        holder.achievedCount.setBackgroundTintList(ColorStateList.valueOf(
+                                Color.parseColor(clientBotSettings.getBotMainColor())));
+                        holder.achievedCount.setVisibility(View.VISIBLE);
+                    }
             }
             else if(item.getActionsAndAmountCompletedPercentage() == 100)
             {
@@ -96,8 +106,8 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
     private boolean isChallengeAchieved(Game game)
     {
         return game.getAchievedCount() > 0 || game.getBehaviorTypeId() == 5 ||
-                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScoreAmount() != null &&
-                        game.getHighScoreAmount() > 0);
+                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScore() != null &&
+                        game.getHighScore() > 0);
     }
 
     public void setmData(ArrayList<Game> mData)
@@ -117,6 +127,7 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
         public View notAchievedIndicator;
         public ImageView lockedAchievementIndicator;
         public TextView challengeRewardPts;
+        public TextView achievedCount;
 
 
         public ItemRowHolder(View itemView) {
@@ -127,6 +138,7 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
             challengeRewardPts = itemView.findViewById(R.id.challenge_reward_points);
             notAchievedIndicator = itemView.findViewById(R.id.not_achieved_indicator);
             lockedAchievementIndicator = itemView.findViewById(R.id.locked_achievement_indicator);
+            achievedCount = itemView.findViewById(R.id.achieved_count);
 
             itemView.setOnClickListener(this);
         }

@@ -198,8 +198,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     private boolean isChallengeAchieved()
     {
         return game.getAchievedCount() > 0 || game.getBehaviorTypeId() == UPON_LOGIN ||
-                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScoreAmount() != null &&
-                        game.getHighScoreAmount() > 0);
+                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScore() != null &&
+                        game.getHighScore() > 0);
     }
 
     private void setupLockedStatus()
@@ -208,8 +208,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         notAchievedIndicator.setVisibility(View.VISIBLE);
         statusIcon.setImageResource(R.drawable.ic_status_locked);
 
-        String statusPrefix = String.format(Locale.getDefault(),"%s %d %s",
-                getString(R.string.reach_level), game.getActivationLevel(),
+        String statusPrefix = String.format(Locale.getDefault(),"%s %s %s",
+                getString(R.string.reach_level), game.getLevelName(),
                 getString(R.string.to_unlock_this_challenge));
 
         status.setText(getResources().getString(R.string.locked));
@@ -235,6 +235,10 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         notAchievedIndicator.setVisibility(View.VISIBLE);
         statusIcon.setImageResource(R.drawable.ic_status_keep_going);
         status.setText(R.string.keep_going);
+//        if(game.getBehaviorTypeId() == HIGH_SCORE_BASED)
+//            statusDescription.setText(String.format("$s $d $s",
+//                    "You need to exceed the minimum record",
+//                    game.getTargetAmount(),game.getAmountUnit()));
     }
 
     private void setupViewsByBehaviourTypeId()
@@ -247,10 +251,10 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
         if (game.getBehaviorTypeId() == HIGH_SCORE_BASED)
         {
-            if(game.getHighScoreAmount() != null)
+            if(game.getHighScore() != null)
             {
                 highScoreValue.setText(String.format(Locale.getDefault(), "%d %s",
-                        game.getHighScoreAmount(), game.getAmountUnit()));
+                        game.getHighScore(), game.getAmountUnit()));
                 highScoreLayout.setVisibility(View.VISIBLE);
                 if(game.isRepeatable())
                     isRepeatableHighScoreText.setVisibility(View.VISIBLE);
@@ -296,17 +300,14 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         description.setVisibility(View.VISIBLE);
 
         String targetEventStr = String.format(Locale.getDefault(),
-                "%d", game.getTargetAmount());
-        if (game.isReferral() && game.getAmountUnit() != null)
-            targetEventStr += " " + game.getAmountUnit();
-        else
-            eventCountTxt.setVisibility(View.GONE);
+                "%d", game.getTargetActionsCount());
+
         eventCountTxt.setText(targetEventStr);
 
         if(game.isReferral())
             description.setText(String.format(Locale.getDefault(),
                 "%d friend(s) remaining to achieve this badge",
-                game.getTargetAmount() - game.getCurrentAmount(), ""));
+                game.getTargetActionsCount() - game.getAchievedActionsCount(), ""));
         else
             description.setText(getString(R.string.track_your_progress));
 
