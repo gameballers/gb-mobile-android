@@ -1,9 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_activity_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".views.GameBallMainActivity">
 
-</FrameLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/footer"
+        android:id="@+id/main_activity_container"
+        />
+
+    <RelativeLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:background="#f2f2f2"
+        >
+
+        <ImageView
+            android:id="@+id/gameball_icon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_gameball"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/gameball_icon"
+            android:text="we run on"
+            android:textSize="10sp"
+            android:layout_marginEnd="5dp"
+            android:textColor="#808080"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/gameball_icon"
+            android:layout_marginStart="5dp"
+            android:text="Gameball"
+            android:textColor="#808080"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            />
+
+    </RelativeLayout>
+</RelativeLayout>

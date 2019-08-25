@@ -246,8 +246,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         if (nextLevel != null)
         {
             nextLevelTitle.setText(String.format(Locale.getDefault(),
-                    "%s %d %s",getString(R.string.next_level_at), nextLevel.getLevelFrubies(),
-                    clientBotSettings.getRankPointsName()));
+                    "%s %d",getString(R.string.next_level_at), nextLevel.getLevelFrubies()));
             playerProgress = (playerInfo.getAccFrubies() * 100) / nextLevel.getLevelFrubies();
         } else
         {
