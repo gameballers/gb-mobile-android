@@ -501,8 +501,7 @@ public class GameBallApp
         gameBallApi.addNewAtion(action).
                 subscribeOn(Schedulers.io())
                 .retry()
-                .subscribe(new CompletableObserver()
-                {
+                .subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(Disposable d)
                     {
