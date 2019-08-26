@@ -7,19 +7,19 @@ import com.google.gson.annotations.SerializedName;
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
  */
 public class PlayerRegisterRequest {
-    @SerializedName("PlayerCategoryID")
+    @SerializedName("playerCategoryId")
     @Expose
     private Integer playerCategoryID;
-    @SerializedName("PlayerUniqueID")
+    @SerializedName("playerUniqueId")
     @Expose
     private String playerUniqueID;
-    @SerializedName("DeviceToken")
+    @SerializedName("deviceToken")
     @Expose
     private String deviceToken;
-    @SerializedName("OSType")
+    @SerializedName("osType")
     @Expose
     private String oSType = "Android";
-    @SerializedName("PlayerInfo")
+    @SerializedName("playerInfo")
     @Expose
     private PlayerInfoBody playerInfoBody;
 

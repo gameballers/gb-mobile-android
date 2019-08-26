@@ -35,7 +35,7 @@ import retrofit2.http.Query;
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
  */
 public interface GameBallApi {
-    @POST(Config.PlayerRegistration)
+    @POST(Config.InitializePlayer)
     Single<BaseResponse<PlayerRegisterResponse>> registrationPlayer(
             @Body PlayerRegisterRequest playerRegisterRequest);
 
