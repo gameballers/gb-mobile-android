@@ -1,5 +1,6 @@
 package com.gameball.gameball.model.request;
 
+import com.gameball.gameball.model.response.PlayerInfo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -21,7 +22,7 @@ public class PlayerRegisterRequest {
     private String oSType = "Android";
     @SerializedName("playerInfo")
     @Expose
-    private PlayerInfoBody playerInfoBody;
+    private PlayerInfo playerInfo;
 
     public Integer getPlayerCategoryID()
     {
@@ -53,13 +54,13 @@ public class PlayerRegisterRequest {
         this.deviceToken = deviceToken;
     }
 
-    public PlayerInfoBody getPLayerInfo()
+    public PlayerInfo getPLayerInfo()
     {
-        return playerInfoBody;
+        return playerInfo;
     }
 
-    public void setPlayerInfoBody(PlayerInfoBody playerInfoBody)
+    public void setPlayerInfo(PlayerInfo playerInfo)
     {
-        this.playerInfoBody = playerInfoBody;
+        this.playerInfo = playerInfo;
     }
 }
