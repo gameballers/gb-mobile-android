@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 
@@ -244,9 +246,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         if (!playerIDField.getText().toString().trim().isEmpty())
         {
+            PlayerInfo playerInfo = new PlayerInfo.Builder()
+                    .withDisplayName("Mohamad badr")
+                    .withEmail("m.badr94@gmail.com")
+                    .withGender("male")
+                    .build();
+
             if (!playerCategoryID.getText().toString().trim().isEmpty())
                 gameBallApp.registerPlayer(playerIDField.getText().toString().trim(),
-                        Integer.parseInt(playerCategoryID.getText().toString().trim()),
+                        Integer.parseInt(playerCategoryID.getText().toString().trim()), playerInfo,
                         new Callback<PlayerRegisterResponse>()
                         {
                             @Override
@@ -262,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         });
             else
-                gameBallApp.registerPlayer(playerIDField.getText().toString(),
+                gameBallApp.registerPlayer(playerIDField.getText().toString(), playerInfo,
                         new Callback<PlayerRegisterResponse>()
                         {
                             @Override

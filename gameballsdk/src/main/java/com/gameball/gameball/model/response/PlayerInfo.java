@@ -154,8 +154,6 @@ public class PlayerInfo
     public static class Builder
     {
         private String displayName;
-        private String firstName;
-        private String lastName;
         private String email;
         private String gender;
         private String mobileNumber;
@@ -170,20 +168,6 @@ public class PlayerInfo
         public Builder withDisplayName(String displayName)
         {
             this.displayName = displayName;
-            return this;
-        }
-
-        public Builder withFirstName(String firstName)
-        {
-            this.firstName = firstName;
-
-            return this;
-        }
-
-        public Builder withLastName(String lastName)
-        {
-            this.lastName = lastName;
-
             return this;
         }
 
@@ -233,8 +217,6 @@ public class PlayerInfo
             else
                 playerInfo.mobileNumber = this.mobileNumber;
 
-            playerInfo.firstName = this.firstName;
-            playerInfo.lastName = this.lastName;
             playerInfo.dateOfBirth = this.dateOfBirth;
             playerInfo.displayName = this.displayName;
             playerInfo.gender = this.gender;

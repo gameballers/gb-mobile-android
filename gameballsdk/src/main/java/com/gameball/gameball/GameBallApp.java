@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
@@ -118,7 +119,7 @@ public class GameBallApp
         return ourInstance;
     }
 
-    private void registerDevice(final Callback<PlayerRegisterResponse> callback)
+    private void registerDevice(@Nullable PlayerInfo playerInfo, final Callback<PlayerRegisterResponse> callback)
     {
         if (clientFirebaseApp != null)
         {
@@ -160,6 +161,8 @@ public class GameBallApp
 
         if (deviceToken != null)
             registerDeviceRequest.setDeviceToken(mDeviceToken);
+        if(playerInfo != null)
+            registerDeviceRequest.setPlayerInfo(playerInfo);
 
         Log.i("register_body", new Gson().toJson(registerDeviceRequest));
 
@@ -273,7 +276,7 @@ public class GameBallApp
             }
             if (mPlayerID != null && !mPlayerID.trim().isEmpty())
             {
-                registerDevice(null);
+                registerDevice(null, null);
             }
         }
     }
@@ -282,10 +285,22 @@ public class GameBallApp
     public void registerPlayer(@NonNull String playerID,
                                @NonNull Callback<PlayerRegisterResponse> callback)
     {
-        registerPlayer(playerID, -1, callback);
+        registerPlayer(playerID, -1,null, callback);
+    }
+
+    public void registerPlayer(@NonNull String playerID, PlayerInfo playerInfo,
+                               @NonNull Callback<PlayerRegisterResponse> callback)
+    {
+        registerPlayer(playerID, -1,playerInfo, callback);
     }
 
     public void registerPlayer(@NonNull String playerID, int playerCategoryId,
+                               @NonNull Callback<PlayerRegisterResponse> callback)
+    {
+        registerPlayer(playerID, playerCategoryId,null, callback);
+    }
+
+    public void registerPlayer(@NonNull String playerID, int playerCategoryId, PlayerInfo playerInfo,
                                @NonNull Callback<PlayerRegisterResponse> callback)
     {
         if (!playerID.trim().isEmpty())
@@ -293,7 +308,7 @@ public class GameBallApp
             mPlayerID = playerID;
             mPlayerCategoryID = playerCategoryId;
 
-            registerDevice(callback);
+            registerDevice(playerInfo, callback);
         } else
         {
             Log.e(TAG, "Player registration: playerID cannot be empty");
