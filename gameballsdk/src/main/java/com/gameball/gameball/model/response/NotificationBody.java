@@ -1,6 +1,8 @@
 package com.gameball.gameball.model.response;
 
-public class NotificationBody
+import java.io.Serializable;
+
+public class NotificationBody implements Serializable
 {
     private String title;
     private String body;

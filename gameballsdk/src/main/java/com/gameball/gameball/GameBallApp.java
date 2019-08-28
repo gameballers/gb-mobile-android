@@ -47,15 +47,20 @@ import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 import com.gameball.gameball.network.transactionRemote.TransactionRemoteDataSource;
+import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.DialogManager;
 import com.gameball.gameball.views.GameBallMainActivity;
+import com.gameball.gameball.views.laregNotificationView.LargeNotificationActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
@@ -121,17 +126,6 @@ public class GameBallApp
 
     private void registerDevice(@Nullable PlayerInfo playerInfo, final Callback<PlayerRegisterResponse> callback)
     {
-        if (clientFirebaseApp != null)
-        {
-            try
-            {
-                mDeviceToken = FirebaseInstanceId.getInstance(clientFirebaseApp)
-                        .getToken(SENDER_ID, "FCM");
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
 
         String deviceToken = SharedPreferencesUtils.getInstance().getDeviceToken();
         String playerId = SharedPreferencesUtils.getInstance().getPlayerId();
@@ -145,13 +139,14 @@ public class GameBallApp
                 && mPlayerID.equals(playerId))
         {
             Log.d(TAG, "Device already registered");
-            return;
+//            return;
         } else
         {
             SharedPreferencesUtils.getInstance().clearData();
             SharedPreferencesUtils.getInstance().putClientId(mClientID);
             SharedPreferencesUtils.getInstance().putPlayerId(mPlayerID);
             SharedPreferencesUtils.getInstance().putPlayerCategoryId(mPlayerCategoryID);
+            SharedPreferencesUtils.getInstance().putDeviceToken(mDeviceToken);
         }
 
         PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
@@ -159,7 +154,7 @@ public class GameBallApp
         if (mPlayerCategoryID != -1)
             registerDeviceRequest.setPlayerCategoryID(mPlayerCategoryID);
 
-        if (deviceToken != null)
+        if (mDeviceToken != null)
             registerDeviceRequest.setDeviceToken(mDeviceToken);
         if(playerInfo != null)
             registerDeviceRequest.setPlayerInfo(playerInfo);
@@ -276,7 +271,14 @@ public class GameBallApp
             }
             if (mPlayerID != null && !mPlayerID.trim().isEmpty())
             {
-                registerDevice(null, null);
+
+                FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        mDeviceToken = task.getResult().getToken();
+                        registerDevice(null, null);
+                    }
+                });
             }
         }
     }
@@ -367,8 +369,13 @@ public class GameBallApp
             public void run()
             {
 
-                DialogManager.showCustomNotification(mContext, messageBody);
+//                DialogManager.showCustomNotification(mContext, messageBody);
 //                Toast.makeText(mContext, messageBody, Toast.LENGTH_SHORT).show();
+
+                Intent notificationIntent = new Intent(mContext, LargeNotificationActivity.class);
+                notificationIntent.putExtra(Constants.NOTIFICATION_OBJ,messageBody);
+                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(notificationIntent);
             }
         }, 100);
 
@@ -515,7 +522,6 @@ public class GameBallApp
     {
         gameBallApi.addNewAtion(action).
                 subscribeOn(Schedulers.io())
-                .retry()
                 .subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(Disposable d)
@@ -533,7 +539,7 @@ public class GameBallApp
                     @Override
                     public void onError(Throwable e)
                     {
-                        Log.e("action:", "action error");
+                        Log.e("action:", e.getMessage());
                         callback.onError(e);
                     }
                 });
