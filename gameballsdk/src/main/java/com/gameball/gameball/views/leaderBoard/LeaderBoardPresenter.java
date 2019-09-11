@@ -99,13 +99,13 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
                     @Override
                     public void onError(Throwable e)
                     {
-                        Log.e("error",e.getMessage());
+                        Log.e("player_rank",e.getMessage());
                     }
 
                     @Override
                     public void onComplete()
                     {
-
+                        Log.i("player_rank","success");
                     }
                 });
     }

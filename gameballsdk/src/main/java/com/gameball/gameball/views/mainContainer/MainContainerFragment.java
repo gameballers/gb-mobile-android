@@ -223,9 +223,10 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     @Override
     public void onProfileInfoLoaded(PlayerInfo playerInfo, Level nextLevel)
     {
+        SharedPreferencesUtils.getInstance().putPlayerRefferalLink(playerInfo.getDynamicLink());
+
         if (playerInfo.getDisplayName() != null && !playerInfo.getDisplayName().isEmpty())
             txtPlayerName.setText(playerInfo.getDisplayName());
-
 
         fillPlayerData(playerInfo, nextLevel);
         prepView();
@@ -241,7 +242,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         currentPointsValue.setText(String.format(Locale.getDefault(),
                 "%d", playerInfo.getAccPoints()));
         currentFrubiesValue.setText(String.format(Locale.getDefault(),
-                "%d", playerInfo.getLevel().getLevelFrubies()));
+                "%d", playerInfo.getAccFrubies()));
 
         if (nextLevel != null)
         {

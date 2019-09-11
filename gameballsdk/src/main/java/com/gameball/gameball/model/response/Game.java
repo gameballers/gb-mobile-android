@@ -304,4 +304,9 @@ public class Game
     {
         return isReferral;
     }
+
+    public boolean isAchieved()
+    {
+        return achievedCount > 0;
+    }
 }

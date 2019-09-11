@@ -1,5 +1,6 @@
 package com.gameball.gameball.views.referral;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,8 +23,7 @@ import com.gameball.gameball.utils.DisplayUtils;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class ReferralFragment extends Fragment implements ReferralContract.View
-{
+public class ReferralFragment extends Fragment implements ReferralContract.View, View.OnClickListener {
     private View rootView;
     private ClientBotSettings clientBotSettings;
 
@@ -50,6 +50,7 @@ public class ReferralFragment extends Fragment implements ReferralContract.View
         initView();
         setupBotSettings();
         presenter.getReferralChallenges();
+        referralLink.setText(SharedPreferencesUtils.getInstance().getPlayerReferralLink());
         return rootView;
     }
 
@@ -85,6 +86,8 @@ public class ReferralFragment extends Fragment implements ReferralContract.View
             shareLinkBtn.setBackgroundResource(R.drawable.bg_primary_left_corener_round);
             referralLink.setBackgroundResource(R.drawable.bg_grey_right_corener_round);
         }
+
+        shareLinkBtn.setOnClickListener(this);
     }
 
     @Override
@@ -92,5 +95,18 @@ public class ReferralFragment extends Fragment implements ReferralContract.View
     {
         referralChallengesAdapter.setmData(games);
         referralChallengesAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onClick(View view) {
+        if(referralLink.getText().toString().isEmpty())
+            return;
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, referralLink.getText().toString());
+        startActivity(Intent.createChooser(shareIntent, "Share link using"));
+
+
     }
 }

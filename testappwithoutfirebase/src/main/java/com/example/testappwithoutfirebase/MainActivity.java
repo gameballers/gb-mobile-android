@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initView();
         prepView();
+        daynamicLinkTest();
 //        changeLang(Locale.getDefault().getLanguage());
 
 
@@ -81,7 +82,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void daynamicLinkTest()
     {
-        gameBallApp.addReferral(this, getIntent());
+        gameBallApp.addReferral(this, getIntent(), new Callback() {
+            @Override
+            public void onSuccess(Object o) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
     }
 
     public void navigateToFragment(Fragment fragment)
@@ -246,15 +257,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         if (!playerIDField.getText().toString().trim().isEmpty())
         {
-            PlayerInfo playerInfo = new PlayerInfo.Builder()
-                    .withDisplayName("Mohamad badr")
-                    .withEmail("m.badr94@gmail.com")
-                    .withGender("male")
-                    .build();
-
             if (!playerCategoryID.getText().toString().trim().isEmpty())
                 gameBallApp.registerPlayer(playerIDField.getText().toString().trim(),
-                        Integer.parseInt(playerCategoryID.getText().toString().trim()), playerInfo,
+                        Integer.parseInt(playerCategoryID.getText().toString().trim()),
                         new Callback<PlayerRegisterResponse>()
                         {
                             @Override
@@ -270,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         });
             else
-                gameBallApp.registerPlayer(playerIDField.getText().toString(), playerInfo,
+                gameBallApp.registerPlayer(playerIDField.getText().toString(),
                         new Callback<PlayerRegisterResponse>()
                         {
                             @Override

@@ -182,7 +182,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         {
             lockedChallengeIndicator.setVisibility(View.GONE);
 
-            if (isChallengeAchieved())
+            if (game.isAchieved())
             {
                 setupAchievedStatus();
             }
@@ -193,13 +193,6 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
             setupViewsByBehaviourTypeId();
         }
-    }
-
-    private boolean isChallengeAchieved()
-    {
-        return game.getAchievedCount() > 0 || game.getBehaviorTypeId() == UPON_LOGIN ||
-                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScore() != null &&
-                        game.getHighScore() > 0);
     }
 
     private void setupLockedStatus()
@@ -278,8 +271,8 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
     {
         int behaviorTypeId = game.getBehaviorTypeId();
         return behaviorTypeId == BIRTHDAY || behaviorTypeId == JOIN_ANNIVERSARY
-                || behaviorTypeId == UPON_LOGIN || (game.isReferral() && isChallengeAchieved())
-                || (!game.isRepeatable() && isChallengeAchieved());
+                || behaviorTypeId == UPON_LOGIN || (game.isReferral() && game.isAchieved())
+                || (!game.isRepeatable() && game.isAchieved());
     }
 
     private void setupProgressbarBehaviour()

@@ -49,6 +49,7 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View row = inflater.inflate(R.layout.acheivments_item_layout, parent, false);
         ItemRowHolder rh = new ItemRowHolder(row);
+        rh.setIsRecyclable(false);
         return rh;
     }
 
@@ -79,7 +80,7 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
 
         if(item.isUnlocked())
         {
-            if(isChallengeAchieved(item))
+            if(item.isAchieved())
             {
                     holder.notAchievedIndicator.setVisibility(View.GONE);
                     if(item.getAchievedCount() > 1)
@@ -101,13 +102,6 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
 
 //        holder.itemview.startAnimation(fadeIn);
 //        holder.itemview.startAnimation(translate);
-    }
-
-    private boolean isChallengeAchieved(Game game)
-    {
-        return game.getAchievedCount() > 0 || game.getBehaviorTypeId() == 5 ||
-                (game.getBehaviorTypeId() == HIGH_SCORE_BASED && game.getHighScore() != null &&
-                        game.getHighScore() > 0);
     }
 
     public void setmData(ArrayList<Game> mData)

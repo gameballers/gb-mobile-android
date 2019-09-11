@@ -84,15 +84,6 @@ public class DialogManager
                 }
             });
 
-            toastLayout.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    Log.i("toast_clicked", "1");
-                }
-            });
-
             Picasso.get()
                     .load(notificationBody.getIcon())
                     .into(icon, new Callback()

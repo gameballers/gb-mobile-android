@@ -16,6 +16,6 @@ public class app extends Application {
         super.onCreate();
 
         GameBallApp.getInstance(getApplicationContext()).init("8fdfd2dffd-9mnvhu25d6c3d",
-                "oamromar",3, R.mipmap.ic_launcher);
+                "badr",3, R.mipmap.ic_launcher);
     }
 }

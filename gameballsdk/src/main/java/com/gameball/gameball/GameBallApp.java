@@ -159,8 +159,6 @@ public class GameBallApp
         if(playerInfo != null)
             registerDeviceRequest.setPlayerInfo(playerInfo);
 
-        Log.i("register_body", new Gson().toJson(registerDeviceRequest));
-
         gameBallApi.registrationPlayer(registerDeviceRequest)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -213,7 +211,7 @@ public class GameBallApp
                     @Override
                     public void onError(Throwable e)
                     {
-                        Log.i("bot_settings_error", e.getMessage());
+                        Log.e("bot_settings_error", e.getMessage());
                     }
                 });
     }
@@ -340,7 +338,7 @@ public class GameBallApp
                     @Override
                     public void onError(Throwable e)
                     {
-                        Log.i("add_player_info", e.getMessage());
+                        Log.e("add_player_info", e.getMessage());
                     }
                 });
     }
@@ -348,7 +346,7 @@ public class GameBallApp
     private void sendNotification(final NotificationBody messageBody)
     {
         Intent intent = new Intent(MAIN_ACTIVITY_ACTION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
@@ -360,8 +358,8 @@ public class GameBallApp
                         .setContentText(messageBody.getTitle())
                         .setAutoCancel(true)
                         .setSmallIcon(mNotificationIcon)
-                        .setSound(defaultSoundUri)
-                        .setContentIntent(pendingIntent);
+                        .setSound(defaultSoundUri);
+//                        .setContentIntent(pendingIntent);
 
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
         {
@@ -395,7 +393,6 @@ public class GameBallApp
 
     public boolean isGameBallNotification(RemoteMessage remoteMessage)
     {
-        Log.i("aslkdjas", "askdhasjkdh");
         if (remoteMessage != null && Boolean.valueOf(remoteMessage.getData().get("isGB"))
                 && remoteMessage.getNotification() != null)
         {
@@ -489,9 +486,7 @@ public class GameBallApp
                     @Override
                     public void onNext(ClientBotSettings clientBotSettings)
                     {
-                        Log.i("client_bot_settings","" + System.currentTimeMillis());
                         SharedPreferencesUtils.getInstance().putClientBotSettings(clientBotSettings);
-                        Log.i("client_bot_settings","" + System.currentTimeMillis());
                     }
 
                     @Override
@@ -518,7 +513,7 @@ public class GameBallApp
      *               amount: is needed if the challenge is amount based
      *               playerCategoryID: us needed if you have multi users categories(default value is 0)
      */
-    public void addAction(Action action, final Callback callback)
+    public void addAction(@NonNull Action action, final Callback callback)
     {
         gameBallApi.addNewAtion(action).
                 subscribeOn(Schedulers.io())
@@ -697,6 +692,8 @@ public class GameBallApp
 
     private void addReferral(ReferralBody body, final Callback callback)
     {
+
+        Log.i("referral_body", new Gson().toJson(body));
         transactionRemoteDataSource.addReferral(body)
                 .subscribe(new CompletableObserver()
                 {
@@ -721,7 +718,7 @@ public class GameBallApp
                 });
     }
 
-    public void addReferral(Activity activity, Intent intent)
+    public void addReferral(@NonNull Activity activity,@NonNull Intent intent, @NonNull final Callback callback)
     {
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(intent)
@@ -730,22 +727,20 @@ public class GameBallApp
                     @Override
                     public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData)
                     {
-                        // Get deep link from result (may be null if no link is found)
                         Uri deepLink = null;
                         if (pendingDynamicLinkData != null)
                         {
                             deepLink = pendingDynamicLinkData.getLink();
 
-                            String query = deepLink.getQueryParameter("ReferralCode");
+                            String referralCode = deepLink.getQueryParameter("GBReferral");
+
+                            ReferralBody referralBody = new ReferralBody();
+                            referralBody.setNewPlayerUniqueId(SharedPreferencesUtils.getInstance().getPlayerId());
+                            referralBody.setPlayerCode(referralCode);
+                            referralBody.setNewPlayerCategoryId(-1);
+                            addReferral(referralBody,callback);
                         }
 
-
-                        // Handle the deep link. For example, open the linked
-                        // content, or apply promotional credit to the user's
-                        // account.
-                        // ...
-
-                        // ...
                     }
                 })
                 .addOnFailureListener(activity, new OnFailureListener()
@@ -753,7 +748,8 @@ public class GameBallApp
                     @Override
                     public void onFailure(@NonNull Exception e)
                     {
-                        Log.w(this.getClass().getSimpleName(), "getDynamicLink:onFailure", e);
+                        Log.e(this.getClass().getSimpleName(), "getDynamicLink:onFailure", e);
+                        callback.onError(e);
                     }
                 });
     }
