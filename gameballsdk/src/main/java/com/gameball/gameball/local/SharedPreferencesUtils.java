@@ -164,6 +164,16 @@ public class SharedPreferencesUtils {
 
     }
 
+    public void putPlayerRefferalLink(String playerReferralLink)
+    {
+        putString(PreferencesContract.PLAYER_DYNAMIC_LINK, playerReferralLink);
+    }
+
+    public String getPlayerReferralLink()
+    {
+        return getString(PreferencesContract.PLAYER_DYNAMIC_LINK, null);
+    }
+
     private static final class PreferencesContract {
 
         private static final String PLAYER_ID = "PLAYER_ID";
@@ -171,6 +181,7 @@ public class SharedPreferencesUtils {
         private static final String CLIENT_ID = "CLIENT_ID";
         private static final String CLIENT_BOT_SETTINGS = "BOT_SETTINGS";
         private static final String PLAYER_CATEGORY_ID = "PLAYER_CATEGORY_ID";
+        private static final String PLAYER_DYNAMIC_LINK = "PLAYER_DYNAMIC_LINK";
     }
 
 }

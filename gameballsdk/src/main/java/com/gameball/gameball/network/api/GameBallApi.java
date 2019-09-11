@@ -1,10 +1,20 @@
 package com.gameball.gameball.network.api;
 
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.GetPlayerBalanceBody;
+import com.gameball.gameball.model.request.HoldPointBody;
+import com.gameball.gameball.model.request.GenerateOTPBody;
+import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
+import com.gameball.gameball.model.request.RedeemPointBody;
+import com.gameball.gameball.model.request.ReferralBody;
+import com.gameball.gameball.model.request.ReverseHeldPointsbody;
+import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
+import com.gameball.gameball.model.response.HoldPointsResponse;
+import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
@@ -25,7 +35,7 @@ import retrofit2.http.Query;
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
  */
 public interface GameBallApi {
-    @POST(Config.PlayerRegistration)
+    @POST(Config.InitializePlayer)
     Single<BaseResponse<PlayerRegisterResponse>> registrationPlayer(
             @Body PlayerRegisterRequest playerRegisterRequest);
 
@@ -46,6 +56,30 @@ public interface GameBallApi {
 
     @POST(Config.AddNewAction)
     Completable addNewAtion(@Body Action actionBody);
+
+    @POST(Config.RewardPoints)
+    Completable rewardPoints(@Body RewardPointBody rewardPointsBody);
+
+    @POST(Config.HoldPoints)
+    Single<BaseResponse<HoldPointsResponse>> holdPoints(@Body HoldPointBody body);
+
+    @POST(Config.RedeemPoints)
+    Completable redeemPoints(@Body RedeemPointBody body);
+
+    @POST(Config.GenerateOTP)
+    Completable generateOTP(@Body GenerateOTPBody body);
+
+    @POST(Config.ReverseHeld)
+    Completable reverseHeldPoints(@Body ReverseHeldPointsbody body);
+
+    @POST(Config.referral)
+    Completable addReferral(@Body ReferralBody body);
+
+    @POST(Config.GetPlayerBalance)
+    Single<BaseResponse<PlayerBalanceResponse>> getPlayerBalance(@Body GetPlayerBalanceBody body);
+
+    @POST(Config.InitializePlayer)
+    Completable initializePlayer(@Body PlayerInfoBody body);
 
 
 }

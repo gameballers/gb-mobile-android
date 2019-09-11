@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="40dp"
+        android:paddingBottom="25dp"
         android:focusable="true"
         android:focusableInTouchMode="true"
         >
@@ -21,17 +21,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_grey_curved_bottom"
-            android:paddingBottom="30dp"
+            android:paddingBottom="37dp"
             >
+
+            <ImageButton
+                android:id="@+id/back_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:src="@drawable/ic_arrow_left"
+                android:layout_marginTop="25dp"
+                android:paddingLeft="25dp"
+                android:paddingStart="25dp"
+                android:paddingEnd="25dp"
+                android:paddingRight="25dp"
+                android:background="@null"
+
+                />
 
             <ImageView
                 android:id="@+id/challenge_icon"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="122dp"
+                android:layout_height="122dp"
                 android:layout_below="@id/back_btn"
-
                 android:layout_centerHorizontal="true"
                 tool:src="@drawable/ic_diamond"
+                android:layout_marginTop="15dp"
                 />
 
             <View
@@ -47,6 +61,7 @@
                 android:background="#90efefef"
                 />
 
+
             <ImageView
                 android:id="@+id/locked_challenge_indicator"
                 android:layout_width="wrap_content"
@@ -59,28 +74,15 @@
                 android:src="@drawable/ic_lock_white"
                 />
 
-            <ImageButton
-                android:id="@+id/back_btn"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/ic_arrow_left"
-                android:layout_marginStart="15dp"
-                android:layout_marginLeft="15dp"
-                android:scaleType="fitXY"
-                android:background="@null"
-                android:layout_marginTop="25dp"
-
-                />
-
             <TextView
                 android:id="@+id/challenge_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/challenge_icon"
                 android:layout_marginTop="12dp"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
-                android:textColor="#4a4a4a"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:textColor="#1a1a1a"
                 tool:text="challenge name"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -99,8 +101,8 @@
                 android:layout_marginTop="3dp"
                 android:gravity="center"
                 tool:text="challenge description challenge description challenge description"
-                android:textColor="#828282"
-                android:textSize="16sp"
+                android:textColor="#1a1a1a"
+                android:textSize="14sp"
                 />
 
             <TextView
@@ -109,82 +111,20 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/challenge_description"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="3dp"
+                android:layout_marginTop="8dp"
                 android:drawableStart="@drawable/ic_gift"
                 android:drawableLeft="@drawable/ic_gift"
                 android:drawablePadding="5dp"
                 android:textColor="@android:color/black"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 tool:text="30 Frubies | 30 Points"
                 android:textStyle="bold"
-                android:visibility="gone"
-                tool:visibility="visible"
+                android:gravity="center"
                 />
 
 
 
         </RelativeLayout>
-
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/mileStones_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            tool:visibility="visible"
-            >
-
-            <TextView
-                android:id="@+id/milestone_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:layout_constraintStart_toStartOf="parent"
-                tools:layout_constraintTop_toTopOf="parent"
-                android:layout_marginStart="30dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="20dp"
-                android:text="@string/milestones"
-                android:textSize="20sp"
-                style="@style/text_title_style"
-                />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/milestones_recyclerView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                tools:layout_constraintTop_toBottomOf="@id/milestone_title"
-                tools:layout_constraintStart_toStartOf="@id/milestone_title"
-                tools:layout_constraintEnd_toEndOf="parent"
-                tools:layout_constraintRight_toRightOf="parent"
-                android:layout_marginEnd="30dp"
-                android:layout_marginRight="30dp"
-                tool:layoutManager="android.support.v7.widget.LinearLayoutManager"
-                tool:listitem="@layout/milestone_item_layout"
-                tool:itemCount="3"
-                />
-
-            <FrameLayout
-                android:id="@+id/progress_layout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                tools:layout_constraintTop_toBottomOf="@id/milestones_recyclerView"
-                tools:layout_constraintStart_toStartOf="@id/milestones_recyclerView"
-                tools:layout_constraintEnd_toEndOf="@id/milestones_recyclerView"
-                >
-                <!--<include layout="@layout/milestone_item_layout" />-->
-            </FrameLayout>
-
-            <View
-                android:id="@+id/separator"
-                android:layout_width="match_parent"
-                android:layout_height="5dp"
-                tools:layout_constraintTop_toBottomOf="@id/progress_layout"
-                android:layout_marginStart="50dp"
-                android:layout_marginEnd="50dp"
-                android:background="@drawable/dash_line_separator"
-                android:layout_marginTop="25dp"
-                />
-
-        </android.support.constraint.ConstraintLayout>
     
         <RelativeLayout
         android:id="@+id/challenge_layout"
@@ -198,132 +138,64 @@
             android:id="@+id/progress_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="25dp"
             android:text="@string/progress"
-            android:textSize="20sp"
+            android:textSize="16sp"
             style="@style/text_title_style"
             />
 
         <TextView
-            android:id="@+id/challenge_target_amount_count"
+            android:id="@+id/challenge_target_event_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/challenge_event_description"
+            android:layout_alignEnd="@id/challenge_event_progress"
+            android:layout_alignRight="@id/challenge_event_progress"
+            tool:text="10"
+            android:textSize="10sp"
+            android:textColor="#808080"
+            android:textStyle="bold"
+            tool:visibility="visible"
+            android:visibility="gone"
+            />
+
+        <ProgressBar
+            android:id="@+id/challenge_event_progress"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
             android:layout_below="@id/progress_title"
-            android:layout_alignEnd="@id/challenge_amount_progress"
-            android:layout_alignRight="@id/challenge_amount_progress"
-            tool:text="10"
-            android:textSize="14sp"
-            android:textColor="#4a4a4a"
-            android:textStyle="bold"
-            tool:visibility="visible"
-            android:visibility="gone"
-            />
-
-        <ProgressBar
-            android:id="@+id/challenge_amount_progress"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="8dp"
-            android:layout_below="@id/challenge_target_amount_count"
             android:layout_alignStart="@id/progress_title"
             android:layout_alignLeft="@id/progress_title"
-            android:layout_marginEnd="40dp"
-            android:layout_marginRight="40dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
             android:progress="0"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="20dp"
             tool:progress="50"
             android:progressDrawable="@drawable/level_progress_drawable"
             android:elevation="1dp"
             android:visibility="gone"
             tool:visibility="visible"
-
             />
 
         <TextView
-            android:id="@+id/challenge_amount_description"
+            android:id="@+id/challenge_event_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignStart="@id/challenge_amount_progress"
-            android:layout_alignEnd="@id/challenge_amount_progress"
-            android:layout_alignRight="@id/challenge_amount_progress"
-            android:layout_alignLeft="@id/challenge_amount_progress"
-            android:layout_below="@id/challenge_amount_progress"
-            android:layout_marginTop="5dp"
-            android:gravity="center"
+            android:layout_alignStart="@id/challenge_event_progress"
+            android:layout_toStartOf="@id/challenge_target_event_count"
+            android:layout_toLeftOf="@id/challenge_target_event_count"
+            android:layout_alignLeft="@id/challenge_event_progress"
+            android:layout_below="@id/challenge_event_progress"
+            android:layout_marginTop="7dp"
+            android:gravity="center|start|left"
             tool:text="amount description"
-            android:textColor="#4a4a4a"
-            android:textSize="14sp"
+            android:textColor="#808080"
+            android:textSize="10sp"
             tool:visibility="visible"
             android:visibility="gone"
-            />
-
-        <TextView
-            android:id="@+id/challenge_target_action_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/challenge_amount_description"
-            android:layout_alignEnd="@id/challenge_action_progress"
-            android:layout_alignRight="@id/challenge_action_progress"
-            android:layout_marginTop="15dp"
-            tool:text="10"
-            android:textSize="14sp"
-            android:textColor="#4a4a4a"
-            android:textStyle="bold"
-            tool:visibility="visible"
-            android:visibility="gone"
-            />
-
-        <ProgressBar
-            android:id="@+id/challenge_action_progress"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="8dp"
-            android:layout_below="@id/challenge_target_action_count"
-            android:layout_alignStart="@id/progress_title"
-            android:layout_alignLeft="@id/progress_title"
-            android:layout_marginEnd="40dp"
-            android:layout_marginRight="40dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
-            tool:progress="50"
-            android:progress="0"
-            android:progressDrawable="@drawable/level_progress_drawable"
-            android:elevation="1dp"
-            tool:visibility="visible"
-            android:visibility="gone"
-            />
-
-        <TextView
-            android:id="@+id/challenge_action_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@id/challenge_action_progress"
-            android:layout_alignEnd="@id/challenge_action_progress"
-            android:layout_alignRight="@id/challenge_action_progress"
-            android:layout_alignLeft="@id/challenge_action_progress"
-            android:layout_below="@id/challenge_action_progress"
-            android:layout_marginTop="5dp"
-            android:gravity="center"
-            tool:text="amount description"
-            android:textColor="#4a4a4a"
-            android:textSize="14sp"
-            tool:visibility="visible"
-            android:visibility="gone"
-            />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:layout_below="@id/challenge_action_description"
-            android:layout_marginStart="50dp"
-            android:layout_marginEnd="50dp"
-            android:background="@drawable/dash_line_separator"
-            android:layout_marginTop="25dp"
             />
     </RelativeLayout>
         
@@ -338,24 +210,62 @@
                 android:id="@+id/high_score_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="25dp"
                 android:text="@string/high_score"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
+                />
+
+            <TextView
+                android:id="@+id/your_high_score_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/high_score_title"
+                android:layout_alignStart="@id/high_score_title"
+                android:layout_alignLeft="@id/high_score_title"
+                android:layout_marginEnd="25dp"
+                android:layout_marginRight="25dp"
+                android:layout_marginTop="20dp"
+                android:text="Your high score is"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="#1a1a1a"
                 />
 
             <TextView
                 android:id="@+id/high_score_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/your_high_score_title"
+                android:layout_alignStart="@id/your_high_score_title"
+                android:layout_alignLeft="@id/your_high_score_title"
+                android:layout_alignEnd="@id/your_high_score_title"
+                android:layout_alignRight="@id/your_high_score_title"
+                android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:layout_below="@id/high_score_title"
-                android:layout_marginTop="20dp"
                 tool:text="3.56 KM"
-                android:textColor="#a0a0a0"
-                android:textSize="30sp"
+                android:textColor="#1a1a1a"
+                android:textSize="20sp"
                 android:textStyle="bold"
+                />
+
+            <TextView
+                android:id="@+id/is_repeatable_high_score_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/high_score_value"
+                android:layout_alignStart="@id/high_score_value"
+                android:layout_alignEnd="@id/high_score_value"
+                android:layout_marginTop="8dp"
+                android:textSize="14sp"
+                android:textColor="#aaaaaa"
+                android:text="@string/is_repeatable_high_score_txt"
+                android:gravity="center"
+                android:fontFamily="@font/montserrat_light"
+                android:visibility="gone"
+                tool:visibility="visible"
                 />
         </RelativeLayout>
         
@@ -369,18 +279,18 @@
                 android:id="@+id/status_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="50dp"
-                android:layout_marginLeft="50dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginLeft="25dp"
                 android:layout_marginTop="25dp"
                 android:text="@string/status"
                 style="@style/text_title_style"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 />
 
             <ImageView
                 android:id="@+id/status_icon"
                 android:layout_width="match_parent"
-                android:layout_height="170dp"
+                android:layout_height="180dp"
                 android:layout_marginTop="20dp"
                 tool:src="@drawable/ic_status_locked"
                 />
@@ -389,12 +299,27 @@
                 android:id="@+id/status_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="50dp"
-                android:layout_marginEnd="50dp"
-                android:layout_marginTop="20dp"
-                android:textColor="#828282"
-                android:textSize="16sp"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:layout_marginTop="12dp"
+                android:textColor="#808080"
+                android:textSize="20sp"
+                android:textStyle="bold"
                 tool:text="status description"
+                android:gravity="center"
+                />
+
+            <TextView
+                android:id="@+id/achieved_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"
+                android:layout_marginTop="5dp"
+                android:textSize="14sp"
+                tool:text="4 time(s)"
+                android:textColor="#aaaaaa"
+                android:fontFamily="@font/montserrat_light"
                 android:gravity="center"
                 />
         </LinearLayout>

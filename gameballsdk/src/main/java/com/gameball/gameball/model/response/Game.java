@@ -7,82 +7,91 @@ import java.util.ArrayList;
 
 public class Game
 {
-    @SerializedName("GameName")
+    @SerializedName("gameName")
     @Expose
     private String gameName;
-    @SerializedName("ChallengeId")
+    @SerializedName("challengeId")
     @Expose
     private int challengeId;
-    @SerializedName("Icon")
+    @SerializedName("icon")
     @Expose
     private String icon;
-    @SerializedName("Description")
+    @SerializedName("description")
     @Expose
     private String description;
-    @SerializedName("IsUnlocked")
+    @SerializedName("isUnlocked")
     @Expose
     private Boolean isUnlocked;
-    @SerializedName("ActivationCriteriaTypeId")
+    @SerializedName("activationCriteriaTypeId")
     @Expose
     private int activationCriteriaTypeId;
-    @SerializedName("ActivationFrubes")
+    @SerializedName("activationFrubes")
     @Expose
     private int activationFrubes;
-    @SerializedName("ActivationLevel")
+    @SerializedName("activationLevel")
     @Expose
     private int activationLevel;
-    @SerializedName("RewardFrubies")
+    @SerializedName("rewardFrubies")
     @Expose
     private int rewardFrubies;
-    @SerializedName("RewardPoints")
+    @SerializedName("rewardPoints")
     @Expose
     private int rewardPoints;
-    @SerializedName("HighScore")
+    @SerializedName("highScore")
     @Expose
     private Integer highScore;
-    @SerializedName("HighScoreAmount")
+    @SerializedName("highScoreAmount")
     @Expose
     private Integer highScoreAmount;
-    @SerializedName("AmountUnit")
+    @SerializedName("amountUnit")
     @Expose
     private String amountUnit;
-    @SerializedName("LevelName")
+    @SerializedName("levelName")
     @Expose
     private String levelName;
-        @SerializedName("BehaviorTypeId")
+    @SerializedName("behaviorTypeId")
     @Expose
     private int behaviorTypeId;
-    @SerializedName("TargetActionsCount")
+    @SerializedName("behaviorType")
+    @Expose
+    private String behaviorType;
+    @SerializedName("targetActionsCount")
     @Expose
     private int targetActionsCount;
-    @SerializedName("TargetAmount")
+    @SerializedName("targetAmount")
     @Expose
     private int targetAmount;
-    @SerializedName("ActionsCompletedPercentage")
+    @SerializedName("actionsCompletedPercentage")
     @Expose
     private double actionsCompletedPercentage;
-    @SerializedName("AmountCompletedPercentage")
+    @SerializedName("amountCompletedPercentage")
     @Expose
     private double amountCompletedPercentage;
-    @SerializedName("ActionsAndAmountCompletedPercentage")
+    @SerializedName("actionsAndAmountCompletedPercentage")
     @Expose
     private double actionsAndAmountCompletedPercentage;
-    @SerializedName("IsRepeatable")
+    @SerializedName("completionPercentage")
+    @Expose
+    private double completionPercentage;
+    @SerializedName("isRepeatable")
     @Expose
     private Boolean isRepeatable;
-    @SerializedName("AchievedCount")
+    @SerializedName("isReferral")
+    @Expose
+    private Boolean isReferral;
+    @SerializedName("achievedCount")
     @Expose
     private int achievedCount;
-    @SerializedName("AchievedActionsCount")
+    @SerializedName("achievedActionsCount")
     @Expose
     private int achievedActionsCount;
-    @SerializedName("CurrentAmount")
+    @SerializedName("currentAmount")
     @Expose
     private int currentAmount;
-    @SerializedName("UserMessage")
+    @SerializedName("userMessage")
     @Expose
     private String userMessage;
-    @SerializedName("Milestones")
+    @SerializedName("milestones")
     @Expose
     private ArrayList<Milestone> milestones;
 
@@ -274,5 +283,30 @@ public class Game
     public String getAmountUnit()
     {
         return amountUnit;
+    }
+
+    public int getActivationFrubes()
+    {
+        return activationFrubes;
+    }
+
+    public String getBehaviorType()
+    {
+        return behaviorType;
+    }
+
+    public double getCompletionPercentage()
+    {
+        return completionPercentage;
+    }
+
+    public Boolean isReferral()
+    {
+        return isReferral;
+    }
+
+    public boolean isAchieved()
+    {
+        return achievedCount > 0;
     }
 }

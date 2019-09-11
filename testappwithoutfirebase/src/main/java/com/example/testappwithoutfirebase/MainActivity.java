@@ -1,5 +1,6 @@
 package com.example.testappwithoutfirebase;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -17,8 +19,12 @@ import android.widget.Toast;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.PlayerRegisterResponse;
+import com.gameball.gameball.network.Callback;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
@@ -30,11 +36,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText playerIDField;
     private Button registerBtn;
     private EditText challengeApiIdField;
+    private EditText apiKeyField;
     private Button addChallengeIdBtn;
     private RecyclerView challengeApiIdsRecyclerview;
     private Button submitActionsBtn;
     private Button btnShowProfile;
     private Button changeLangBtn;
+    private Button apiKeyBtn;
 
     private ChallengeApiIDAdapter adapter;
     private PopupMenu langPopupMenu;
@@ -51,7 +59,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initView();
         prepView();
-        changeLang(Locale.getDefault().getLanguage());
+        daynamicLinkTest();
+//        changeLang(Locale.getDefault().getLanguage());
+
+
+//        gameBallApp.generateOTP(new GenerateOTPBody("5sdfd2dvvd-9mnvhu25d6c3d"),
+//                new Callback()
+//                {
+//                    @Override
+//                    public void onSuccess(Object o)
+//                    {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e)
+//                    {
+//
+//                    }
+//                });
+    }
+
+    private void daynamicLinkTest()
+    {
+        gameBallApp.addReferral(this, getIntent(), new Callback() {
+            @Override
+            public void onSuccess(Object o) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
     }
 
     public void navigateToFragment(Fragment fragment)
@@ -84,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         submitActionsBtn = findViewById(R.id.submit_actions_btn);
         btnShowProfile = findViewById(R.id.btn_show_profile);
         changeLangBtn = findViewById(R.id.change_lang_btn);
+        apiKeyField = findViewById(R.id.api_key_field);
+        apiKeyBtn = findViewById(R.id.api_key_btn);
     }
 
     private void prepView()
@@ -97,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         submitActionsBtn.setOnClickListener(this);
         btnShowProfile.setOnClickListener(this);
         changeLangBtn.setOnClickListener(this);
+        apiKeyBtn.setOnClickListener(this);
 
 
         langPopupMenu = new PopupMenu(this,changeLangBtn);
@@ -134,14 +178,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     challengeApiIdField.setError("field cannot be empty");
                 break;
             case R.id.submit_actions_btn:
-                if (adapter.getmData().size() > 0)
-                    addAction();
+//                if (adapter.getmData().size() > 0)
+                    //Todo: addAction test method to be implemented
+
+                    Action action = new Action();
+
+                HashMap<String, Object> metaData = new HashMap<>();
+                metaData.put("Amount", 1000);
+
+                action.addEvent("Buy", metaData);
+
+                gameBallApp.addAction(action, new Callback()
+                {
+                    @Override
+                    public void onSuccess(Object o)
+                    {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+
+                    }
+                });
                 break;
             case R.id.change_lang_btn:
                 langPopupMenu.show();
                 break;
+            case R.id.api_key_btn:
+                if(!apiKeyField.getText().toString().trim().isEmpty())
+                {
+                    gameBallApp.init(apiKeyField.getText().toString(),R.mipmap.ic_launcher);
+                }
+                else
+                    Toast.makeText(this,
+                            "Api key cannot be empty",
+                            Toast.LENGTH_LONG).show();
+                break;
 
         }
+    }
+
+    private void holdRedeemPoints()
+    {
+//        gameBallApp.holdPoints(new HoldPointBody(10, "08773", "5sdfd2dvvd-9mnvhu25d6c3d"),
+//                new Callback<HoldPointsResponse>()
+//                {
+//                    @Override
+//                    public void onSuccess(HoldPointsResponse holdPointsResponse)
+//                    {
+//                        Log.i("hold_response", holdPointsResponse.getHoldReference());
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e)
+//                    {
+//                        Log.i("hold_response", e.getMessage());
+//                    }
+//                });
     }
 
     private void showProfile()
@@ -164,26 +259,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             if (!playerCategoryID.getText().toString().trim().isEmpty())
                 gameBallApp.registerPlayer(playerIDField.getText().toString().trim(),
-                        Integer.parseInt(playerCategoryID.getText().toString().trim()));
+                        Integer.parseInt(playerCategoryID.getText().toString().trim()),
+                        new Callback<PlayerRegisterResponse>()
+                        {
+                            @Override
+                            public void onSuccess(PlayerRegisterResponse playerRegisterResponse)
+                            {
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e)
+                            {
+
+                            }
+                        });
             else
-                gameBallApp.registerPlayer(playerIDField.getText().toString());
+                gameBallApp.registerPlayer(playerIDField.getText().toString(),
+                        new Callback<PlayerRegisterResponse>()
+                        {
+                            @Override
+                            public void onSuccess(PlayerRegisterResponse playerRegisterResponse)
+                            {
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e)
+                            {
+
+                            }
+                        });
         } else
             Toast.makeText(MainActivity.this,
                     "playerID cannot be empty", Toast.LENGTH_SHORT).show();
-    }
-
-    private void addAction()
-    {
-        ArrayList<String> challengeApiIds = adapter.getmData();
-
-        Action action;
-
-        if (challengeApiIds.size() > 1)
-            action = new Action(challengeApiIds);
-        else
-            action = new Action(challengeApiIds.get(0), null);
-
-        gameBallApp.addAction(action);
     }
 
     private void changeLang(String lang)
@@ -195,7 +304,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Configuration config = new Configuration();
         config.locale = locale;
         getBaseContext().getResources().updateConfiguration(config,
-                getBaseContext().getResources().getDisplayMetrics());
-
+                getResources().getDisplayMetrics());
     }
 }

@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="10dp"
-    android:layout_marginTop="5dp"
+    android:layout_marginTop="10dp"
     android:layout_marginEnd="10dp"
-    android:layout_marginBottom="5dp">
+    android:layout_marginBottom="10dp">
 
     <ImageView
-        android:id="@+id/achievements_logo"
-        android:layout_width="76dp"
-        android:layout_height="76dp"
+        android:id="@+id/challenge_icon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:src="@drawable/ic_diamond"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,7 +20,7 @@
         />
 
     <TextView
-        android:id="@+id/achievements_name"
+        android:id="@+id/challenge_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp"
@@ -29,8 +29,11 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/achievements_logo"
-        tools:text="Name" />
+        app:layout_constraintTop_toBottomOf="@id/challenge_icon"
+        tools:text="Name"
+        android:maxLines="2"
+        android:ellipsize="end"
+        />
 
     <TextView
         android:id="@+id/challenge_reward_points"
@@ -39,14 +42,16 @@
         android:layout_marginTop="3dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/achievements_name"
+        app:layout_constraintTop_toBottomOf="@id/challenge_name"
         android:elevation="1dp"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
         android:textColor="@android:color/black"
-        android:textSize="12sp"
+        android:textSize="10sp"
         tools:text="30 Pts"
         android:textStyle="bold"
+        android:maxLines="2"
+        android:ellipsize="end"
         />
 
     <View
@@ -61,12 +66,26 @@
 
     <ImageView
         android:id="@+id/locked_achievement_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:background="@drawable/bg_dark_gery_round"
         android:padding="3dp"
         android:src="@drawable/ic_lock_white"
-        app:layout_constraintEnd_toEndOf="@id/achievements_logo"
-        app:layout_constraintTop_toTopOf="@id/achievements_logo"
+        app:layout_constraintEnd_toEndOf="@id/challenge_icon"
+        app:layout_constraintTop_toTopOf="@id/challenge_icon"
+        />
+
+    <TextView
+        android:id="@+id/achieved_count"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:background="@drawable/bg_dark_gery_round"
+        android:src="@drawable/ic_lock_white"
+        app:layout_constraintEnd_toEndOf="@id/challenge_icon"
+        app:layout_constraintTop_toTopOf="@id/challenge_icon"
+        android:gravity="center"
+        android:text="1"
+        android:textColor="@android:color/white"
+        android:visibility="gone"
         />
 </android.support.constraint.ConstraintLayout>

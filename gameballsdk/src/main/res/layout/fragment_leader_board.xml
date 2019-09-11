@@ -2,65 +2,87 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/leaderboard_title"
-        style="@style/text_title_style"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="30dp"
-        android:textSize="20sp"
-        android:text="@string/leaderboard" />
 
-    <TextView
-        android:id="@+id/filer_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/leaderboard_title"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginEnd="30dp"
-        android:layout_marginRight="30dp"
-        android:clickable="true"
-        android:drawableEnd="@drawable/ic_arrow_down_dark"
-        android:drawableRight="@drawable/ic_arrow_down_dark"
-        android:drawablePadding="4dp"
-        android:focusable="true"
-        android:textSize="12sp"
-        android:visibility="gone"
-        tools:text="Last 3 months"
-        />
-
-    <View
-        android:id="@+id/separator"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_below="@id/leaderboard_title"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="30dp"
-        android:background="#a5a5a5" />
+        android:layout_height="wrap_content">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/leaderboard_recyclerview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/separator"
-        android:layout_marginTop="10dp"
-        tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
-        tools:listitem="@layout/leaderboard_item_layout" />
+        <TextView
+            android:id="@+id/leaderboard_title"
+            style="@style/text_title_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/leaderboard"
+            android:textSize="16sp" />
 
-    <ProgressBar
-        android:id="@+id/loading_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/leaderboard_recyclerview"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone"
-        />
+        <TextView
+            android:id="@+id/rank_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/leaderboard_title"
+            android:layout_alignStart="@id/leaderboard_title"
+            android:layout_marginTop="25dp"
+            android:fontFamily="@font/montserrat_light"
+            android:text="@string/your_rank_is"
+            android:textColor="@android:color/black"
+            android:textSize="12sp"
+            />
+
+        <TextView
+            android:id="@+id/player_rank_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/rank_title"
+            android:layout_marginStart="3dp"
+            android:layout_toEndOf="@id/rank_title"
+            android:textColor="@android:color/black"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="137/1000" />
+
+        <TextView
+            android:id="@+id/filer_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/rank_title"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:clickable="true"
+            android:drawableEnd="@drawable/ic_arrow_down_dark"
+            android:drawableRight="@drawable/ic_arrow_down_dark"
+            android:drawablePadding="4dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            tools:text="Last 3 months" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/leaderboard_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/rank_title"
+            android:layout_marginTop="7dp"
+            tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:listitem="@layout/leaderboard_item_layout" />
+
+        <ProgressBar
+            android:id="@+id/loading_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/leaderboard_recyclerview"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone" />
+
+    </RelativeLayout>
 
 
 </RelativeLayout>

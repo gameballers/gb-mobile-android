@@ -1,6 +1,5 @@
 package com.gameball.gameball.network.interceptor;
 
-import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.utils.Constants;
 
@@ -21,8 +20,11 @@ public class HeaderInterceptor implements Interceptor
         Request.Builder builder = request.newBuilder();
 
         if (SharedPreferencesUtils.getInstance().getClientId() != null)
+        {
             builder.addHeader(Constants.APIKey,
                     SharedPreferencesUtils.getInstance().getClientId());
+
+        }
 
         builder.addHeader(Constants.LangKey, Locale.getDefault().getLanguage());
 

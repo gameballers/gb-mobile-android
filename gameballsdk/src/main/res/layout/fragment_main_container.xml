@@ -1,96 +1,302 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:orientation="vertical">
+    android:background="@android:color/white">
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/header"
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:padding="10dp">
+        android:background="@android:color/transparent"
+        android:orientation="vertical"
+        >
 
-        <ImageView
-            android:id="@+id/gameball_logo"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:src="@drawable/ic_gameball_grey_icon"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/txt_player_name"
-            android:layout_width="0dp"
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/main.collapsing"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="3dp"
-            android:layout_marginLeft="3dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginRight="5dp"
-            android:scrollbarSize="16sp"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@id/txt_player_email"
-            app:layout_constraintEnd_toStartOf="@id/btn_close"
-            app:layout_constraintStart_toEndOf="@id/gameball_logo"
-            app:layout_constraintTop_toTopOf="@id/gameball_logo"
-            tools:text="Ahmed el Assy" />
+            app:contentScrim="@android:color/white"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:statusBarScrim="@color/colorPrimary"
+            app:toolbarId="@id/toolbar"
+            >
 
-        <TextView
-            android:id="@+id/txt_player_email"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:scrollbarSize="16sp"
-            android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="@id/gameball_logo"
-            app:layout_constraintEnd_toEndOf="@id/txt_player_name"
-            app:layout_constraintStart_toStartOf="@id/txt_player_name"
-            app:layout_constraintTop_toBottomOf="@id/txt_player_name"
-            tools:text="ah.assy@gmail.com" />
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:paddingTop="57dp"
+                app:layout_collapseMode="pin"
+                >
 
-        <ImageButton
-            android:id="@+id/btn_close"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:background="@null"
-            android:paddingStart="10dp"
-            android:paddingLeft="10dp"
-            android:paddingEnd="10dp"
-            android:paddingRight="10dp"
-            android:src="@drawable/ic_close_white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </android.support.constraint.ConstraintLayout>
+                <TextView
+                    android:id="@+id/hello_txt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginLeft="25dp"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/hello"
+                    android:textSize="14sp"
+                    android:textColor="#1a1a1a"
+                    />
+
+                <TextView
+                    android:id="@+id/txt_player_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginEnd="25dp"
+                    android:layout_marginRight="25dp"
+
+                    android:scrollbarSize="16sp"
+                    android:textColor="#1a1a1a"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/hello_txt"
+                    app:layout_constraintTop_toTopOf="@id/hello_txt"
+                    tools:text="Ahmed el Assy"
+                    android:textSize="14sp"
+                    />
+
+                <ImageView
+                    android:id="@+id/level_logo"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:layout_marginTop="12dp"
+                    app:layout_constraintStart_toStartOf="@id/hello_txt"
+                    app:layout_constraintTop_toBottomOf="@id/txt_player_name"
+                    tools:background="@drawable/ic_diamond" />
+
+                <TextView
+                    android:id="@+id/level_name_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="@id/level_logo"
+                    app:layout_constraintStart_toEndOf="@id/level_logo"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:text="@string/you_are_on_level"
+                    android:textColor="#808080"
+                    android:textSize="10sp"
+                    />
+
+                <TextView
+                    android:id="@+id/level_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="@id/txt_player_name"
+                    app:layout_constraintStart_toStartOf="@id/level_name_title"
+                    app:layout_constraintTop_toBottomOf="@id/level_name_title"
+                    tools:text="Crystal" />
+
+                <ProgressBar
+                    android:id="@+id/level_progress"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="6dp"
+                    android:progress="25"
+                    android:progressDrawable="@drawable/level_progress_drawable"
+                    app:layout_constraintEnd_toEndOf="@id/level_name"
+                    app:layout_constraintStart_toStartOf="@id/level_name"
+                    app:layout_constraintTop_toBottomOf="@id/level_name" />
+
+                <TextView
+                    android:id="@+id/next_level_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="@string/next_level_at"
+                    android:textColor="#808080"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="@id/level_progress"
+                    app:layout_constraintTop_toBottomOf="@id/level_progress"
+                    android:drawableEnd="@drawable/ic_diamon_outline"
+                    android:drawablePadding="3dp"
+                    android:drawableTint="#808080"
+                    android:gravity="bottom|center"
+                    />
 
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tabs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/header"
-        app:tabMode="scrollable" />
+                <android.support.constraint.ConstraintLayout
+                    android:id="@+id/frubies_and_points_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="25dp"
+                    android:background="#f2f2f2"
+                    app:layout_constraintTop_toBottomOf="@id/level_logo">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/view_pager"
+                    <android.support.constraint.Guideline
+                        android:id="@+id/vertical_guideline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent="0.5" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="0dp"
+                        android:background="#808080"
+                        app:layout_constraintBottom_toBottomOf="@id/frubies_title"
+                        app:layout_constraintEnd_toEndOf="@id/vertical_guideline"
+                        app:layout_constraintStart_toStartOf="@id/vertical_guideline"
+                        app:layout_constraintTop_toTopOf="@id/frubies_title" />
+                    />
+
+                    <TextView
+                        android:id="@+id/frubies_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="3dp"
+                        android:layout_marginRight="3dp"
+                        android:drawableStart="@drawable/ic_diamond_outline"
+                        android:drawableLeft="@drawable/ic_diamond_outline"
+                        android:drawablePadding="5dp"
+                        android:gravity="end|center"
+                        tools:text="@string/frubies"
+                        android:textColor="@android:color/black"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toStartOf="@id/current_frubies_value"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        />
+
+                    <TextView
+                        android:id="@+id/current_frubies_value"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:layout_marginRight="12dp"
+                        android:fontFamily="@font/montserrat_light"
+                        android:textColor="@android:color/black"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@id/vertical_guideline"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBaseline_toBaselineOf="@id/frubies_title"
+                        tools:text="3,000" />
+
+                    <TextView
+                        android:id="@+id/points_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginLeft="12dp"
+                        android:drawableStart="@drawable/ic_points"
+                        android:drawableLeft="@drawable/ic_points"
+                        android:drawablePadding="5dp"
+                        android:gravity="end|center"
+                        tools:text="@string/points"
+                        android:textColor="@android:color/black"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toEndOf="@id/vertical_guideline"
+                        app:layout_constraintTop_toTopOf="@id/frubies_title" />
+
+
+                    <TextView
+                        android:id="@+id/current_points_value"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginLeft="3dp"
+                        android:fontFamily="@font/montserrat_light"
+                        android:textColor="@android:color/black"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toEndOf="@id/points_title"
+                        app:layout_constraintBaseline_toBaselineOf="@id/frubies_title"
+                        tools:text="3,000"
+                        android:textStyle="bold"
+                        />
+
+                </android.support.constraint.ConstraintLayout>
+
+                <View
+                    android:id="@+id/loading_indicator_bg"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:background="@android:color/white"
+                    android:visibility="gone"
+                    />
+                <ProgressBar
+                    android:id="@+id/loading_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:visibility="gone"
+                    />
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:contentInsetStart="0dp"
+                app:layout_collapseMode="pin"
+                android:background="@android:color/white"
+                app:layout_scrollFlags="scroll|enterAlways">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp">
+                    <ImageButton
+                        android:id="@+id/btn_close"
+                        android:layout_width="wrap_content"
+                        android:layout_height="25dp"
+                        android:minWidth="20dp"
+                        android:paddingStart="25dp"
+                        android:paddingEnd="25dp"
+                        android:background="@null"
+                        android:src="@drawable/ic_close"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:scaleType="fitCenter"
+                        android:layout_marginTop="25dp"
+                        />
+                </RelativeLayout>
+            </android.support.v7.widget.Toolbar>
+        </android.support.design.widget.CollapsingToolbarLayout>
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"
+            app:tabMode="scrollable" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@drawable/shadow" />
+    </android.support.design.widget.AppBarLayout>
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/tabs" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_below="@id/tabs"
-        android:background="@drawable/shadow" />
-
-    <ProgressBar
-        android:id="@+id/loading_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        />
-</RelativeLayout>
+        app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"
+        >
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+    </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

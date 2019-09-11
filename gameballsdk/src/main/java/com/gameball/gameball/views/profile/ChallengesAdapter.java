@@ -2,9 +2,8 @@ package com.gameball.gameball.views.profile;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.LayerDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
@@ -27,14 +25,16 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapter.ItemRowHolder> {
+import static com.gameball.gameball.views.challengeDetails.ChallengeDetailsActivity.HIGH_SCORE_BASED;
+
+public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.ItemRowHolder> {
     private Context mContext;
     private ArrayList<Game> mData;
     private ClientBotSettings clientBotSettings;
     private Animation translate;
     private Animation fadeIn;
 
-    public AchievementsAdapter(Context context, ArrayList<Game> data) {
+    public ChallengesAdapter(Context context, ArrayList<Game> data) {
         this.mData = data;
         this.mContext = context;
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
@@ -57,30 +57,40 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
     public void onBindViewHolder(ItemRowHolder holder, int position) {
         Game item = mData.get(position);
 
-        if(item.getBehaviorTypeId() == ChallengeDetailsActivity.HIGH_SCORE_BASED)
+        if(item.getBehaviorTypeId() == HIGH_SCORE_BASED)
         {
-            if(item.getHighScore() != null)
+            if(item.getHighScore() != null && item.getHighScore() > 0)
                 holder.challengeRewardPts.setText(String.format(Locale.getDefault(),
                         "%d %s", item.getHighScore(),
                     item.getAmountUnit()));
             else
                 holder.challengeRewardPts.setVisibility(View.GONE);
         }
-        else
+        else if(item.getRewardPoints() > 0)
             holder.challengeRewardPts.setText(String.format(Locale.getDefault(),
                     "%d %s", item.getRewardPoints(),
                 mContext.getString(R.string.pts)));
+        else
+            holder.challengeRewardPts.setVisibility(View.GONE);
         
         if(item.getIcon() != null && !item.getIcon().isEmpty())
             ImageDownloader.downloadImage(mContext, holder.achievementsLogo, item.getIcon());
 
-        holder.achievementName.setText(item.getGameName());
+        holder.achievementName.setText(String.format(Locale.getDefault(),item.getGameName()));
+
         if(item.isUnlocked())
         {
-            if(item.getBehaviorTypeId() == ChallengeDetailsActivity.HIGH_SCORE_BASED)
+            if(item.isAchieved())
             {
-                if(item.getHighScore() != null && item.getHighScore() > 0)
                     holder.notAchievedIndicator.setVisibility(View.GONE);
+                    if(item.getAchievedCount() > 1)
+                    {
+                        holder.achievedCount.setText(String.format(Locale.getDefault(),
+                                "%d", item.getAchievedCount()));
+                        holder.achievedCount.setBackgroundTintList(ColorStateList.valueOf(
+                                Color.parseColor(clientBotSettings.getBotMainColor())));
+                        holder.achievedCount.setVisibility(View.VISIBLE);
+                    }
             }
             else if(item.getActionsAndAmountCompletedPercentage() == 100)
             {
@@ -89,8 +99,8 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
 
             holder.lockedAchievementIndicator.setVisibility(View.GONE);
         }
-        
-        holder.itemview.startAnimation(fadeIn);
+
+//        holder.itemview.startAnimation(fadeIn);
 //        holder.itemview.startAnimation(translate);
     }
 
@@ -111,16 +121,18 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         public View notAchievedIndicator;
         public ImageView lockedAchievementIndicator;
         public TextView challengeRewardPts;
+        public TextView achievedCount;
 
 
         public ItemRowHolder(View itemView) {
             super(itemView);
             this.itemview = itemView;
-            achievementsLogo = itemView.findViewById(R.id.achievements_logo);
-            achievementName = itemView.findViewById(R.id.achievements_name);
+            achievementsLogo = itemView.findViewById(R.id.challenge_icon);
+            achievementName = itemView.findViewById(R.id.challenge_name);
             challengeRewardPts = itemView.findViewById(R.id.challenge_reward_points);
             notAchievedIndicator = itemView.findViewById(R.id.not_achieved_indicator);
             lockedAchievementIndicator = itemView.findViewById(R.id.locked_achievement_indicator);
+            achievedCount = itemView.findViewById(R.id.achieved_count);
 
             itemView.setOnClickListener(this);
         }

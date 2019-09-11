@@ -12,11 +12,19 @@
     <string name="locked">Locked!</string>
     <string name="achieved">Achieved!</string>
     <string name="keep_going">Keep Going!</string>
-    <string name="reach_level">reach level</string>
+    <string name="reach_level">You need to be on level</string>
     <string name="you_need_to">You need to</string>
-    <string name="to_unlock_this_level">to unlock this level</string>
+    <string name="to_unlock_this_challenge">to unlock this challenge</string>
     <string name="frubies_colen">Frubies: </string>
     <string name="milestones">MileStones</string>
+    <string name="track_your_progress">Track your progress here</string>
     <string name="pts">pts</string>
     <string name="high_score">High Score</string>
+    <string name="ok">Ok</string>
+    <string name="hello">Hello</string>
+    <string name="we_value_friendship">We value Friendship</string>
+    <string name="we_value_friendship_txt">Refer a friend to us and get reward once they signup. Share the below link with your friends.</string>
+    <string name="share">share</string>
+    <string name="your_rank_is">Your rank is</string>
+    <string name="is_repeatable_high_score_txt">Break your high score and win this badge again!</string>
 </resources>

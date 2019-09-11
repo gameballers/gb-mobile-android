@@ -7,7 +7,7 @@ import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
-import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
+import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.CompositeDisposable;
@@ -15,65 +15,31 @@ import io.reactivex.disposables.Disposable;
 
 public class ProfilePresenter implements ProfileContract.Presenter
 {
-    Context context;
-    ProfileContract.View view;
-    LocalDataSource localDataSource;
-    ProfileRemoteDataSource profileRemoteDataSource;
-    SharedPreferencesUtils sharedPreferencesUtils;
-    CompositeDisposable disposable;
+    private Context context;
+    private ProfileContract.View view;
+    private LocalDataSource localDataSource;
+    private ProfileRemoteProfileDataSource profileRemoteDataSource;
+    private SharedPreferencesUtils sharedPreferencesUtils;
+    private CompositeDisposable disposable;
 
     public ProfilePresenter(Context context, ProfileContract.View view)
     {
         this.context = context;
         this.view = view;
-        profileRemoteDataSource = ProfileRemoteDataSource.getInstance();
+        profileRemoteDataSource = ProfileRemoteProfileDataSource.getInstance();
         localDataSource = LocalDataSource.getInstance();
         sharedPreferencesUtils = SharedPreferencesUtils.getInstance();
         disposable = new CompositeDisposable();
     }
 
     @Override
-    public void getPlayerInfo(boolean fromLocal)
-    {
-        if(fromLocal)
-        {
-            view.fillPlayerData(localDataSource.playerInfo,localDataSource.nextLevel);
-        }
-        else
-        {
-            view.showLoadingIndicator();
-            profileRemoteDataSource.getPlayerInfo(sharedPreferencesUtils.getPlayerId())
-                    .subscribe(new SingleObserver<BaseResponse<PlayerInfoResponse>>()
-                    {
-                        @Override
-                        public void onSubscribe(Disposable d)
-                        {
-                            disposable.add(d);
-                        }
-
-                        @Override
-                        public void onSuccess(BaseResponse<PlayerInfoResponse> playerInfoResponseBaseResponse)
-                        {
-                            localDataSource.playerInfo = playerInfoResponseBaseResponse.getResponse().
-                                    getPlayerInfo();
-                            localDataSource.nextLevel = playerInfoResponseBaseResponse.getResponse().
-                                    getNextLevel();
-                            view.hideLoadingIndicator();
-                            view.fillPlayerData(localDataSource.playerInfo, localDataSource.nextLevel);
-                        }
-
-                        @Override
-                        public void onError(Throwable e)
-                        {
-                            view.hideLoadingIndicator();
-                        }
-                    });
-        }
-    }
-
-    @Override
     public void getWithUnlocks()
     {
+        if(localDataSource.games != null)
+        {
+            view.onWithUnlocksLoaded(localDataSource.games);
+            return;
+        }
         view.showLoadingIndicator();
         profileRemoteDataSource.getWithUnlocks(sharedPreferencesUtils.getPlayerId())
                 .subscribe(new SingleObserver<BaseResponse<GetWithUnlocksWrapper>>()
@@ -88,9 +54,8 @@ public class ProfilePresenter implements ProfileContract.Presenter
                     public void onSuccess(BaseResponse<GetWithUnlocksWrapper> arrayListBaseResponse)
                     {
                         localDataSource.games = arrayListBaseResponse.getResponse().getGames();
-                        localDataSource.quests = arrayListBaseResponse.getResponse().getQuests();
 
-                        view.onWithUnlocksLoaded(localDataSource.games, localDataSource.quests);
+                        view.onWithUnlocksLoaded(localDataSource.games);
                         view.hideLoadingIndicator();
                     }
 

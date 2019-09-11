@@ -2,12 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gameball.gameball">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-
     <application
-        android:hardwareAccelerated="false">
-        <activity android:name=".views.challengeDetails.ChallengeDetailsActivity"></activity>
-        <activity android:name=".views.GameBallMainActivity" >
+        android:hardwareAccelerated="false"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".views.laregNotificationView.LargeNotificationActivity"
+            android:theme="@style/Theme.Transparent"
+            />
+        <activity
+            android:name=".views.challengeDetails.ChallengeDetailsActivity"
+            android:theme="@style/GameballTheme" />
+        <activity
+            android:name=".views.GameBallMainActivity"
+            android:theme="@style/GameballTheme">
             <intent-filter>
                 <action android:name="GAME_BALL_MAIN_ACTIVITY" />
 
@@ -23,14 +29,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <!--<activity android:name=".views.GameBallActivity">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="GAME_BALL_SDK" />-->
-                <!--<category android:name="android.intent.category.DEFAULT" />-->
-            <!--</intent-filter>-->
-        <!--</activity>-->
-
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

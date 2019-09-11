@@ -12,9 +12,7 @@ public interface ProfileContract
 {
     interface View
     {
-        void fillPlayerData(PlayerInfo playerInfo, Level nextLevel);
-
-        void onWithUnlocksLoaded(ArrayList<Game> games, ArrayList<Quest> quests);
+        void onWithUnlocksLoaded(ArrayList<Game> games);
 
         void showLoadingIndicator();
 
@@ -23,8 +21,6 @@ public interface ProfileContract
 
     interface Presenter extends BasePresenter
     {
-        void getPlayerInfo(boolean fromLocal);
-
         void getWithUnlocks();
     }
 }

@@ -32,7 +32,43 @@
             android:layout_marginTop="10dp"
             android:text="Language"
             android:textAllCaps="false"
+            />
 
+        <Button
+            android:id="@+id/btn_show_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="show profile" />
+
+       <TextView
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginStart="10dp"
+           android:layout_marginLeft="10dp"
+           android:layout_marginTop="20dp"
+           android:text="Change ApiKey"
+           android:textColor="@android:color/black"
+           android:textStyle="bold"
+           android:textSize="18sp"
+           />
+
+        <EditText
+            android:id="@+id/api_key_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="API-Key"
+            />
+
+        <Button
+            android:id="@+id/api_key_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="change ApiKey"
+            android:textAllCaps="false"
             />
 
         <TextView
@@ -127,12 +163,5 @@
             android:textSize="16sp"
             />
 
-        <Button
-            android:id="@+id/btn_show_profile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:text="show profile" />
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

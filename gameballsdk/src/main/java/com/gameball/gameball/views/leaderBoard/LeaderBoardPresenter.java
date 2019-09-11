@@ -1,34 +1,40 @@
 package com.gameball.gameball.views.leaderBoard;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.PlayerInfo;
-import com.gameball.gameball.network.profileRemote.ProfileRemoteDataSource;
+import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 
 import java.util.ArrayList;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
 {
-    Context context;
-    LeaderBoardContract.View view;
-    LocalDataSource localDataSource;
-    ProfileRemoteDataSource profileRemoteDataSource;
-    SharedPreferencesUtils sharedPreferencesUtils;
-    CompositeDisposable disposable;
+    private Context context;
+    private LeaderBoardContract.View view;
+    private LocalDataSource localDataSource;
+    private ProfileRemoteProfileDataSource profileRemoteDataSource;
+    private SharedPreferencesUtils sharedPreferencesUtils;
+    private CompositeDisposable disposable;
 
     public LeaderBoardPresenter(Context context, LeaderBoardContract.View view)
     {
         this.context = context;
         this.view = view;
         localDataSource = LocalDataSource.getInstance();
-        profileRemoteDataSource = ProfileRemoteDataSource.getInstance();
+        profileRemoteDataSource = ProfileRemoteProfileDataSource.getInstance();
         sharedPreferencesUtils = SharedPreferencesUtils.getInstance();
         disposable = new CompositeDisposable();
     }
@@ -51,12 +57,55 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
                     {
                         view.fillLeaderBoard(arrayListBaseResponse.getResponse());
                         view.hideLoadingIndicator();
+                        getPlayerRank(arrayListBaseResponse.getResponse());
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
                         view.hideLoadingIndicator();
+                    }
+                });
+    }
+
+    public void getPlayerRank(final ArrayList<PlayerInfo> leaderboard)
+    {
+        Observable.fromIterable(leaderboard)
+                .filter(new PlayerRankFilter(SharedPreferencesUtils.getInstance().getPlayerId()))
+                .map(new Function<PlayerInfo, Integer>()
+                {
+                    @Override
+                    public Integer apply(PlayerInfo playerInfo) throws Exception
+                    {
+                        return leaderboard.indexOf(playerInfo);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Integer>()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onNext(Integer integer)
+                    {
+                        view.onPlayerRankReady(integer, leaderboard.size());
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        Log.e("player_rank",e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        Log.i("player_rank","success");
                     }
                 });
     }

@@ -22,12 +22,14 @@ import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.PlayerInfo;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class LeaderBoardFragment extends Fragment implements LeaderBoardContract.View
 {
     View rootView;
     private TextView filerBtn;
     private TextView leaderTitle;
+    private TextView playerRank;
     private RecyclerView leaderboardRecyclerview;
     private ProgressBar loadingIndicator;
 
@@ -60,11 +62,12 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
         leaderboardRecyclerview = rootView.findViewById(R.id.leaderboard_recyclerview);
         loadingIndicator = rootView.findViewById(R.id.loading_indicator);
         leaderTitle = rootView.findViewById(R.id.leaderboard_title);
+        playerRank = rootView.findViewById(R.id.player_rank_value);
     }
 
     private void setupBotSettings()
     {
-        leaderTitle.setTextColor(Color.parseColor(clientBotSettings.getButtonBackgroundColor()));
+        leaderTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
     }
 
     private void prepView() {
@@ -93,15 +96,18 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
     }
 
     @Override
+    public void onPlayerRankReady(int rank, int leaderboardSize)
+    {
+        playerRank.setText(String.format(Locale.getDefault(),"%d/%d", rank, leaderboardSize));
+    }
+
+    @Override
     public void onStop()
     {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
+        PowerManager pm = (PowerManager) (getContext()).getSystemService(Context.POWER_SERVICE);
+        if((pm.isInteractive()))
         {
-            PowerManager pm = (PowerManager) (getContext()).getSystemService(Context.POWER_SERVICE);
-            if((pm.isInteractive()))
-            {
-                presenter.unsubscribe();
-            }
+            presenter.unsubscribe();
         }
 
         super.onStop();

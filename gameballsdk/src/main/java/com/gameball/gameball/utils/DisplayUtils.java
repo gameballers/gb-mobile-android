@@ -28,20 +28,6 @@ public class DisplayUtils {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, valueInDp, metrics);
     }
 
-    public static void hideKeyboard(Activity activity) {
-        if (activity != null) {
-            InputMethodManager imm = (InputMethodManager)
-                    activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-            //Find the currently focused view, so we can grab the correct window token from it.
-            View view = activity.getCurrentFocus();
-            //If no view currently has focus, create a new one, just so we can grab a window token from it
-            if (view == null) {
-                view = new View(activity);
-            }
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
-
     public static void statusBarColorToSolid(AppCompatActivity activity, String hexColor)
     {
         if (activity == null)
@@ -58,9 +44,8 @@ public class DisplayUtils {
         }
     }
 
-    public static boolean isRTL()
-    {
-        Locale locale = Locale.getDefault();
+    public static boolean isRTL(Locale locale) {
+
         final int directionality = Character.getDirectionality(locale.getDisplayName().charAt(0));
         return directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
                 directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC;
