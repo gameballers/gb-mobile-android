@@ -5,6 +5,7 @@ import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
+import com.gameball.gameball.model.response.Notification;
 import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.network.Network;
@@ -15,6 +16,7 @@ import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 
 import io.reactivex.Completable;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -87,6 +89,13 @@ public class ProfileRemoteProfileDataSource implements ProfileDataSourceContract
     public Completable initializePlayer(PlayerInfoBody body)
     {
         return gameBallApi.initializePlayer(body)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public Single<BaseResponse<ArrayList<Notification>>> getNotificationHistory(String playerId) {
+        return gameBallApi.getPlayerNotificationHistory(playerId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

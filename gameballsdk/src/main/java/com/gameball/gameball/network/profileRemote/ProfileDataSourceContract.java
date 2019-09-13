@@ -6,6 +6,7 @@ import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
 import com.gameball.gameball.model.response.Level;
+import com.gameball.gameball.model.response.Notification;
 import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 
@@ -23,4 +24,5 @@ public interface ProfileDataSourceContract
     Single<BaseResponse<ClientBotSettings>> getBotSettings();
     Completable AddNewAction(Action actionBody);
     Completable initializePlayer(PlayerInfoBody body);
+    Single<BaseResponse<ArrayList<Notification>>> getNotificationHistory(String playerId);
 }

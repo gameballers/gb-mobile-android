@@ -2,7 +2,6 @@ package com.gameball.gameball.views.laregNotificationView;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -11,7 +10,6 @@ import android.widget.TextView;
 import com.gameball.gameball.R;
 import com.gameball.gameball.model.response.NotificationBody;
 import com.gameball.gameball.utils.Constants;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 public class LargeNotificationActivity extends AppCompatActivity {
@@ -39,7 +37,7 @@ public class LargeNotificationActivity extends AppCompatActivity {
             notificationBodyObj = (NotificationBody) getIntent().getExtras().getSerializable(Constants.NOTIFICATION_OBJ);
 
         notificationBody = findViewById(R.id.notification_body);
-        notificationIcon = findViewById(R.id.notificaiton_icon);
+        notificationIcon = findViewById(R.id.notification_icon);
         notificationTitle = findViewById(R.id.notification_title);
         closeBtn = findViewById(R.id.close_btn);
 
