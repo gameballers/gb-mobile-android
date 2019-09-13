@@ -4,19 +4,19 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.views.achievements.AchievementsFragment;
 import com.gameball.gameball.views.leaderBoard.LeaderBoardFragment;
+import com.gameball.gameball.views.notification.NotificationFragment;
 import com.gameball.gameball.views.profile.ProfileFragment;
 import com.gameball.gameball.views.referral.ReferralFragment;
 
 public class TabsAdapter extends FragmentPagerAdapter {
-    private boolean isLeaderboardEnabled;
-    private boolean isReferralEnabled;
+    private ClientBotSettings clientBotSettings;
 
-    public TabsAdapter(FragmentManager fm, boolean isLeaderboardEnabled, boolean isReferralEnabled) {
+    public TabsAdapter(FragmentManager fm, ClientBotSettings clientBotSettings) {
         super(fm);
-        this.isLeaderboardEnabled = isLeaderboardEnabled;
-        this.isReferralEnabled = isReferralEnabled;
+        this.clientBotSettings = clientBotSettings;
     }
 
     @Override
@@ -25,12 +25,14 @@ public class TabsAdapter extends FragmentPagerAdapter {
             case 0:
                 return new ProfileFragment();
             case 1:
-                if (isLeaderboardEnabled)
+                if (clientBotSettings.isEnableLeaderboard())
                     return new LeaderBoardFragment();
-                else if(isReferralEnabled)
+                else if(clientBotSettings.isReferralOn())
                     return new ReferralFragment();
             case 2:
                 return new ReferralFragment();
+            case 3:
+                return new NotificationFragment();
         }
 
         return new Fragment();
@@ -39,11 +41,12 @@ public class TabsAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         int count = 1;
-        if(isReferralEnabled)
+        if(clientBotSettings.isReferralOn())
             count ++;
-        if(isLeaderboardEnabled)
+        if(clientBotSettings.isEnableLeaderboard())
             count ++;
-
+        if (clientBotSettings.isEnableNotifications())
+            count++;
 
         return count;
     }

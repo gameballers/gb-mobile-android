@@ -2,6 +2,7 @@ package com.gameball.gameball.views.leaderBoard;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -68,6 +69,8 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
     private void setupBotSettings()
     {
         leaderTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        loadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
+                PorterDuff.Mode.SRC_IN);
     }
 
     private void prepView() {

@@ -14,6 +14,7 @@ import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
 import com.gameball.gameball.model.response.HoldPointsResponse;
+import com.gameball.gameball.model.response.Notification;
 import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.model.response.PlayerInfo;
@@ -81,5 +82,7 @@ public interface GameBallApi {
     @POST(Config.InitializePlayer)
     Completable initializePlayer(@Body PlayerInfoBody body);
 
+    @GET(Config.notifications)
+    Single<BaseResponse<ArrayList<Notification>>> getPlayerNotificationHistory(@Query("ExternalId") String playerId);
 
 }
