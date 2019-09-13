@@ -72,8 +72,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     private void initComponents()
     {
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
-        tabsAdapter = new TabsAdapter(getChildFragmentManager(),
-                clientBotSettings.isEnableLeaderboard(), clientBotSettings.isReferralOn());
+        tabsAdapter = new TabsAdapter(getChildFragmentManager(), clientBotSettings);
         presenter = new MainContainerPresenter(this);
 
         fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
@@ -213,9 +212,16 @@ public class MainContainerFragment extends DialogFragment implements MainContain
                         tabs.getTabAt(1).setIcon(R.drawable.ic_leaderboard);
                     else if(clientBotSettings.isReferralOn())
                         tabs.getTabAt(1).setIcon(R.drawable.ic_referral);
+                    else if(clientBotSettings.isEnableNotifications())
+                        tabs.getTabAt(1).setIcon(R.drawable.ic_notification);
                     break;
                 case 2:
-                    tabs.getTabAt(2).setIcon(R.drawable.ic_referral);
+                    if(clientBotSettings.isReferralOn())
+                        tabs.getTabAt(2).setIcon(R.drawable.ic_referral);
+                    else if(clientBotSettings.isEnableNotifications())
+                        tabs.getTabAt(2).setIcon(R.drawable.ic_notification);
+                case 3:
+                    tabs.getTabAt(3).setIcon(R.drawable.ic_notification);
             }
         }
     }
