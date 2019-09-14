@@ -64,6 +64,7 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
                     public void onError(Throwable e)
                     {
                         view.hideLoadingIndicator();
+                        view.showNoInternetLayout();
                     }
                 });
     }
@@ -100,6 +101,7 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
                     public void onError(Throwable e)
                     {
                         Log.e("player_rank",e.getMessage());
+                        view.showNoInternetLayout();
                     }
 
                     @Override

@@ -34,4 +34,9 @@
         android:layout_centerHorizontal="true"
         android:visibility="gone"
         />
+
+    <include
+        android:id="@+id/no_internet_layout"
+        layout="@layout/no_internet_connection_layout"
+        android:visibility="gone"/>
 </RelativeLayout>

@@ -51,6 +51,7 @@ import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.utils.DialogManager;
 import com.gameball.gameball.views.GameBallMainActivity;
 import com.gameball.gameball.views.laregNotificationView.LargeNotificationActivity;
+import com.gameball.gameball.views.mainContainer.MainContainerFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -501,6 +502,67 @@ public class GameBallApp
                         Intent intent = new Intent(mContext, GameBallMainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         mContext.startActivity(intent);
+                    }
+                });
+    }
+
+    public void showProfile(final Callback<Fragment> callback)
+    {
+        Observable.fromCallable(new Callable<Boolean>()
+        {
+            @Override
+            public Boolean call() throws Exception
+            {
+                ClientBotSettings clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
+                return clientBotSettings != null;
+            }
+        }).flatMap(new Function<Boolean, ObservableSource<ClientBotSettings>>()
+        {
+            @Override
+            public ObservableSource<ClientBotSettings> apply(Boolean aBoolean) throws Exception
+            {
+                if (aBoolean)
+                {
+                    return Observable.just(SharedPreferencesUtils.getInstance().getClientBotSettings());
+                }
+                return gameBallApi.getBotSettings().flatMapObservable(
+                        new Function<BaseResponse<ClientBotSettings>,
+                                ObservableSource<? extends ClientBotSettings>>()
+                        {
+                            @Override
+                            public ObservableSource<? extends ClientBotSettings> apply(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) throws Exception
+                            {
+                                return Observable.just(clientBotSettingsBaseResponse.getResponse());
+                            }
+                        });
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ClientBotSettings>()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onNext(ClientBotSettings clientBotSettings)
+                    {
+                        SharedPreferencesUtils.getInstance().putClientBotSettings(clientBotSettings);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+                        callback.onSuccess(new MainContainerFragment());
                     }
                 });
     }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        >
+        <ImageView
+            android:id="@+id/no_internet_icon"
+            android:layout_width="134dp"
+            android:layout_height="134dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_no_internet"
+            />
+
+        <TextView
+            android:id="@+id/no_internet_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No Connection"
+            android:layout_below="@id/no_internet_icon"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
+            android:fontFamily="@font/montserrat_bold"
+            android:textSize="20sp"
+            android:textColor="#808080"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/no_internet_title"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:layout_marginStart="60dp"
+            android:layout_marginEnd="60dp"
+            android:text="Check your internet connection and try again"
+            android:textSize="14sp"
+            android:fontFamily="@font/montserrat_light"
+            android:textColor="#808080"
+            />
+    </RelativeLayout>
+
+</RelativeLayout>

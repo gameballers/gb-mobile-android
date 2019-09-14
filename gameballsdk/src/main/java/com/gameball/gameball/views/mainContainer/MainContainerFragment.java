@@ -52,6 +52,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     private TextView currentFrubiesValue;
     private TextView currentPointsValue;
     private View loadingIndicatorBg;
+    private RelativeLayout noInternetConnectionLayout;
 
     private Animation fadeIn;
 
@@ -141,6 +142,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         currentFrubiesTitle = rootView.findViewById(R.id.frubies_title);
         currentPointTitle = rootView.findViewById(R.id.points_title);
         loadingIndicatorBg = rootView.findViewById(R.id.loading_indicator_bg);
+        noInternetConnectionLayout = rootView.findViewById(R.id.no_internet_layout);
     }
 
     private void setupBotSettings()
@@ -236,6 +238,11 @@ public class MainContainerFragment extends DialogFragment implements MainContain
 
         fillPlayerData(playerInfo, nextLevel);
         prepView();
+    }
+
+    @Override
+    public void showNoInterNetConnection() {
+        noInternetConnectionLayout.setVisibility(View.VISIBLE);
     }
 
     private void fillPlayerData(PlayerInfo playerInfo, Level nextLevel)

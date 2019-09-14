@@ -63,6 +63,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
                     public void onError(Throwable e)
                     {
                         e.printStackTrace();
+                        view.showNoInternetConnectionLayout();
                         view.hideLoadingIndicator();
                     }
                 });

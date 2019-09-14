@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
@@ -35,6 +36,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private RecyclerView achievementsRecyclerView;
     private ProgressBar profileLoadingIndicator;
     private View profileLoadingIndicatorBg;
+    private RelativeLayout noInternetConnectionLayout;
 
 
     private ChallengesAdapter challengesAdapter;
@@ -78,6 +80,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         achievementsRecyclerView = rootView.findViewById(R.id.achievements_recyclerView);
         profileLoadingIndicator = rootView.findViewById(R.id.profile_data_loading_indicator);
         profileLoadingIndicatorBg = rootView.findViewById(R.id.profile_data_loading_indicator_bg);
+        noInternetConnectionLayout = rootView.findViewById(R.id.no_internet_layout);
 
     }
 
@@ -130,6 +133,11 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
                 android.R.anim.fade_out);
         fadeOut.setDuration(100);
         profileLoadingIndicatorBg.setAnimation(fadeOut);
+    }
+
+    @Override
+    public void showNoInternetConnectionLayout() {
+        noInternetConnectionLayout.setVisibility(View.VISIBLE);
     }
 
     @Override

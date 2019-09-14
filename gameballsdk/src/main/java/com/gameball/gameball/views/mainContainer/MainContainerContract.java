@@ -10,6 +10,7 @@ public interface MainContainerContract {
     interface View extends BaseView
     {
         void onProfileInfoLoaded(PlayerInfo playerInfo, Level nextLevel);
+        void showNoInterNetConnection();
     }
 
     interface Presenter extends BasePresenter
