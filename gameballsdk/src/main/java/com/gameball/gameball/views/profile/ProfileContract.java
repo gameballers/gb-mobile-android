@@ -17,6 +17,7 @@ public interface ProfileContract
         void showLoadingIndicator();
 
         void hideLoadingIndicator();
+        void showNoInternetConnectionLayout();
     }
 
     interface Presenter extends BasePresenter

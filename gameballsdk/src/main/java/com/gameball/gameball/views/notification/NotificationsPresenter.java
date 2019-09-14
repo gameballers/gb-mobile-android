@@ -46,6 +46,7 @@ public class NotificationsPresenter implements NotificationsContract.Presenter {
                     @Override
                     public void onError(Throwable e) {
                         view.hideLoadingIndicator();
+                        view.showNoInternetLayout();
                     }
                 });
     }

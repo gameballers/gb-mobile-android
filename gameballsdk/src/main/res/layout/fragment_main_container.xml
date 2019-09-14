@@ -299,4 +299,11 @@
             android:layout_height="match_parent"
             />
     </RelativeLayout>
+
+    <include
+        android:id="@+id/no_internet_layout"
+        layout="@layout/no_internet_connection_layout"
+        android:visibility="gone"
+        />
+
 </android.support.design.widget.CoordinatorLayout>

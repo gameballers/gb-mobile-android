@@ -39,7 +39,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.8'
     implementation 'com.google.firebase:firebase-dynamic-links:17.0.0'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
-//    implementation 'com.github.gameballers:gb-mobile-android:0.0.91'
+//    implementation 'com.github.gameballers:gb-mobile-android:0.1.0'
     implementation project(':gameballsdk')
 //    implementation ('com.gameball:gameball:0.1@aar'){transitive=true}
 }

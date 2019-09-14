@@ -57,6 +57,7 @@ public class MainContainerPresenter implements MainContainerContract.Presenter
                     public void onError(Throwable e)
                     {
                         e.printStackTrace();
+                        view.showNoInterNetConnection();
                         view.hideLoadingIndicator();
                     }
                 });

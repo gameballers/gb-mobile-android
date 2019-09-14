@@ -9,6 +9,7 @@ import java.util.ArrayList;
 public interface NotificationsContract {
     interface View extends BaseView {
         void onNotificationsLoaded(ArrayList<Notification> notifications);
+        void showNoInternetLayout();
     }
 
     interface Presenter extends BasePresenter {
