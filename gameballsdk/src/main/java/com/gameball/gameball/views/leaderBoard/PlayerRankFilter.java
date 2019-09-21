@@ -1,22 +1,21 @@
 package com.gameball.gameball.views.leaderBoard;
 
-import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.PlayerAttributes;
 
 import io.reactivex.functions.Predicate;
 
-public class PlayerRankFilter implements Predicate<PlayerInfo>
-{
-    private String playerId;
+public class PlayerRankFilter implements Predicate<PlayerAttributes> {
+    private String playerUniqueId;
 
-    public PlayerRankFilter(String playerId)
+    public PlayerRankFilter(String playerUniqueId)
     {
-        this.playerId = playerId;
+        this.playerUniqueId = playerUniqueId;
     }
 
 
     @Override
-    public boolean test(PlayerInfo playerInfo) throws Exception
+    public boolean test(PlayerAttributes playerAttributes) throws Exception
     {
-        return playerInfo.getExternalID().equals(playerId);
+        return playerAttributes.getExternalID().equals(playerUniqueId);
     }
 }

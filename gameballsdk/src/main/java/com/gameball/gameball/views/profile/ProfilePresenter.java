@@ -6,7 +6,6 @@ import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
-import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 
 import io.reactivex.SingleObserver;
@@ -41,7 +40,7 @@ public class ProfilePresenter implements ProfileContract.Presenter
             return;
         }
         view.showLoadingIndicator();
-        profileRemoteDataSource.getWithUnlocks(sharedPreferencesUtils.getPlayerId())
+        profileRemoteDataSource.getWithUnlocks(sharedPreferencesUtils.getPlayerUniqueId())
                 .subscribe(new SingleObserver<BaseResponse<GetWithUnlocksWrapper>>()
                 {
                     @Override

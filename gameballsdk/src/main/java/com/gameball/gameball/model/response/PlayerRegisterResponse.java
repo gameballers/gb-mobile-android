@@ -22,9 +22,9 @@ public class PlayerRegisterResponse {
     @SerializedName("DateOfBirth")
     @Expose
     private Object dateOfBirth;
-    @SerializedName("PlayerCategoryID")
+    @SerializedName("PlayerTypeID")
     @Expose
-    private int playerCategoryID;
+    private int playerTypeID;
     @SerializedName("ExternalID")
     @Expose
     private String externalID;
@@ -61,8 +61,8 @@ public class PlayerRegisterResponse {
         return dateOfBirth;
     }
 
-    public int getPlayerCategoryID() {
-        return playerCategoryID;
+    public int getPlayerTypeID() {
+        return playerTypeID;
     }
 
     public String getExternalID() {

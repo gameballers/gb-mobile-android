@@ -1,9 +1,9 @@
 package com.gameball.gameball.network.api;
 
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.GetPlayerBalanceBody;
 import com.gameball.gameball.model.request.HoldPointBody;
-import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.request.RedeemPointBody;
@@ -15,9 +15,9 @@ import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
 import com.gameball.gameball.model.response.HoldPointsResponse;
 import com.gameball.gameball.model.response.Notification;
+import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
-import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Config;
 
@@ -44,13 +44,13 @@ public interface GameBallApi {
     Single<Response<Void>> push(@Header("token") String token);
 
     @GET(Config.PlayerInfo)
-    Single<BaseResponse<PlayerInfoResponse>> getPlayerDetails(@Query("externalId") String playerId);
+    Single<BaseResponse<PlayerInfoResponse>> getPlayerDetails(@Query("PlayerUniqueId") String playerUniqueId);
 
     @GET(Config.GetWithUnlocks)
-    Single<BaseResponse<GetWithUnlocksWrapper>> getWithUnlocks(@Query("externalId") String playerId);
+    Single<BaseResponse<GetWithUnlocksWrapper>> getWithUnlocks(@Query("PlayerUniqueId") String playerUniqueId);
 
     @GET(Config.GetLeaderBoard)
-    Single<BaseResponse<ArrayList<PlayerInfo>>> getLeaderBoard(@Query("externalId") String playerId);
+    Single<BaseResponse<ArrayList<PlayerAttributes>>> getLeaderBoard(@Query("PlayerUniqueId") String playerUniqueId);
 
     @GET(Config.GetBotSettings)
     Single<BaseResponse<ClientBotSettings>> getBotSettings();
@@ -83,6 +83,8 @@ public interface GameBallApi {
     Completable initializePlayer(@Body PlayerInfoBody body);
 
     @GET(Config.notifications)
-    Single<BaseResponse<ArrayList<Notification>>> getPlayerNotificationHistory(@Query("ExternalId") String playerId);
+    Single<BaseResponse<ArrayList<Notification>>> getPlayerNotificationHistory(@Query("PlayerUniqueId") String playerUniqueId);
+    
+    
 
 }

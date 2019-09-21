@@ -32,7 +32,7 @@ public class AchievementsPresenter implements AchievemetsContract.Presenter
     public void getAchievements()
     {
         view.showLoadingIndicator();
-        remoteDataSource.getWithUnlocks(sharedPreferencesUtils.getPlayerId())
+        remoteDataSource.getWithUnlocks(sharedPreferencesUtils.getPlayerUniqueId())
                 .subscribe(new SingleObserver<BaseResponse<GetWithUnlocksWrapper>>()
                 {
                     @Override
