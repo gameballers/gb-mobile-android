@@ -6,7 +6,7 @@ import android.util.Log;
 import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
-import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 
 import java.util.ArrayList;
@@ -43,8 +43,8 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
     public void getLeaderBoard()
     {
         view.showLoadingIndicator();
-        profileRemoteDataSource.getLeaderBoard(sharedPreferencesUtils.getPlayerId())
-                .subscribe(new SingleObserver<BaseResponse<ArrayList<PlayerInfo>>>()
+        profileRemoteDataSource.getLeaderBoard(sharedPreferencesUtils.getPlayerUniqueId())
+                .subscribe(new SingleObserver<BaseResponse<ArrayList<PlayerAttributes>>>()
                 {
                     @Override
                     public void onSubscribe(Disposable d)
@@ -53,7 +53,7 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
                     }
 
                     @Override
-                    public void onSuccess(BaseResponse<ArrayList<PlayerInfo>> arrayListBaseResponse)
+                    public void onSuccess(BaseResponse<ArrayList<PlayerAttributes>> arrayListBaseResponse)
                     {
                         view.fillLeaderBoard(arrayListBaseResponse.getResponse());
                         view.hideLoadingIndicator();
@@ -69,16 +69,16 @@ public class LeaderBoardPresenter implements LeaderBoardContract.Presenter
                 });
     }
 
-    public void getPlayerRank(final ArrayList<PlayerInfo> leaderboard)
+    public void getPlayerRank(final ArrayList<PlayerAttributes> leaderboard)
     {
         Observable.fromIterable(leaderboard)
-                .filter(new PlayerRankFilter(SharedPreferencesUtils.getInstance().getPlayerId()))
-                .map(new Function<PlayerInfo, Integer>()
+                .filter(new PlayerRankFilter(SharedPreferencesUtils.getInstance().getPlayerUniqueId()))
+                .map(new Function<PlayerAttributes, Integer>()
                 {
                     @Override
-                    public Integer apply(PlayerInfo playerInfo) throws Exception
+                    public Integer apply(PlayerAttributes playerAttributes) throws Exception
                     {
-                        return leaderboard.indexOf(playerInfo);
+                        return leaderboard.indexOf(playerAttributes);
                     }
                 })
                 .subscribeOn(Schedulers.io())

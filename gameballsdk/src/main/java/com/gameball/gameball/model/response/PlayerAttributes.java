@@ -1,10 +1,9 @@
 package com.gameball.gameball.model.response;
 
-import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class PlayerInfo
+public class PlayerAttributes
 {
     @SerializedName("playerId")
     @Expose
@@ -12,12 +11,6 @@ public class PlayerInfo
     @SerializedName("displayName")
     @Expose
     private String displayName;
-    @SerializedName("firstName")
-    @Expose
-    private String firstName;
-    @SerializedName("lastName")
-    @Expose
-    private String lastName;
     @SerializedName("email")
     @Expose
     private String email;
@@ -30,9 +23,9 @@ public class PlayerInfo
     @SerializedName("dateOfBirth")
     @Expose
     private String dateOfBirth;
-    @SerializedName("playerCategoryId")
+    @SerializedName("playerTypeId")
     @Expose
-    private Integer playerCategoryID;
+    private Integer playerTypeID;
     @SerializedName("externalId")
     @Expose
     private String externalID;
@@ -66,16 +59,6 @@ public class PlayerInfo
         return displayName;
     }
 
-    public String getFirstName()
-    {
-        return firstName;
-    }
-
-    public String getLastName()
-    {
-        return lastName;
-    }
-
     public String getEmail()
     {
         return email;
@@ -91,9 +74,9 @@ public class PlayerInfo
         return dateOfBirth;
     }
 
-    public Integer getPlayerCategoryID()
+    public Integer getPlayerTypeID()
     {
-        return playerCategoryID;
+        return playerTypeID;
     }
 
     public String getExternalID()
@@ -204,24 +187,24 @@ public class PlayerInfo
             return this;
         }
 
-        public PlayerInfo build()
+        public PlayerAttributes build()
         {
-            PlayerInfo playerInfo = new PlayerInfo();
+            PlayerAttributes playerAttributes = new PlayerAttributes();
             if(this.email == null || this.email.equals(""))
-                playerInfo.email = null;
+                playerAttributes.email = null;
             else
-                playerInfo.email = this.email;
+                playerAttributes.email = this.email;
 
             if(this.mobileNumber == null || this.mobileNumber.equals(""))
-                playerInfo.mobileNumber = null;
+                playerAttributes.mobileNumber = null;
             else
-                playerInfo.mobileNumber = this.mobileNumber;
+                playerAttributes.mobileNumber = this.mobileNumber;
 
-            playerInfo.dateOfBirth = this.dateOfBirth;
-            playerInfo.displayName = this.displayName;
-            playerInfo.gender = this.gender;
-            playerInfo.joinDate = this.joinDate;
-            return playerInfo;
+            playerAttributes.dateOfBirth = this.dateOfBirth;
+            playerAttributes.displayName = this.displayName;
+            playerAttributes.gender = this.gender;
+            playerAttributes.joinDate = this.joinDate;
+            return playerAttributes;
         }
     }
 }

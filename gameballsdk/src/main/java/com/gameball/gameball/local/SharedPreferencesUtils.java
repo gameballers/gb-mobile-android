@@ -121,24 +121,24 @@ public class SharedPreferencesUtils {
         putString(PreferencesContract.DEVICE_TOKEN, deviceToken);
     }
 
-    public void putPlayerId(String playerId) {
-        putString(PreferencesContract.PLAYER_ID, playerId);
+    public void putPlayerUniqueId(String playerUniqueId) {
+        putString(PreferencesContract.PLAYER_UNIQUE_ID, playerUniqueId);
     }
 
     public void putClientId(String clientId) {
-        putString(PreferencesContract.CLIENT_ID, clientId);
+        putString(PreferencesContract.API_KEY, clientId);
     }
 
     public String getDeviceToken() {
         return getString(PreferencesContract.DEVICE_TOKEN, null);
     }
 
-    public String getPlayerId() {
-        return getString(PreferencesContract.PLAYER_ID, null);
+    public String getPlayerUniqueId() {
+        return getString(PreferencesContract.PLAYER_UNIQUE_ID, null);
     }
 
     public String getClientId() {
-        return getString(PreferencesContract.CLIENT_ID, null);
+        return getString(PreferencesContract.API_KEY, null);
     }
 
     public void putClientBotSettings(ClientBotSettings clientBotSettings)
@@ -153,14 +153,14 @@ public class SharedPreferencesUtils {
         return clientBotSettings;
     }
 
-    public void putPlayerCategoryId(Integer playerCategoryId)
+    public void putPlayerTypeID(Integer playerTypeID)
     {
-        putInt(PreferencesContract.PLAYER_CATEGORY_ID, playerCategoryId);
+        putInt(PreferencesContract.PLAYER_TYPE_ID, playerTypeID);
     }
 
-    public int getPlayerCategoryId()
+    public int getPlayerTypeID()
     {
-        return getInt(PreferencesContract.PLAYER_CATEGORY_ID,  -1);
+        return getInt(PreferencesContract.PLAYER_TYPE_ID, -1);
 
     }
 
@@ -176,11 +176,11 @@ public class SharedPreferencesUtils {
 
     private static final class PreferencesContract {
 
-        private static final String PLAYER_ID = "PLAYER_ID";
+        private static final String PLAYER_UNIQUE_ID = "PLAYER_UNIQUE_ID";
         private static final String DEVICE_TOKEN = "DEVICE_TOKEN";
-        private static final String CLIENT_ID = "CLIENT_ID";
+        private static final String API_KEY = "API_KEY";
         private static final String CLIENT_BOT_SETTINGS = "BOT_SETTINGS";
-        private static final String PLAYER_CATEGORY_ID = "PLAYER_CATEGORY_ID";
+        private static final String PLAYER_TYPE_ID = "PLAYER_TYPE_ID";
         private static final String PLAYER_DYNAMIC_LINK = "PLAYER_DYNAMIC_LINK";
     }
 

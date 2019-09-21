@@ -1,6 +1,6 @@
 package com.gameball.gameball.model.request;
 
-import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.PlayerAttributes;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -8,9 +8,9 @@ import com.google.gson.annotations.SerializedName;
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
  */
 public class PlayerRegisterRequest {
-    @SerializedName("playerCategoryId")
+    @SerializedName("playerTypeId")
     @Expose
-    private Integer playerCategoryID;
+    private Integer playerTypeID;
     @SerializedName("playerUniqueId")
     @Expose
     private String playerUniqueID;
@@ -20,18 +20,18 @@ public class PlayerRegisterRequest {
     @SerializedName("osType")
     @Expose
     private String oSType = "Android";
-    @SerializedName("playerInfo")
+    @SerializedName("playerAttributes")
     @Expose
-    private PlayerInfo playerInfo;
+    private PlayerAttributes playerAttributes;
 
-    public Integer getPlayerCategoryID()
+    public Integer getPlayerTypeID()
     {
-        return playerCategoryID;
+        return playerTypeID;
     }
 
-    public void setPlayerCategoryID(Integer playerCategoryID)
+    public void setPlayerTypeID(Integer playerTypeID)
     {
-        this.playerCategoryID = playerCategoryID;
+        this.playerTypeID = playerTypeID;
     }
 
     public String getPlayerUniqueID()
@@ -54,13 +54,13 @@ public class PlayerRegisterRequest {
         this.deviceToken = deviceToken;
     }
 
-    public PlayerInfo getPLayerInfo()
+    public PlayerAttributes getPLayerInfo()
     {
-        return playerInfo;
+        return playerAttributes;
     }
 
-    public void setPlayerInfo(PlayerInfo playerInfo)
+    public void setPlayerAttributes(PlayerAttributes playerAttributes)
     {
-        this.playerInfo = playerInfo;
+        this.playerAttributes = playerAttributes;
     }
 }

@@ -29,7 +29,7 @@ import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Level;
-import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.utils.DisplayUtils;
 import com.gameball.gameball.utils.ImageDownloader;
 import com.gameball.gameball.utils.ProgressBarAnimation;
@@ -229,14 +229,14 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     }
 
     @Override
-    public void onProfileInfoLoaded(PlayerInfo playerInfo, Level nextLevel)
+    public void onProfileInfoLoaded(PlayerAttributes playerAttributes, Level nextLevel)
     {
-        SharedPreferencesUtils.getInstance().putPlayerRefferalLink(playerInfo.getDynamicLink());
+        SharedPreferencesUtils.getInstance().putPlayerRefferalLink(playerAttributes.getDynamicLink());
 
-        if (playerInfo.getDisplayName() != null && !playerInfo.getDisplayName().isEmpty())
-            txtPlayerName.setText(playerInfo.getDisplayName());
+        if (playerAttributes.getDisplayName() != null && !playerAttributes.getDisplayName().isEmpty())
+            txtPlayerName.setText(playerAttributes.getDisplayName());
 
-        fillPlayerData(playerInfo, nextLevel);
+        fillPlayerData(playerAttributes, nextLevel);
         prepView();
     }
 
@@ -245,23 +245,23 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         noInternetConnectionLayout.setVisibility(View.VISIBLE);
     }
 
-    private void fillPlayerData(PlayerInfo playerInfo, Level nextLevel)
+    private void fillPlayerData(PlayerAttributes playerAttributes, Level nextLevel)
     {
-        levelName.setText(playerInfo.getLevel().getName());
-        if (playerInfo.getLevel().getIcon() != null)
+        levelName.setText(playerAttributes.getLevel().getName());
+        if (playerAttributes.getLevel().getIcon() != null)
             ImageDownloader.downloadImage(getContext(), levelLogo,
-                    playerInfo.getLevel().getIcon().getFileName());
+                    playerAttributes.getLevel().getIcon().getFileName());
 
         currentPointsValue.setText(String.format(Locale.getDefault(),
-                "%d", playerInfo.getAccPoints()));
+                "%d", playerAttributes.getAccPoints()));
         currentFrubiesValue.setText(String.format(Locale.getDefault(),
-                "%d", playerInfo.getAccFrubies()));
+                "%d", playerAttributes.getAccFrubies()));
 
         if (nextLevel != null)
         {
             nextLevelTitle.setText(String.format(Locale.getDefault(),
                     "%s %d",getString(R.string.next_level_at), nextLevel.getLevelFrubies()));
-            playerProgress = (playerInfo.getAccFrubies() * 100) / nextLevel.getLevelFrubies();
+            playerProgress = (playerAttributes.getAccFrubies() * 100) / nextLevel.getLevelFrubies();
         } else
         {
             nextLevelTitle.setVisibility(View.GONE);

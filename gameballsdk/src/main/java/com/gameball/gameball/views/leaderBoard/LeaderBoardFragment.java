@@ -3,7 +3,6 @@ package com.gameball.gameball.views.leaderBoard;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
@@ -21,7 +20,7 @@ import android.widget.TextView;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.PlayerAttributes;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -44,7 +43,7 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         presenter = new LeaderBoardPresenter(getContext(),this);
-        leaderBoardAdapter = new LeaderBoardAdapter(getContext(), new ArrayList<PlayerInfo>());
+        leaderBoardAdapter = new LeaderBoardAdapter(getContext(), new ArrayList<PlayerAttributes>());
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
 
     }
@@ -83,7 +82,7 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
     }
 
     @Override
-    public void fillLeaderBoard(ArrayList<PlayerInfo> leaderBoard)
+    public void fillLeaderBoard(ArrayList<PlayerAttributes> leaderBoard)
     {
         leaderBoardAdapter.setmData(leaderBoard);
         leaderBoardAdapter.notifyDataSetChanged();

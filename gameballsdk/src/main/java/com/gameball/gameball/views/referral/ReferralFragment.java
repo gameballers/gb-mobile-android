@@ -30,7 +30,8 @@ public class ReferralFragment extends Fragment implements ReferralContract.View,
     private TextView shareLinkBtn;
     private TextView referralLink;
     private RecyclerView referralChallengeLs;
-    private TextView weValueFriendshipTitle;
+    private TextView referralHeadline;
+    private TextView referralText;
 
     private ReferralChallengesAdapter referralChallengesAdapter;
     ReferralContract.Presenter presenter;
@@ -49,6 +50,7 @@ public class ReferralFragment extends Fragment implements ReferralContract.View,
         rootView = inflater.inflate(R.layout.fragment_referral, container, false);
         initView();
         setupBotSettings();
+        prepView();
         presenter.getReferralChallenges();
         referralLink.setText(SharedPreferencesUtils.getInstance().getPlayerReferralLink());
         return rootView;
@@ -63,7 +65,7 @@ public class ReferralFragment extends Fragment implements ReferralContract.View,
 
     private void setupBotSettings()
     {
-        weValueFriendshipTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        referralHeadline.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
         shareLinkBtn.setBackgroundTintList(ColorStateList
                 .valueOf(Color.parseColor(clientBotSettings.getBotMainColor())));
 
@@ -73,7 +75,8 @@ public class ReferralFragment extends Fragment implements ReferralContract.View,
     {
         shareLinkBtn = rootView.findViewById(R.id.share_link_btn);
         referralLink = rootView.findViewById(R.id.referral_link);
-        weValueFriendshipTitle = rootView.findViewById(R.id.we_value_friendshipt_title);
+        referralHeadline = rootView.findViewById(R.id.referral_headline);
+        referralText = rootView.findViewById(R.id.referral_text);
         referralChallengeLs = rootView.findViewById(R.id.referral_challenge_ls);
 
         referralChallengeLs.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -88,6 +91,11 @@ public class ReferralFragment extends Fragment implements ReferralContract.View,
         }
 
         shareLinkBtn.setOnClickListener(this);
+    }
+
+    private void prepView() {
+        referralHeadline.setText(clientBotSettings.getReferralHeadLine());
+        referralText.setText(clientBotSettings.getReferralText());
     }
 
     @Override

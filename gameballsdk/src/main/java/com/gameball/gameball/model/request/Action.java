@@ -1,12 +1,9 @@
 package com.gameball.gameball.model.request;
 
-import android.support.annotation.NonNull;
-
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Action
@@ -16,7 +13,7 @@ public class Action
     private HashMap<String, HashMap<String,Object>> events;
     @SerializedName("playerUniqueId")
     @Expose
-    private String playerId;
+    private String playerUniqueId;
     @SerializedName("isPositive")
     @Expose
     private boolean isPositive;
@@ -24,7 +21,7 @@ public class Action
     public Action()
     {
         this.events = new HashMap<>();
-        this.playerId = SharedPreferencesUtils.getInstance().getPlayerId();
+        this.playerUniqueId = SharedPreferencesUtils.getInstance().getPlayerUniqueId();
         this.isPositive = true;
     }
 

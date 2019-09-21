@@ -8,9 +8,9 @@ public class ReferralBody
     @SerializedName("PlayerCode")
     @Expose
     private String playerCode;
-    @SerializedName("NewPlayerCategoryID")
+    @SerializedName("NewPlayerTypeID")
     @Expose
-    private Integer newPlayerCategoryId;
+    private Integer newPlayerTypeIDd;
     @SerializedName("NewPlayerUniqueID")
     @Expose
     private String newPlayerUniqueId;
@@ -25,14 +25,14 @@ public class ReferralBody
         this.playerCode = playerCode;
     }
 
-    public Integer getNewPlayerCategoryId()
+    public Integer getNewPlayerTypeIDd()
     {
-        return newPlayerCategoryId;
+        return newPlayerTypeIDd;
     }
 
-    public void setNewPlayerCategoryId(Integer newPlayerCategoryId)
+    public void setNewPlayerTypeIDd(Integer newPlayerTypeIDd)
     {
-        this.newPlayerCategoryId = newPlayerCategoryId;
+        this.newPlayerTypeIDd = newPlayerTypeIDd;
     }
 
     public String getNewPlayerUniqueId()

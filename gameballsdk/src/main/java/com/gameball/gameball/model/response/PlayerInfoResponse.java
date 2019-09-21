@@ -7,18 +7,19 @@ public class PlayerInfoResponse
 {
     @SerializedName("playerInfo")
     @Expose
-    private PlayerInfo playerInfo;
+    private PlayerAttributes playerAttributes;
     @SerializedName("nextLevel")
     @Expose
     private Level nextLevel;
 
-    public PlayerInfo getPlayerInfo()
+    public PlayerAttributes getPlayerAttributes()
     {
-        return playerInfo;
+        return playerAttributes;
     }
 
     public Level getNextLevel()
     {
         return nextLevel;
     }
+
 }

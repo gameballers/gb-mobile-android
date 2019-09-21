@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.utils.ImageDownloader;
 
 import java.util.ArrayList;
@@ -21,10 +21,10 @@ import java.util.Locale;
 
 public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ItemRowHolder> {
     private Context mContext;
-    private ArrayList<PlayerInfo> mData;
+    private ArrayList<PlayerAttributes> mData;
     private ClientBotSettings clientBotSettings;
 
-    public LeaderBoardAdapter(Context context, ArrayList<PlayerInfo> data) {
+    public LeaderBoardAdapter(Context context, ArrayList<PlayerAttributes> data) {
         this.mData = data;
         this.mContext = context;
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
@@ -41,7 +41,7 @@ public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.
 
     @Override
     public void onBindViewHolder(ItemRowHolder holder, int position) {
-        PlayerInfo item = mData.get(position);
+        PlayerAttributes item = mData.get(position);
 
 
         holder.rank.setText(String.format(Locale.getDefault(),"%d", position + 1));
@@ -61,7 +61,7 @@ public class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.
                     item.getLevel().getIcon().getFileName());
     }
 
-    public void setmData(ArrayList<PlayerInfo> mData)
+    public void setmData(ArrayList<PlayerAttributes> mData)
     {
         this.mData = mData;
     }
