@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
@@ -27,6 +28,7 @@ public class NotificationFragment extends Fragment implements NotificationsContr
 
     private TextView notificationsTitle;
     private RecyclerView notificationsList;
+    private RelativeLayout noInternetLayout;
 
     private ProgressBar loadingIndicator;
     private NotificationsHistoryAdapter adapter;
@@ -57,6 +59,7 @@ public class NotificationFragment extends Fragment implements NotificationsContr
         notificationsTitle = rootView.findViewById(R.id.notification_title);
         notificationsList = rootView.findViewById(R.id.notification_list);
         loadingIndicator = rootView.findViewById(R.id.loading_indicator);
+        noInternetLayout = rootView.findViewById(R.id.no_internet_layout);
 
         notificationsList.setLayoutManager(new LinearLayoutManager(getContext()));
         notificationsList.setHasFixedSize(true);
@@ -73,6 +76,11 @@ public class NotificationFragment extends Fragment implements NotificationsContr
     public void onNotificationsLoaded(ArrayList<Notification> notifications) {
         adapter.setMdata(notifications);
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void showNoInternetLayout() {
+        noInternetLayout.setVisibility(View.VISIBLE);
     }
 
     @Override

@@ -30,7 +30,7 @@ public class NotificationsPresenter implements NotificationsContract.Presenter {
     public void getNotificationHistory() {
         view.showLoadingIndicator();
 
-        profileRemoteDataSource.getNotificationHistory(sharedPreferencesUtils.getPlayerId())
+        profileRemoteDataSource.getNotificationHistory(sharedPreferencesUtils.getPlayerUniqueId())
                 .subscribe(new SingleObserver<BaseResponse<ArrayList<Notification>>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -46,6 +46,7 @@ public class NotificationsPresenter implements NotificationsContract.Presenter {
                     @Override
                     public void onError(Throwable e) {
                         view.hideLoadingIndicator();
+                        view.showNoInternetLayout();
                     }
                 });
     }

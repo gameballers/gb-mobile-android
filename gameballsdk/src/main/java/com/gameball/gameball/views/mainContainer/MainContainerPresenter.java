@@ -3,7 +3,6 @@ package com.gameball.gameball.views.mainContainer;
 import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.BaseResponse;
-import com.gameball.gameball.model.response.Level;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 
@@ -33,7 +32,7 @@ public class MainContainerPresenter implements MainContainerContract.Presenter
     {
         view.showLoadingIndicator();
 
-        profileRemoteDataSource.getPlayerInfo(sharedPreferencesUtils.getPlayerId())
+        profileRemoteDataSource.getPlayerInfo(sharedPreferencesUtils.getPlayerUniqueId())
                 .subscribe(new SingleObserver<BaseResponse<PlayerInfoResponse>>()
                 {
                     @Override
@@ -45,18 +44,19 @@ public class MainContainerPresenter implements MainContainerContract.Presenter
                     @Override
                     public void onSuccess(BaseResponse<PlayerInfoResponse> playerInfoResponseBaseResponse)
                     {
-                        localDataSource.playerInfo = playerInfoResponseBaseResponse.getResponse().
-                                getPlayerInfo();
+                        localDataSource.playerAttributes = playerInfoResponseBaseResponse.getResponse().
+                                getPlayerAttributes();
                         localDataSource.nextLevel = playerInfoResponseBaseResponse.getResponse().
                                 getNextLevel();
                         view.hideLoadingIndicator();
-                        view.onProfileInfoLoaded(localDataSource.playerInfo, localDataSource.nextLevel);
+                        view.onProfileInfoLoaded(localDataSource.playerAttributes, localDataSource.nextLevel);
                     }
 
                     @Override
                     public void onError(Throwable e)
                     {
                         e.printStackTrace();
+                        view.showNoInterNetConnection();
                         view.hideLoadingIndicator();
                     }
                 });

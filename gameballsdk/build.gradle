@@ -14,6 +14,7 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField 'String', 'MAIN_HOST', '"https://api.gameball.co/"'
+//        buildConfigField 'String', 'MAIN_HOST', '"https://gb-api.azurewebsites.net/"'
     }
 
     buildTypes {

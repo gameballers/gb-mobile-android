@@ -1,6 +1,5 @@
 package com.example.testappwithoutfirebase;
 
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,7 +8,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -19,7 +17,6 @@ import android.widget.Toast;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
-import com.gameball.gameball.model.response.PlayerInfo;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 

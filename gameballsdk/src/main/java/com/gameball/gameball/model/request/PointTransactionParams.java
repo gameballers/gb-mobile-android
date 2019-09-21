@@ -36,7 +36,7 @@ public class PointTransactionParams
 
     PointTransactionParams(double amount, String transactionKey, boolean isDateNeeded)
     {
-        playerUniqueID = SharedPreferencesUtils.getInstance().getPlayerId();
+        playerUniqueID = SharedPreferencesUtils.getInstance().getPlayerUniqueId();
 
         String hashDate = "";
         if(isDateNeeded)

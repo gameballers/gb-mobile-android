@@ -35,6 +35,13 @@ public class ClientBotSettings
     @SerializedName("walletPointsName")
     @Expose
     private String walletPointsName;
+    @SerializedName("referralHeadLine")
+    @Expose
+    private String referralHeadLine;
+    @SerializedName("referralText")
+    @Expose
+    private String referralText;
+
 
     public String getBotMainColor()
     {
@@ -84,5 +91,13 @@ public class ClientBotSettings
     public String getWalletPointsName()
     {
         return walletPointsName;
+    }
+
+    public String getReferralHeadLine() {
+        return referralHeadLine;
+    }
+
+    public String getReferralText() {
+        return referralText;
     }
 }

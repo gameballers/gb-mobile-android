@@ -3,7 +3,6 @@ package com.gameball.gameball.views.leaderBoard;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
@@ -15,12 +14,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.PlayerAttributes;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -33,6 +33,7 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
     private TextView playerRank;
     private RecyclerView leaderboardRecyclerview;
     private ProgressBar loadingIndicator;
+    private RelativeLayout noInternetLayout;
 
     LeaderBoardAdapter leaderBoardAdapter;
     LeaderBoardContract.Presenter presenter;
@@ -42,7 +43,7 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         presenter = new LeaderBoardPresenter(getContext(),this);
-        leaderBoardAdapter = new LeaderBoardAdapter(getContext(), new ArrayList<PlayerInfo>());
+        leaderBoardAdapter = new LeaderBoardAdapter(getContext(), new ArrayList<PlayerAttributes>());
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
 
     }
@@ -64,6 +65,7 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
         loadingIndicator = rootView.findViewById(R.id.loading_indicator);
         leaderTitle = rootView.findViewById(R.id.leaderboard_title);
         playerRank = rootView.findViewById(R.id.player_rank_value);
+        noInternetLayout = rootView.findViewById(R.id.no_internet_layout);
     }
 
     private void setupBotSettings()
@@ -80,7 +82,7 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
     }
 
     @Override
-    public void fillLeaderBoard(ArrayList<PlayerInfo> leaderBoard)
+    public void fillLeaderBoard(ArrayList<PlayerAttributes> leaderBoard)
     {
         leaderBoardAdapter.setmData(leaderBoard);
         leaderBoardAdapter.notifyDataSetChanged();
@@ -102,6 +104,11 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardContract
     public void onPlayerRankReady(int rank, int leaderboardSize)
     {
         playerRank.setText(String.format(Locale.getDefault(),"%d/%d", rank, leaderboardSize));
+    }
+
+    @Override
+    public void showNoInternetLayout() {
+        noInternetLayout.setVisibility(View.VISIBLE);
     }
 
     @Override

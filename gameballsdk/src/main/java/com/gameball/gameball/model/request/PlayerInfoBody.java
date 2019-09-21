@@ -1,7 +1,7 @@
 package com.gameball.gameball.model.request;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
-import com.gameball.gameball.model.response.PlayerInfo;
+import com.gameball.gameball.model.response.PlayerAttributes;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -10,13 +10,13 @@ public class PlayerInfoBody
     @SerializedName("PlayerUniqueID")
     @Expose
     private String playerUniqueId;
-    @SerializedName("PlayerInfo")
+    @SerializedName("playerAttributes")
     @Expose
-    private PlayerInfo playerInfo;
+    private PlayerAttributes playerAttributes;
 
-    public PlayerInfoBody(PlayerInfo playerInfo)
+    public PlayerInfoBody(PlayerAttributes playerAttributes)
     {
-        playerUniqueId = SharedPreferencesUtils.getInstance().getPlayerId();
-        this.playerInfo = playerInfo;
+        playerUniqueId = SharedPreferencesUtils.getInstance().getPlayerUniqueId();
+        this.playerAttributes = playerAttributes;
     }
 }
