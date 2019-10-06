@@ -36,8 +36,7 @@ import com.gameball.gameball.utils.ProgressBarAnimation;
 
 import java.util.Locale;
 
-public class MainContainerFragment extends DialogFragment implements MainContainerContract.View
-{
+public class MainContainerFragment extends DialogFragment implements MainContainerContract.View {
 
     private View rootView;
     private TextView txtPlayerName;
@@ -64,14 +63,12 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     private TextView currentPointTitle;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState)
-    {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initComponents();
     }
 
-    private void initComponents()
-    {
+    private void initComponents() {
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
         tabsAdapter = new TabsAdapter(getChildFragmentManager(), clientBotSettings);
         presenter = new MainContainerPresenter(this);
@@ -82,8 +79,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_main_container, container, false);
         initView();
         setupBotSettings();
@@ -92,8 +88,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     }
 
     @Override
-    public Dialog onCreateDialog(final Bundle savedInstanceState)
-    {
+    public Dialog onCreateDialog(final Bundle savedInstanceState) {
 
         // the content
         final RelativeLayout root = new RelativeLayout(getActivity());
@@ -105,8 +100,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(root);
         Window window = dialog.getWindow();
-        if (window != null)
-        {
+        if (window != null) {
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
@@ -126,8 +120,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         }
     }*/
 
-    private void initView()
-    {
+    private void initView() {
         txtPlayerName = rootView.findViewById(R.id.txt_player_name);
         btnClose = rootView.findViewById(R.id.btn_close);
         tabs = rootView.findViewById(R.id.tabs);
@@ -145,8 +138,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         noInternetConnectionLayout = rootView.findViewById(R.id.no_internet_layout);
     }
 
-    private void setupBotSettings()
-    {
+    private void setupBotSettings() {
         tabs.setSelectedTabIndicatorColor(Color.parseColor(clientBotSettings.getBotMainColor()));
         loadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
                 PorterDuff.Mode.SRC_IN);
@@ -158,16 +150,13 @@ public class MainContainerFragment extends DialogFragment implements MainContain
 
     }
 
-    private void prepView()
-    {
+    private void prepView() {
         viewPager.setAdapter(tabsAdapter);
         tabs.setupWithViewPager(viewPager);
         tabs.setSelectedTabIndicatorHeight((int) DisplayUtils.convertDpToPixel(2));
-        btnClose.setOnClickListener(new View.OnClickListener()
-        {
+        btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 getActivity().finish();
             }
         });
@@ -175,23 +164,19 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         tabs.getTabAt(tabs.getSelectedTabPosition()).getIcon().
                 setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
 
-        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
-        {
+        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onTabSelected(TabLayout.Tab tab)
-            {
+            public void onTabSelected(TabLayout.Tab tab) {
                 tab.getIcon().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab)
-            {
+            public void onTabUnselected(TabLayout.Tab tab) {
                 tab.getIcon().setColorFilter(Color.parseColor("#adadad"), PorterDuff.Mode.SRC_IN);
             }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab)
-            {
+            public void onTabReselected(TabLayout.Tab tab) {
 
             }
         });
@@ -200,27 +185,24 @@ public class MainContainerFragment extends DialogFragment implements MainContain
             tabs.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
     }
 
-    private void setupTabsIcons()
-    {
-        for (int i = 0; i < tabs.getTabCount(); i++)
-        {
-            switch (i)
-            {
+    private void setupTabsIcons() {
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            switch (i) {
                 case 0:
                     tabs.getTabAt(0).setIcon(R.drawable.ic_trophy);
                     break;
                 case 1:
-                    if (clientBotSettings.isEnableLeaderboard())
-                        tabs.getTabAt(1).setIcon(R.drawable.ic_leaderboard);
-                    else if(clientBotSettings.isReferralOn())
+                    if (clientBotSettings.isReferralOn())
                         tabs.getTabAt(1).setIcon(R.drawable.ic_referral);
-                    else if(clientBotSettings.isEnableNotifications())
+                    else if (clientBotSettings.isEnableLeaderboard())
+                        tabs.getTabAt(1).setIcon(R.drawable.ic_leaderboard);
+                    else if (clientBotSettings.isEnableNotifications())
                         tabs.getTabAt(1).setIcon(R.drawable.ic_notification);
                     break;
                 case 2:
-                    if(clientBotSettings.isReferralOn())
-                        tabs.getTabAt(2).setIcon(R.drawable.ic_referral);
-                    else if(clientBotSettings.isEnableNotifications())
+                    if (clientBotSettings.isEnableLeaderboard())
+                        tabs.getTabAt(2).setIcon(R.drawable.ic_leaderboard);
+                    else if (clientBotSettings.isEnableNotifications())
                         tabs.getTabAt(2).setIcon(R.drawable.ic_notification);
                 case 3:
                     tabs.getTabAt(3).setIcon(R.drawable.ic_notification);
@@ -229,8 +211,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     }
 
     @Override
-    public void onProfileInfoLoaded(PlayerAttributes playerAttributes, Level nextLevel)
-    {
+    public void onProfileInfoLoaded(PlayerAttributes playerAttributes, Level nextLevel) {
         SharedPreferencesUtils.getInstance().putPlayerRefferalLink(playerAttributes.getDynamicLink());
 
         if (playerAttributes.getDisplayName() != null && !playerAttributes.getDisplayName().isEmpty())
@@ -245,8 +226,7 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         noInternetConnectionLayout.setVisibility(View.VISIBLE);
     }
 
-    private void fillPlayerData(PlayerAttributes playerAttributes, Level nextLevel)
-    {
+    private void fillPlayerData(PlayerAttributes playerAttributes, Level nextLevel) {
         levelName.setText(playerAttributes.getLevel().getName());
         if (playerAttributes.getLevel().getIcon() != null)
             ImageDownloader.downloadImage(getContext(), levelLogo,
@@ -257,13 +237,11 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         currentFrubiesValue.setText(String.format(Locale.getDefault(),
                 "%d", playerAttributes.getAccFrubies()));
 
-        if (nextLevel != null)
-        {
+        if (nextLevel != null) {
             nextLevelTitle.setText(String.format(Locale.getDefault(),
-                    "%s %d",getString(R.string.next_level_at), nextLevel.getLevelFrubies()));
+                    "%s %d", getString(R.string.next_level_at), nextLevel.getLevelFrubies()));
             playerProgress = (playerAttributes.getAccFrubies() * 100) / nextLevel.getLevelFrubies();
-        } else
-        {
+        } else {
             nextLevelTitle.setVisibility(View.GONE);
             levelProgress.setVisibility(View.GONE);
             nextLevelTitle.setVisibility(View.GONE);
@@ -273,13 +251,12 @@ public class MainContainerFragment extends DialogFragment implements MainContain
         applyAnimation();
     }
 
-    private void applyAnimation()
-    {
+    private void applyAnimation() {
         ProgressBarAnimation progressBarAnimation = new ProgressBarAnimation(levelProgress, 0,
                 playerProgress);
         progressBarAnimation.setDuration(700);
         progressBarAnimation.setFillAfter(true);
-        if(nextLevelTitle.getVisibility() == View.GONE)
+        if (nextLevelTitle.getVisibility() == View.GONE)
             levelProgress.setVisibility(View.GONE);
         else
             levelProgress.startAnimation(progressBarAnimation);
@@ -292,27 +269,22 @@ public class MainContainerFragment extends DialogFragment implements MainContain
     }
 
     @Override
-    public void showLoadingIndicator()
-    {
+    public void showLoadingIndicator() {
         loadingIndicatorBg.setVisibility(View.VISIBLE);
         loadingIndicator.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void hideLoadingIndicator()
-    {
+    public void hideLoadingIndicator() {
         loadingIndicatorBg.setVisibility(View.GONE);
         loadingIndicator.setVisibility(View.GONE);
     }
 
     @Override
-    public void onStop()
-    {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
-        {
+    public void onStop() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
             PowerManager pm = (PowerManager) (getContext()).getSystemService(Context.POWER_SERVICE);
-            if ((pm.isInteractive()))
-            {
+            if ((pm.isInteractive())) {
                 presenter.unsubscribe();
             }
         }
