@@ -4,35 +4,45 @@ import android.util.Log;
 
 import com.gameball.gameball.local.LocalDataSource;
 import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.Game;
+import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
+import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Observable;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Predicate;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class ReferralPresenter implements ReferralContract.Presenter
 {
-    ReferralContract.View view;
-    LocalDataSource localDataSource;
-    SharedPreferencesUtils sharedPrefs;
+    private ReferralContract.View view;
+    private LocalDataSource localDataSource;
+    private SharedPreferencesUtils sharedPrefs;
+    private ProfileRemoteProfileDataSource profileRemoteProfileDataSource;
 
     public ReferralPresenter(ReferralContract.View view)
     {
         this.view = view;
         localDataSource = LocalDataSource.getInstance();
         sharedPrefs = SharedPreferencesUtils.getInstance();
+        this.profileRemoteProfileDataSource = ProfileRemoteProfileDataSource.getInstance();
     }
 
     @Override
     public void getReferralChallenges()
     {
-        Observable.fromIterable(localDataSource.games)
+        profileRemoteProfileDataSource.getWithUnlocks(sharedPrefs.getPlayerUniqueId())
+                .flattenAsObservable(new Function<BaseResponse<GetWithUnlocksWrapper>, Iterable<Game>>() {
+                    @Override
+                    public Iterable<Game> apply(BaseResponse<GetWithUnlocksWrapper> getWithUnlocksWrapperBaseResponse) throws Exception {
+                        return getWithUnlocksWrapperBaseResponse.getResponse().getGames();
+                    }
+                })
                 .filter(new ReferralChallengesFilter())
                 .toList()
                 .subscribeOn(Schedulers.io())

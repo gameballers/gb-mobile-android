@@ -13,8 +13,8 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        buildConfigField 'String', 'MAIN_HOST', '"https://api.gameball.co/"'
-//        buildConfigField 'String', 'MAIN_HOST', '"https://gb-api.azurewebsites.net/"'
+        buildConfigField 'String', 'LIVE_URL', '"https://api.gameball.co/"'
+        buildConfigField 'String', 'STAGE_URL', '"https://gb-api.azurewebsites.net/"'
     }
 
     buildTypes {
