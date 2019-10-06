@@ -18,7 +18,15 @@ public class GeneralInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
 
-        if (request.url().toString().startsWith(BuildConfig.MAIN_HOST)) {
+        String baseUrl;
+
+        if (BuildConfig.DEBUG) {
+            baseUrl = BuildConfig.STAGE_URL;
+        } else {
+            baseUrl = BuildConfig.STAGE_URL;
+        }
+
+        if (request.url().toString().startsWith(baseUrl)) {
             Request.Builder builder = request.newBuilder();
             // builder.addHeader(API.HEADER_X_API_KEY, LocalDataSourceImpl.ANDROID_API_KEY);
             return chain.proceed(builder.build());

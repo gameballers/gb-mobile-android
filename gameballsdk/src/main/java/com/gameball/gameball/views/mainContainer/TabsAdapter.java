@@ -5,7 +5,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.views.achievements.AchievementsFragment;
 import com.gameball.gameball.views.leaderBoard.LeaderBoardFragment;
 import com.gameball.gameball.views.notification.NotificationFragment;
 import com.gameball.gameball.views.profile.ProfileFragment;
@@ -25,12 +24,15 @@ public class TabsAdapter extends FragmentPagerAdapter {
             case 0:
                 return new ProfileFragment();
             case 1:
+                if (clientBotSettings.isReferralOn())
+                    return new ReferralFragment();
+                else if (clientBotSettings.isEnableLeaderboard())
+                    return new LeaderBoardFragment();
+            case 2:
                 if (clientBotSettings.isEnableLeaderboard())
                     return new LeaderBoardFragment();
-                else if(clientBotSettings.isReferralOn())
-                    return new ReferralFragment();
-            case 2:
-                return new ReferralFragment();
+                else
+                    return new NotificationFragment();
             case 3:
                 return new NotificationFragment();
         }
