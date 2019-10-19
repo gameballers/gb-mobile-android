@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +25,7 @@ import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.Game;
-import com.gameball.gameball.model.response.Quest;
+import com.gameball.gameball.model.response.Mission;
 import com.gameball.gameball.views.mainContainer.MainContainerContract;
 
 import java.util.ArrayList;
@@ -37,9 +38,12 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
     private ProgressBar profileLoadingIndicator;
     private View profileLoadingIndicatorBg;
     private RelativeLayout noInternetConnectionLayout;
+    private TextView missionsTitle;
+    private RecyclerView missionRecyclerView;
 
 
     private ChallengesAdapter challengesAdapter;
+    private MissionsAdapter missionsAdapter;
     private ProfileContract.Presenter presenter;
     private ClientBotSettings clientBotSettings;
     private Animation fadeIn;
@@ -66,6 +70,7 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
 
     private void initComponents() {
         challengesAdapter = new ChallengesAdapter(getContext(), new ArrayList<Game>());
+        missionsAdapter = new MissionsAdapter(getContext(), new ArrayList<Mission>());
         presenter = new ProfilePresenter(getContext(), this);
         clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
 
@@ -81,6 +86,8 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         profileLoadingIndicator = rootView.findViewById(R.id.profile_data_loading_indicator);
         profileLoadingIndicatorBg = rootView.findViewById(R.id.profile_data_loading_indicator_bg);
         noInternetConnectionLayout = rootView.findViewById(R.id.no_internet_layout);
+        missionsTitle = rootView.findViewById(R.id.missions_title);
+        missionRecyclerView = rootView.findViewById(R.id.missions_recyclerView);
 
     }
 
@@ -89,32 +96,36 @@ public class ProfileFragment extends Fragment  implements ProfileContract.View
         profileLoadingIndicator.getIndeterminateDrawable().setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()),
                 PorterDuff.Mode.SRC_IN);
         achievementTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
+        missionsTitle.setTextColor(Color.parseColor(clientBotSettings.getBotMainColor()));
     }
 
     private void prepView() {
-        achievementsRecyclerView.setHasFixedSize(true);
+//        achievementsRecyclerView.setHasFixedSize(true);
         achievementsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        achievementsRecyclerView.setNestedScrollingEnabled(false);
         achievementsRecyclerView.setAdapter(challengesAdapter);
-    }
 
-    private ArrayList<Game> buildQuestChallengesArray(ArrayList<Quest> quests)
-    {
-        ArrayList<Game> games = new ArrayList<>();
-
-        if(quests != null)
-            for (Quest quest: quests)
-            {
-                games.addAll(quest.getQuestChallenges());
-            }
-
-        return games;
+        missionRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        missionRecyclerView.setNestedScrollingEnabled(false);
+        missionRecyclerView.setAdapter(missionsAdapter);
     }
 
     @Override
-    public void onWithUnlocksLoaded(ArrayList<Game> games)
+    public void onWithUnlocksLoaded(ArrayList<Game> games, ArrayList<Mission> missions)
     {
         challengesAdapter.setmData(games);
         challengesAdapter.notifyDataSetChanged();
+
+        if (missions != null && !missions.isEmpty()) {
+            missionsTitle.setVisibility(View.VISIBLE);
+            missionRecyclerView.setVisibility(View.VISIBLE);
+            missionsAdapter.setmData(missions);
+            missionsAdapter.notifyDataSetChanged();
+
+        } else {
+            missionsTitle.setVisibility(View.GONE);
+            missionRecyclerView.setVisibility(View.GONE);
+        }
     }
 
     @Override
