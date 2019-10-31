@@ -25,4 +25,8 @@
     <string name="share">share</string>
     <string name="your_rank_is">Your rank is</string>
     <string name="is_repeatable_high_score_txt">Break your high score and win this badge again!</string>
+    <string name="reward_text">%d %s | %d %s</string>
+    <string name="percentage">%d%%</string>
+    <string name="count_challenges">%d Challenges</string>
+    <string name="mission_challenge_achieved_count">%dx</string>
 </resources>

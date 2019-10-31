@@ -1,40 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
     android:background="@android:color/white"
-    >
+    android:fillViewport="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="21dp">
 
         <TextView
             android:id="@+id/achievements_title"
-            style="@style/text_title_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
             android:layout_marginLeft="25dp"
             android:layout_marginTop="20dp"
             android:text="@string/achievements"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:fontFamily="@font/montserrat_regular" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/achievements_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@id/achievements_title"
             android:layout_alignStart="@id/achievements_title"
             android:layout_alignLeft="@id/achievements_title"
             android:layout_marginEnd="25dp"
             android:layout_marginRight="25dp"
             android:layout_marginTop="10dp"
-
             tools:itemCount="9"
             tools:layoutManager="android.support.v7.widget.GridLayoutManager"
             tools:listitem="@layout/acheivments_item_layout"
             tools:orientation="vertical"
             tools:spanCount="3" />
+
+        <TextView
+            android:id="@+id/missions_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/achievements_recyclerView"
+            android:layout_alignStart="@id/achievements_recyclerView"
+            android:layout_marginTop="32dp"
+            android:text="Missions"
+            android:textSize="16sp"
+            android:fontFamily="@font/montserrat_regular" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/missions_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/achievements_recyclerView"
+            android:layout_alignEnd="@id/achievements_recyclerView"
+            android:layout_below="@id/missions_title"
+            tools:itemCount="3"
+            tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:listitem="@layout/mission_item_layout"
+            tools:orientation="vertical" />
 
         <View
             android:id="@+id/profile_data_loading_indicator_bg"
@@ -49,11 +76,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true" />
 
         <include
             android:id="@+id/no_internet_layout"
             layout="@layout/no_internet_connection_layout"
-            android:visibility="gone"
-            />
-</RelativeLayout>
+            android:visibility="gone" />
+    </RelativeLayout>
+</android.support.v4.widget.NestedScrollView>

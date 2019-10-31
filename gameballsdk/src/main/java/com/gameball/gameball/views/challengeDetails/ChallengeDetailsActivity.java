@@ -277,7 +277,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
 
     private void setupProgressbarBehaviour()
     {
-            switch (game.getBehaviorTypeId())
+        switch (game.getBehaviorTypeId())
         {
             case EVENT_BASED:
                     showEventProgress(challengeEventProgress, challengeTargetEventCount,

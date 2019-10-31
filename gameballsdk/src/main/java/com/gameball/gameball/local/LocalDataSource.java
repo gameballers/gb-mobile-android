@@ -2,6 +2,7 @@ package com.gameball.gameball.local;
 
 import com.gameball.gameball.model.response.Game;
 import com.gameball.gameball.model.response.Level;
+import com.gameball.gameball.model.response.Mission;
 import com.gameball.gameball.model.response.PlayerAttributes;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class LocalDataSource
     public PlayerAttributes playerAttributes;
     public Level nextLevel;
     public ArrayList<Game> games;
+    public ArrayList<Mission> missions;
 
     private LocalDataSource()
     {

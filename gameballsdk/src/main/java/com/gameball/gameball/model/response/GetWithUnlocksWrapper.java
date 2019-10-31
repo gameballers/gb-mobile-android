@@ -10,14 +10,16 @@ public class GetWithUnlocksWrapper
     @SerializedName("challenges")
     @Expose
     private ArrayList<Game> games;
+    @SerializedName("quests")
+    @Expose
+    private ArrayList<Mission> missions;
 
     public ArrayList<Game> getGames()
     {
         return games;
     }
 
-    public void setGames(ArrayList<Game> games)
-    {
-        this.games = games;
+    public ArrayList<Mission> getMissions() {
+        return missions;
     }
 }
