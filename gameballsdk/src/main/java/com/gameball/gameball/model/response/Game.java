@@ -99,160 +99,86 @@ public class Game
         return gameName;
     }
 
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
-    }
-
     public Integer getChallengeId() {
         return challengeId;
-    }
-
-    public void setChallengeId(Integer challengeId) {
-        this.challengeId = challengeId;
     }
 
     public String getIcon() {
         return icon;
     }
 
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Boolean isUnlocked() {
         return isUnlocked;
     }
 
-    public void setIsUnlocked(Boolean isUnlocked) {
-        this.isUnlocked = isUnlocked;
-    }
-
     public Integer getActivationCriteriaTypeId() {
         return activationCriteriaTypeId;
     }
 
-    public void setActivationCriteriaTypeId(Integer activationCriteriaTypeId) {
-        this.activationCriteriaTypeId = activationCriteriaTypeId;
-    }
-
     public Integer getActivationFrubies() {
-        return activationFrubes;
-    }
-
-    public void setActivationFrubes(Integer activationFrubes) {
-        this.activationFrubes = activationFrubes;
+        return activationFrubes != null ? activationFrubes : 0;
     }
 
     public Integer getActivationLevel() {
-        return activationLevel;
-    }
-
-    public void setActivationLevel(Integer activationLevel) {
-        this.activationLevel = activationLevel;
+        return activationLevel != null ? activationLevel : 0;
     }
 
     public String getLevelName() {
         return levelName;
     }
 
-    public void setLevelName(String levelName) {
-        this.levelName = levelName;
-    }
-
     public Integer getBehaviorTypeId() {
         return behaviorTypeId;
     }
 
-    public void setBehaviorTypeId(Integer behaviorTypeId) {
-        this.behaviorTypeId = behaviorTypeId;
-    }
-
     public Integer getTargetActionsCount() {
-        return targetActionsCount;
-    }
-
-    public void setTargetActionsCount(Integer targetActionsCount) {
-        this.targetActionsCount = targetActionsCount;
+        return targetActionsCount != null ? targetActionsCount : 0;
     }
 
     public Integer getTargetAmount() {
         return targetAmount;
     }
 
-    public void setTargetAmount(Integer targetAmount) {
-        this.targetAmount = targetAmount;
-    }
 
     public Double getActionsCompletedPercentage() {
         return actionsCompletedPercentage;
     }
 
-    public void setActionsCompletedPercentage(Double actionsCompletedPercentage) {
-        this.actionsCompletedPercentage = actionsCompletedPercentage;
-    }
 
     public Double getAmountCompletedPercentage() {
         return amountCompletedPercentage;
     }
 
-    public void setAmountCompletedPercentage(Double amountCompletedPercentage) {
-        this.amountCompletedPercentage = amountCompletedPercentage;
-    }
 
     public Double getActionsAndAmountCompletedPercentage() {
         return actionsAndAmountCompletedPercentage;
     }
 
-    public void setActionsAndAmountCompletedPercentage(Double actionsAndAmountCompletedPercentage) {
-        this.actionsAndAmountCompletedPercentage = actionsAndAmountCompletedPercentage;
-    }
 
     public Boolean isRepeatable() {
         return isRepeatable;
     }
 
-    public void setIsRepeatable(Boolean isRepeatable) {
-        this.isRepeatable = isRepeatable;
-    }
 
     public Integer getAchievedCount() {
         return achievedCount;
     }
 
-    public void setAchievedCount(Integer achievedCount) {
-        this.achievedCount = achievedCount;
-    }
 
     public Integer getAchievedActionsCount() {
-        return achievedActionsCount;
-    }
-
-    public void setAchievedActionsCount(Integer achievedActionsCount) {
-        this.achievedActionsCount = achievedActionsCount;
+        return achievedActionsCount != null ? achievedActionsCount : 0;
     }
 
     public Integer getCurrentAmount() {
         return currentAmount;
     }
 
-    public void setCurrentAmount(Integer currentAmount) {
-        this.currentAmount = currentAmount;
-    }
-
     public String getUserMessage() {
         return userMessage;
-    }
-
-    public void setUserMessage(String userMessage) {
-        this.userMessage = userMessage;
     }
 
     public ArrayList<Milestone> getMilestones()
@@ -262,17 +188,17 @@ public class Game
 
     public Integer getRewardFrubies()
     {
-        return rewardFrubies;
+        return rewardFrubies != null ? rewardFrubies : 0;
     }
 
     public Integer getRewardPoints()
     {
-        return rewardPoints;
+        return rewardPoints != null ? rewardPoints : 0;
     }
 
     public Integer getHighScore()
     {
-        return highScore;
+        return highScore != null ? highScore : 0;
     }
 
     public Integer getHighScoreAmount()
@@ -297,7 +223,7 @@ public class Game
 
     public Double getCompletionPercentage()
     {
-        return completionPercentage;
+        return completionPercentage != null ? completionPercentage : 0;
     }
 
     public Boolean isReferral()
