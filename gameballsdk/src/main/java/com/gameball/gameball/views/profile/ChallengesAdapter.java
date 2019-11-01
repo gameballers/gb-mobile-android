@@ -91,8 +91,7 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.It
                                 Color.parseColor(clientBotSettings.getBotMainColor())));
                         holder.achievedCount.setVisibility(View.VISIBLE);
                     }
-            }
-            else if(item.getActionsAndAmountCompletedPercentage() == 100)
+            } else if (item.getCompletionPercentage() == 100)
             {
                 holder.notAchievedIndicator.setVisibility(View.GONE);
             }

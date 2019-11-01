@@ -35,7 +35,7 @@ public class Mission {
     private Integer rewardPoints;
     @SerializedName("completionPercentage")
     @Expose
-    private Integer completionPercentage;
+    private Double completionPercentage;
     @SerializedName("questChallenges")
     @Expose
     private ArrayList<Game> questChallenges = new ArrayList<>();
@@ -77,7 +77,7 @@ public class Mission {
     }
 
     public Integer getCompletionPercentage() {
-        return completionPercentage;
+        return completionPercentage.intValue();
     }
 
     public ArrayList<Game> getQuestChallenges() {

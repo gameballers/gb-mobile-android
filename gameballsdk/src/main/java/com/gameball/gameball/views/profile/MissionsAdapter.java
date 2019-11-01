@@ -64,16 +64,17 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.ItemRo
                 context.getString(R.string.count_challenges,
                         item.getQuestChallenges().size())
         );
-        holder.missionProgress.setProgress(item.getCompletionPercentage());
+        holder.missionProgress.setProgress(item.getCompletionPercentage().intValue());
 
         if (item.getCompletionPercentage() < 100) {
             holder.missionCompletionPercentage.setVisibility(View.VISIBLE);
             holder.greenCheckIcon.setVisibility(View.GONE);
 
-            holder.missionCompletionPercentage.setText(
-                    context.getString(R.string.percentage,
-                            item.getCompletionPercentage())
-            );
+            if (item.getCompletionPercentage() != null)
+                holder.missionCompletionPercentage.setText(
+                        context.getString(R.string.percentage,
+                                item.getCompletionPercentage())
+                );
         } else {
             holder.greenCheckIcon.setVisibility(View.VISIBLE);
             holder.missionCompletionPercentage.setVisibility(View.GONE);

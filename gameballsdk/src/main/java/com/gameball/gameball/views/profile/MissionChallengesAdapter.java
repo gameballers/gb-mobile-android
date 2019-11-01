@@ -82,7 +82,7 @@ public class MissionChallengesAdapter extends RecyclerView.Adapter<MissionChalle
                 holder.challengeAchievedCount.setVisibility(View.GONE);
                 holder.lockedIndicator.setVisibility(View.GONE);
 
-                holder.challengeProgress.setProgress((int) item.getCompletionPercentage());
+                holder.challengeProgress.setProgress(item.getCompletionPercentage().intValue());
             }
         }
     }

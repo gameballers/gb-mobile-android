@@ -72,11 +72,11 @@ public class ReferralChallengesAdapter extends RecyclerView.Adapter<ReferralChal
         LayerDrawable challengeProgress = (LayerDrawable) holder.challengeProgress.getProgressDrawable();
         challengeProgress.setColorFilter(Color.parseColor(clientBotSettings.getBotMainColor()), PorterDuff.Mode.SRC_IN);
 
-        final ProgressBarAnimation progressAnimation = new ProgressBarAnimation(holder.challengeProgress,
-                0, (int) item.getActionsCompletedPercentage());
-        progressAnimation.setDuration(700);
-        progressAnimation.setFillAfter(true);
-        holder.challengeProgress.startAnimation(progressAnimation);
+            final ProgressBarAnimation progressAnimation = new ProgressBarAnimation(holder.challengeProgress,
+                    0, item.getCompletionPercentage().intValue());
+            progressAnimation.setDuration(700);
+            progressAnimation.setFillAfter(true);
+            holder.challengeProgress.startAnimation(progressAnimation);
 
         if(item.getAchievedCount() >= 1)
             holder.challengeCheck.setImageResource(R.drawable.ic_checkmark);
