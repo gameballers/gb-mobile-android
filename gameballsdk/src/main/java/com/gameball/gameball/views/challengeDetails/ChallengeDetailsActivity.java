@@ -307,7 +307,7 @@ public class ChallengeDetailsActivity extends AppCompatActivity implements View.
         if (game.getCompletionPercentage() == 0)
             progressBar.setProgress(0);
         final ProgressBarAnimation eventProgressBarAnimation = new ProgressBarAnimation(progressBar,
-                0, (int) game.getCompletionPercentage());
+                0, game.getCompletionPercentage().intValue());
         eventProgressBarAnimation.setDuration(700);
         eventProgressBarAnimation.setFillAfter(true);
 

@@ -181,7 +181,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Action action = new Action();
 
                 HashMap<String, Object> metaData = new HashMap<>();
-                metaData.put("Amount", 1000);
+                metaData.put("Amount", 5000);
+
 
                 action.addEvent("Buy", metaData);
 

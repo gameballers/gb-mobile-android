@@ -12,7 +12,7 @@ public class Game
     private String gameName;
     @SerializedName("challengeId")
     @Expose
-    private int challengeId;
+    private Integer challengeId;
     @SerializedName("icon")
     @Expose
     private String icon;
@@ -24,19 +24,19 @@ public class Game
     private Boolean isUnlocked;
     @SerializedName("activationCriteriaTypeId")
     @Expose
-    private int activationCriteriaTypeId;
+    private Integer activationCriteriaTypeId;
     @SerializedName("activationFrubes")
     @Expose
-    private int activationFrubes;
+    private Integer activationFrubes;
     @SerializedName("activationLevel")
     @Expose
-    private int activationLevel;
+    private Integer activationLevel;
     @SerializedName("rewardFrubies")
     @Expose
-    private int rewardFrubies;
+    private Integer rewardFrubies;
     @SerializedName("rewardPoints")
     @Expose
-    private int rewardPoints;
+    private Integer rewardPoints;
     @SerializedName("highScore")
     @Expose
     private Integer highScore;
@@ -51,28 +51,28 @@ public class Game
     private String levelName;
     @SerializedName("behaviorTypeId")
     @Expose
-    private int behaviorTypeId;
+    private Integer behaviorTypeId;
     @SerializedName("behaviorType")
     @Expose
     private String behaviorType;
     @SerializedName("targetActionsCount")
     @Expose
-    private int targetActionsCount;
+    private Integer targetActionsCount;
     @SerializedName("targetAmount")
     @Expose
-    private int targetAmount;
+    private Integer targetAmount;
     @SerializedName("actionsCompletedPercentage")
     @Expose
-    private double actionsCompletedPercentage;
+    private Double actionsCompletedPercentage;
     @SerializedName("amountCompletedPercentage")
     @Expose
-    private double amountCompletedPercentage;
+    private Double amountCompletedPercentage;
     @SerializedName("actionsAndAmountCompletedPercentage")
     @Expose
-    private double actionsAndAmountCompletedPercentage;
+    private Double actionsAndAmountCompletedPercentage;
     @SerializedName("completionPercentage")
     @Expose
-    private double completionPercentage;
+    private Double completionPercentage;
     @SerializedName("isRepeatable")
     @Expose
     private Boolean isRepeatable;
@@ -81,13 +81,13 @@ public class Game
     private Boolean isReferral;
     @SerializedName("achievedCount")
     @Expose
-    private int achievedCount;
+    private Integer achievedCount;
     @SerializedName("achievedActionsCount")
     @Expose
-    private int achievedActionsCount;
+    private Integer achievedActionsCount;
     @SerializedName("currentAmount")
     @Expose
-    private int currentAmount;
+    private Integer currentAmount;
     @SerializedName("userMessage")
     @Expose
     private String userMessage;
@@ -103,11 +103,11 @@ public class Game
         this.gameName = gameName;
     }
 
-    public int getChallengeId() {
+    public Integer getChallengeId() {
         return challengeId;
     }
 
-    public void setChallengeId(int challengeId) {
+    public void setChallengeId(Integer challengeId) {
         this.challengeId = challengeId;
     }
 
@@ -135,27 +135,27 @@ public class Game
         this.isUnlocked = isUnlocked;
     }
 
-    public int getActivationCriteriaTypeId() {
+    public Integer getActivationCriteriaTypeId() {
         return activationCriteriaTypeId;
     }
 
-    public void setActivationCriteriaTypeId(int activationCriteriaTypeId) {
+    public void setActivationCriteriaTypeId(Integer activationCriteriaTypeId) {
         this.activationCriteriaTypeId = activationCriteriaTypeId;
     }
 
-    public int getActivationFrubies() {
+    public Integer getActivationFrubies() {
         return activationFrubes;
     }
 
-    public void setActivationFrubes(int activationFrubes) {
+    public void setActivationFrubes(Integer activationFrubes) {
         this.activationFrubes = activationFrubes;
     }
 
-    public int getActivationLevel() {
+    public Integer getActivationLevel() {
         return activationLevel;
     }
 
-    public void setActivationLevel(int activationLevel) {
+    public void setActivationLevel(Integer activationLevel) {
         this.activationLevel = activationLevel;
     }
 
@@ -167,51 +167,51 @@ public class Game
         this.levelName = levelName;
     }
 
-    public int getBehaviorTypeId() {
+    public Integer getBehaviorTypeId() {
         return behaviorTypeId;
     }
 
-    public void setBehaviorTypeId(int behaviorTypeId) {
+    public void setBehaviorTypeId(Integer behaviorTypeId) {
         this.behaviorTypeId = behaviorTypeId;
     }
 
-    public int getTargetActionsCount() {
+    public Integer getTargetActionsCount() {
         return targetActionsCount;
     }
 
-    public void setTargetActionsCount(int targetActionsCount) {
+    public void setTargetActionsCount(Integer targetActionsCount) {
         this.targetActionsCount = targetActionsCount;
     }
 
-    public int getTargetAmount() {
+    public Integer getTargetAmount() {
         return targetAmount;
     }
 
-    public void setTargetAmount(int targetAmount) {
+    public void setTargetAmount(Integer targetAmount) {
         this.targetAmount = targetAmount;
     }
 
-    public double getActionsCompletedPercentage() {
+    public Double getActionsCompletedPercentage() {
         return actionsCompletedPercentage;
     }
 
-    public void setActionsCompletedPercentage(double actionsCompletedPercentage) {
+    public void setActionsCompletedPercentage(Double actionsCompletedPercentage) {
         this.actionsCompletedPercentage = actionsCompletedPercentage;
     }
 
-    public double getAmountCompletedPercentage() {
+    public Double getAmountCompletedPercentage() {
         return amountCompletedPercentage;
     }
 
-    public void setAmountCompletedPercentage(double amountCompletedPercentage) {
+    public void setAmountCompletedPercentage(Double amountCompletedPercentage) {
         this.amountCompletedPercentage = amountCompletedPercentage;
     }
 
-    public double getActionsAndAmountCompletedPercentage() {
+    public Double getActionsAndAmountCompletedPercentage() {
         return actionsAndAmountCompletedPercentage;
     }
 
-    public void setActionsAndAmountCompletedPercentage(double actionsAndAmountCompletedPercentage) {
+    public void setActionsAndAmountCompletedPercentage(Double actionsAndAmountCompletedPercentage) {
         this.actionsAndAmountCompletedPercentage = actionsAndAmountCompletedPercentage;
     }
 
@@ -223,27 +223,27 @@ public class Game
         this.isRepeatable = isRepeatable;
     }
 
-    public int getAchievedCount() {
+    public Integer getAchievedCount() {
         return achievedCount;
     }
 
-    public void setAchievedCount(int achievedCount) {
+    public void setAchievedCount(Integer achievedCount) {
         this.achievedCount = achievedCount;
     }
 
-    public int getAchievedActionsCount() {
+    public Integer getAchievedActionsCount() {
         return achievedActionsCount;
     }
 
-    public void setAchievedActionsCount(int achievedActionsCount) {
+    public void setAchievedActionsCount(Integer achievedActionsCount) {
         this.achievedActionsCount = achievedActionsCount;
     }
 
-    public int getCurrentAmount() {
+    public Integer getCurrentAmount() {
         return currentAmount;
     }
 
-    public void setCurrentAmount(int currentAmount) {
+    public void setCurrentAmount(Integer currentAmount) {
         this.currentAmount = currentAmount;
     }
 
@@ -260,12 +260,12 @@ public class Game
         return milestones;
     }
 
-    public int getRewardFrubies()
+    public Integer getRewardFrubies()
     {
         return rewardFrubies;
     }
 
-    public int getRewardPoints()
+    public Integer getRewardPoints()
     {
         return rewardPoints;
     }
@@ -285,7 +285,7 @@ public class Game
         return amountUnit;
     }
 
-    public int getActivationFrubes()
+    public Integer getActivationFrubes()
     {
         return activationFrubes;
     }
@@ -295,7 +295,7 @@ public class Game
         return behaviorType;
     }
 
-    public double getCompletionPercentage()
+    public Double getCompletionPercentage()
     {
         return completionPercentage;
     }
