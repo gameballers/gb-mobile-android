@@ -3,6 +3,8 @@ package com.gameball.gameball.model.response;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.HashMap;
+
 public class PlayerAttributes
 {
     @SerializedName("playerId")
@@ -53,6 +55,9 @@ public class PlayerAttributes
     @SerializedName("dynamicLink")
     @Expose
     private String dynamicLink;
+    @SerializedName("custom")
+    @Expose
+    private HashMap<String, String> custom;
 
     public String getDisplayName()
     {
@@ -132,6 +137,17 @@ public class PlayerAttributes
     public String getDynamicLink()
     {
         return dynamicLink;
+    }
+
+    public HashMap<String, String> getCustom() {
+        return this.custom;
+    }
+
+    public void addCustomAttribute(String key, String value) {
+        if (this.custom == null)
+            custom = new HashMap<>();
+
+        custom.put(key, value);
     }
 
     public static class Builder

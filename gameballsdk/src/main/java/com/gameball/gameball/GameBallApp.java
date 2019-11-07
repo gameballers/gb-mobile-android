@@ -124,7 +124,6 @@ public class GameBallApp {
             return;
         }
 
-        SharedPreferencesUtils.getInstance().clearData();
         SharedPreferencesUtils.getInstance().putClientId(mClientID);
         SharedPreferencesUtils.getInstance().putPlayerUniqueId(mPlayerUniqueId);
 
