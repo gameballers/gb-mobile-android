@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 
@@ -255,25 +256,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         if (!playerIDField.getText().toString().trim().isEmpty())
         {
-            if (!playerCategoryID.getText().toString().trim().isEmpty())
-                gameBallApp.registerPlayer(playerIDField.getText().toString().trim(),
-                        Integer.parseInt(playerCategoryID.getText().toString().trim()),
-                        new Callback<PlayerRegisterResponse>()
-                        {
-                            @Override
-                            public void onSuccess(PlayerRegisterResponse playerRegisterResponse)
-                            {
 
-                            }
+            PlayerAttributes player = new PlayerAttributes.Builder().withDisplayName(playerIDField.getText().toString()).build();
+            player.addCustomAttribute("Weight", "hamada");
 
-                            @Override
-                            public void onError(Throwable e)
-                            {
-
-                            }
-                        });
-            else
-                gameBallApp.registerPlayer(playerIDField.getText().toString(),
+            gameBallApp.registerPlayer(playerIDField.getText().toString().trim(), player,
                         new Callback<PlayerRegisterResponse>()
                         {
                             @Override
