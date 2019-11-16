@@ -52,7 +52,7 @@ public class Network {
         if (BuildConfig.DEBUG) {
             baseUrl = BuildConfig.STAGE_URL;
         } else {
-            baseUrl = BuildConfig.LIVE_URL;
+            baseUrl = BuildConfig.STAGE_URL;
         }
 
         mRetrofit = new Retrofit.Builder()
