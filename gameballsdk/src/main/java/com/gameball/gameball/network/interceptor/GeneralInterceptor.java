@@ -23,7 +23,7 @@ public class GeneralInterceptor implements Interceptor {
         if (BuildConfig.DEBUG) {
             baseUrl = BuildConfig.STAGE_URL;
         } else {
-            baseUrl = BuildConfig.LIVE_URL;
+            baseUrl = BuildConfig.STAGE_URL;
         }
 
         if (request.url().toString().startsWith(baseUrl)) {
