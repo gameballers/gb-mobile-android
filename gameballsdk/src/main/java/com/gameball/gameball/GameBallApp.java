@@ -56,7 +56,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -212,42 +211,16 @@ public class GameBallApp {
     private void initializeFirebase(final PlayerAttributes playerAttributes,
                                     ClientBotSettings botSettings,
                                     final Callback<PlayerRegisterResponse> callback) {
-        if (botSettings.getClientFireBase() != null) {
-            if (clientFirebaseApp != null
-                    && clientFirebaseApp.getOptions().getApiKey().equals(API_KEY)
-                    && clientFirebaseApp.getOptions().getGcmSenderId().equals(SENDER_ID)
-                    && clientFirebaseApp.getOptions().getApplicationId().equals(APPLICATION_ID)) {
-                APPLICATION_ID = botSettings.getClientFireBase().getApplicationId();
-                API_KEY = botSettings.getClientFireBase().getWebApiKey();
-                SENDER_ID = botSettings.getClientFireBase().getSenderId();
 
-                if (APPLICATION_ID != null && API_KEY != null && SENDER_ID != null) {
-                    FirebaseOptions options = new FirebaseOptions.Builder()
-                            .setApplicationId(APPLICATION_ID)
-                            .setApiKey(API_KEY)
-                            .setGcmSenderId(SENDER_ID)
-                            .build();
+        if (mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty()) {
 
-                    // Initialize with secondary app.
-                    FirebaseApp.initializeApp(mContext, options, TAG);
-
-                    // Retrieve secondary app.
-                    clientFirebaseApp = FirebaseApp.getInstance(TAG);
+            FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                @Override
+                public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                    mDeviceToken = task.getResult().getToken();
+                    registerDevice(playerAttributes, callback);
                 }
-            }
-
-            if (mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty()) {
-
-                FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        mDeviceToken = task.getResult().getToken();
-                        registerDevice(playerAttributes, callback);
-                    }
-                });
-            }
-        } else {
-            registerDevice(playerAttributes, callback);
+            });
         }
     }
 
