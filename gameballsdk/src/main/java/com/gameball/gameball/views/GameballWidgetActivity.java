@@ -10,7 +10,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -26,12 +27,18 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private String playerUniqueId;
 
 
-    private static String PLAYER_UNIQUE_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
+    final private static String PLAYER_UNIQUE_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
+
+    final private static String MOBILE_VIEW_PATH = "m/";
+    final private static String LANGUAGE_QUERY_KEY = "lang";
+    final private static String API_KEY_QUERY_KEY = "apiKey";
+    final private static String MAIN_COLOR_QUERY_KEY = "main";
+    final private static String PLAYER_UNIQUE_QUERY_KEY = "playerid";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gameball_wedgit);
+        setContentView(R.layout.activity_gameball_widget);
         findViewById(R.id.widget_parent).setNestedScrollingEnabled(true);
         widgetView = (WebView) findViewById(R.id.gb_profile_webview);
         extractDataFromBundle();
@@ -67,7 +74,14 @@ public class GameballWidgetActivity extends AppCompatActivity {
             }
         });
 
-        widgetView.setWebChromeClient(new WebChromeClient());
+        widgetView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                findViewById(R.id.no_internet_layout).setVisibility(View.VISIBLE);
+            }
+        });
+
 
         findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,15 +104,17 @@ public class GameballWidgetActivity extends AppCompatActivity {
 
         uri.scheme("https")
                 .encodedAuthority(BuildConfig.Widget_URL)
-                .appendEncodedPath("m/")
-                .appendQueryParameter("main", sharedPreferences.getClientBotSettings().getBotMainColor().replace("#", ""))
-                .appendQueryParameter("lang", language)
-                .appendQueryParameter("apiKey", apiKey);
+                .appendEncodedPath(MOBILE_VIEW_PATH)
+                .appendQueryParameter(LANGUAGE_QUERY_KEY, language)
+                .appendQueryParameter(API_KEY_QUERY_KEY, apiKey);
+
+        if (sharedPreferences.getClientBotSettings() != null)
+            uri.appendQueryParameter(MAIN_COLOR_QUERY_KEY, sharedPreferences.getClientBotSettings().getBotMainColor().replace("#", ""));
 
         if (playerUniqueId != null)
-            uri.appendQueryParameter("playerid", playerUniqueId);
+            uri.appendQueryParameter(PLAYER_UNIQUE_QUERY_KEY, playerUniqueId);
         else if (sharedPreferences.getPlayerUniqueId() != null)
-            uri.appendQueryParameter("playerid", sharedPreferences.getPlayerUniqueId());
+            uri.appendQueryParameter(PLAYER_UNIQUE_QUERY_KEY, sharedPreferences.getPlayerUniqueId());
 
         widgetView.loadUrl(uri.toString());
     }

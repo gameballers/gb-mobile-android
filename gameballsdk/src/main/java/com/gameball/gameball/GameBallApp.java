@@ -61,16 +61,11 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import io.reactivex.CompletableObserver;
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -158,7 +153,6 @@ public class GameBallApp {
 
     private void getBotSettings() {
         gameBallApi.getBotSettings()
-                .retry()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>() {
@@ -188,7 +182,7 @@ public class GameBallApp {
         mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.getInstance().putClientId(clientID);
-//        getBotSettings();
+        getBotSettings();
     }
 
     public void init(String clientID, @DrawableRes int notificationIcon) {
@@ -313,52 +307,7 @@ public class GameBallApp {
     }
 
     public void showProfile(final AppCompatActivity activity, @Nullable final String playerUniqueId) {
-        Observable.fromCallable(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                ClientBotSettings clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
-                return clientBotSettings != null;
-            }
-        }).flatMap(new Function<Boolean, ObservableSource<ClientBotSettings>>() {
-            @Override
-            public ObservableSource<ClientBotSettings> apply(Boolean aBoolean) throws Exception {
-                if (aBoolean) {
-                    return Observable.just(SharedPreferencesUtils.getInstance().getClientBotSettings());
-                }
-                return gameBallApi.getBotSettings().flatMapObservable(
-                        new Function<BaseResponse<ClientBotSettings>,
-                                ObservableSource<? extends ClientBotSettings>>() {
-                            @Override
-                            public ObservableSource<? extends ClientBotSettings> apply(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) throws Exception {
-                                return Observable.just(clientBotSettingsBaseResponse.getResponse());
-                            }
-                        });
-            }
-        })
-                .retry()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<ClientBotSettings>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(ClientBotSettings clientBotSettings) {
-                        SharedPreferencesUtils.getInstance().putClientBotSettings(clientBotSettings);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        GameballWidgetActivity.start(activity, playerUniqueId);
-                    }
-                });
+        GameballWidgetActivity.start(activity, playerUniqueId);
     }
 
     /**
