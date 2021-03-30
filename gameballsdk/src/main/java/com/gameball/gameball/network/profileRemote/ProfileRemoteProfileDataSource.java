@@ -4,16 +4,11 @@ import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.request.PlayerInfoBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
-import com.gameball.gameball.model.response.Notification;
-import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import java.util.ArrayList;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -53,22 +48,6 @@ public class ProfileRemoteProfileDataSource implements ProfileDataSourceContract
     }
 
     @Override
-    public Single<BaseResponse<GetWithUnlocksWrapper>> getWithUnlocks(String playerUniqueId)
-    {
-        return gameBallApi.getWithUnlocks(playerUniqueId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-    }
-
-    @Override
-    public Single<BaseResponse<ArrayList<PlayerAttributes>>> getLeaderBoard(String playerUniqueId)
-    {
-        return gameBallApi.getLeaderBoard(playerUniqueId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-    }
-
-    @Override
     public Single<BaseResponse<ClientBotSettings>> getBotSettings()
     {
         return gameBallApi.getBotSettings()
@@ -88,13 +67,6 @@ public class ProfileRemoteProfileDataSource implements ProfileDataSourceContract
     public Completable initializePlayer(PlayerInfoBody body)
     {
         return gameBallApi.initializePlayer(body)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-    }
-
-    @Override
-    public Single<BaseResponse<ArrayList<Notification>>> getNotificationHistory(String playerUniqueId) {
-        return gameBallApi.getPlayerNotificationHistory(playerUniqueId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

@@ -50,7 +50,7 @@ public class Network {
         String baseUrl;
 
         if (BuildConfig.DEBUG) {
-            baseUrl = BuildConfig.STAGE_URL;
+            baseUrl = BuildConfig.LIVE_URL;
         } else {
             baseUrl = BuildConfig.LIVE_URL;
         }

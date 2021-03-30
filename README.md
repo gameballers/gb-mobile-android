@@ -34,15 +34,6 @@
         if(GameBallApp.getInstance(this).isGameBallNotification(remoteMessage)) return;
 
    If not copy the GameBallDemoFirebaseMessagingService class to your java package folder.
-   
-9. Add this lines to your AndroidManifest.xml inside the application tag
-
-         <activity android:name="com.gameball.gameball.views.GameBallActivity">
-         		<intent-filter>
-         			<action android:name="GAME_BALL_SDK" />
-         			<category android:name="android.intent.category.DEFAULT" />
-         		</intent-filter>
-         </activity>
 
 	
 10. If you are not using firebase add this lines to your AndroidManifest.xml inside the application tag

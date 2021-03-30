@@ -153,17 +153,6 @@ public class SharedPreferencesUtils {
         return clientBotSettings;
     }
 
-    public void putPlayerTypeID(Integer playerTypeID)
-    {
-        putInt(PreferencesContract.PLAYER_TYPE_ID, playerTypeID);
-    }
-
-    public int getPlayerTypeID()
-    {
-        return getInt(PreferencesContract.PLAYER_TYPE_ID, -1);
-
-    }
-
     public void putPlayerRefferalLink(String playerReferralLink)
     {
         putString(PreferencesContract.PLAYER_DYNAMIC_LINK, playerReferralLink);

@@ -1,7 +1,7 @@
 package com.gameball.gameball.views.laregNotificationView;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -31,9 +31,8 @@ public class LargeNotificationActivity extends AppCompatActivity {
         fillView();
     }
 
-    private void init()
-    {
-        if(getIntent() != null)
+    private void init() {
+        if (getIntent() != null)
             notificationBodyObj = (NotificationBody) getIntent().getExtras().getSerializable(Constants.NOTIFICATION_OBJ);
 
         notificationBody = findViewById(R.id.notification_body);
