@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.gameball.gameball.GameBallApp;
-
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -20,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
                 {
                     try
                     {
-                        GameBallApp.getInstance(MainActivity.this).showProfile(MainActivity.this);
+//                        GameBallApp.getInstance(MainActivity.this).showProfile(MainActivity.this);
                     } catch (Exception e)
                     {
                         e.printStackTrace();

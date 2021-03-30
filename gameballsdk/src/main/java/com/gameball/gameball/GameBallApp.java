@@ -14,8 +14,6 @@ import android.os.Looper;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -48,9 +46,8 @@ import com.gameball.gameball.network.api.GameBallApi;
 import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
 import com.gameball.gameball.network.transactionRemote.TransactionRemoteDataSource;
 import com.gameball.gameball.utils.Constants;
-import com.gameball.gameball.views.GameBallMainActivity;
+import com.gameball.gameball.views.GameballWidgetActivity;
 import com.gameball.gameball.views.laregNotificationView.LargeNotificationActivity;
-import com.gameball.gameball.views.mainContainer.MainContainerFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -91,7 +88,6 @@ public class GameBallApp {
     private FirebaseApp clientFirebaseApp;
     private String mClientID;
     private String mPlayerUniqueId;
-    private Integer mPlayerTypeID;
     private int mNotificationIcon;
     private String mDeviceToken;
     private GameBallApi gameBallApi;
@@ -128,10 +124,6 @@ public class GameBallApp {
 
         PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
         registerDeviceRequest.setPlayerUniqueID(mPlayerUniqueId);
-        if (mPlayerTypeID != -1) {
-            registerDeviceRequest.setPlayerTypeID(mPlayerTypeID);
-            SharedPreferencesUtils.getInstance().putPlayerTypeID(mPlayerTypeID);
-        }
 
         if (mDeviceToken != null) {
             registerDeviceRequest.setDeviceToken(mDeviceToken);
@@ -189,23 +181,18 @@ public class GameBallApp {
                 });
     }
 
-    public void init(@NonNull String clientID, String PlayerUniqueId, int playerTypeID,
-                     @DrawableRes int notificationIcon) {
+    private void init(@NonNull String clientID, String PlayerUniqueId,
+                      @DrawableRes int notificationIcon) {
         this.mClientID = clientID;
         this.mPlayerUniqueId = PlayerUniqueId;
-        this.mPlayerTypeID = playerTypeID;
         mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.getInstance().putClientId(clientID);
-        getBotSettings();
-    }
-
-    public void init(String clientID, String playerUniqueId, @DrawableRes int notificationIcon) {
-        init(clientID, playerUniqueId, -1, notificationIcon);
+//        getBotSettings();
     }
 
     public void init(String clientID, @DrawableRes int notificationIcon) {
-        init(clientID, null, -1, notificationIcon);
+        init(clientID, null, notificationIcon);
     }
 
     private void initializeFirebase(final PlayerAttributes playerAttributes,
@@ -227,24 +214,18 @@ public class GameBallApp {
 
     public void registerPlayer(@NonNull String playerUniqueId,
                                @NonNull Callback<PlayerRegisterResponse> callback) {
-        registerPlayer(playerUniqueId, -1, null, callback);
-    }
-
-    public void registerPlayer(@NonNull String playerUniqueId, PlayerAttributes playerAttributes,
-                               @NonNull Callback<PlayerRegisterResponse> callback) {
-        registerPlayer(playerUniqueId, -1, playerAttributes, callback);
+        registerPlayer(playerUniqueId, null, callback);
     }
 
     public void registerPlayer(@NonNull String playerUniqueId, int playerTypeID,
                                @NonNull Callback<PlayerRegisterResponse> callback) {
-        registerPlayer(playerUniqueId, playerTypeID, null, callback);
+        registerPlayer(playerUniqueId, null, callback);
     }
 
-    public void registerPlayer(@NonNull String playerUniqueId, int playerTypeID, PlayerAttributes playerAttributes,
+    public void registerPlayer(@NonNull String playerUniqueId, PlayerAttributes playerAttributes,
                                @NonNull Callback<PlayerRegisterResponse> callback) {
         if (!playerUniqueId.trim().isEmpty()) {
             mPlayerUniqueId = playerUniqueId;
-            mPlayerTypeID = playerTypeID;
 
             initializeFirebase(playerAttributes, SharedPreferencesUtils.getInstance().getClientBotSettings(), callback);
         } else {
@@ -290,14 +271,10 @@ public class GameBallApp {
                         .setAutoCancel(true)
                         .setSmallIcon(mNotificationIcon)
                         .setSound(defaultSoundUri);
-//                        .setContentIntent(pendingIntent);
 
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-
-//                DialogManager.showCustomNotification(mContext, messageBody);
-//                Toast.makeText(mContext, messageBody, Toast.LENGTH_SHORT).show();
 
                 Intent notificationIntent = new Intent(mContext, LargeNotificationActivity.class);
                 notificationIntent.putExtra(Constants.NOTIFICATION_OBJ, messageBody);
@@ -335,36 +312,7 @@ public class GameBallApp {
         return false;
     }
 
-    /**
-     * Use Show profile method where ever you like.
-     * It just shows the profile of the user that contains the user details, user achievements and the leader board.
-     * basically call this method when ever you want to allow the user to see his profile.
-     *
-     * @param activity if you are using an activity send an instance of the activity to be able to show the profile
-     */
-    public void showProfile(AppCompatActivity activity) throws Exception {
-        if (SharedPreferencesUtils.getInstance().getPlayerUniqueId() == null) {
-            throw new RuntimeException(TAG + ": User is not logged in yet!");
-        }
-
-        showProfile(activity.getSupportFragmentManager());
-    }
-
-    /**
-     * It just shows the profile of the user that contains the user details, user achievements and the leader board.
-     * basically call this method when ever you want to allow the user to see his profile.
-     *
-     * @param fragment if you are using a fragment send an instance of the fragment to be able to show the profile
-     */
-    public void showProfile(Fragment fragment) throws Exception {
-        if (SharedPreferencesUtils.getInstance().getPlayerUniqueId() == null) {
-            throw new RuntimeException(TAG + ": User is not logged in yet!");
-        }
-
-        showProfile(fragment.getChildFragmentManager());
-    }
-
-    private void showProfile(final FragmentManager fragmentManager) {
+    public void showProfile(final AppCompatActivity activity, @Nullable final String playerUniqueId) {
         Observable.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
@@ -387,6 +335,7 @@ public class GameBallApp {
                         });
             }
         })
+                .retry()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<ClientBotSettings>() {
@@ -407,57 +356,7 @@ public class GameBallApp {
 
                     @Override
                     public void onComplete() {
-                        Intent intent = new Intent(mContext, GameBallMainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        mContext.startActivity(intent);
-                    }
-                });
-    }
-
-    public void showProfile(final Callback<Fragment> callback) {
-        Observable.fromCallable(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                ClientBotSettings clientBotSettings = SharedPreferencesUtils.getInstance().getClientBotSettings();
-                return clientBotSettings != null;
-            }
-        }).flatMap(new Function<Boolean, ObservableSource<ClientBotSettings>>() {
-            @Override
-            public ObservableSource<ClientBotSettings> apply(Boolean aBoolean) throws Exception {
-                if (aBoolean) {
-                    return Observable.just(SharedPreferencesUtils.getInstance().getClientBotSettings());
-                }
-                return gameBallApi.getBotSettings().flatMapObservable(
-                        new Function<BaseResponse<ClientBotSettings>,
-                                ObservableSource<? extends ClientBotSettings>>() {
-                            @Override
-                            public ObservableSource<? extends ClientBotSettings> apply(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) throws Exception {
-                                return Observable.just(clientBotSettingsBaseResponse.getResponse());
-                            }
-                        });
-            }
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<ClientBotSettings>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(ClientBotSettings clientBotSettings) {
-                        SharedPreferencesUtils.getInstance().putClientBotSettings(clientBotSettings);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        callback.onSuccess(new MainContainerFragment());
+                        GameballWidgetActivity.start(activity, playerUniqueId);
                     }
                 });
     }

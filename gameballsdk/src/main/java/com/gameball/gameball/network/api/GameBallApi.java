@@ -12,16 +12,11 @@ import com.gameball.gameball.model.request.ReverseHeldPointsbody;
 import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.GetWithUnlocksWrapper;
 import com.gameball.gameball.model.response.HoldPointsResponse;
-import com.gameball.gameball.model.response.Notification;
-import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Config;
-
-import java.util.ArrayList;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -45,12 +40,6 @@ public interface GameBallApi {
 
     @GET(Config.PlayerInfo)
     Single<BaseResponse<PlayerInfoResponse>> getPlayerDetails(@Query("PlayerUniqueId") String playerUniqueId);
-
-    @GET(Config.GetWithUnlocks)
-    Single<BaseResponse<GetWithUnlocksWrapper>> getWithUnlocks(@Query("PlayerUniqueId") String playerUniqueId);
-
-    @GET(Config.GetLeaderBoard)
-    Single<BaseResponse<ArrayList<PlayerAttributes>>> getLeaderBoard(@Query("PlayerUniqueId") String playerUniqueId);
 
     @GET(Config.GetBotSettings)
     Single<BaseResponse<ClientBotSettings>> getBotSettings();
@@ -81,9 +70,6 @@ public interface GameBallApi {
 
     @POST(Config.InitializePlayer)
     Completable initializePlayer(@Body PlayerInfoBody body);
-
-    @GET(Config.notifications)
-    Single<BaseResponse<ArrayList<Notification>>> getPlayerNotificationHistory(@Query("PlayerUniqueId") String playerUniqueId);
     
     
 

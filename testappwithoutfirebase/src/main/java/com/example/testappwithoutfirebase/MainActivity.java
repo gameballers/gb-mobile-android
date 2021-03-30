@@ -240,16 +240,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void showProfile()
     {
-        try
-        {
-            gameBallApp.showProfile(MainActivity.this);
-        } catch (Exception e)
-        {
-            Toast.makeText(MainActivity.this, "enter player ID then hit register," +
-                            "and then try to show profile"
-                    , Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
+        gameBallApp.showProfile(MainActivity.this, null);
     }
 
     private void registerPlayer()
@@ -258,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
 
             PlayerAttributes player = new PlayerAttributes.Builder().withDisplayName(playerIDField.getText().toString()).build();
-            player.addCustomAttribute("Weight", "hamada");
 
             gameBallApp.registerPlayer(playerIDField.getText().toString().trim(), player,
                         new Callback<PlayerRegisterResponse>()

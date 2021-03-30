@@ -3,32 +3,13 @@
     package="com.gameball.gameball">
 
     <application
-        android:hardwareAccelerated="false"
+        android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true">
-        <activity android:name=".views.laregNotificationView.LargeNotificationActivity"
-            android:theme="@style/Theme.Transparent"
-            />
         <activity
-            android:name=".views.challengeDetails.ChallengeDetailsActivity"
-            android:theme="@style/GameballTheme" />
-        <activity
-            android:name=".views.GameBallMainActivity"
-            android:theme="@style/GameballTheme">
-            <intent-filter>
-                <action android:name="GAME_BALL_MAIN_ACTIVITY" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".views.GameBallActivity"
-            android:theme="@style/Theme.Transparent">
-            <intent-filter>
-                <action android:name="GAME_BALL_SDK" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+            android:name=".views.GameballWidgetActivity"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Transparent" />
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
