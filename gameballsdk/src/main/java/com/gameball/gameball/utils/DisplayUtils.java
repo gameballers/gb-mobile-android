@@ -1,19 +1,14 @@
 package com.gameball.gameball.utils;
 
-import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-
+import androidx.appcompat.app.AppCompatActivity;
 import java.util.Locale;
 
 public class DisplayUtils {

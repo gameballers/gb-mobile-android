@@ -1,18 +1,20 @@
 package com.gameball.gameball.views.laregNotificationView;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.gameball.gameball.R;
 import com.gameball.gameball.model.response.NotificationBody;
 import com.gameball.gameball.utils.Constants;
 import com.squareup.picasso.Picasso;
 
-public class LargeNotificationActivity extends AppCompatActivity {
+public class LargeNotificationActivity extends AppCompatActivity
+{
 
     private TextView notificationTitle;
     private TextView notificationBody;

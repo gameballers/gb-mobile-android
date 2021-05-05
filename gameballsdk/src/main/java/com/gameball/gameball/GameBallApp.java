@@ -11,16 +11,17 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.Action;
@@ -57,6 +58,7 @@ import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
@@ -195,10 +197,12 @@ public class GameBallApp {
 
         if (mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty()) {
 
-            FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+            FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>()
+            {
                 @Override
-                public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                    mDeviceToken = task.getResult().getToken();
+                public void onSuccess(String s)
+                {
+                    mDeviceToken = s;
                     registerDevice(playerAttributes, callback);
                 }
             });

@@ -2,18 +2,19 @@ package com.example.testappwithoutfirebase;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
@@ -182,10 +183,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Action action = new Action();
 
                 HashMap<String, Object> metaData = new HashMap<>();
-                metaData.put("Amount", 5000);
+//                metaData.put("Amount", 5000);
 
 
-                action.addEvent("Buy", metaData);
+                action.addEvent("view_product_page", metaData);
 
                 gameBallApp.addAction(action, new Callback()
                 {
