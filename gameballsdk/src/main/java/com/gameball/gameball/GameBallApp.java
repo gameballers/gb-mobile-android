@@ -49,15 +49,11 @@ import com.gameball.gameball.network.transactionRemote.TransactionRemoteDataSour
 import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.views.GameballWidgetActivity;
 import com.gameball.gameball.views.laregNotificationView.LargeNotificationActivity;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -73,7 +69,8 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
  */
-public class GameBallApp {
+public class GameBallApp
+{
     private static final String TAG = GameBallApp.class.getSimpleName();
     private static final String MAIN_ACTIVITY_ACTION = "GAME_BALL_MAIN_ACTIVITY";
     private static final String TAG_GAMEBALL_PROFILE_DIALOG = "gameball_profile_dialog";
@@ -92,8 +89,10 @@ public class GameBallApp {
     private ProfileRemoteProfileDataSource profileRemoteProfileDataSource;
 
 
-    private GameBallApp(Context context) {
-        if (this.mContext == null) {
+    private GameBallApp(Context context)
+    {
+        if (this.mContext == null)
+        {
             this.mContext = context;
             gameBallApi = Network.getInstance().getGameBallApi();
             SharedPreferencesUtils.init(mContext, new Gson());
@@ -103,16 +102,20 @@ public class GameBallApp {
         }
     }
 
-    public static GameBallApp getInstance(Context context) {
-        if (ourInstance == null) {
+    public static GameBallApp getInstance(Context context)
+    {
+        if (ourInstance == null)
+        {
             ourInstance = new GameBallApp(context);
         }
         return ourInstance;
     }
 
-    private void registerDevice(@Nullable PlayerAttributes playerAttributes, final Callback<PlayerRegisterResponse> callback) {
+    private void registerDevice(@Nullable PlayerAttributes playerAttributes, final Callback<PlayerRegisterResponse> callback)
+    {
 
-        if (mPlayerUniqueId == null || mClientID == null) {
+        if (mPlayerUniqueId == null || mClientID == null)
+        {
             return;
         }
 
@@ -122,7 +125,8 @@ public class GameBallApp {
         PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
         registerDeviceRequest.setPlayerUniqueID(mPlayerUniqueId);
 
-        if (mDeviceToken != null) {
+        if (mDeviceToken != null)
+        {
             registerDeviceRequest.setDeviceToken(mDeviceToken);
             SharedPreferencesUtils.getInstance().putDeviceToken(mDeviceToken);
         }
@@ -133,69 +137,99 @@ public class GameBallApp {
         gameBallApi.registrationPlayer(registerDeviceRequest)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<BaseResponse<PlayerRegisterResponse>>() {
+                .subscribe(new SingleObserver<BaseResponse<PlayerRegisterResponse>>()
+                {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(Disposable d)
+                    {
 
                     }
 
                     @Override
-                    public void onSuccess(BaseResponse<PlayerRegisterResponse> playerRegisterResponseBaseResponse) {
+                    public void onSuccess(BaseResponse<PlayerRegisterResponse> playerRegisterResponseBaseResponse)
+                    {
                         if (callback != null)
                             callback.onSuccess(playerRegisterResponseBaseResponse.getResponse());
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(Throwable e)
+                    {
                         if (callback != null)
                             callback.onError(e);
                     }
                 });
     }
 
-    private void getBotSettings() {
+    private void getBotSettings()
+    {
         gameBallApi.getBotSettings()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>() {
+                .subscribe(new SingleObserver<BaseResponse<ClientBotSettings>>()
+                {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(Disposable d)
+                    {
 
                     }
 
                     @Override
-                    public void onSuccess(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse) {
+                    public void onSuccess(BaseResponse<ClientBotSettings> clientBotSettingsBaseResponse)
+                    {
                         SharedPreferencesUtils.getInstance().
                                 putClientBotSettings(clientBotSettingsBaseResponse.getResponse());
                         initializeFirebase(null, clientBotSettingsBaseResponse.getResponse(), null);
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(Throwable e)
+                    {
                         Log.e("bot_settings_error", e.getMessage());
                     }
                 });
     }
 
     private void init(@NonNull String clientID, String PlayerUniqueId,
-                      @DrawableRes int notificationIcon) {
+                      @DrawableRes int notificationIcon, String language)
+    {
         this.mClientID = clientID;
         this.mPlayerUniqueId = PlayerUniqueId;
         mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.getInstance().putClientId(clientID);
+        SharedPreferencesUtils.getInstance().putLanguagePreference(language);
         getBotSettings();
     }
 
-    public void init(String clientID, @DrawableRes int notificationIcon) {
-        init(clientID, null, notificationIcon);
+    public void init(String clientID, String PlayerUniqueId, @DrawableRes int notificationIcon)
+    {
+        init(clientID, PlayerUniqueId, notificationIcon, null);
+    }
+
+    public void init(String clientID, @DrawableRes int notificationIcon, String language)
+    {
+        init(clientID, null, notificationIcon, language);
+    }
+
+    public void init(String clientID, @DrawableRes int notificationIcon)
+    {
+        init(clientID, null, notificationIcon, null);
+    }
+
+    public void changeLanguage(String language) {
+        if (language != null && language.length() != 2) {
+            SharedPreferencesUtils.getInstance().putLanguagePreference(language);
+        }
     }
 
     private void initializeFirebase(final PlayerAttributes playerAttributes,
                                     ClientBotSettings botSettings,
-                                    final Callback<PlayerRegisterResponse> callback) {
+                                    final Callback<PlayerRegisterResponse> callback)
+    {
 
-        if (mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty()) {
+        if (mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty())
+        {
 
             FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>()
             {
@@ -211,50 +245,61 @@ public class GameBallApp {
 
 
     public void registerPlayer(@NonNull String playerUniqueId,
-                               @NonNull Callback<PlayerRegisterResponse> callback) {
+                               @NonNull Callback<PlayerRegisterResponse> callback)
+    {
         registerPlayer(playerUniqueId, null, callback);
     }
 
     public void registerPlayer(@NonNull String playerUniqueId, int playerTypeID,
-                               @NonNull Callback<PlayerRegisterResponse> callback) {
+                               @NonNull Callback<PlayerRegisterResponse> callback)
+    {
         registerPlayer(playerUniqueId, null, callback);
     }
 
     public void registerPlayer(@NonNull String playerUniqueId, PlayerAttributes playerAttributes,
-                               @NonNull Callback<PlayerRegisterResponse> callback) {
-        if (!playerUniqueId.trim().isEmpty()) {
+                               @NonNull Callback<PlayerRegisterResponse> callback)
+    {
+        if (!playerUniqueId.trim().isEmpty())
+        {
             mPlayerUniqueId = playerUniqueId;
 
             initializeFirebase(playerAttributes, SharedPreferencesUtils.getInstance().getClientBotSettings(), callback);
-        } else {
+        } else
+        {
             Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
         }
     }
 
-    public void editPlayerAttributes(@NonNull PlayerAttributes playerAttributes, Callback callback) {
+    public void editPlayerAttributes(@NonNull PlayerAttributes playerAttributes, Callback callback)
+    {
         PlayerInfoBody body = new PlayerInfoBody(playerAttributes);
 
         profileRemoteProfileDataSource.initializePlayer(body)
                 .retry()
-                .subscribe(new CompletableObserver() {
+                .subscribe(new CompletableObserver()
+                {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(Disposable d)
+                    {
 
                     }
 
                     @Override
-                    public void onComplete() {
+                    public void onComplete()
+                    {
                         Log.i("add_player_info", "success");
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(Throwable e)
+                    {
                         Log.e("add_player_info", e.getMessage());
                     }
                 });
     }
 
-    private void sendNotification(final NotificationBody messageBody) {
+    private void sendNotification(final NotificationBody messageBody)
+    {
         Intent intent = new Intent(MAIN_ACTIVITY_ACTION);
 //        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0 /* Request code */, intent,
@@ -270,9 +315,11 @@ public class GameBallApp {
                         .setSmallIcon(mNotificationIcon)
                         .setSound(defaultSoundUri);
 
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
 
                 Intent notificationIntent = new Intent(mContext, LargeNotificationActivity.class);
                 notificationIntent.putExtra(Constants.NOTIFICATION_OBJ, messageBody);
@@ -285,7 +332,8 @@ public class GameBallApp {
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Since android Oreo notification channel is needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
             NotificationChannel channel = new NotificationChannel(channelId, "Game Ball Demo",
                     NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(channel);
@@ -294,9 +342,11 @@ public class GameBallApp {
         notificationManager.notify(999999999 /* ID of notification */, notificationBuilder.build());
     }
 
-    public boolean isGameBallNotification(RemoteMessage remoteMessage) {
+    public boolean isGameBallNotification(RemoteMessage remoteMessage)
+    {
         if (remoteMessage != null && Boolean.valueOf(remoteMessage.getData().get("isGB"))
-                && remoteMessage.getNotification() != null) {
+                && remoteMessage.getNotification() != null)
+        {
 
             Map<String, String> notificationData = remoteMessage.getData();
             NotificationBody notificationBody = new NotificationBody();
@@ -310,7 +360,8 @@ public class GameBallApp {
         return false;
     }
 
-    public void showProfile(final AppCompatActivity activity, @Nullable final String playerUniqueId) {
+    public void showProfile(final AppCompatActivity activity, @Nullable final String playerUniqueId)
+    {
         GameballWidgetActivity.start(activity, playerUniqueId);
     }
 
@@ -322,182 +373,226 @@ public class GameBallApp {
      *               amount: is needed if the challenge is amount based
      *               playerCategoryID: us needed if you have multi users categories(default value is 0)
      */
-    public void addAction(@NonNull Action action, final Callback callback) {
+    public void addAction(@NonNull Action action, final Callback callback)
+    {
 
         Log.i("action", new Gson().toJson(action));
         gameBallApi.addNewAtion(action).
                 subscribeOn(Schedulers.io())
-                .subscribe(new CompletableObserver() {
+                .subscribe(new CompletableObserver()
+                {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(Disposable d)
+                    {
 
                     }
 
                     @Override
-                    public void onComplete() {
+                    public void onComplete()
+                    {
                         Log.i("action:", "action successfull");
                         callback.onSuccess(new Object());
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(Throwable e)
+                    {
                         Log.e("action:", e.getMessage());
                         callback.onError(e);
                     }
                 });
     }
 
-    private void generateOTP(GenerateOTPBody body, final Callback callback) {
+    private void generateOTP(GenerateOTPBody body, final Callback callback)
+    {
         transactionRemoteDataSource.generateOtp(body)
-                .subscribe(new CompletableObserver() {
+                .subscribe(new CompletableObserver()
+                {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(Disposable d)
+                    {
 
                     }
 
                     @Override
-                    public void onComplete() {
+                    public void onComplete()
+                    {
                         callback.onSuccess(null);
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(Throwable e)
+                    {
                         callback.onError(e);
                     }
                 });
     }
 
-    private void rewardPoints(RewardPointBody body, final Callback callback) {
+    private void rewardPoints(RewardPointBody body, final Callback callback)
+    {
         transactionRemoteDataSource.rewardPoints(body)
-                .subscribe(new CompletableObserver() {
+                .subscribe(new CompletableObserver()
+                {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(Disposable d)
+                    {
 
                     }
 
                     @Override
-                    public void onComplete() {
+                    public void onComplete()
+                    {
                         callback.onSuccess(null);
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(Throwable e)
+                    {
                         callback.onError(e);
                     }
                 });
     }
 
-    private void holdPoints(HoldPointBody body, final Callback<HoldPointsResponse> callback) {
+    private void holdPoints(HoldPointBody body, final Callback<HoldPointsResponse> callback)
+    {
         transactionRemoteDataSource.holdPoints(body)
-                .subscribe(new SingleObserver<BaseResponse<HoldPointsResponse>>() {
+                .subscribe(new SingleObserver<BaseResponse<HoldPointsResponse>>()
+                {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(Disposable d)
+                    {
 
                     }
 
                     @Override
-                    public void onSuccess(BaseResponse<HoldPointsResponse> holdPointsResponseBaseResponse) {
+                    public void onSuccess(BaseResponse<HoldPointsResponse> holdPointsResponseBaseResponse)
+                    {
                         callback.onSuccess(holdPointsResponseBaseResponse.getResponse());
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(Throwable e)
+                    {
                         callback.onError(e);
                     }
                 });
     }
 
-    private void redeemPoints(RedeemPointBody body, final Callback callback) {
+    private void redeemPoints(RedeemPointBody body, final Callback callback)
+    {
         transactionRemoteDataSource.redeemPoints(body)
-                .subscribe(new CompletableObserver() {
+                .subscribe(new CompletableObserver()
+                {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(Disposable d)
+                    {
 
                     }
 
                     @Override
-                    public void onComplete() {
+                    public void onComplete()
+                    {
                         callback.onSuccess(null);
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(Throwable e)
+                    {
                         callback.onError(e);
                     }
                 });
     }
 
-    private void reverseHeldPoints(ReverseHeldPointsbody body, final Callback callback) {
+    private void reverseHeldPoints(ReverseHeldPointsbody body, final Callback callback)
+    {
         transactionRemoteDataSource.reverseHeldPoints(body)
-                .subscribe(new CompletableObserver() {
+                .subscribe(new CompletableObserver()
+                {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(Disposable d)
+                    {
 
                     }
 
                     @Override
-                    public void onComplete() {
+                    public void onComplete()
+                    {
                         callback.onSuccess(null);
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(Throwable e)
+                    {
                         callback.onError(e);
                     }
                 });
     }
 
-    private void getPlayerBalance(GetPlayerBalanceBody body, final Callback<PlayerBalanceResponse> callback) {
+    private void getPlayerBalance(GetPlayerBalanceBody body, final Callback<PlayerBalanceResponse> callback)
+    {
         transactionRemoteDataSource.getPlayerBalance(body)
-                .subscribe(new SingleObserver<BaseResponse<PlayerBalanceResponse>>() {
+                .subscribe(new SingleObserver<BaseResponse<PlayerBalanceResponse>>()
+                {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(Disposable d)
+                    {
 
                     }
 
                     @Override
-                    public void onSuccess(BaseResponse<PlayerBalanceResponse> playerBalanceResponseBaseResponse) {
+                    public void onSuccess(BaseResponse<PlayerBalanceResponse> playerBalanceResponseBaseResponse)
+                    {
                         callback.onSuccess(playerBalanceResponseBaseResponse.getResponse());
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(Throwable e)
+                    {
                         callback.onError(e);
                     }
                 });
     }
 
-    private void addReferral(ReferralBody body, final Callback callback) {
+    private void addReferral(ReferralBody body, final Callback callback)
+    {
 
         Log.i("referral_body", new Gson().toJson(body));
         transactionRemoteDataSource.addReferral(body)
-                .subscribe(new CompletableObserver() {
+                .subscribe(new CompletableObserver()
+                {
 
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(Disposable d)
+                    {
 
                     }
 
                     @Override
-                    public void onComplete() {
+                    public void onComplete()
+                    {
                         callback.onSuccess(new Object());
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onError(Throwable e)
+                    {
                         callback.onError(e);
                     }
                 });
     }
 
-    public void addReferral(@NonNull Activity activity, @NonNull Intent intent, @NonNull final Callback callback) {
+    public void addReferral(@NonNull Activity activity, @NonNull Intent intent, @NonNull final Callback callback)
+    {
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(intent)
-                .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>() {
+                .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>()
+                {
                     @Override
-                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData)
+                    {
                         Uri deepLink = null;
-                        if (pendingDynamicLinkData != null) {
+                        if (pendingDynamicLinkData != null)
+                        {
                             deepLink = pendingDynamicLinkData.getLink();
 
                             String referralCode = deepLink.getQueryParameter("GBReferral");
@@ -511,9 +606,11 @@ public class GameBallApp {
 
                     }
                 })
-                .addOnFailureListener(activity, new OnFailureListener() {
+                .addOnFailureListener(activity, new OnFailureListener()
+                {
                     @Override
-                    public void onFailure(@NonNull Exception e) {
+                    public void onFailure(@NonNull Exception e)
+                    {
                         Log.e(this.getClass().getSimpleName(), "getDynamicLink:onFailure", e);
                         callback.onError(e);
                     }
@@ -521,7 +618,8 @@ public class GameBallApp {
     }
 
 
-    public void showNotification() {
+    public void showNotification()
+    {
         LayoutInflater inflater = (LayoutInflater) mContext
                 .getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.custom_toast_layout, null);

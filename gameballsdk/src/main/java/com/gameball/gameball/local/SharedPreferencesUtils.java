@@ -163,6 +163,16 @@ public class SharedPreferencesUtils {
         return getString(PreferencesContract.PLAYER_DYNAMIC_LINK, null);
     }
 
+    public void putLanguagePreference(String language) {
+        putString(PreferencesContract.LANGUAGE_PREFERENCE, language);
+    }
+
+    public String getLanguagePreference() {
+        return getString(PreferencesContract.LANGUAGE_PREFERENCE, null);
+    }
+
+
+
     private static final class PreferencesContract {
 
         private static final String PLAYER_UNIQUE_ID = "PLAYER_UNIQUE_ID";
@@ -171,6 +181,7 @@ public class SharedPreferencesUtils {
         private static final String CLIENT_BOT_SETTINGS = "BOT_SETTINGS";
         private static final String PLAYER_TYPE_ID = "PLAYER_TYPE_ID";
         private static final String PLAYER_DYNAMIC_LINK = "PLAYER_DYNAMIC_LINK";
+        private static final String LANGUAGE_PREFERENCE = "LANGUAGE_PREFERENCE";
     }
 
 }

@@ -60,7 +60,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
         settings.setJavaScriptEnabled(true);
         settings.setLoadWithOverviewMode(true);
         settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
-        settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         settings.setAppCacheEnabled(false);
         settings.setDomStorageEnabled(true);
         settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
@@ -98,7 +98,10 @@ public class GameballWidgetActivity extends AppCompatActivity {
         SharedPreferencesUtils sharedPreferences = SharedPreferencesUtils.getInstance();
 
         String apiKey = sharedPreferences.getClientId();
-        String language = Locale.getDefault().getLanguage();
+        String language = SharedPreferencesUtils.getInstance().getLanguagePreference();
+
+                if(language == null || language.length()!= 2)
+                    language = Locale.getDefault().getLanguage();
 
 
         Uri.Builder uri = new Uri.Builder();

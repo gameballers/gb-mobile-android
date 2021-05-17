@@ -151,7 +151,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public boolean onMenuItemClick(MenuItem item)
             {
                 changeLang(item.getTitle().toString());
-                recreate();
                 return true;
             }
         });
@@ -209,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.api_key_btn:
                 if(!apiKeyField.getText().toString().trim().isEmpty())
                 {
-                    gameBallApp.init(apiKeyField.getText().toString(),R.mipmap.ic_launcher);
+                    gameBallApp.init(apiKeyField.getText().toString(),R.mipmap.ic_launcher, Locale.getDefault().getLanguage());
                 }
                 else
                     Toast.makeText(this,
@@ -281,5 +280,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         config.locale = locale;
         getBaseContext().getResources().updateConfiguration(config,
                 getResources().getDisplayMetrics());
+
+        gameBallApp.init("19f5b482e8e8497ab480b0eb47892afb",R.mipmap.ic_launcher,lang);
     }
 }
