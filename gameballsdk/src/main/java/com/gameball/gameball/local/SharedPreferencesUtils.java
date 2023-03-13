@@ -171,7 +171,37 @@ public class SharedPreferencesUtils {
         return getString(PreferencesContract.LANGUAGE_PREFERENCE, null);
     }
 
+    public void putPlatformPreference(String platform){
+        putString(PreferencesContract.PLATFORM_PREFERENCE, platform);
+    }
 
+    public String getPlatformPreference(){
+        return getString(PreferencesContract.PLATFORM_PREFERENCE, null);
+    }
+
+    public void putShopPreference(String shop){
+        putString(PreferencesContract.SHOP_PREFERENCE, shop);
+    }
+
+    public String getShopPreference(){
+        return getString(PreferencesContract.SHOP_PREFERENCE, null);
+    }
+
+    public void putSDKPreference(String sdVersion){
+        putString(PreferencesContract.SDK_VERSION_PREFERENCE, sdVersion);
+    }
+
+    public String getSDKPreference(){
+        return getString(PreferencesContract.SDK_VERSION_PREFERENCE, null);
+    }
+
+    public void putOSPreference(String osVersion){
+        putString(PreferencesContract.OS_VERSION_PREFERENCE, osVersion);
+    }
+
+    public String getOSPreference(){
+        return getString(PreferencesContract.OS_VERSION_PREFERENCE, null);
+    }
 
     private static final class PreferencesContract {
 
@@ -182,6 +212,10 @@ public class SharedPreferencesUtils {
         private static final String PLAYER_TYPE_ID = "PLAYER_TYPE_ID";
         private static final String PLAYER_DYNAMIC_LINK = "PLAYER_DYNAMIC_LINK";
         private static final String LANGUAGE_PREFERENCE = "LANGUAGE_PREFERENCE";
+        private static final String PLATFORM_PREFERENCE = "PLATFORM_PREFERENCE";
+        private static final String SHOP_PREFERENCE = "SHOP_PREFERENCE";
+        private static final String OS_VERSION_PREFERENCE = "OS_VERSION_PREFERENCE";
+        private static final String SDK_VERSION_PREFERENCE = "SDK_VERSION_PREFERENCE";
     }
 
 }
