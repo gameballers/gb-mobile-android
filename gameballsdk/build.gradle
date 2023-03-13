@@ -14,8 +14,9 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField 'String', 'LIVE_URL', '"https://api.gameball.co/"'
-        buildConfigField 'String', 'Widget_URL', '"gb-widget.azurewebsites.net"'
+        buildConfigField 'String', 'Widget_URL', '"m.gameball.app"'
         buildConfigField 'String', 'STAGE_URL', '"https://gb-api.azurewebsites.net/"'
+        buildConfigField 'String', 'SDK_VERSION', '"1.1.2-beta"'
     }
 
     buildTypes {
