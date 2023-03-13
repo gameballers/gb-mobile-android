@@ -239,6 +239,12 @@ public class GameBallApp
                     mDeviceToken = s;
                     registerDevice(playerAttributes, callback);
                 }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    mDeviceToken = null;
+                    registerDevice(playerAttributes, callback);
+                }
             });
         }
     }
