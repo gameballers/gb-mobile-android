@@ -1,5 +1,7 @@
 package com.gameball.gameball.network.interceptor;
 
+import android.util.Log;
+
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.utils.Constants;
 
@@ -28,7 +30,19 @@ public class HeaderInterceptor implements Interceptor
 
         builder.addHeader(Constants.LangKey, Locale.getDefault().getLanguage());
 
+        String osVersion = SharedPreferencesUtils.getInstance().getOSPreference();
+        String sdkVersion = SharedPreferencesUtils.getInstance().getSDKPreference();
+        if(osVersion != null && sdkVersion != null){
+            builder.addHeader(Constants.USER_AGENT,
+                    String.format("GB/%s/%s", osVersion, sdkVersion));
+        }
+
         request = builder.build();
+
+
+        Log.d("XXX", request.headers().toString());
+        Log.d("XXX", request.url().toString());
+
         return chain.proceed(request);
     }
 }
