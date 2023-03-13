@@ -18,7 +18,9 @@ public class Config {
     public static final String GenerateOTP = "api/integrations/GenerateOTP";
     public static final String ReverseHeld = "api/integrations/Transaction/Hold";
     public static final String GetPlayerBalance = "api/integrations/Transaction/Balance";
-    public static final String InitializePlayer = "api/v1.0/integrations/InitializePlayer";
+
+    //public static final String InitializePlayer = "api/v1.0/integrations/InitializePlayer";
+    public static final String InitializePlayer = "api/v3.0/integrations/player";
     public static final String referral = "api/v1.0/Integrations/Referral";
     public static final String notifications = "/api/v1.0/Bots/Notifications";
 }
