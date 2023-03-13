@@ -92,6 +92,8 @@ public class GameBallApp
     private String platform = null;
     private String SDKVersion = BuildConfig.SDK_VERSION;
     private String OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT);
+    private String referralCode;
+
 
     private GameBallApp(Context context)
     {
@@ -129,6 +131,11 @@ public class GameBallApp
         PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
         registerDeviceRequest.setPlayerUniqueID(mPlayerUniqueId);
 
+        if(referralCode != null)
+            registerDeviceRequest.setReferrerCode(referralCode);
+
+        Log.d("XXX", referralCode==null ? "null" : referralCode);
+
         if (mDeviceToken != null)
         {
             registerDeviceRequest.setDeviceToken(mDeviceToken);
@@ -137,6 +144,8 @@ public class GameBallApp
 
         if (playerAttributes != null)
             registerDeviceRequest.setPlayerAttributes(playerAttributes);
+
+        Log.d("XXX", new Gson().toJson(registerDeviceRequest));
 
         gameBallApi.registrationPlayer(registerDeviceRequest)
                 .subscribeOn(Schedulers.io())
@@ -206,7 +215,7 @@ public class GameBallApp
         SharedPreferencesUtils.getInstance().putOSPreference(this.OS);
         SharedPreferencesUtils.getInstance().putSDKPreference(SDKVersion);
 
-        init(clientID, mPlayerUniqueId, notificationIcon, language);
+        init(clientID, PlayerUniqueId, notificationIcon, language);
     }
 
     private void init(@NonNull String clientID, String PlayerUniqueId,
@@ -268,6 +277,26 @@ public class GameBallApp
         }
     }
 
+    //Checks for referral automatically
+    public void registerPlayer(@NonNull String playerUniqueId, PlayerAttributes playerAttributes,
+                               @NonNull Callback<PlayerRegisterResponse> callback,
+                               @NonNull Activity activity, @NonNull Intent intent)
+    {
+        checkReferral(activity, intent, new Callback<String>() {
+            @Override
+            public void onSuccess(String s) {
+                referralCode = s;
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
+
+        registerPlayer(playerUniqueId, playerAttributes, callback);
+    }
 
     public void registerPlayer(@NonNull String playerUniqueId,
                                @NonNull Callback<PlayerRegisterResponse> callback)
@@ -656,5 +685,36 @@ public class GameBallApp
         toast.setDuration(Toast.LENGTH_LONG);
         toast.setView(layout);
         toast.show();
+    }
+
+    private void checkReferral(@NonNull Activity activity, @NonNull Intent intent, @NonNull final Callback callback){
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(intent)
+                .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>()
+                {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData)
+                    {
+                        Uri deepLink = null;
+                        if (pendingDynamicLinkData != null)
+                        {
+                            deepLink = pendingDynamicLinkData.getLink();
+
+                            String referralCode = deepLink.getQueryParameter("GBReferral");
+
+                            callback.onSuccess(referralCode);
+                        }
+
+                    }
+                })
+                .addOnFailureListener(activity, new OnFailureListener()
+                {
+                    @Override
+                    public void onFailure(@NonNull Exception e)
+                    {
+                        Log.e(this.getClass().getSimpleName(), "getDynamicLink:onFailure", e);
+                        callback.onError(e);
+                    }
+                });
     }
 }
