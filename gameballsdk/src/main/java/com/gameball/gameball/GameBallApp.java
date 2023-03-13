@@ -88,6 +88,10 @@ public class GameBallApp
     private TransactionRemoteDataSource transactionRemoteDataSource;
     private ProfileRemoteProfileDataSource profileRemoteProfileDataSource;
 
+    private String shop = null;
+    private String platform = null;
+    private String SDKVersion = BuildConfig.SDK_VERSION;
+    private String OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT);
 
     private GameBallApp(Context context)
     {
@@ -188,6 +192,21 @@ public class GameBallApp
                         Log.e("bot_settings_error", e.getMessage());
                     }
                 });
+    }
+
+    public void init(@NonNull String clientID, String PlayerUniqueId,
+                     @DrawableRes int notificationIcon, String language, String platform, String shop)
+    {
+        this.platform = platform;
+        this.shop = shop;
+
+        SharedPreferencesUtils.getInstance().putPlatformPreference(platform);
+        SharedPreferencesUtils.getInstance().putShopPreference(shop);
+
+        SharedPreferencesUtils.getInstance().putOSPreference(this.OS);
+        SharedPreferencesUtils.getInstance().putSDKPreference(SDKVersion);
+
+        init(clientID, mPlayerUniqueId, notificationIcon, language);
     }
 
     private void init(@NonNull String clientID, String PlayerUniqueId,

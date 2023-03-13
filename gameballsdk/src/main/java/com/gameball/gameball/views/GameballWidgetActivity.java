@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -35,6 +36,10 @@ public class GameballWidgetActivity extends AppCompatActivity {
     final private static String API_KEY_QUERY_KEY = "apiKey";
     final private static String MAIN_COLOR_QUERY_KEY = "main";
     final private static String PLAYER_UNIQUE_QUERY_KEY = "playerid";
+    final private static String SHOP_QUERY_KEY = "shop";
+    final private static String PLATFORM_QUERY_KEY = "platform";
+    final private static String OS_VERSION_QUERY_KEY = "os";
+    final private static String GB_SDK_VERSION_QUERY_KEY = "sdk";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,7 +113,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
 
         uri.scheme("https")
                 .encodedAuthority(BuildConfig.Widget_URL)
-                .appendEncodedPath(MOBILE_VIEW_PATH)
+                //.appendEncodedPath(MOBILE_VIEW_PATH)
                 .appendQueryParameter(LANGUAGE_QUERY_KEY, language)
                 .appendQueryParameter(API_KEY_QUERY_KEY, apiKey);
 
@@ -119,6 +124,22 @@ public class GameballWidgetActivity extends AppCompatActivity {
             uri.appendQueryParameter(PLAYER_UNIQUE_QUERY_KEY, playerUniqueId);
         else if (sharedPreferences.getPlayerUniqueId() != null)
             uri.appendQueryParameter(PLAYER_UNIQUE_QUERY_KEY, sharedPreferences.getPlayerUniqueId());
+
+        String platform = sharedPreferences.getPlatformPreference();
+        String shop = sharedPreferences.getShopPreference();
+        String osVersion = sharedPreferences.getOSPreference();
+        String sdkVersion = sharedPreferences.getSDKPreference();
+
+        if(platform != null)
+            uri.appendQueryParameter(PLATFORM_QUERY_KEY, platform);
+        if(shop != null)
+            uri.appendQueryParameter(SHOP_QUERY_KEY, shop);
+        if(sdkVersion != null)
+            uri.appendQueryParameter(GB_SDK_VERSION_QUERY_KEY, sdkVersion);
+        if(osVersion != null)
+            uri.appendQueryParameter(OS_VERSION_QUERY_KEY, osVersion);
+
+        Log.d("XXX", uri.toString());
 
         widgetView.loadUrl(uri.toString());
     }
