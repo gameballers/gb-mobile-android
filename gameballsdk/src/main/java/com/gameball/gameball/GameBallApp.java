@@ -41,6 +41,7 @@ import com.gameball.gameball.model.response.NotificationBody;
 import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
+import com.gameball.gameball.model.response.PlayerRegisterResponseV3;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
@@ -117,7 +118,7 @@ public class GameBallApp
         return ourInstance;
     }
 
-    private void registerDevice(@Nullable PlayerAttributes playerAttributes, final Callback<PlayerRegisterResponse> callback)
+    private void registerDevice(@Nullable PlayerAttributes playerAttributes, final Callback<PlayerRegisterResponseV3> callback)
     {
 
         if (mPlayerUniqueId == null || mClientID == null)
@@ -150,7 +151,7 @@ public class GameBallApp
         gameBallApi.registrationPlayer(registerDeviceRequest)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<BaseResponse<PlayerRegisterResponse>>()
+                .subscribe(new SingleObserver<PlayerRegisterResponseV3>()
                 {
                     @Override
                     public void onSubscribe(Disposable d)
@@ -159,10 +160,10 @@ public class GameBallApp
                     }
 
                     @Override
-                    public void onSuccess(BaseResponse<PlayerRegisterResponse> playerRegisterResponseBaseResponse)
+                    public void onSuccess(PlayerRegisterResponseV3 playerRegisterResponseBaseResponse)
                     {
                         if (callback != null)
-                            callback.onSuccess(playerRegisterResponseBaseResponse.getResponse());
+                            callback.onSuccess(playerRegisterResponseBaseResponse);
                     }
 
                     @Override
@@ -253,7 +254,7 @@ public class GameBallApp
 
     private void initializeFirebase(final PlayerAttributes playerAttributes,
                                     ClientBotSettings botSettings,
-                                    final Callback<PlayerRegisterResponse> callback)
+                                    final Callback<PlayerRegisterResponseV3> callback)
     {
 
         if (mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty())
@@ -279,7 +280,7 @@ public class GameBallApp
 
     //Checks for referral automatically
     public void registerPlayer(@NonNull String playerUniqueId, PlayerAttributes playerAttributes,
-                               @NonNull Callback<PlayerRegisterResponse> callback,
+                               @NonNull Callback<PlayerRegisterResponseV3> callback,
                                @NonNull Activity activity, @NonNull Intent intent)
     {
         checkReferral(activity, intent, new Callback<String>() {
@@ -299,19 +300,19 @@ public class GameBallApp
     }
 
     public void registerPlayer(@NonNull String playerUniqueId,
-                               @NonNull Callback<PlayerRegisterResponse> callback)
+                               @NonNull Callback<PlayerRegisterResponseV3> callback)
     {
         registerPlayer(playerUniqueId, null, callback);
     }
 
     public void registerPlayer(@NonNull String playerUniqueId, int playerTypeID,
-                               @NonNull Callback<PlayerRegisterResponse> callback)
+                               @NonNull Callback<PlayerRegisterResponseV3> callback)
     {
         registerPlayer(playerUniqueId, null, callback);
     }
 
     public void registerPlayer(@NonNull String playerUniqueId, PlayerAttributes playerAttributes,
-                               @NonNull Callback<PlayerRegisterResponse> callback)
+                               @NonNull Callback<PlayerRegisterResponseV3> callback)
     {
         if (!playerUniqueId.trim().isEmpty())
         {

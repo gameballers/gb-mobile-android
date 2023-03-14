@@ -20,6 +20,7 @@ import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
+import com.gameball.gameball.model.response.PlayerRegisterResponseV3;
 import com.gameball.gameball.network.Callback;
 
 import java.util.ArrayList;
@@ -251,10 +252,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             PlayerAttributes player = new PlayerAttributes.Builder().withDisplayName(playerIDField.getText().toString()).build();
 
             gameBallApp.registerPlayer(playerIDField.getText().toString().trim(), player,
-                        new Callback<PlayerRegisterResponse>()
+                        new Callback<PlayerRegisterResponseV3>()
                         {
                             @Override
-                            public void onSuccess(PlayerRegisterResponse playerRegisterResponse)
+                            public void onSuccess(PlayerRegisterResponseV3 playerRegisterResponse)
                             {
 
                             }

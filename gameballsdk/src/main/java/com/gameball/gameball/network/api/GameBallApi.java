@@ -16,6 +16,7 @@ import com.gameball.gameball.model.response.HoldPointsResponse;
 import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
+import com.gameball.gameball.model.response.PlayerRegisterResponseV3;
 import com.gameball.gameball.network.Config;
 
 import io.reactivex.Completable;
@@ -32,7 +33,8 @@ import retrofit2.http.Query;
  */
 public interface GameBallApi {
     @POST(Config.InitializePlayer)
-    Single<BaseResponse<PlayerRegisterResponse>> registrationPlayer(
+    //Single<BaseResponse<PlayerRegisterResponse>> registrationPlayer(
+    Single<PlayerRegisterResponseV3> registrationPlayer(
             @Body PlayerRegisterRequest playerRegisterRequest);
 
     @POST(Config.Push)
