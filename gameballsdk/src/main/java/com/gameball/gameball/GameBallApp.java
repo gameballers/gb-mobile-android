@@ -196,42 +196,29 @@ public class GameBallApp
     {
         this.platform = platform;
         this.shop = shop;
+        this.mClientID = clientID;
+        this.mPlayerUniqueId = PlayerUniqueId;
+        this.mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.getInstance().putPlatformPreference(platform);
+
         SharedPreferencesUtils.getInstance().putShopPreference(shop);
 
         SharedPreferencesUtils.getInstance().putOSPreference(this.OS);
-        SharedPreferencesUtils.getInstance().putSDKPreference(SDKVersion);
 
-        init(clientID, PlayerUniqueId, notificationIcon, language);
-    }
+        SharedPreferencesUtils.getInstance().putSDKPreference(this.SDKVersion);
 
-    private void init(@NonNull String clientID, String PlayerUniqueId,
-                      @DrawableRes int notificationIcon, String language)
-    {
-        this.mClientID = clientID;
-        this.mPlayerUniqueId = PlayerUniqueId;
-        mNotificationIcon = notificationIcon;
+        SharedPreferencesUtils.getInstance().putClientId(this.mClientID);
+
+        SharedPreferencesUtils.getInstance().putLanguagePreference(language);
 
         SharedPreferencesUtils.getInstance().putClientId(clientID);
+
         SharedPreferencesUtils.getInstance().putLanguagePreference(language);
+
         getBotSettings();
     }
 
-    public void init(String clientID, String PlayerUniqueId, @DrawableRes int notificationIcon)
-    {
-        init(clientID, PlayerUniqueId, notificationIcon, null);
-    }
-
-    public void init(String clientID, @DrawableRes int notificationIcon, String language)
-    {
-        init(clientID, null, notificationIcon, language);
-    }
-
-    public void init(String clientID, @DrawableRes int notificationIcon)
-    {
-        init(clientID, null, notificationIcon, null);
-    }
 
     public void changeLanguage(String language) {
         if (language != null && language.length() != 2) {
