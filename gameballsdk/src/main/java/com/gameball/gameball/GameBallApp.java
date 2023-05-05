@@ -275,24 +275,6 @@ public class GameBallApp
             }
         });
 
-        registerPlayer(playerUniqueId, playerAttributes, callback);
-    }
-
-    public void registerPlayer(@NonNull String playerUniqueId,
-                               @NonNull Callback<PlayerRegisterResponse> callback)
-    {
-        registerPlayer(playerUniqueId, null, callback);
-    }
-
-    public void registerPlayer(@NonNull String playerUniqueId, int playerTypeID,
-                               @NonNull Callback<PlayerRegisterResponse> callback)
-    {
-        registerPlayer(playerUniqueId, null, callback);
-    }
-
-    public void registerPlayer(@NonNull String playerUniqueId, PlayerAttributes playerAttributes,
-                               @NonNull Callback<PlayerRegisterResponse> callback)
-    {
         if (!playerUniqueId.trim().isEmpty())
         {
             mPlayerUniqueId = playerUniqueId;
@@ -303,7 +285,6 @@ public class GameBallApp
             Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
         }
     }
-
 
     private void sendNotification(final NotificationBody messageBody)
     {
