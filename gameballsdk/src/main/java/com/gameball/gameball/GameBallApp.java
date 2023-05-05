@@ -37,6 +37,7 @@ import com.gameball.gameball.network.api.GameBallApi;
 import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.views.GameballWidgetActivity;
 import com.gameball.gameball.views.laregNotificationView.LargeNotificationActivity;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
@@ -82,6 +83,7 @@ public class GameBallApp
     private String OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT);
     private String referralCode;
 
+    private boolean isGmsAvailable;
 
     private GameBallApp(Context context)
     {
@@ -89,10 +91,11 @@ public class GameBallApp
         {
             this.mContext = context;
             gameBallApi = Network.getInstance().getGameBallApi();
+
             SharedPreferencesUtils.init(mContext, new Gson());
-            //transactionRemoteDataSource = TransactionRemoteDataSource.getInstance();
-            //profileRemoteProfileDataSource = ProfileRemoteProfileDataSource.getInstance();
             SharedPreferencesUtils.getInstance().putClientBotSettings(null);
+
+            isGmsAvailable = isGmsAvailable(this.mContext);
         }
     }
 
@@ -234,21 +237,23 @@ public class GameBallApp
         if (mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty())
         {
 
-            FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>()
-            {
-                @Override
-                public void onSuccess(String s)
+            if(isGmsAvailable){
+                FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>()
                 {
-                    mDeviceToken = s;
-                    registerDevice(playerAttributes, callback);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    mDeviceToken = null;
-                    registerDevice(playerAttributes, callback);
-                }
-            });
+                    @Override
+                    public void onSuccess(String s)
+                    {
+                        mDeviceToken = s;
+                        registerDevice(playerAttributes, callback);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        mDeviceToken = null;
+                        registerDevice(playerAttributes, callback);
+                    }
+                });
+            }
         }
     }
 
@@ -383,34 +388,36 @@ public class GameBallApp
     }
 
     private void checkReferral(@NonNull Activity activity, @NonNull Intent intent, @NonNull final Callback callback){
-        FirebaseDynamicLinks.getInstance()
-                .getDynamicLink(intent)
-                .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>()
-                {
-                    @Override
-                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData)
+        if(isGmsAvailable){
+            FirebaseDynamicLinks.getInstance()
+                    .getDynamicLink(intent)
+                    .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>()
                     {
-                        Uri deepLink = null;
-                        if (pendingDynamicLinkData != null)
+                        @Override
+                        public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData)
                         {
-                            deepLink = pendingDynamicLinkData.getLink();
+                            Uri deepLink = null;
+                            if (pendingDynamicLinkData != null)
+                            {
+                                deepLink = pendingDynamicLinkData.getLink();
 
-                            String referralCode = deepLink.getQueryParameter("GBReferral");
+                                String referralCode = deepLink.getQueryParameter("GBReferral");
 
-                            callback.onSuccess(referralCode);
+                                callback.onSuccess(referralCode);
+                            }
+
                         }
-
-                    }
-                })
-                .addOnFailureListener(activity, new OnFailureListener()
-                {
-                    @Override
-                    public void onFailure(@NonNull Exception e)
+                    })
+                    .addOnFailureListener(activity, new OnFailureListener()
                     {
-                        Log.e(this.getClass().getSimpleName(), "getDynamicLink:onFailure", e);
-                        callback.onError(e);
-                    }
-                });
+                        @Override
+                        public void onFailure(@NonNull Exception e)
+                        {
+                            Log.e(this.getClass().getSimpleName(), "getDynamicLink:onFailure", e);
+                            callback.onError(e);
+                        }
+                    });
+        }
     }
 
     public void AddEvent(Event eventBody, final Callback<Boolean> callback){
@@ -434,5 +441,15 @@ public class GameBallApp
                         callback.onError(e);
                     }
                 });
+    }
+
+    private boolean isGmsAvailable(Context context){
+        boolean isGmsAvailable = false;
+        if (context != null) {
+            int result = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+            isGmsAvailable = (com.google.android.gms.common.ConnectionResult.SUCCESS == result);
+        }
+        Log.i(TAG, "isGmsAvailable: " + isGmsAvailable);
+        return isGmsAvailable;
     }
 }
