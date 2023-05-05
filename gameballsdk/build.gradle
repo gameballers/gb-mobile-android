@@ -45,7 +45,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.squareup.okhttp3:okhttp:3.12.3'
-    implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
+
+    implementation 'com.github.cachapa:Expandablelayout:2.9.2'
 }
 
 
