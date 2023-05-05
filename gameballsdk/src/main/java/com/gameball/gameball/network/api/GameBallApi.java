@@ -1,6 +1,7 @@
 package com.gameball.gameball.network.api;
 
 import com.gameball.gameball.model.request.Action;
+import com.gameball.gameball.model.request.Event;
 import com.gameball.gameball.model.request.GenerateOTPBody;
 import com.gameball.gameball.model.request.GetPlayerBalanceBody;
 import com.gameball.gameball.model.request.HoldPointBody;
@@ -16,7 +17,6 @@ import com.gameball.gameball.model.response.HoldPointsResponse;
 import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerInfoResponse;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
-import com.gameball.gameball.model.response.PlayerRegisterResponseV3;
 import com.gameball.gameball.network.Config;
 
 import io.reactivex.Completable;
@@ -33,46 +33,11 @@ import retrofit2.http.Query;
  */
 public interface GameBallApi {
     @POST(Config.InitializePlayer)
-    //Single<BaseResponse<PlayerRegisterResponse>> registrationPlayer(
-    Single<PlayerRegisterResponseV3> registrationPlayer(
-            @Body PlayerRegisterRequest playerRegisterRequest);
-
-    @POST(Config.Push)
-    Single<Response<Void>> push(@Header("token") String token);
-
-    @GET(Config.PlayerInfo)
-    Single<BaseResponse<PlayerInfoResponse>> getPlayerDetails(@Query("PlayerUniqueId") String playerUniqueId);
+    Single<PlayerRegisterResponse> registrationPlayer(@Body PlayerRegisterRequest playerRegisterRequest);
 
     @GET(Config.GetBotSettings)
     Single<BaseResponse<ClientBotSettings>> getBotSettings();
 
-    @POST(Config.AddNewAction)
-    Completable addNewAtion(@Body Action actionBody);
-
-    @POST(Config.RewardPoints)
-    Completable rewardPoints(@Body RewardPointBody rewardPointsBody);
-
-    @POST(Config.HoldPoints)
-    Single<BaseResponse<HoldPointsResponse>> holdPoints(@Body HoldPointBody body);
-
-    @POST(Config.RedeemPoints)
-    Completable redeemPoints(@Body RedeemPointBody body);
-
-    @POST(Config.GenerateOTP)
-    Completable generateOTP(@Body GenerateOTPBody body);
-
-    @POST(Config.ReverseHeld)
-    Completable reverseHeldPoints(@Body ReverseHeldPointsbody body);
-
-    @POST(Config.referral)
-    Completable addReferral(@Body ReferralBody body);
-
-    @POST(Config.GetPlayerBalance)
-    Single<BaseResponse<PlayerBalanceResponse>> getPlayerBalance(@Body GetPlayerBalanceBody body);
-
-    @POST(Config.InitializePlayer)
-    Completable initializePlayer(@Body PlayerInfoBody body);
-    
-    
-
+    @POST(Config.AddEvent)
+    Completable addEvent(@Body Event eventBody);
 }

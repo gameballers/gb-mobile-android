@@ -24,29 +24,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
-import com.gameball.gameball.model.request.Action;
-import com.gameball.gameball.model.request.GenerateOTPBody;
-import com.gameball.gameball.model.request.GetPlayerBalanceBody;
-import com.gameball.gameball.model.request.HoldPointBody;
-import com.gameball.gameball.model.request.PlayerInfoBody;
+import com.gameball.gameball.model.request.Event;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
-import com.gameball.gameball.model.request.RedeemPointBody;
-import com.gameball.gameball.model.request.ReferralBody;
-import com.gameball.gameball.model.request.ReverseHeldPointsbody;
-import com.gameball.gameball.model.request.RewardPointBody;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.HoldPointsResponse;
 import com.gameball.gameball.model.response.NotificationBody;
 import com.gameball.gameball.model.response.PlayerAttributes;
-import com.gameball.gameball.model.response.PlayerBalanceResponse;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
-import com.gameball.gameball.model.response.PlayerRegisterResponseV3;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
-import com.gameball.gameball.network.profileRemote.ProfileRemoteProfileDataSource;
-import com.gameball.gameball.network.transactionRemote.TransactionRemoteDataSource;
 import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.views.GameballWidgetActivity;
 import com.gameball.gameball.views.laregNotificationView.LargeNotificationActivity;
@@ -86,8 +73,8 @@ public class GameBallApp
     private int mNotificationIcon;
     private String mDeviceToken;
     private GameBallApi gameBallApi;
-    private TransactionRemoteDataSource transactionRemoteDataSource;
-    private ProfileRemoteProfileDataSource profileRemoteProfileDataSource;
+    //private TransactionRemoteDataSource transactionRemoteDataSource;
+    //private ProfileRemoteProfileDataSource profileRemoteProfileDataSource;
 
     private String shop = null;
     private String platform = null;
@@ -103,8 +90,8 @@ public class GameBallApp
             this.mContext = context;
             gameBallApi = Network.getInstance().getGameBallApi();
             SharedPreferencesUtils.init(mContext, new Gson());
-            transactionRemoteDataSource = TransactionRemoteDataSource.getInstance();
-            profileRemoteProfileDataSource = ProfileRemoteProfileDataSource.getInstance();
+            //transactionRemoteDataSource = TransactionRemoteDataSource.getInstance();
+            //profileRemoteProfileDataSource = ProfileRemoteProfileDataSource.getInstance();
             SharedPreferencesUtils.getInstance().putClientBotSettings(null);
         }
     }
@@ -118,7 +105,7 @@ public class GameBallApp
         return ourInstance;
     }
 
-    private void registerDevice(@Nullable PlayerAttributes playerAttributes, final Callback<PlayerRegisterResponseV3> callback)
+    private void registerDevice(@Nullable PlayerAttributes playerAttributes, final Callback<PlayerRegisterResponse> callback)
     {
 
         if (mPlayerUniqueId == null || mClientID == null)
@@ -151,7 +138,7 @@ public class GameBallApp
         gameBallApi.registrationPlayer(registerDeviceRequest)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<PlayerRegisterResponseV3>()
+                .subscribe(new SingleObserver<PlayerRegisterResponse>()
                 {
                     @Override
                     public void onSubscribe(Disposable d)
@@ -160,7 +147,7 @@ public class GameBallApp
                     }
 
                     @Override
-                    public void onSuccess(PlayerRegisterResponseV3 playerRegisterResponseBaseResponse)
+                    public void onSuccess(PlayerRegisterResponse playerRegisterResponseBaseResponse)
                     {
                         if (callback != null)
                             callback.onSuccess(playerRegisterResponseBaseResponse);
@@ -254,7 +241,7 @@ public class GameBallApp
 
     private void initializeFirebase(final PlayerAttributes playerAttributes,
                                     ClientBotSettings botSettings,
-                                    final Callback<PlayerRegisterResponseV3> callback)
+                                    final Callback<PlayerRegisterResponse> callback)
     {
 
         if (mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty())
@@ -280,7 +267,7 @@ public class GameBallApp
 
     //Checks for referral automatically
     public void registerPlayer(@NonNull String playerUniqueId, PlayerAttributes playerAttributes,
-                               @NonNull Callback<PlayerRegisterResponseV3> callback,
+                               @NonNull Callback<PlayerRegisterResponse> callback,
                                @NonNull Activity activity, @NonNull Intent intent)
     {
         checkReferral(activity, intent, new Callback<String>() {
@@ -300,19 +287,19 @@ public class GameBallApp
     }
 
     public void registerPlayer(@NonNull String playerUniqueId,
-                               @NonNull Callback<PlayerRegisterResponseV3> callback)
+                               @NonNull Callback<PlayerRegisterResponse> callback)
     {
         registerPlayer(playerUniqueId, null, callback);
     }
 
     public void registerPlayer(@NonNull String playerUniqueId, int playerTypeID,
-                               @NonNull Callback<PlayerRegisterResponseV3> callback)
+                               @NonNull Callback<PlayerRegisterResponse> callback)
     {
         registerPlayer(playerUniqueId, null, callback);
     }
 
     public void registerPlayer(@NonNull String playerUniqueId, PlayerAttributes playerAttributes,
-                               @NonNull Callback<PlayerRegisterResponseV3> callback)
+                               @NonNull Callback<PlayerRegisterResponse> callback)
     {
         if (!playerUniqueId.trim().isEmpty())
         {
@@ -325,33 +312,6 @@ public class GameBallApp
         }
     }
 
-    public void editPlayerAttributes(@NonNull PlayerAttributes playerAttributes, Callback callback)
-    {
-        PlayerInfoBody body = new PlayerInfoBody(playerAttributes);
-
-        profileRemoteProfileDataSource.initializePlayer(body)
-                .retry()
-                .subscribe(new CompletableObserver()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-                        Log.i("add_player_info", "success");
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        Log.e("add_player_info", e.getMessage());
-                    }
-                });
-    }
 
     private void sendNotification(final NotificationBody messageBody)
     {
@@ -420,259 +380,6 @@ public class GameBallApp
         GameballWidgetActivity.start(activity, playerUniqueId);
     }
 
-    /**
-     * use AddAction when ever you want to trigger that an action is done by the user.
-     *
-     * @param action the method requires and action object that requires the challengeApiId
-     *               another two paramaeters are optional.
-     *               amount: is needed if the challenge is amount based
-     *               playerCategoryID: us needed if you have multi users categories(default value is 0)
-     */
-    public void addAction(@NonNull Action action, final Callback callback)
-    {
-
-        Log.i("action", new Gson().toJson(action));
-        gameBallApi.addNewAtion(action).
-                subscribeOn(Schedulers.io())
-                .subscribe(new CompletableObserver()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-                        Log.i("action:", "action successfull");
-                        callback.onSuccess(new Object());
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        Log.e("action:", e.getMessage());
-                        callback.onError(e);
-                    }
-                });
-    }
-
-    private void generateOTP(GenerateOTPBody body, final Callback callback)
-    {
-        transactionRemoteDataSource.generateOtp(body)
-                .subscribe(new CompletableObserver()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-                        callback.onSuccess(null);
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        callback.onError(e);
-                    }
-                });
-    }
-
-    private void rewardPoints(RewardPointBody body, final Callback callback)
-    {
-        transactionRemoteDataSource.rewardPoints(body)
-                .subscribe(new CompletableObserver()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-                        callback.onSuccess(null);
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        callback.onError(e);
-                    }
-                });
-    }
-
-    private void holdPoints(HoldPointBody body, final Callback<HoldPointsResponse> callback)
-    {
-        transactionRemoteDataSource.holdPoints(body)
-                .subscribe(new SingleObserver<BaseResponse<HoldPointsResponse>>()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onSuccess(BaseResponse<HoldPointsResponse> holdPointsResponseBaseResponse)
-                    {
-                        callback.onSuccess(holdPointsResponseBaseResponse.getResponse());
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        callback.onError(e);
-                    }
-                });
-    }
-
-    private void redeemPoints(RedeemPointBody body, final Callback callback)
-    {
-        transactionRemoteDataSource.redeemPoints(body)
-                .subscribe(new CompletableObserver()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-                        callback.onSuccess(null);
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        callback.onError(e);
-                    }
-                });
-    }
-
-    private void reverseHeldPoints(ReverseHeldPointsbody body, final Callback callback)
-    {
-        transactionRemoteDataSource.reverseHeldPoints(body)
-                .subscribe(new CompletableObserver()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-                        callback.onSuccess(null);
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        callback.onError(e);
-                    }
-                });
-    }
-
-    private void getPlayerBalance(GetPlayerBalanceBody body, final Callback<PlayerBalanceResponse> callback)
-    {
-        transactionRemoteDataSource.getPlayerBalance(body)
-                .subscribe(new SingleObserver<BaseResponse<PlayerBalanceResponse>>()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onSuccess(BaseResponse<PlayerBalanceResponse> playerBalanceResponseBaseResponse)
-                    {
-                        callback.onSuccess(playerBalanceResponseBaseResponse.getResponse());
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        callback.onError(e);
-                    }
-                });
-    }
-
-    private void addReferral(ReferralBody body, final Callback callback)
-    {
-
-        Log.i("referral_body", new Gson().toJson(body));
-        transactionRemoteDataSource.addReferral(body)
-                .subscribe(new CompletableObserver()
-                {
-
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-                        callback.onSuccess(new Object());
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        callback.onError(e);
-                    }
-                });
-    }
-
-    public void addReferral(@NonNull Activity activity, @NonNull Intent intent, @NonNull final Callback callback)
-    {
-        FirebaseDynamicLinks.getInstance()
-                .getDynamicLink(intent)
-                .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>()
-                {
-                    @Override
-                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData)
-                    {
-                        Uri deepLink = null;
-                        if (pendingDynamicLinkData != null)
-                        {
-                            deepLink = pendingDynamicLinkData.getLink();
-
-                            String referralCode = deepLink.getQueryParameter("GBReferral");
-
-                            ReferralBody referralBody = new ReferralBody();
-                            referralBody.setNewPlayerUniqueId(SharedPreferencesUtils.getInstance().getPlayerUniqueId());
-                            referralBody.setPlayerCode(referralCode);
-                            referralBody.setNewPlayerTypeIDd(-1);
-                            addReferral(referralBody, callback);
-                        }
-
-                    }
-                })
-                .addOnFailureListener(activity, new OnFailureListener()
-                {
-                    @Override
-                    public void onFailure(@NonNull Exception e)
-                    {
-                        Log.e(this.getClass().getSimpleName(), "getDynamicLink:onFailure", e);
-                        callback.onError(e);
-                    }
-                });
-    }
-
-
     public void showNotification()
     {
         LayoutInflater inflater = (LayoutInflater) mContext
@@ -714,6 +421,29 @@ public class GameBallApp
                     public void onFailure(@NonNull Exception e)
                     {
                         Log.e(this.getClass().getSimpleName(), "getDynamicLink:onFailure", e);
+                        callback.onError(e);
+                    }
+                });
+    }
+
+    public void AddEvent(Event eventBody, final Callback<Boolean> callback){
+        gameBallApi.addEvent(eventBody)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CompletableObserver(){
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        callback.onSuccess(true);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
                         callback.onError(e);
                     }
                 });
