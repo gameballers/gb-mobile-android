@@ -15,7 +15,7 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class ProfileRemoteProfileDataSource implements ProfileDataSourceContract
+/*public class ProfileRemoteProfileDataSource implements ProfileDataSourceContract
 {
     private static ProfileRemoteProfileDataSource instance;
     private GameBallApi gameBallApi;
@@ -71,3 +71,4 @@ public class ProfileRemoteProfileDataSource implements ProfileDataSourceContract
                 .observeOn(AndroidSchedulers.mainThread());
     }
 }
+*/

@@ -20,7 +20,7 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class TransactionRemoteDataSource implements TransactionDataSourceContract
+/*public class TransactionRemoteDataSource implements TransactionDataSourceContract
 {
     private static TransactionRemoteDataSource instance;
     private GameBallApi gameBallApi;
@@ -100,3 +100,4 @@ public class TransactionRemoteDataSource implements TransactionDataSourceContrac
                 .observeOn(AndroidSchedulers.mainThread());
     }
 }
+*/

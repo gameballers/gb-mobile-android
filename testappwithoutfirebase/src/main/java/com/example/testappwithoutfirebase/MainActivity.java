@@ -20,14 +20,13 @@ import com.gameball.gameball.GameBallApp;
 import com.gameball.gameball.model.request.Action;
 import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
-import com.gameball.gameball.model.response.PlayerRegisterResponseV3;
 import com.gameball.gameball.network.Callback;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener
+public class MainActivity extends AppCompatActivity// implements View.OnClickListener
 {
 
     private EditText playerCategoryID;
@@ -58,8 +57,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adapter = new ChallengeApiIDAdapter(this, new ArrayList<String>());
 
         initView();
-        prepView();
-        daynamicLinkTest();
+        //prepView();
+        //daynamicLinkTest();
 //        changeLang(Locale.getDefault().getLanguage());
 
 
@@ -80,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                });
     }
 
-    private void daynamicLinkTest()
+    /*private void daynamicLinkTest()
     {
         gameBallApp.addReferral(this, getIntent(), new Callback() {
             @Override
@@ -93,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-    }
+    }*/
 
     public void navigateToFragment(Fragment fragment)
     {
@@ -129,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         apiKeyBtn = findViewById(R.id.api_key_btn);
     }
 
-    private void prepView()
+   /* private void prepView()
     {
         challengeApiIdsRecyclerview.setLayoutManager(new LinearLayoutManager(this));
         challengeApiIdsRecyclerview.setNestedScrollingEnabled(false);
@@ -158,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    @Override
+   /* @Override
     public void onClick(View v)
     {
         switch (v.getId())
@@ -220,6 +219,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    */
+
     private void holdRedeemPoints()
     {
 //        gameBallApp.holdPoints(new HoldPointBody(10, "08773", "5sdfd2dvvd-9mnvhu25d6c3d"),
@@ -252,10 +253,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             PlayerAttributes player = new PlayerAttributes.Builder().withDisplayName(playerIDField.getText().toString()).build();
 
             gameBallApp.registerPlayer(playerIDField.getText().toString().trim(), player,
-                        new Callback<PlayerRegisterResponseV3>()
+                        new Callback<PlayerRegisterResponse>()
                         {
                             @Override
-                            public void onSuccess(PlayerRegisterResponseV3 playerRegisterResponse)
+                            public void onSuccess(PlayerRegisterResponse playerRegisterResponse)
                             {
 
                             }
