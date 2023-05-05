@@ -16,7 +16,7 @@ public class GameBallDemoApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        GameBallApp.getInstance(this).init("8fdfd2dffd-9mnvhu25d6c3d", R.mipmap.ic_launcher, Locale.getDefault().getLanguage());
+        //GameBallApp.getInstance(this).init("8fdfd2dffd-9mnvhu25d6c3d", R.mipmap.ic_launcher, Locale.getDefault().getLanguage());
 
         // TODO: 8/23/2018
     }

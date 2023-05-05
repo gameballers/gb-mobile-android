@@ -283,6 +283,6 @@ public class MainActivity extends AppCompatActivity// implements View.OnClickLis
         getBaseContext().getResources().updateConfiguration(config,
                 getResources().getDisplayMetrics());
 
-        gameBallApp.init("19f5b482e8e8497ab480b0eb47892afb",R.mipmap.ic_launcher,lang);
+        //gameBallApp.init("19f5b482e8e8497ab480b0eb47892afb",R.mipmap.ic_launcher,lang);
     }
 }
