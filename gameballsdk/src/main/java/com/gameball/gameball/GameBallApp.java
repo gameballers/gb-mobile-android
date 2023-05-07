@@ -189,13 +189,12 @@ public class GameBallApp
                 });
     }
 
-    public void init(@NonNull String clientID, String PlayerUniqueId,
-                     @DrawableRes int notificationIcon, String language, String platform, String shop)
+    public void init(@NonNull String clientID, @DrawableRes int notificationIcon,
+                     String language, String platform, String shop)
     {
         this.platform = platform;
         this.shop = shop;
         this.mClientID = clientID;
-        this.mPlayerUniqueId = PlayerUniqueId;
         this.mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.getInstance().putPlatformPreference(platform);
