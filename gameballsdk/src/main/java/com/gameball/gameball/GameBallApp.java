@@ -74,15 +74,11 @@ public class GameBallApp
     private int mNotificationIcon;
     private String mDeviceToken;
     private GameBallApi gameBallApi;
-    //private TransactionRemoteDataSource transactionRemoteDataSource;
-    //private ProfileRemoteProfileDataSource profileRemoteProfileDataSource;
-
     private String shop = null;
     private String platform = null;
     private String SDKVersion = BuildConfig.SDK_VERSION;
     private String OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT);
     private String referralCode;
-
     private boolean isGmsAvailable;
 
     private GameBallApp(Context context)
@@ -401,7 +397,7 @@ public class GameBallApp
         }
     }
 
-    public void AddEvent(Event eventBody, final Callback<Boolean> callback){
+    public void addEvent(Event eventBody, final Callback<Boolean> callback){
         gameBallApi.addEvent(eventBody)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
