@@ -179,7 +179,6 @@ public class GameBallApp
                     {
                         SharedPreferencesUtils.getInstance().
                                 putClientBotSettings(clientBotSettingsBaseResponse.getResponse());
-                        initializeFirebase(null, clientBotSettingsBaseResponse.getResponse(), null);
                     }
 
                     @Override
