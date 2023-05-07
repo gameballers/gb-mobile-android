@@ -57,7 +57,7 @@ public class PlayerAttributes
     private String dynamicLink;
     @SerializedName("custom")
     @Expose
-    private HashMap<String, String> custom;
+    private HashMap<String, String> customAttributes;
 
     public String getDisplayName()
     {
@@ -139,15 +139,8 @@ public class PlayerAttributes
         return dynamicLink;
     }
 
-    public HashMap<String, String> getCustom() {
-        return this.custom;
-    }
-
-    public void addCustomAttribute(String key, String value) {
-        if (this.custom == null)
-            custom = new HashMap<>();
-
-        custom.put(key, value);
+    public HashMap<String, String> getCustomAttributes() {
+        return this.customAttributes;
     }
 
     public static class Builder
@@ -158,6 +151,7 @@ public class PlayerAttributes
         private String mobileNumber;
         private String dateOfBirth;
         private String joinDate;
+        private HashMap<String, String> customAttributes;
 
         public Builder()
         {
@@ -203,6 +197,15 @@ public class PlayerAttributes
             return this;
         }
 
+        public Builder withCustomAttribute(String key, String value){
+            if (this.customAttributes == null)
+                customAttributes = new HashMap<>();
+
+            customAttributes.put(key, value);
+
+            return this;
+        }
+
         public PlayerAttributes build()
         {
             PlayerAttributes playerAttributes = new PlayerAttributes();
@@ -215,6 +218,9 @@ public class PlayerAttributes
                 playerAttributes.mobileNumber = null;
             else
                 playerAttributes.mobileNumber = this.mobileNumber;
+
+            if(this.customAttributes != null)
+                playerAttributes.customAttributes = this.customAttributes;
 
             playerAttributes.dateOfBirth = this.dateOfBirth;
             playerAttributes.displayName = this.displayName;
