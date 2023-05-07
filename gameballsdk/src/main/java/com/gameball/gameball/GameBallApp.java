@@ -300,27 +300,33 @@ public class GameBallApp
                                @NonNull Callback<PlayerRegisterResponse> callback,
                                @NonNull Activity activity, @NonNull Intent intent)
     {
-        checkReferral(activity, intent, new Callback<String>() {
-            @Override
-            public void onSuccess(String s) {
-                referralCode = s;
+        try{
+            checkReferral(activity, intent, new Callback<String>() {
+                @Override
+                public void onSuccess(String s) {
+                    referralCode = s;
 
+                }
+                @Override
+                public void onError(Throwable e) {
+
+                }
+            });
+        }
+        catch (Throwable t){
+            referralCode = null;
+            Log.d(TAG, "Caught");
+        }
+        finally {
+            if (!playerUniqueId.trim().isEmpty())
+            {
+                this.mPlayerUniqueId = playerUniqueId;
+
+                registerDevice(playerAttributes, callback);
+            } else
+            {
+                Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
             }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-        });
-
-        if (!playerUniqueId.trim().isEmpty())
-        {
-            mPlayerUniqueId = playerUniqueId;
-
-            initializeFirebase(playerAttributes, SharedPreferencesUtils.getInstance().getClientBotSettings(), callback);
-        } else
-        {
-            Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
         }
     }
 
