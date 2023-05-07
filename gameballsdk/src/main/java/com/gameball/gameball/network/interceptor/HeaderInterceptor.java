@@ -39,8 +39,6 @@ public class HeaderInterceptor implements Interceptor
 
         request = builder.build();
 
-
-        Log.d("OkHttp", request.headers().toString());
         Log.d("OkHttp", request.url().toString());
 
         return chain.proceed(request);
