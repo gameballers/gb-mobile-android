@@ -58,12 +58,12 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
  */
-public class GameBallApp
+public class GameballApp
 {
-    private static final String TAG = GameBallApp.class.getSimpleName();
+    private static final String TAG = GameballApp.class.getSimpleName();
     private static final String MAIN_ACTIVITY_ACTION = "GAME_BALL_MAIN_ACTIVITY";
     private static final String TAG_GAMEBALL_PROFILE_DIALOG = "gameball_profile_dialog";
-    private static GameBallApp ourInstance;
+    private static GameballApp ourInstance;
     private String APPLICATION_ID = null;
     private String API_KEY = null;
     private String SENDER_ID = null;
@@ -80,7 +80,7 @@ public class GameBallApp
     private String OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT);
     private String referralCode;
 
-    private GameBallApp(Context context)
+    private GameballApp(Context context)
     {
         if (this.mContext == null)
         {
@@ -92,11 +92,11 @@ public class GameBallApp
         }
     }
 
-    public static GameBallApp getInstance(Context context)
+    public static GameballApp getInstance(Context context)
     {
         if (ourInstance == null)
         {
-            ourInstance = new GameBallApp(context);
+            ourInstance = new GameballApp(context);
         }
         return ourInstance;
     }
@@ -118,8 +118,6 @@ public class GameBallApp
         if(referralCode != null)
             registerDeviceRequest.setReferrerCode(referralCode);
 
-        Log.d("XXX", referralCode==null ? "null" : referralCode);
-
         if (mDeviceToken != null)
         {
             registerDeviceRequest.setDeviceToken(mDeviceToken);
@@ -129,7 +127,7 @@ public class GameBallApp
         if (playerAttributes != null)
             registerDeviceRequest.setPlayerAttributes(playerAttributes);
 
-        Log.d("XXX", new Gson().toJson(registerDeviceRequest));
+        Log.d(TAG, new Gson().toJson(registerDeviceRequest));
 
         gameBallApi.registrationPlayer(registerDeviceRequest)
                 .subscribeOn(Schedulers.io())
@@ -181,7 +179,7 @@ public class GameBallApp
                     @Override
                     public void onError(Throwable e)
                     {
-                        Log.e("bot_settings_error", e.getMessage());
+                        Log.e(TAG, "bot_settings_error", e);
                     }
                 });
     }
@@ -231,21 +229,20 @@ public class GameBallApp
                     public void onSuccess(String s)
                     {
                         mDeviceToken = s;
-                        Log.d("xxFIREBASExx", "Firebase Succeeded");
+                        Log.d(TAG, "Device token retrieved successfully");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         mDeviceToken = null;
-
-                        Log.d("xxFIREBASExx", "Firebase Failed");
+                        Log.d(TAG, "Failed to retrieve device token.");
                     }
                 });
             }
         }
         catch(Throwable t){
             mDeviceToken = null;
-            Log.d("xxFIREBASExx", "Firebase Caught");
+            Log.d(TAG, t.getMessage(), t);
         }
     }
 
@@ -260,17 +257,20 @@ public class GameBallApp
                     public void onSuccess(String s)
                     {
                         mDeviceToken = s;
+                        Log.d(TAG, "Device token retrieved successfully");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         mDeviceToken = null;
+                        Log.d(TAG, "Failed to retrieve device token.");
                     }
                 });
             }
         }
         catch (Throwable t){
             mDeviceToken = null;
+            Log.d(TAG, t.getMessage(), t);
         }
     }
 
@@ -299,7 +299,7 @@ public class GameBallApp
         }
         catch (Throwable t){
             referralCode = null;
-            Log.d(TAG, "Caught");
+            Log.d(TAG, t.getMessage(), t);
         }
         finally {
             if (!playerUniqueId.trim().isEmpty())
@@ -421,7 +421,7 @@ public class GameBallApp
                         @Override
                         public void onFailure(@NonNull Exception e)
                         {
-                            Log.e(this.getClass().getSimpleName(), "getDynamicLink:onFailure", e);
+                            Log.e(TAG, "getDynamicLink:onFailure", e);
                             callback.onError(e);
                         }
                     });
