@@ -69,7 +69,7 @@ public class GameBallApp
     private String SENDER_ID = null;
     private Context mContext;
     private FirebaseApp clientFirebaseApp;
-    private String mClientID;
+    private String mApiKey;
     private String mPlayerUniqueId;
     private int mNotificationIcon;
     private String mDeviceToken;
@@ -107,12 +107,12 @@ public class GameBallApp
     private void registerDevice(@Nullable PlayerAttributes playerAttributes, final Callback<PlayerRegisterResponse> callback)
     {
 
-        if (mPlayerUniqueId == null || mClientID == null)
+        if (mPlayerUniqueId == null || mApiKey == null)
         {
             return;
         }
 
-        SharedPreferencesUtils.getInstance().putClientId(mClientID);
+        SharedPreferencesUtils.getInstance().putApiKey(mApiKey);
         SharedPreferencesUtils.getInstance().putPlayerUniqueId(mPlayerUniqueId);
 
         PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
@@ -189,12 +189,12 @@ public class GameBallApp
                 });
     }
 
-    public void init(@NonNull String clientID, @DrawableRes int notificationIcon,
-                     String language, String platform, String shop)
+    public void init(@NonNull String apiKey, @DrawableRes int notificationIcon,
+                     String lang, String platform, String shop)
     {
         this.platform = platform;
         this.shop = shop;
-        this.mClientID = clientID;
+        this.mApiKey = apiKey;
         this.mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.getInstance().putPlatformPreference(platform);
@@ -205,13 +205,13 @@ public class GameBallApp
 
         SharedPreferencesUtils.getInstance().putSDKPreference(this.SDKVersion);
 
-        SharedPreferencesUtils.getInstance().putClientId(this.mClientID);
+        SharedPreferencesUtils.getInstance().putApiKey(this.mApiKey);
 
-        SharedPreferencesUtils.getInstance().putLanguagePreference(language);
+        SharedPreferencesUtils.getInstance().putLanguagePreference(lang);
 
-        SharedPreferencesUtils.getInstance().putClientId(clientID);
+        SharedPreferencesUtils.getInstance().putApiKey(apiKey);
 
-        SharedPreferencesUtils.getInstance().putLanguagePreference(language);
+        SharedPreferencesUtils.getInstance().putLanguagePreference(lang);
 
         getBotSettings();
     }
@@ -278,23 +278,22 @@ public class GameBallApp
         }
     }
 
-    public void initializeFirebase(String firebaseDeviceToken){
-        if(firebaseDeviceToken != null && !firebaseDeviceToken.trim().isEmpty()){
-            this.mDeviceToken = firebaseDeviceToken;
+    public void initializeFirebase(String deviceToken){
+        if(deviceToken != null && !deviceToken.trim().isEmpty()){
+            this.mDeviceToken = deviceToken;
         }
     }
 
     //Checks for referral automatically
     public void registerPlayer(@NonNull String playerUniqueId, PlayerAttributes playerAttributes,
-                               @NonNull Callback<PlayerRegisterResponse> callback,
-                               @NonNull Activity activity, @NonNull Intent intent)
+                               @NonNull Activity activity, @NonNull Intent intent,
+                               @NonNull Callback<PlayerRegisterResponse> responseCallback)
     {
         try{
             checkReferral(activity, intent, new Callback<String>() {
                 @Override
                 public void onSuccess(String s) {
                     referralCode = s;
-
                 }
                 @Override
                 public void onError(Throwable e) {
@@ -311,7 +310,7 @@ public class GameBallApp
             {
                 this.mPlayerUniqueId = playerUniqueId;
 
-                registerDevice(playerAttributes, callback);
+                registerDevice(playerAttributes, responseCallback);
             } else
             {
                 Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
@@ -433,8 +432,8 @@ public class GameBallApp
         }
     }
 
-    public void addEvent(Event eventBody, final Callback<Boolean> callback){
-        gameBallApi.addEvent(eventBody)
+    public void sendEvent(Event eventBody, final Callback<Boolean> callback){
+        gameBallApi.sendEvent(eventBody)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CompletableObserver(){

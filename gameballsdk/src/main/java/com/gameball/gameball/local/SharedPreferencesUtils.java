@@ -125,8 +125,8 @@ public class SharedPreferencesUtils {
         putString(PreferencesContract.PLAYER_UNIQUE_ID, playerUniqueId);
     }
 
-    public void putClientId(String clientId) {
-        putString(PreferencesContract.API_KEY, clientId);
+    public void putApiKey(String apiKey) {
+        putString(PreferencesContract.API_KEY, apiKey);
     }
 
     public String getDeviceToken() {
@@ -137,7 +137,7 @@ public class SharedPreferencesUtils {
         return getString(PreferencesContract.PLAYER_UNIQUE_ID, null);
     }
 
-    public String getClientId() {
+    public String getApiKey() {
         return getString(PreferencesContract.API_KEY, null);
     }
 

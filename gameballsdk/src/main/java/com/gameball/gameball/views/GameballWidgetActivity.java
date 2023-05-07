@@ -102,7 +102,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private void loadWidget() {
         SharedPreferencesUtils sharedPreferences = SharedPreferencesUtils.getInstance();
 
-        String apiKey = sharedPreferences.getClientId();
+        String apiKey = sharedPreferences.getApiKey();
         String language = SharedPreferencesUtils.getInstance().getLanguagePreference();
 
                 if(language == null || language.length()!= 2)

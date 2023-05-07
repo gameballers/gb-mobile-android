@@ -21,10 +21,10 @@ public class HeaderInterceptor implements Interceptor
 
         Request.Builder builder = request.newBuilder();
 
-        if (SharedPreferencesUtils.getInstance().getClientId() != null)
+        if (SharedPreferencesUtils.getInstance().getApiKey() != null)
         {
             builder.addHeader(Constants.APIKey,
-                    SharedPreferencesUtils.getInstance().getClientId());
+                    SharedPreferencesUtils.getInstance().getApiKey());
 
         }
 
