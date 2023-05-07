@@ -79,7 +79,6 @@ public class GameBallApp
     private String SDKVersion = BuildConfig.SDK_VERSION;
     private String OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT);
     private String referralCode;
-    private boolean isGmsAvailable;
 
     private GameBallApp(Context context)
     {
@@ -90,8 +89,6 @@ public class GameBallApp
 
             SharedPreferencesUtils.init(mContext, new Gson());
             SharedPreferencesUtils.getInstance().putClientBotSettings(null);
-
-            isGmsAvailable = isGmsAvailable(this.mContext);
         }
     }
 
@@ -242,7 +239,6 @@ public class GameBallApp
                         mDeviceToken = null;
 
                         Log.d("xxFIREBASExx", "Firebase Failed");
-                        //registerDevice(playerAttributes, callback);
                     }
                 });
             }
