@@ -1,4 +1,0 @@
-<resources>
-    <string name="app_name">GameBall</string>
-    <string name="default_notification_channel_id">game_ball_demo</string>
-</resources>

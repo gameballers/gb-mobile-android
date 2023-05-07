@@ -1,1 +1,1 @@
-include ':app', ':gameballsdk', ':testappwithoutfirebase'
+include ':gameballsdk'
