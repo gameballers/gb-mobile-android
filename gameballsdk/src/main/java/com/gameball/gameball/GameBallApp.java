@@ -413,7 +413,7 @@ public class GameBallApp
     }
 
     private void checkReferral(@NonNull Activity activity, @NonNull Intent intent, @NonNull final Callback callback){
-        if(isGmsAvailable){
+        if(isGmsAvailable(this.mContext)){
             FirebaseDynamicLinks.getInstance()
                     .getDynamicLink(intent)
                     .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>()
@@ -428,6 +428,8 @@ public class GameBallApp
 
                                 String referralCode = deepLink.getQueryParameter("GBReferral");
 
+                                //whether to set it to the private variable directly or delegate it to the callback
+                                //setReferralCode(referralCode);
                                 callback.onSuccess(referralCode);
                             }
 
