@@ -227,9 +227,6 @@ public class GameBallApp
     {
 
         try{
-            // if (true || mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty())
-            //{
-
             if(isGmsAvailable(this.mContext)){
                 FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>()
                 {
@@ -237,7 +234,6 @@ public class GameBallApp
                     public void onSuccess(String s)
                     {
                         mDeviceToken = s;
-                        //registerDevice(playerAttributes, callback);
                         Log.d("xxFIREBASExx", "Firebase Succeeded");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -250,7 +246,6 @@ public class GameBallApp
                     }
                 });
             }
-            // }
         }
         catch(Throwable t){
             mDeviceToken = null;
@@ -262,9 +257,6 @@ public class GameBallApp
     {
 
         try{
-            //if (mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty())
-            //{
-
             if(isGmsAvailable(this.mContext)){
                 firebaseMessagingInstance.getToken().addOnSuccessListener(new OnSuccessListener<String>()
                 {
@@ -272,17 +264,14 @@ public class GameBallApp
                     public void onSuccess(String s)
                     {
                         mDeviceToken = s;
-                        //registerDevice(playerAttributes, callback);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         mDeviceToken = null;
-                        //registerDevice(playerAttributes, callback);
                     }
                 });
             }
-            //}
         }
         catch (Throwable t){
             mDeviceToken = null;
@@ -428,11 +417,8 @@ public class GameBallApp
 
                                 String referralCode = deepLink.getQueryParameter("GBReferral");
 
-                                //whether to set it to the private variable directly or delegate it to the callback
-                                //setReferralCode(referralCode);
                                 callback.onSuccess(referralCode);
                             }
-
                         }
                     })
                     .addOnFailureListener(activity, new OnFailureListener()
@@ -457,7 +443,6 @@ public class GameBallApp
                     public void onSubscribe(Disposable d) {
 
                     }
-
                     @Override
                     public void onComplete() {
                         callback.onSuccess(true);
