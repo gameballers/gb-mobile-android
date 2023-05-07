@@ -29,61 +29,24 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'com.google.android.material:material:1.8.0'
 
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-    compileOnly 'com.google.firebase:firebase-core:18.0.3'
-    compileOnly 'com.google.firebase:firebase-messaging:21.1.0'
-    compileOnly 'com.google.firebase:firebase-dynamic-links:19.1.1'
+    implementation platform("com.google.firebase:firebase-bom:32.0.0")
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-dynamic-links'
+
+    implementation "com.google.gms.google-services:com.google.gms.google-services.gradle.plugin:4.3.15"
 
     implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
-    implementation 'com.squareup.retrofit2:retrofit:2.5.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'com.squareup.okhttp3:okhttp:3.12.3'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
 
     implementation 'com.github.cachapa:Expandablelayout:2.9.2'
 }
-
-
-install {
-    repositories.mavenInstaller {
-        pom.groupId = 'com.gameball'
-        pom.version = '0.1'
-        pom.artifactId = "gameball" //project.name
-    }
-}
-
-/*publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId 'com.gameball'
-            artifactId 'gameball'
-            version '0.1'
-            artifact "$buildDir/outputs/aar/gameballsdk-release.aar"
-            //aar artifact you want to publish
-
-            //generate pom nodes for dependencies
-            pom.withXml {
-                def dependenciesNode = asNode().appendNode('dependencies')
-                configurations.compile.allDependencies.each { dependency ->
-                    def dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', dependency.group)
-                    dependencyNode.appendNode('artifactId', dependency.name)
-                    dependencyNode.appendNode('version', dependency.version)
-                }
-            }
-        }
-    }
-
-    //publish to filesystem repo
-    repositories {
-        maven {
-            url "${project.rootDir}/repo"
-        }
-    }
-}*/
