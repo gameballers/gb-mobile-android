@@ -223,31 +223,75 @@ public class GameBallApp
         }
     }
 
-    private void initializeFirebase(final PlayerAttributes playerAttributes,
-                                    ClientBotSettings botSettings,
-                                    final Callback<PlayerRegisterResponse> callback)
+    public void initializeFirebase()
     {
 
-        if (mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty())
-        {
+        try{
+            // if (true || mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty())
+            //{
 
-            if(isGmsAvailable){
+            if(isGmsAvailable(this.mContext)){
                 FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>()
                 {
                     @Override
                     public void onSuccess(String s)
                     {
                         mDeviceToken = s;
-                        registerDevice(playerAttributes, callback);
+                        //registerDevice(playerAttributes, callback);
+                        Log.d("xxFIREBASExx", "Firebase Succeeded");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         mDeviceToken = null;
-                        registerDevice(playerAttributes, callback);
+
+                        Log.d("xxFIREBASExx", "Firebase Failed");
+                        //registerDevice(playerAttributes, callback);
                     }
                 });
             }
+            // }
+        }
+        catch(Throwable t){
+            mDeviceToken = null;
+            Log.d("xxFIREBASExx", "Firebase Caught");
+        }
+    }
+
+    public void initializeFirebase(FirebaseMessaging firebaseMessagingInstance)
+    {
+
+        try{
+            //if (mPlayerUniqueId != null && !mPlayerUniqueId.trim().isEmpty())
+            //{
+
+            if(isGmsAvailable(this.mContext)){
+                firebaseMessagingInstance.getToken().addOnSuccessListener(new OnSuccessListener<String>()
+                {
+                    @Override
+                    public void onSuccess(String s)
+                    {
+                        mDeviceToken = s;
+                        //registerDevice(playerAttributes, callback);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        mDeviceToken = null;
+                        //registerDevice(playerAttributes, callback);
+                    }
+                });
+            }
+            //}
+        }
+        catch (Throwable t){
+            mDeviceToken = null;
+        }
+    }
+
+    public void initializeFirebase(String firebaseDeviceToken){
+        if(firebaseDeviceToken != null && !firebaseDeviceToken.trim().isEmpty()){
+            this.mDeviceToken = firebaseDeviceToken;
         }
     }
 
