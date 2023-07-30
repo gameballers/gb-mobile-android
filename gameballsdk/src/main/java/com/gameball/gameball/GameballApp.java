@@ -80,6 +80,10 @@ public class GameballApp
     private String OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT);
     private String referralCode;
 
+    private String openDetail;
+
+    private Boolean hideNavigation;
+
     private GameballApp(Context context)
     {
         if (this.mContext == null)
@@ -185,16 +189,22 @@ public class GameballApp
     }
 
     public void init(@NonNull String apiKey, @DrawableRes int notificationIcon,
-                     String lang, String platform, String shop)
+                     String lang, String platform, String shop, String openDetail, Boolean hideNavigation)
     {
         this.platform = platform;
         this.shop = shop;
         this.mApiKey = apiKey;
         this.mNotificationIcon = notificationIcon;
+        this.openDetail = openDetail;
+        this.hideNavigation = hideNavigation;
 
-        SharedPreferencesUtils.getInstance().putPlatformPreference(platform);
+        SharedPreferencesUtils.getInstance().putOpenDetailPreference(this.openDetail);
 
-        SharedPreferencesUtils.getInstance().putShopPreference(shop);
+        SharedPreferencesUtils.getInstance().putHideNavigationPreference(this.hideNavigation);
+
+        SharedPreferencesUtils.getInstance().putPlatformPreference(this.platform);
+
+        SharedPreferencesUtils.getInstance().putShopPreference(this.shop);
 
         SharedPreferencesUtils.getInstance().putOSPreference(this.OS);
 

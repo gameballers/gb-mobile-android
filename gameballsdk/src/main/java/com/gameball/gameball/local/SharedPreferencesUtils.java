@@ -203,6 +203,24 @@ public class SharedPreferencesUtils {
         return getString(PreferencesContract.OS_VERSION_PREFERENCE, null);
     }
 
+    public void putOpenDetailPreference(String openDetail){
+        putString(PreferencesContract.OPEN_DETAIL_PREFERENCE, openDetail);
+    }
+
+    public String getOpenDetailPreference(){
+        return getString(PreferencesContract.OPEN_DETAIL_PREFERENCE, null);
+    }
+
+    public void putHideNavigationPreference(Boolean hideNavigation){
+        if(hideNavigation != null)
+            putString(PreferencesContract.HIDE_NAVIGATION_PREFERENCE, hideNavigation.toString());
+        else putString(PreferencesContract.HIDE_NAVIGATION_PREFERENCE, null);
+    }
+
+    public String getHideNavigationPreference(){
+        return getString(PreferencesContract.HIDE_NAVIGATION_PREFERENCE, null);
+    }
+
     private static final class PreferencesContract {
 
         private static final String PLAYER_UNIQUE_ID = "PLAYER_UNIQUE_ID";
@@ -216,6 +234,8 @@ public class SharedPreferencesUtils {
         private static final String SHOP_PREFERENCE = "SHOP_PREFERENCE";
         private static final String OS_VERSION_PREFERENCE = "OS_VERSION_PREFERENCE";
         private static final String SDK_VERSION_PREFERENCE = "SDK_VERSION_PREFERENCE";
+        private static final String OPEN_DETAIL_PREFERENCE = "OPEN_DETAIL_PREFERENCE";
+        private static final String HIDE_NAVIGATION_PREFERENCE = "HIDE_NAVIGATION_PREFERENCE";
     }
 
 }

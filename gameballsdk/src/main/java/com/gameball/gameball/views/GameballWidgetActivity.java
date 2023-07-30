@@ -40,6 +40,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
     final private static String PLATFORM_QUERY_KEY = "platform";
     final private static String OS_VERSION_QUERY_KEY = "os";
     final private static String GB_SDK_VERSION_QUERY_KEY = "sdk";
+    final private static String OPEN_DETAIL_QUERY_KEY = "openDetail";
+    final private static String HIDE_NAVIGATION_QUERY_KEY = "hideNavigation";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -129,6 +131,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
         String shop = sharedPreferences.getShopPreference();
         String osVersion = sharedPreferences.getOSPreference();
         String sdkVersion = sharedPreferences.getSDKPreference();
+        String openDetail = sharedPreferences.getOpenDetailPreference();
+        String hideNavigation = sharedPreferences.getHideNavigationPreference();
 
         if(platform != null)
             uri.appendQueryParameter(PLATFORM_QUERY_KEY, platform);
@@ -138,8 +142,12 @@ public class GameballWidgetActivity extends AppCompatActivity {
             uri.appendQueryParameter(GB_SDK_VERSION_QUERY_KEY, sdkVersion);
         if(osVersion != null)
             uri.appendQueryParameter(OS_VERSION_QUERY_KEY, osVersion);
+        if(openDetail != null)
+            uri.appendQueryParameter(OPEN_DETAIL_QUERY_KEY, openDetail);
+        if(hideNavigation != null)
+            uri.appendQueryParameter(HIDE_NAVIGATION_QUERY_KEY, hideNavigation);
 
-        Log.d("XXX", uri.toString());
+        Log.d("GameballApp", uri.toString());
 
         widgetView.loadUrl(uri.toString());
     }
