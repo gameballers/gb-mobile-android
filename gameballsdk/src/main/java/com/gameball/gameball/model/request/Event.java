@@ -42,7 +42,17 @@ public class Event
         private String eventName;
 
         public Builder(){
-            this.playerUniqueId = SharedPreferencesUtils.getInstance().getPlayerUniqueId();
+            //this.playerUniqueId = SharedPreferencesUtils.getInstance().getPlayerUniqueId();
+        }
+
+        public Builder AddUniquePlayerId(String uniquePlayerId){
+            if(uniquePlayerId == null || uniquePlayerId.trim().isEmpty()){
+                this.playerUniqueId = null;
+            }
+            else{
+                this.playerUniqueId = uniquePlayerId;
+            }
+            return this;
         }
 
         public Builder AddEventName(String eventName){
@@ -76,7 +86,7 @@ public class Event
         public Event build(){
             Event event = new Event();
 
-            if(this.playerUniqueId.isEmpty() || this.playerUniqueId == null){
+            if(this.playerUniqueId == null || this.playerUniqueId.isEmpty()){
                 event.playerUniqueId = null;
             }
             else event.playerUniqueId = this.playerUniqueId;
