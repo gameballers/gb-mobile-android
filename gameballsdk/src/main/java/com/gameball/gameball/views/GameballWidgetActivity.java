@@ -134,6 +134,9 @@ public class GameballWidgetActivity extends AppCompatActivity {
         String openDetail = sharedPreferences.getOpenDetailPreference();
         String hideNavigation = sharedPreferences.getHideNavigationPreference();
 
+        sharedPreferences.removeOpenDetailPreference();
+        sharedPreferences.removeHideNavigationPreference();
+
         if(platform != null)
             uri.appendQueryParameter(PLATFORM_QUERY_KEY, platform);
         if(shop != null)

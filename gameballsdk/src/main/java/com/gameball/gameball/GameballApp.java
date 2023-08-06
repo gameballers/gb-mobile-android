@@ -189,18 +189,12 @@ public class GameballApp
     }
 
     public void init(@NonNull String apiKey, @DrawableRes int notificationIcon,
-                     String lang, String platform, String shop, String openDetail, Boolean hideNavigation)
+                     String lang, String platform, String shop)
     {
         this.platform = platform;
         this.shop = shop;
         this.mApiKey = apiKey;
         this.mNotificationIcon = notificationIcon;
-        this.openDetail = openDetail;
-        this.hideNavigation = hideNavigation;
-
-        SharedPreferencesUtils.getInstance().putOpenDetailPreference(this.openDetail);
-
-        SharedPreferencesUtils.getInstance().putHideNavigationPreference(this.hideNavigation);
 
         SharedPreferencesUtils.getInstance().putPlatformPreference(this.platform);
 
@@ -386,8 +380,11 @@ public class GameballApp
         return false;
     }
 
-    public void showProfile(final AppCompatActivity activity, @Nullable final String playerUniqueId)
+    public void showProfile(final AppCompatActivity activity, @Nullable final String playerUniqueId, @Nullable String openDetail, @Nullable Boolean hideNavigation)
     {
+        SharedPreferencesUtils.getInstance().putOpenDetailPreference(openDetail);
+        SharedPreferencesUtils.getInstance().putHideNavigationPreference(hideNavigation);
+
         GameballWidgetActivity.start(activity, playerUniqueId);
     }
 
