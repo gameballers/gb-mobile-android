@@ -38,6 +38,11 @@ public class SharedPreferencesUtils {
         return mSharedPreferencesUtils;
     }
 
+    //Use with caution!
+    public void remove(String prefKey){
+        pref.edit().remove(prefKey).apply();
+    }
+
     private SharedPreferences getPref() {
         return pref;
     }
@@ -210,6 +215,9 @@ public class SharedPreferencesUtils {
     public String getOpenDetailPreference(){
         return getString(PreferencesContract.OPEN_DETAIL_PREFERENCE, null);
     }
+    public void removeOpenDetailPreference(){
+        remove(PreferencesContract.OPEN_DETAIL_PREFERENCE);
+    }
 
     public void putHideNavigationPreference(Boolean hideNavigation){
         if(hideNavigation != null)
@@ -219,6 +227,10 @@ public class SharedPreferencesUtils {
 
     public String getHideNavigationPreference(){
         return getString(PreferencesContract.HIDE_NAVIGATION_PREFERENCE, null);
+    }
+
+    public void removeHideNavigationPreference(){
+        remove(PreferencesContract.HIDE_NAVIGATION_PREFERENCE);
     }
 
     private static final class PreferencesContract {
