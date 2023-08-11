@@ -13,15 +13,21 @@ public class PlayerAttributes
     @SerializedName("displayName")
     @Expose
     private String displayName;
+    @SerializedName("firstName")
+    @Expose
+    private String firstName;
+    @SerializedName("lastName")
+    @Expose
+    private String lastName;
     @SerializedName("email")
     @Expose
     private String email;
     @SerializedName("gender")
     @Expose
     private String gender;
-    @SerializedName("mobileNumber")
+    @SerializedName("mobile")
     @Expose
-    private String mobileNumber;
+    private String mobile;
     @SerializedName("dateOfBirth")
     @Expose
     private String dateOfBirth;
@@ -62,6 +68,14 @@ public class PlayerAttributes
     public String getDisplayName()
     {
         return displayName;
+    }
+    public String getFirstName()
+    {
+        return firstName;
+    }
+    public String getLastName()
+    {
+        return lastName;
     }
 
     public String getEmail()
@@ -111,7 +125,7 @@ public class PlayerAttributes
 
     public String getMobileNumber()
     {
-        return mobileNumber;
+        return mobile;
     }
 
     public Integer getPlayerId()
@@ -146,9 +160,11 @@ public class PlayerAttributes
     public static class Builder
     {
         private String displayName;
+        private String firstName;
+        private String lastName;
         private String email;
         private String gender;
-        private String mobileNumber;
+        private String mobile;
         private String dateOfBirth;
         private String joinDate;
         private HashMap<String, String> customAttributes;
@@ -161,6 +177,16 @@ public class PlayerAttributes
         public Builder withDisplayName(String displayName)
         {
             this.displayName = displayName;
+            return this;
+        }
+        public Builder withFirstName(String firstName)
+        {
+            this.firstName = firstName;
+            return this;
+        }
+        public Builder withLastName(String lastName)
+        {
+            this.lastName = lastName;
             return this;
         }
 
@@ -179,7 +205,7 @@ public class PlayerAttributes
 
         public Builder withMobileNumber(String mobileNumber)
         {
-            this.mobileNumber = mobileNumber;
+            this.mobile = mobileNumber;
 
             return this;
         }
@@ -209,21 +235,24 @@ public class PlayerAttributes
         public PlayerAttributes build()
         {
             PlayerAttributes playerAttributes = new PlayerAttributes();
+
             if(this.email == null || this.email.equals(""))
                 playerAttributes.email = null;
             else
                 playerAttributes.email = this.email;
 
-            if(this.mobileNumber == null || this.mobileNumber.equals(""))
-                playerAttributes.mobileNumber = null;
+            if(this.mobile == null || this.mobile.equals(""))
+                playerAttributes.mobile = null;
             else
-                playerAttributes.mobileNumber = this.mobileNumber;
+                playerAttributes.mobile = this.mobile;
 
             if(this.customAttributes != null)
                 playerAttributes.customAttributes = this.customAttributes;
 
             playerAttributes.dateOfBirth = this.dateOfBirth;
             playerAttributes.displayName = this.displayName;
+            playerAttributes.firstName = this.firstName;
+            playerAttributes.lastName = this.lastName;
             playerAttributes.gender = this.gender;
             playerAttributes.joinDate = this.joinDate;
             return playerAttributes;
