@@ -24,6 +24,10 @@ public class PlayerRegisterRequest {
     @Expose
     private PlayerAttributes playerAttributes;
 
+    @SerializedName("referrerCode")
+    @Expose
+    private String ReferrerCode;
+
     public Integer getPlayerTypeID()
     {
         return playerTypeID;
@@ -62,5 +66,12 @@ public class PlayerRegisterRequest {
     public void setPlayerAttributes(PlayerAttributes playerAttributes)
     {
         this.playerAttributes = playerAttributes;
+    }
+    public void setReferrerCode(String referrerCode){
+        this.ReferrerCode = referrerCode;
+    }
+
+    public String getReferrerCode(){
+        return this.ReferrerCode;
     }
 }

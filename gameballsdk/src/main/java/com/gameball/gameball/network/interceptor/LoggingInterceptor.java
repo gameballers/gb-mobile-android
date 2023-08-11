@@ -28,9 +28,7 @@ public class LoggingInterceptor implements Interceptor
         Response response = chain.proceed(request);
         if (BuildConfig.DEBUG)
         {
-
             Log.d("OkHttp", response.toString());
-
             Log.d("OkHttp", "Received response: " + response.toString());
             Log.d("response_code", response.code() + "");
             long t2 = System.nanoTime();
