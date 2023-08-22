@@ -55,6 +55,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
+
 /**
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
  */
@@ -84,6 +85,8 @@ public class GameballApp
 
     private Boolean hideNavigation;
 
+    private FirebaseSyncServices fbs;
+
     private GameballApp(Context context)
     {
         if (this.mContext == null)
@@ -94,6 +97,7 @@ public class GameballApp
             SharedPreferencesUtils.init(mContext, new Gson());
             SharedPreferencesUtils.getInstance().putClientBotSettings(null);
         }
+        fbs = new FirebaseSyncServices();
     }
 
     public static GameballApp getInstance(Context context)
@@ -227,17 +231,15 @@ public class GameballApp
 
         try{
             if(isGmsAvailable(this.mContext)){
-                FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>()
-                {
+                fbs.getDeviceToken(FirebaseMessaging.getInstance().getToken(), new Callback<String>() {
                     @Override
-                    public void onSuccess(String s)
-                    {
+                    public void onSuccess(String s) {
                         mDeviceToken = s;
                         Log.d(TAG, "Device token retrieved successfully");
                     }
-                }).addOnFailureListener(new OnFailureListener() {
+
                     @Override
-                    public void onFailure(@NonNull Exception e) {
+                    public void onError(Throwable e) {
                         mDeviceToken = null;
                         Log.d(TAG, "Failed to retrieve device token.");
                     }
@@ -255,17 +257,15 @@ public class GameballApp
 
         try{
             if(isGmsAvailable(this.mContext)){
-                firebaseMessagingInstance.getToken().addOnSuccessListener(new OnSuccessListener<String>()
-                {
+                fbs.getDeviceToken(firebaseMessagingInstance.getToken(), new Callback<String>() {
                     @Override
-                    public void onSuccess(String s)
-                    {
+                    public void onSuccess(String s) {
                         mDeviceToken = s;
                         Log.d(TAG, "Device token retrieved successfully");
                     }
-                }).addOnFailureListener(new OnFailureListener() {
+
                     @Override
-                    public void onFailure(@NonNull Exception e) {
+                    public void onError(Throwable e) {
                         mDeviceToken = null;
                         Log.d(TAG, "Failed to retrieve device token.");
                     }
@@ -297,7 +297,7 @@ public class GameballApp
                 }
                 @Override
                 public void onError(Throwable e) {
-
+                    referralCode = null;
                 }
             });
         }
@@ -405,33 +405,7 @@ public class GameballApp
 
     private void checkReferral(@NonNull Activity activity, @NonNull Intent intent, @NonNull final Callback callback){
         if(isGmsAvailable(this.mContext)){
-            FirebaseDynamicLinks.getInstance()
-                    .getDynamicLink(intent)
-                    .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>()
-                    {
-                        @Override
-                        public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData)
-                        {
-                            Uri deepLink = null;
-                            if (pendingDynamicLinkData != null)
-                            {
-                                deepLink = pendingDynamicLinkData.getLink();
-
-                                String referralCode = deepLink.getQueryParameter("GBReferral");
-
-                                callback.onSuccess(referralCode);
-                            }
-                        }
-                    })
-                    .addOnFailureListener(activity, new OnFailureListener()
-                    {
-                        @Override
-                        public void onFailure(@NonNull Exception e)
-                        {
-                            Log.e(TAG, "getDynamicLink:onFailure", e);
-                            callback.onError(e);
-                        }
-                    });
+            fbs.getDynamicLink(FirebaseDynamicLinks.getInstance().getDynamicLink(intent), callback);
         }
     }
 
