@@ -8,12 +8,15 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
         mavenLocal()
     }
+    ext.kotlin_version = '1.6.21'
+
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
         classpath 'com.google.gms:google-services:4.3.15'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath 'io.fabric.tools:gradle:1.30.0'
 
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
