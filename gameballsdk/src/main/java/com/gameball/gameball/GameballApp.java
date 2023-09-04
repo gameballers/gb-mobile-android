@@ -40,6 +40,8 @@ import com.gameball.gameball.views.laregNotificationView.LargeNotificationActivi
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
@@ -227,21 +229,19 @@ public class GameballApp
 
         try{
             if(isGmsAvailable(this.mContext)){
-                FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>()
-                {
-                    @Override
-                    public void onSuccess(String s)
-                    {
-                        mDeviceToken = s;
-                        Log.d(TAG, "Device token retrieved successfully");
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        mDeviceToken = null;
-                        Log.d(TAG, "Failed to retrieve device token.");
-                    }
-                });
+                Task<String> fbTask = FirebaseMessaging.getInstance().getToken();
+                Tasks.whenAll(fbTask);
+
+                String result = fbTask.getResult();
+
+                if(result != null && !result.trim().isEmpty()){
+                    mDeviceToken = result;
+                    Log.d(TAG, "Device token retrieved successfully");
+                }
+                else{
+                    mDeviceToken = null;
+                    Log.d(TAG, "Failed to retrieve device token.");
+                }
             }
         }
         catch(Throwable t){
@@ -255,21 +255,19 @@ public class GameballApp
 
         try{
             if(isGmsAvailable(this.mContext)){
-                firebaseMessagingInstance.getToken().addOnSuccessListener(new OnSuccessListener<String>()
-                {
-                    @Override
-                    public void onSuccess(String s)
-                    {
-                        mDeviceToken = s;
-                        Log.d(TAG, "Device token retrieved successfully");
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        mDeviceToken = null;
-                        Log.d(TAG, "Failed to retrieve device token.");
-                    }
-                });
+                Task<String> fbTask = firebaseMessagingInstance.getToken();
+                Tasks.whenAll(fbTask);
+
+                String result = fbTask.getResult();
+
+                if(result != null && !result.trim().isEmpty()){
+                    mDeviceToken = result;
+                    Log.d(TAG, "Device token retrieved successfully");
+                }
+                else{
+                    mDeviceToken = null;
+                    Log.d(TAG, "Failed to retrieve device token.");
+                }
             }
         }
         catch (Throwable t){
@@ -285,36 +283,34 @@ public class GameballApp
     }
 
     //Checks for referral automatically
-    public void registerPlayer(@NonNull String playerUniqueId, PlayerAttributes playerAttributes,
+    public void registerPlayer(@NonNull final String playerUniqueId, final PlayerAttributes playerAttributes,
                                @NonNull Activity activity, @NonNull Intent intent,
-                               @NonNull Callback<PlayerRegisterResponse> responseCallback)
+                               @NonNull final Callback<PlayerRegisterResponse> responseCallback)
     {
         try{
+            if (!playerUniqueId.trim().isEmpty()){
+                this.mPlayerUniqueId = playerUniqueId;
+            }
+            else {
+                Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
+            }
             checkReferral(activity, intent, new Callback<String>() {
                 @Override
                 public void onSuccess(String s) {
                     referralCode = s;
+                    registerDevice(playerAttributes, responseCallback);
                 }
                 @Override
                 public void onError(Throwable e) {
-
+                    referralCode = null;
+                    registerDevice(playerAttributes, responseCallback);
                 }
             });
         }
         catch (Throwable t){
-            referralCode = null;
             Log.d(TAG, t.getMessage(), t);
-        }
-        finally {
-            if (!playerUniqueId.trim().isEmpty())
-            {
-                this.mPlayerUniqueId = playerUniqueId;
-
-                registerDevice(playerAttributes, responseCallback);
-            } else
-            {
-                Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
-            }
+            referralCode = null;
+            registerDevice(playerAttributes, responseCallback);
         }
     }
 
@@ -420,6 +416,9 @@ public class GameballApp
                                 String referralCode = deepLink.getQueryParameter("GBReferral");
 
                                 callback.onSuccess(referralCode);
+                            }
+                            else{
+                                callback.onSuccess(null);
                             }
                         }
                     })
