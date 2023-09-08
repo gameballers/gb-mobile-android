@@ -399,7 +399,7 @@ public class GameballApp
         toast.show();
     }
 
-    private void checkReferral(@NonNull Activity activity, @NonNull Intent intent, @NonNull final Callback callback){
+    private void checkReferral(@NonNull Activity activity, @NonNull final Intent intent, @NonNull final Callback callback){
         if(isGmsAvailable(this.mContext)){
             FirebaseDynamicLinks.getInstance()
                     .getDynamicLink(intent)
@@ -418,6 +418,14 @@ public class GameballApp
                                 callback.onSuccess(referralCode);
                             }
                             else{
+                                String uriString = intent.getDataString();
+                                if(uriString != null){
+                                    Uri uri = Uri.parse(uriString);
+                                    String referralCode = uri.getQueryParameter("GBReferral");
+
+                                    callback.onSuccess(referralCode);
+                                }
+
                                 callback.onSuccess(null);
                             }
                         }
