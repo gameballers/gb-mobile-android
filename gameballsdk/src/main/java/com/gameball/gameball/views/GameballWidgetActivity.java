@@ -24,6 +24,7 @@ import com.gameball.gameball.local.SharedPreferencesUtils;
 
 import java.util.Locale;
 
+
 public class GameballWidgetActivity extends AppCompatActivity {
     private WebView widgetView;
     private String playerUniqueId;
@@ -73,6 +74,12 @@ public class GameballWidgetActivity extends AppCompatActivity {
         settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
         settings.setUseWideViewPort(true);
         settings.setLoadsImagesAutomatically(true);
+        settings.setAllowFileAccess(true);
+        settings.setAllowContentAccess(true);
+        settings.setMediaPlaybackRequiresUserGesture(true);
+
+        WebAppInterface webAppInterface = new WebAppInterface(this);
+        widgetView.addJavascriptInterface(webAppInterface, "Android");
 
         widgetView.setWebViewClient(new WebViewClient() {
             @Override
