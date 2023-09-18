@@ -442,6 +442,16 @@ public class GameballApp
         }
     }
 
+    public static String getReferralCodeManually(Intent intent){
+        String uriString = intent.getDataString();
+        String referralCode = null;
+        if(uriString != null) {
+            Uri uri = Uri.parse(uriString);
+            referralCode = uri.getQueryParameter("GBReferral");
+        }
+        return referralCode;
+    }
+
     public void sendEvent(Event eventBody, final Callback<Boolean> callback){
         gameBallApi.sendEvent(eventBody)
                 .subscribeOn(Schedulers.io())
