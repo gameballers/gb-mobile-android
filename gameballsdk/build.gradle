@@ -16,7 +16,7 @@ android {
         buildConfigField 'String', 'LIVE_URL', '"https://api.gameball.co/"'
         buildConfigField 'String', 'Widget_URL', '"m.gameball.app"'
         buildConfigField 'String', 'STAGE_URL', '""'
-        buildConfigField 'String', 'SDK_VERSION', '"1.2.7"'
+        buildConfigField 'String', 'SDK_VERSION', '"1.2.8"'
     }
 
     buildTypes {
