@@ -80,7 +80,7 @@ public class GameballApp
     private String platform = null;
     private String SDKVersion = BuildConfig.SDK_VERSION;
     private String OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT);
-    private String referralCode;
+    private String mReferralCode;
 
     private String openDetail;
 
@@ -121,8 +121,8 @@ public class GameballApp
         PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
         registerDeviceRequest.setPlayerUniqueID(mPlayerUniqueId);
 
-        if(referralCode != null)
-            registerDeviceRequest.setReferrerCode(referralCode);
+        if(mReferralCode != null)
+            registerDeviceRequest.setReferrerCode(mReferralCode);
 
         if (mDeviceToken != null)
         {
@@ -297,19 +297,40 @@ public class GameballApp
             checkReferral(activity, intent, new Callback<String>() {
                 @Override
                 public void onSuccess(String s) {
-                    referralCode = s;
+                    mReferralCode = s;
                     registerDevice(playerAttributes, responseCallback);
                 }
                 @Override
                 public void onError(Throwable e) {
-                    referralCode = null;
+                    mReferralCode = null;
                     registerDevice(playerAttributes, responseCallback);
                 }
             });
         }
         catch (Throwable t){
             Log.d(TAG, t.getMessage(), t);
-            referralCode = null;
+            mReferralCode = null;
+            registerDevice(playerAttributes, responseCallback);
+        }
+    }
+
+    public void registerPlayer(@NonNull final String playerUniqueId, final PlayerAttributes playerAttributes,
+                               final String referralCode, @NonNull final Callback<PlayerRegisterResponse> responseCallback)
+    {
+        try{
+            if (!playerUniqueId.trim().isEmpty()){
+                this.mPlayerUniqueId = playerUniqueId;
+            }
+            else {
+                Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
+            }
+
+            this.mReferralCode = referralCode;
+            registerDevice(playerAttributes, responseCallback);
+        }
+        catch (Throwable t){
+            Log.d(TAG, t.getMessage(), t);
+            this.mReferralCode = null;
             registerDevice(playerAttributes, responseCallback);
         }
     }
@@ -418,15 +439,9 @@ public class GameballApp
                                 callback.onSuccess(referralCode);
                             }
                             else{
-                                String uriString = intent.getDataString();
-                                if(uriString != null){
-                                    Uri uri = Uri.parse(uriString);
-                                    String referralCode = uri.getQueryParameter("GBReferral");
+                                String referralCode = getReferralCodeManually(intent);
 
-                                    callback.onSuccess(referralCode);
-                                }
-
-                                callback.onSuccess(null);
+                                callback.onSuccess(referralCode);
                             }
                         }
                     })
@@ -440,6 +455,16 @@ public class GameballApp
                         }
                     });
         }
+    }
+
+    public static String getReferralCodeManually(Intent intent){
+        String uriString = intent.getDataString();
+        String referralCode = null;
+        if(uriString != null) {
+            Uri uri = Uri.parse(uriString);
+            referralCode = uri.getQueryParameter("GBReferral");
+        }
+        return referralCode;
     }
 
     public void sendEvent(Event eventBody, final Callback<Boolean> callback){
