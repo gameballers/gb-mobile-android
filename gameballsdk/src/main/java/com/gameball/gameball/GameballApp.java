@@ -1,42 +1,28 @@
 package com.gameball.gameball;
 
 import android.app.Activity;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.Event;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.NotificationBody;
 import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
-import com.gameball.gameball.utils.Constants;
 import com.gameball.gameball.views.GameballWidgetActivity;
-import com.gameball.gameball.views.laregNotificationView.LargeNotificationActivity;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -46,10 +32,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
-
-import java.util.Map;
 
 import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
@@ -73,7 +56,6 @@ public class GameballApp
     private FirebaseApp clientFirebaseApp;
     private String mApiKey;
     private String mPlayerUniqueId;
-    private int mNotificationIcon;
     private String mDeviceToken;
     private GameBallApi gameBallApi;
     private String shop = null;
@@ -190,13 +172,11 @@ public class GameballApp
                 });
     }
 
-    public void init(@NonNull String apiKey, @DrawableRes int notificationIcon,
-                     String lang, String platform, String shop)
+    public void init(@NonNull String apiKey, String lang, String platform, String shop)
     {
         this.platform = platform;
         this.shop = shop;
         this.mApiKey = apiKey;
-        this.mNotificationIcon = notificationIcon;
 
         SharedPreferencesUtils.getInstance().putPlatformPreference(this.platform);
 
@@ -335,89 +315,12 @@ public class GameballApp
         }
     }
 
-    private void sendNotification(final NotificationBody messageBody)
-    {
-        Intent intent = new Intent(MAIN_ACTIVITY_ACTION);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
-
-        String channelId = mContext.getString(R.string.default_notification_channel_id);
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(mContext, channelId)
-                        .setContentTitle(messageBody.getTitle())
-                        .setContentText(messageBody.getTitle())
-                        .setAutoCancel(true)
-                        .setSmallIcon(mNotificationIcon)
-                        .setSound(defaultSoundUri);
-
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-
-                Intent notificationIntent = new Intent(mContext, LargeNotificationActivity.class);
-                notificationIntent.putExtra(Constants.NOTIFICATION_OBJ, messageBody);
-                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(notificationIntent);
-            }
-        }, 100);
-
-        NotificationManager notificationManager =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // Since android Oreo notification channel is needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-        {
-            NotificationChannel channel = new NotificationChannel(channelId, "Game Ball Demo",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        notificationManager.notify(999999999 /* ID of notification */, notificationBuilder.build());
-    }
-
-    public boolean isGameBallNotification(RemoteMessage remoteMessage)
-    {
-        if (remoteMessage != null && Boolean.valueOf(remoteMessage.getData().get("isGB"))
-                && remoteMessage.getNotification() != null)
-        {
-
-            Map<String, String> notificationData = remoteMessage.getData();
-            NotificationBody notificationBody = new NotificationBody();
-            notificationBody.setTitle(notificationData.get("title"));
-            notificationBody.setBody(notificationData.get("body"));
-            notificationBody.setIcon(notificationData.get("icon"));
-
-            sendNotification(notificationBody);
-            return true;
-        }
-        return false;
-    }
-
     public void showProfile(final AppCompatActivity activity, @Nullable final String playerUniqueId, @Nullable String openDetail, @Nullable Boolean hideNavigation)
     {
         SharedPreferencesUtils.getInstance().putOpenDetailPreference(openDetail);
         SharedPreferencesUtils.getInstance().putHideNavigationPreference(hideNavigation);
 
         GameballWidgetActivity.start(activity, playerUniqueId);
-    }
-
-    public void showNotification()
-    {
-        LayoutInflater inflater = (LayoutInflater) mContext
-                .getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.custom_toast_layout, null);
-
-        Toast toast = new Toast(mContext);
-
-        //use both property in single function
-        toast.setGravity(Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
-        toast.setDuration(Toast.LENGTH_LONG);
-        toast.setView(layout);
-        toast.show();
     }
 
     private void checkReferral(@NonNull Activity activity, @NonNull final Intent intent, @NonNull final Callback callback){
