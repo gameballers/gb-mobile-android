@@ -1,5 +1,7 @@
 package com.gameball.gameball;
 
+import static com.google.android.gms.tasks.Tasks.await;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -7,7 +9,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,8 +27,6 @@ import com.gameball.gameball.views.GameballWidgetActivity;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
@@ -196,8 +195,7 @@ public class GameballApp
 
         getBotSettings();
     }
-
-
+    
     public void changeLanguage(String language) {
         if (language != null && language.length() != 2) {
             SharedPreferencesUtils.getInstance().putLanguagePreference(language);
@@ -206,53 +204,56 @@ public class GameballApp
 
     public void initializeFirebase()
     {
+        if(isGmsAvailable(this.mContext)) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        String deviceToken = await(FirebaseMessaging.getInstance().getToken());
+                        Log.d(TAG, deviceToken);
 
-        try{
-            if(isGmsAvailable(this.mContext)){
-                Task<String> fbTask = FirebaseMessaging.getInstance().getToken();
-                Tasks.whenAll(fbTask);
-
-                String result = fbTask.getResult();
-
-                if(result != null && !result.trim().isEmpty()){
-                    mDeviceToken = result;
-                    Log.d(TAG, "Device token retrieved successfully");
+                        if(deviceToken != null && !deviceToken.trim().isEmpty()){
+                            mDeviceToken = deviceToken;
+                            Log.d(TAG, "Device token retrieved successfully");
+                        }
+                        else{
+                            mDeviceToken = null;
+                            Log.d(TAG, "Failed to retrieve device token.");
+                        }
+                    }
+                    catch(Throwable t){
+                        mDeviceToken = null;
+                        Log.d(TAG, t.getMessage(), t);
+                    }
                 }
-                else{
-                    mDeviceToken = null;
-                    Log.d(TAG, "Failed to retrieve device token.");
-                }
-            }
-        }
-        catch(Throwable t){
-            mDeviceToken = null;
-            Log.d(TAG, t.getMessage(), t);
+            }).start();
         }
     }
 
-    public void initializeFirebase(FirebaseMessaging firebaseMessagingInstance)
+    public void initializeFirebase(final FirebaseMessaging firebaseMessagingInstance)
     {
+        if(isGmsAvailable(this.mContext)) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        String deviceToken = await(firebaseMessagingInstance.getInstance().getToken());
 
-        try{
-            if(isGmsAvailable(this.mContext)){
-                Task<String> fbTask = firebaseMessagingInstance.getToken();
-                Tasks.whenAll(fbTask);
-
-                String result = fbTask.getResult();
-
-                if(result != null && !result.trim().isEmpty()){
-                    mDeviceToken = result;
-                    Log.d(TAG, "Device token retrieved successfully");
+                        if(deviceToken != null && !deviceToken.trim().isEmpty()){
+                            mDeviceToken = deviceToken;
+                            Log.d(TAG, "Device token retrieved successfully");
+                        }
+                        else{
+                            mDeviceToken = null;
+                            Log.d(TAG, "Failed to retrieve device token.");
+                        }
+                    }
+                    catch(Throwable t){
+                        mDeviceToken = null;
+                        Log.d(TAG, t.getMessage(), t);
+                    }
                 }
-                else{
-                    mDeviceToken = null;
-                    Log.d(TAG, "Failed to retrieve device token.");
-                }
-            }
-        }
-        catch (Throwable t){
-            mDeviceToken = null;
-            Log.d(TAG, t.getMessage(), t);
+            }).start();
         }
     }
 
