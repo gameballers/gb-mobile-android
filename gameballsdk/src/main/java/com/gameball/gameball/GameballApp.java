@@ -171,6 +171,11 @@ public class GameballApp
                 });
     }
 
+    public void init(@NonNull String apiKey, String lang, String platform, String shop, @Nullable String apiPrefix){
+        gameBallApi = Network.getInstance().getGameBallApi(apiPrefix);
+        init(apiKey, lang, platform, shop);
+    }
+    
     public void init(@NonNull String apiKey, String lang, String platform, String shop)
     {
         this.platform = platform;

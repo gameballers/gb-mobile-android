@@ -70,4 +70,20 @@ public class Network {
     public GameBallApi getGameBallApi() {
         return mRetrofit.create(GameBallApi.class);
     }
+
+    public GameBallApi getGameBallApi(String apiPrefix) {
+        if(apiPrefix != null){
+            return setApiPrefix(apiPrefix).create(GameBallApi.class);
+        }
+        return getGameBallApi();
+    }
+
+    private Retrofit setApiPrefix(String apiPrefix){
+        return new Retrofit.Builder()
+                .baseUrl(apiPrefix)
+                .client(mOkHttpClient)
+                .addConverterFactory(GsonConverterFactory.create(mGson))
+                .addCallAdapterFactory(mRxCallAdapterFactory)
+                .build();
+    }
 }
