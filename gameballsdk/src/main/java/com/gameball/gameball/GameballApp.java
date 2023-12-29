@@ -55,6 +55,8 @@ public class GameballApp
     private FirebaseApp clientFirebaseApp;
     private String mApiKey;
     private String mPlayerUniqueId;
+    private String mPlayerEmail;
+    private String mPlayerMobile;
     private String mDeviceToken;
     private GameBallApi gameBallApi;
     private String shop = null;
@@ -109,6 +111,15 @@ public class GameballApp
         {
             registerDeviceRequest.setDeviceToken(mDeviceToken);
             SharedPreferencesUtils.getInstance().putDeviceToken(mDeviceToken);
+        }
+
+        if(mPlayerMobile != null)
+        {
+            registerDeviceRequest.setMobile(mPlayerMobile);
+        }
+
+        if(mPlayerEmail != null){
+            registerDeviceRequest.setEmail(mPlayerEmail);
         }
 
         if (playerAttributes != null)
@@ -300,6 +311,19 @@ public class GameballApp
         }
     }
 
+    public void registerPlayer(@NonNull final String playerUniqueId, @Nullable final String playerEmail, @Nullable final String playerMobile,
+                               final PlayerAttributes playerAttributes, @NonNull Activity activity, @NonNull Intent intent,
+                               @NonNull final Callback<PlayerRegisterResponse> responseCallback){
+        if(playerEmail != null || !playerEmail.trim().isEmpty()){
+            this.mPlayerEmail = playerEmail;
+        }
+
+        if(playerMobile != null || !playerEmail.trim().isEmpty()){
+            this.mPlayerMobile = playerMobile;
+        }
+        registerPlayer(playerUniqueId, playerAttributes, activity, intent, responseCallback);
+    }
+
     public void registerPlayer(@NonNull final String playerUniqueId, final PlayerAttributes playerAttributes,
                                final String referralCode, @NonNull final Callback<PlayerRegisterResponse> responseCallback)
     {
@@ -319,6 +343,20 @@ public class GameballApp
             this.mReferralCode = null;
             registerDevice(playerAttributes, responseCallback);
         }
+    }
+
+    public void registerPlayer(@NonNull final String playerUniqueId, @Nullable final String playerEmail, @Nullable final String playerMobile,
+                               final PlayerAttributes playerAttributes, final String referralCode,
+                               @NonNull final Callback<PlayerRegisterResponse> responseCallback){
+        if(playerEmail != null || !playerEmail.trim().isEmpty()){
+            this.mPlayerEmail = playerEmail;
+        }
+
+        if(playerMobile != null || !playerEmail.trim().isEmpty()){
+            this.mPlayerMobile = playerMobile;
+        }
+
+        registerPlayer(playerUniqueId, playerAttributes, referralCode, responseCallback);
     }
 
     public void showProfile(final AppCompatActivity activity, @Nullable final String playerUniqueId, @Nullable String openDetail, @Nullable Boolean hideNavigation)
