@@ -64,6 +64,7 @@ public class PlayerAttributes
     @SerializedName("custom")
     @Expose
     private HashMap<String, String> customAttributes;
+    private HashMap<String, String> additionalAttributes;
 
     public String getDisplayName()
     {
@@ -157,6 +158,10 @@ public class PlayerAttributes
         return this.customAttributes;
     }
 
+    public HashMap<String, String> getAdditionalAttributes() {
+        return this.additionalAttributes;
+    }
+
     public static class Builder
     {
         private String displayName;
@@ -168,6 +173,7 @@ public class PlayerAttributes
         private String dateOfBirth;
         private String joinDate;
         private HashMap<String, String> customAttributes;
+        private HashMap<String, String> additionalAttributes;
 
         public Builder()
         {
@@ -232,6 +238,15 @@ public class PlayerAttributes
             return this;
         }
 
+        public Builder withAdditionalAttributes(String key, String value){
+            if (this.additionalAttributes == null)
+                additionalAttributes = new HashMap<>();
+
+            additionalAttributes.put(key, value);
+
+            return this;
+        }
+
         public PlayerAttributes build()
         {
             PlayerAttributes playerAttributes = new PlayerAttributes();
@@ -249,12 +264,17 @@ public class PlayerAttributes
             if(this.customAttributes != null)
                 playerAttributes.customAttributes = this.customAttributes;
 
+
+            if(this.additionalAttributes != null)
+                playerAttributes.additionalAttributes = this.additionalAttributes;
+
             playerAttributes.dateOfBirth = this.dateOfBirth;
             playerAttributes.displayName = this.displayName;
             playerAttributes.firstName = this.firstName;
             playerAttributes.lastName = this.lastName;
             playerAttributes.gender = this.gender;
             playerAttributes.joinDate = this.joinDate;
+
             return playerAttributes;
         }
     }

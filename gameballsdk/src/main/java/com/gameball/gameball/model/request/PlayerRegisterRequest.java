@@ -1,8 +1,12 @@
 package com.gameball.gameball.model.request;
 
+import static com.gameball.gameball.model.helpers.RequestModelHelpers.*;
+
 import com.gameball.gameball.model.response.PlayerAttributes;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.HashMap;
 
 /**
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
@@ -22,8 +26,7 @@ public class PlayerRegisterRequest {
     private String oSType = "Android";
     @SerializedName("playerAttributes")
     @Expose
-    private PlayerAttributes playerAttributes;
-
+    private HashMap<String, Object> playerAttributes;
     @SerializedName("referrerCode")
     @Expose
     private String ReferrerCode;
@@ -66,13 +69,14 @@ public class PlayerRegisterRequest {
 
     public PlayerAttributes getPLayerInfo()
     {
-        return playerAttributes;
+        return MapToPlayerAtrributes(playerAttributes);
     }
 
     public void setPlayerAttributes(PlayerAttributes playerAttributes)
     {
-        this.playerAttributes = playerAttributes;
+        this.playerAttributes = MapFromPlayerAttributes(playerAttributes);
     }
+
     public void setReferrerCode(String referrerCode){
         this.ReferrerCode = referrerCode;
     }
