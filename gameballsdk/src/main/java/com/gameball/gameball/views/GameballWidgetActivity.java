@@ -29,7 +29,9 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private WebView widgetView;
     private String playerUniqueId;
 
+    private String widgetUrlPrefix = BuildConfig.Widget_URL;
 
+    final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String PLAYER_UNIQUE_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
 
     final private static String MOBILE_VIEW_PATH = "m/";
@@ -60,6 +62,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
 
     private void extractDataFromBundle() {
         playerUniqueId = getIntent().getStringExtra(PLAYER_UNIQUE_ID_KEY);
+        String widgetUrlPrefixTmp = getIntent().getStringExtra(WIDGET_URL_KEY);
+        widgetUrlPrefix = widgetUrlPrefixTmp == null || widgetUrlPrefixTmp.isEmpty() ? BuildConfig.Widget_URL : widgetUrlPrefixTmp;
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -121,8 +125,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
         Uri.Builder uri = new Uri.Builder();
 
         uri.scheme("https")
-                .encodedAuthority(BuildConfig.Widget_URL)
-                //.appendEncodedPath(MOBILE_VIEW_PATH)
+                .encodedAuthority(widgetUrlPrefix)
+                .appendEncodedPath("")
                 .appendQueryParameter(LANGUAGE_QUERY_KEY, language)
                 .appendQueryParameter(API_KEY_QUERY_KEY, apiKey);
 
@@ -172,9 +176,10 @@ public class GameballWidgetActivity extends AppCompatActivity {
         }
     }
 
-    public static void start(Activity context, String playerUniqueId) {
+    public static void start(Activity context, String playerUniqueId, @Nullable String widgetUrlPrefix) {
         Intent instance = new Intent(context, GameballWidgetActivity.class);
         instance.putExtra(PLAYER_UNIQUE_ID_KEY, playerUniqueId);
+        instance.putExtra(WIDGET_URL_KEY, widgetUrlPrefix);
         context.startActivity(instance);
         context.overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);
     }
