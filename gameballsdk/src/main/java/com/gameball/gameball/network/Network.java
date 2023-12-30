@@ -42,16 +42,10 @@ public class Network {
 
         mRxCallAdapterFactory = RxErrorHandlingCallAdapterFactory.create();
 
-        String baseUrl;
-
-        if (BuildConfig.DEBUG) {
-            baseUrl = BuildConfig.LIVE_URL;
-        } else {
-            baseUrl = BuildConfig.LIVE_URL;
-        }
+        String apiUrl = BuildConfig.API_Url;
 
         mRetrofit = new Retrofit.Builder()
-                .baseUrl(baseUrl)
+                .baseUrl(apiUrl)
                 .client(mOkHttpClient)
                 .addConverterFactory(GsonConverterFactory.create(mGson))
                 .addCallAdapterFactory(mRxCallAdapterFactory)

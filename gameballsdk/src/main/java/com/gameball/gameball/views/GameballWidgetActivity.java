@@ -28,7 +28,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private WebView widgetView;
     private String playerUniqueId;
 
-    private String widgetUrlPrefix = BuildConfig.Widget_URL;
+    private String widgetUrlPrefix = BuildConfig.Widget_Url;
 
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String PLAYER_UNIQUE_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
@@ -62,7 +62,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private void extractDataFromBundle() {
         playerUniqueId = getIntent().getStringExtra(PLAYER_UNIQUE_ID_KEY);
         String widgetUrlPrefixTmp = getIntent().getStringExtra(WIDGET_URL_KEY);
-        widgetUrlPrefix = widgetUrlPrefixTmp == null || widgetUrlPrefixTmp.isEmpty() ? BuildConfig.Widget_URL : widgetUrlPrefixTmp;
+        widgetUrlPrefix = widgetUrlPrefixTmp == null ||
+                widgetUrlPrefixTmp.isEmpty() ? BuildConfig.Widget_Url : widgetUrlPrefixTmp;
     }
 
     @SuppressLint("SetJavaScriptEnabled")
