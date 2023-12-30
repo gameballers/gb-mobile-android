@@ -90,6 +90,13 @@ public class RequestModelHelpers {
             tempAttr.remove("joinDate");
         }
 
+        Object attrPreferredLanguage = tempAttr.get("preferredLanguage");
+        if(attrPreferredLanguage != null)
+        {
+            attributesBuilder.withPreferredLanguage(attrPreferredLanguage.toString());
+            tempAttr.remove("preferredLanguage");
+        }
+
         HashMap<String, String> attrCustom = (HashMap<String, String>) tempAttr.get("custom");
         if(attrCustom != null){
             for(HashMap.Entry<String, String> attr: attrCustom.entrySet()){

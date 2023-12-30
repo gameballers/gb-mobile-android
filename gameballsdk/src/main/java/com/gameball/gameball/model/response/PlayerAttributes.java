@@ -61,8 +61,10 @@ public class PlayerAttributes
     @SerializedName("dynamicLink")
     @Expose
     private String dynamicLink;
-    @SerializedName("custom")
+    @SerializedName("preferredLanguage")
     @Expose
+    private String preferredLanguage;
+    @SerializedName("custom")
     private HashMap<String, String> customAttributes;
     private HashMap<String, String> additionalAttributes;
 
@@ -154,6 +156,11 @@ public class PlayerAttributes
         return dynamicLink;
     }
 
+    public String getPreferredLanguage()
+    {
+        return preferredLanguage;
+    }
+
     public HashMap<String, String> getCustomAttributes() {
         return this.customAttributes;
     }
@@ -172,6 +179,7 @@ public class PlayerAttributes
         private String mobile;
         private String dateOfBirth;
         private String joinDate;
+        private String preferredLanguage;
         private HashMap<String, String> customAttributes;
         private HashMap<String, String> additionalAttributes;
 
@@ -229,6 +237,11 @@ public class PlayerAttributes
             return this;
         }
 
+        public Builder withPreferredLanguage(String preferredLanguage){
+            this.preferredLanguage = preferredLanguage;
+            return this;
+        }
+
         public Builder withCustomAttribute(String key, String value){
             if (this.customAttributes == null)
                 customAttributes = new HashMap<>();
@@ -274,6 +287,7 @@ public class PlayerAttributes
             playerAttributes.lastName = this.lastName;
             playerAttributes.gender = this.gender;
             playerAttributes.joinDate = this.joinDate;
+            playerAttributes.preferredLanguage = this.preferredLanguage;
 
             return playerAttributes;
         }
