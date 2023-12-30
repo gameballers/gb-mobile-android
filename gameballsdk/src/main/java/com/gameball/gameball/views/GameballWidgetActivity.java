@@ -88,7 +88,9 @@ public class GameballWidgetActivity extends AppCompatActivity {
         widgetView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
                 return true;
             }
         });
