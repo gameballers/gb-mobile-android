@@ -15,10 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.Event;
+import com.gameball.gameball.model.request.PlayerAttributes;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
@@ -198,13 +198,9 @@ public class GameballApp
         }
 
         SharedPreferencesUtils.getInstance().putPlatformPreference(this.platform);
-
         SharedPreferencesUtils.getInstance().putShopPreference(this.shop);
-
         SharedPreferencesUtils.getInstance().putOSPreference(this.OS);
-
         SharedPreferencesUtils.getInstance().putSDKPreference(this.SDKVersion);
-
         SharedPreferencesUtils.getInstance().putApiKey(this.mApiKey);
 
         getBotSettings();

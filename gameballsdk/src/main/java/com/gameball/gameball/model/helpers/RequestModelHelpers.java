@@ -1,6 +1,6 @@
 package com.gameball.gameball.model.helpers;
 
-import com.gameball.gameball.model.response.PlayerAttributes;
+import com.gameball.gameball.model.request.PlayerAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
