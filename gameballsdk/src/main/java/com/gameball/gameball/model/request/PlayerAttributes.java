@@ -122,19 +122,16 @@ public class PlayerAttributes
         public Builder withGender(String gender)
         {
             this.gender = gender;
-
             return this;
         }
         public Builder withMobileNumber(String mobileNumber)
         {
             this.mobile = mobileNumber;
-
             return this;
         }
         public Builder withDateOfBirth(String dateOfBirth)
         {
             this.dateOfBirth = dateOfBirth;
-
             return this;
         }
         public Builder withJoinDate(String joinDate)
@@ -147,19 +144,17 @@ public class PlayerAttributes
             return this;
         }
         public Builder withCustomAttribute(String key, String value){
-            if (this.customAttributes == null)
+            if (this.customAttributes == null) {
                 customAttributes = new HashMap<>();
-
+            }
             customAttributes.put(key, value);
-
             return this;
         }
-        public Builder withAdditionalAttributes(String key, String value){
-            if (this.additionalAttributes == null)
+        public Builder withAdditionalAttribute(String key, String value){
+            if (this.additionalAttributes == null) {
                 additionalAttributes = new HashMap<>();
-
+            }
             additionalAttributes.put(key, value);
-
             return this;
         }
         public PlayerAttributes build()

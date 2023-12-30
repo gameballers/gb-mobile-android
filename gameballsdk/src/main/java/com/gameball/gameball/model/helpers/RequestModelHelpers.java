@@ -108,7 +108,7 @@ public class RequestModelHelpers {
         for(HashMap.Entry<String, Object> attr: tempAttr.entrySet()){
             Object attrValue = tempAttr.get(attr.getKey());
             if(attrValue != null){
-                attributesBuilder.withAdditionalAttributes(attr.getKey(), attrValue.toString());
+                attributesBuilder.withAdditionalAttribute(attr.getKey(), attrValue.toString());
             }
         }
 
