@@ -291,6 +291,11 @@ public class GameballApp
             else {
                 Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
             }
+
+            if(playerAttributes != null){
+                setPlayerPreferredLanguage(playerAttributes.getPreferredLanguage());
+            }
+
             checkReferral(activity, intent, new Callback<String>() {
                 @Override
                 public void onSuccess(String s) {
@@ -333,6 +338,10 @@ public class GameballApp
             }
             else {
                 Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
+            }
+
+            if(playerAttributes != null){
+                setPlayerPreferredLanguage(playerAttributes.getPreferredLanguage());
             }
 
             this.mReferralCode = referralCode;
@@ -452,5 +461,11 @@ public class GameballApp
         }
         Log.i(TAG, "isGmsAvailable: " + isGmsAvailable);
         return isGmsAvailable;
+    }
+
+    private void setPlayerPreferredLanguage(String playerPreferredLanguage){
+        if(playerPreferredLanguage != null && playerPreferredLanguage.length() == 2){
+            SharedPreferencesUtils.getInstance().putPlayerPreferredLanguage(playerPreferredLanguage);
+        }
     }
 }
