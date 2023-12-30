@@ -21,8 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
-
-import java.util.Locale;
+import com.gameball.gameball.utils.LanguageUtils;
 
 
 public class GameballWidgetActivity extends AppCompatActivity {
@@ -118,11 +117,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
         SharedPreferencesUtils sharedPreferences = SharedPreferencesUtils.getInstance();
 
         String apiKey = sharedPreferences.getApiKey();
-        String language = SharedPreferencesUtils.getInstance().getLanguagePreference();
 
-                if(language == null || language.length()!= 2)
-                    language = Locale.getDefault().getLanguage();
-
+        String language = LanguageUtils.HandleLanguage();
 
         Uri.Builder uri = new Uri.Builder();
 

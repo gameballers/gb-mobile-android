@@ -193,6 +193,10 @@ public class GameballApp
         this.shop = shop;
         this.mApiKey = apiKey;
 
+        if(lang != null && lang.length() == 2) {
+            SharedPreferencesUtils.getInstance().putGlobalPreferredLanguage(lang);
+        }
+
         SharedPreferencesUtils.getInstance().putPlatformPreference(this.platform);
 
         SharedPreferencesUtils.getInstance().putShopPreference(this.shop);
@@ -213,8 +217,8 @@ public class GameballApp
     }
     
     public void changeLanguage(String language) {
-        if (language != null && language.length() != 2) {
-            SharedPreferencesUtils.getInstance().putLanguagePreference(language);
+        if (language != null && language.length() == 2) {
+            SharedPreferencesUtils.getInstance().putGlobalPreferredLanguage(language);
         }
     }
 

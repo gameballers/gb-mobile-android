@@ -168,12 +168,12 @@ public class SharedPreferencesUtils {
         return getString(PreferencesContract.PLAYER_DYNAMIC_LINK, null);
     }
 
-    public void putLanguagePreference(String language) {
-        putString(PreferencesContract.LANGUAGE_PREFERENCE, language);
+    public void putGlobalPreferredLanguage(String language) {
+        putString(PreferencesContract.GLOBAL_PREFERRED_LANGUAGE, language);
     }
 
-    public String getLanguagePreference() {
-        return getString(PreferencesContract.LANGUAGE_PREFERENCE, null);
+    public String getGlobalPreferredLanguage() {
+        return getString(PreferencesContract.GLOBAL_PREFERRED_LANGUAGE, null);
     }
 
     public void putPlatformPreference(String platform){
@@ -249,7 +249,7 @@ public class SharedPreferencesUtils {
         private static final String CLIENT_BOT_SETTINGS = "BOT_SETTINGS";
         private static final String PLAYER_TYPE_ID = "PLAYER_TYPE_ID";
         private static final String PLAYER_DYNAMIC_LINK = "PLAYER_DYNAMIC_LINK";
-        private static final String LANGUAGE_PREFERENCE = "LANGUAGE_PREFERENCE";
+        private static final String GLOBAL_PREFERRED_LANGUAGE = "GLOBAL_PREFERRED_LANGUAGE";
         private static final String PLATFORM_PREFERENCE = "PLATFORM_PREFERENCE";
         private static final String SHOP_PREFERENCE = "SHOP_PREFERENCE";
         private static final String OS_VERSION_PREFERENCE = "OS_VERSION_PREFERENCE";
