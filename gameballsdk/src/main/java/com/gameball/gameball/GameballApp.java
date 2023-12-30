@@ -207,12 +207,6 @@ public class GameballApp
 
         SharedPreferencesUtils.getInstance().putApiKey(this.mApiKey);
 
-        SharedPreferencesUtils.getInstance().putLanguagePreference(lang);
-
-        SharedPreferencesUtils.getInstance().putApiKey(apiKey);
-
-        SharedPreferencesUtils.getInstance().putLanguagePreference(lang);
-
         getBotSettings();
     }
     
