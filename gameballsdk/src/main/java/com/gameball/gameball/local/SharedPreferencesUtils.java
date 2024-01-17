@@ -168,12 +168,12 @@ public class SharedPreferencesUtils {
         return getString(PreferencesContract.PLAYER_DYNAMIC_LINK, null);
     }
 
-    public void putLanguagePreference(String language) {
-        putString(PreferencesContract.LANGUAGE_PREFERENCE, language);
+    public void putGlobalPreferredLanguage(String language) {
+        putString(PreferencesContract.GLOBAL_PREFERRED_LANGUAGE, language);
     }
 
-    public String getLanguagePreference() {
-        return getString(PreferencesContract.LANGUAGE_PREFERENCE, null);
+    public String getGlobalPreferredLanguage() {
+        return getString(PreferencesContract.GLOBAL_PREFERRED_LANGUAGE, null);
     }
 
     public void putPlatformPreference(String platform){
@@ -233,6 +233,14 @@ public class SharedPreferencesUtils {
         remove(PreferencesContract.HIDE_NAVIGATION_PREFERENCE);
     }
 
+    public String getPlayerPreferredLanguage(){
+        return getString(PreferencesContract.PLAYER_PREFERRED_LANGUAGE, null);
+    }
+
+    public void putPlayerPreferredLanguage(String preferredLanguage){
+        putString(PreferencesContract.PLAYER_PREFERRED_LANGUAGE, preferredLanguage);
+    }
+
     private static final class PreferencesContract {
 
         private static final String PLAYER_UNIQUE_ID = "PLAYER_UNIQUE_ID";
@@ -241,13 +249,14 @@ public class SharedPreferencesUtils {
         private static final String CLIENT_BOT_SETTINGS = "BOT_SETTINGS";
         private static final String PLAYER_TYPE_ID = "PLAYER_TYPE_ID";
         private static final String PLAYER_DYNAMIC_LINK = "PLAYER_DYNAMIC_LINK";
-        private static final String LANGUAGE_PREFERENCE = "LANGUAGE_PREFERENCE";
+        private static final String GLOBAL_PREFERRED_LANGUAGE = "GLOBAL_PREFERRED_LANGUAGE";
         private static final String PLATFORM_PREFERENCE = "PLATFORM_PREFERENCE";
         private static final String SHOP_PREFERENCE = "SHOP_PREFERENCE";
         private static final String OS_VERSION_PREFERENCE = "OS_VERSION_PREFERENCE";
         private static final String SDK_VERSION_PREFERENCE = "SDK_VERSION_PREFERENCE";
         private static final String OPEN_DETAIL_PREFERENCE = "OPEN_DETAIL_PREFERENCE";
         private static final String HIDE_NAVIGATION_PREFERENCE = "HIDE_NAVIGATION_PREFERENCE";
+        private static final String PLAYER_PREFERRED_LANGUAGE = "PLAYER_PREFERRED_LANGUAGE";
     }
 
 }

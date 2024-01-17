@@ -21,15 +21,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
-
-import java.util.Locale;
+import com.gameball.gameball.utils.LanguageUtils;
 
 
 public class GameballWidgetActivity extends AppCompatActivity {
     private WebView widgetView;
     private String playerUniqueId;
 
+    private String widgetUrlPrefix = BuildConfig.Widget_Url;
 
+    final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String PLAYER_UNIQUE_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
 
     final private static String MOBILE_VIEW_PATH = "m/";
@@ -60,6 +61,9 @@ public class GameballWidgetActivity extends AppCompatActivity {
 
     private void extractDataFromBundle() {
         playerUniqueId = getIntent().getStringExtra(PLAYER_UNIQUE_ID_KEY);
+        String widgetUrlPrefixTmp = getIntent().getStringExtra(WIDGET_URL_KEY);
+        widgetUrlPrefix = widgetUrlPrefixTmp == null ||
+                widgetUrlPrefixTmp.isEmpty() ? BuildConfig.Widget_Url : widgetUrlPrefixTmp;
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -84,7 +88,9 @@ public class GameballWidgetActivity extends AppCompatActivity {
         widgetView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
                 return true;
             }
         });
@@ -112,17 +118,14 @@ public class GameballWidgetActivity extends AppCompatActivity {
         SharedPreferencesUtils sharedPreferences = SharedPreferencesUtils.getInstance();
 
         String apiKey = sharedPreferences.getApiKey();
-        String language = SharedPreferencesUtils.getInstance().getLanguagePreference();
 
-                if(language == null || language.length()!= 2)
-                    language = Locale.getDefault().getLanguage();
-
+        String language = LanguageUtils.HandleLanguage();
 
         Uri.Builder uri = new Uri.Builder();
 
         uri.scheme("https")
-                .encodedAuthority(BuildConfig.Widget_URL)
-                //.appendEncodedPath(MOBILE_VIEW_PATH)
+                .encodedAuthority(widgetUrlPrefix)
+                .appendEncodedPath("")
                 .appendQueryParameter(LANGUAGE_QUERY_KEY, language)
                 .appendQueryParameter(API_KEY_QUERY_KEY, apiKey);
 
@@ -172,9 +175,10 @@ public class GameballWidgetActivity extends AppCompatActivity {
         }
     }
 
-    public static void start(Activity context, String playerUniqueId) {
+    public static void start(Activity context, String playerUniqueId, @Nullable String widgetUrlPrefix) {
         Intent instance = new Intent(context, GameballWidgetActivity.class);
         instance.putExtra(PLAYER_UNIQUE_ID_KEY, playerUniqueId);
+        instance.putExtra(WIDGET_URL_KEY, widgetUrlPrefix);
         context.startActivity(instance);
         context.overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);
     }

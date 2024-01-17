@@ -17,9 +17,6 @@ public class ClientBotSettings
     @SerializedName("enableNotifications")
     @Expose
     private boolean enableNotifications;
-    @SerializedName("clientFirebase")
-    @Expose
-    private ClientFireBase clientFireBase;
     @SerializedName("isBotDarkTheme")
     @Expose
     private boolean isBotDarkTheme;
@@ -51,11 +48,6 @@ public class ClientBotSettings
     public boolean isEnableLeaderboard()
     {
         return enableLeaderboard;
-    }
-
-    public ClientFireBase getClientFireBase()
-    {
-        return clientFireBase;
     }
 
     public boolean isReferralOn()

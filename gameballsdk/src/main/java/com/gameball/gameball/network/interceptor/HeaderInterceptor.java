@@ -4,9 +4,9 @@ import android.util.Log;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.utils.Constants;
+import com.gameball.gameball.utils.LanguageUtils;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -28,7 +28,9 @@ public class HeaderInterceptor implements Interceptor
 
         }
 
-        builder.addHeader(Constants.LangKey, Locale.getDefault().getLanguage());
+        String langHeader = LanguageUtils.HandleLanguage();
+
+        builder.addHeader(Constants.LangKey, langHeader);
 
         String osVersion = SharedPreferencesUtils.getInstance().getOSPreference();
         String sdkVersion = SharedPreferencesUtils.getInstance().getSDKPreference();

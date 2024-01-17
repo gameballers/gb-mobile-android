@@ -15,10 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.Event;
+import com.gameball.gameball.model.request.PlayerAttributes;
 import com.gameball.gameball.model.request.PlayerRegisterRequest;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.PlayerAttributes;
 import com.gameball.gameball.model.response.PlayerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
@@ -55,6 +55,8 @@ public class GameballApp
     private FirebaseApp clientFirebaseApp;
     private String mApiKey;
     private String mPlayerUniqueId;
+    private String mPlayerEmail;
+    private String mPlayerMobile;
     private String mDeviceToken;
     private GameBallApi gameBallApi;
     private String shop = null;
@@ -109,6 +111,15 @@ public class GameballApp
         {
             registerDeviceRequest.setDeviceToken(mDeviceToken);
             SharedPreferencesUtils.getInstance().putDeviceToken(mDeviceToken);
+        }
+
+        if(mPlayerMobile != null)
+        {
+            registerDeviceRequest.setMobile(mPlayerMobile);
+        }
+
+        if(mPlayerEmail != null){
+            registerDeviceRequest.setEmail(mPlayerEmail);
         }
 
         if (playerAttributes != null)
@@ -171,34 +182,33 @@ public class GameballApp
                 });
     }
 
+    public void init(@NonNull String apiKey, String lang, String platform, String shop, @Nullable String apiPrefix){
+        gameBallApi = Network.getInstance().getGameBallApi(apiPrefix);
+        init(apiKey, lang, platform, shop);
+    }
+    
     public void init(@NonNull String apiKey, String lang, String platform, String shop)
     {
         this.platform = platform;
         this.shop = shop;
         this.mApiKey = apiKey;
 
+        if(lang != null && lang.length() == 2) {
+            SharedPreferencesUtils.getInstance().putGlobalPreferredLanguage(lang);
+        }
+
         SharedPreferencesUtils.getInstance().putPlatformPreference(this.platform);
-
         SharedPreferencesUtils.getInstance().putShopPreference(this.shop);
-
         SharedPreferencesUtils.getInstance().putOSPreference(this.OS);
-
         SharedPreferencesUtils.getInstance().putSDKPreference(this.SDKVersion);
-
         SharedPreferencesUtils.getInstance().putApiKey(this.mApiKey);
-
-        SharedPreferencesUtils.getInstance().putLanguagePreference(lang);
-
-        SharedPreferencesUtils.getInstance().putApiKey(apiKey);
-
-        SharedPreferencesUtils.getInstance().putLanguagePreference(lang);
 
         getBotSettings();
     }
     
     public void changeLanguage(String language) {
-        if (language != null && language.length() != 2) {
-            SharedPreferencesUtils.getInstance().putLanguagePreference(language);
+        if (language != null && language.length() == 2) {
+            SharedPreferencesUtils.getInstance().putGlobalPreferredLanguage(language);
         }
     }
 
@@ -275,6 +285,11 @@ public class GameballApp
             else {
                 Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
             }
+
+            if(playerAttributes != null){
+                setPlayerPreferredLanguage(playerAttributes.getPreferredLanguage());
+            }
+
             checkReferral(activity, intent, new Callback<String>() {
                 @Override
                 public void onSuccess(String s) {
@@ -295,6 +310,19 @@ public class GameballApp
         }
     }
 
+    public void registerPlayer(@NonNull final String playerUniqueId, @Nullable final String playerEmail, @Nullable final String playerMobile,
+                               final PlayerAttributes playerAttributes, @NonNull Activity activity, @NonNull Intent intent,
+                               @NonNull final Callback<PlayerRegisterResponse> responseCallback){
+        if(playerEmail != null || !playerEmail.trim().isEmpty()){
+            this.mPlayerEmail = playerEmail;
+        }
+
+        if(playerMobile != null || !playerEmail.trim().isEmpty()){
+            this.mPlayerMobile = playerMobile;
+        }
+        registerPlayer(playerUniqueId, playerAttributes, activity, intent, responseCallback);
+    }
+
     public void registerPlayer(@NonNull final String playerUniqueId, final PlayerAttributes playerAttributes,
                                final String referralCode, @NonNull final Callback<PlayerRegisterResponse> responseCallback)
     {
@@ -304,6 +332,10 @@ public class GameballApp
             }
             else {
                 Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
+            }
+
+            if(playerAttributes != null){
+                setPlayerPreferredLanguage(playerAttributes.getPreferredLanguage());
             }
 
             this.mReferralCode = referralCode;
@@ -316,12 +348,34 @@ public class GameballApp
         }
     }
 
+    public void registerPlayer(@NonNull final String playerUniqueId, @Nullable final String playerEmail, @Nullable final String playerMobile,
+                               final PlayerAttributes playerAttributes, final String referralCode,
+                               @NonNull final Callback<PlayerRegisterResponse> responseCallback){
+        if(playerEmail != null || !playerEmail.trim().isEmpty()){
+            this.mPlayerEmail = playerEmail;
+        }
+
+        if(playerMobile != null || !playerEmail.trim().isEmpty()){
+            this.mPlayerMobile = playerMobile;
+        }
+
+        registerPlayer(playerUniqueId, playerAttributes, referralCode, responseCallback);
+    }
+
     public void showProfile(final AppCompatActivity activity, @Nullable final String playerUniqueId, @Nullable String openDetail, @Nullable Boolean hideNavigation)
     {
         SharedPreferencesUtils.getInstance().putOpenDetailPreference(openDetail);
         SharedPreferencesUtils.getInstance().putHideNavigationPreference(hideNavigation);
 
-        GameballWidgetActivity.start(activity, playerUniqueId);
+        GameballWidgetActivity.start(activity, playerUniqueId, null);
+    }
+    
+    public void showProfile(final AppCompatActivity activity, @Nullable final String playerUniqueId, @Nullable String openDetail, @Nullable Boolean hideNavigation, @Nullable String widgetUrlPrefix)
+    {
+        SharedPreferencesUtils.getInstance().putOpenDetailPreference(openDetail);
+        SharedPreferencesUtils.getInstance().putHideNavigationPreference(hideNavigation);
+
+        GameballWidgetActivity.start(activity, playerUniqueId, widgetUrlPrefix);
     }
 
     private void checkReferral(@NonNull Activity activity, @NonNull final Intent intent, @NonNull final Callback callback){
@@ -401,5 +455,11 @@ public class GameballApp
         }
         Log.i(TAG, "isGmsAvailable: " + isGmsAvailable);
         return isGmsAvailable;
+    }
+
+    private void setPlayerPreferredLanguage(String playerPreferredLanguage){
+        if(playerPreferredLanguage != null && playerPreferredLanguage.length() == 2){
+            SharedPreferencesUtils.getInstance().putPlayerPreferredLanguage(playerPreferredLanguage);
+        }
     }
 }

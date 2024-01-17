@@ -12,7 +12,6 @@ public class PlayerRegisterResponse {
     public String getGameballId() {
         return GameballId;
     }
-
     public void setGameballId(String gameballId) {
         GameballId = gameballId;
     }

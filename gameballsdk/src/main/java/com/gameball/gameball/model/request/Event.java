@@ -1,6 +1,5 @@
 package com.gameball.gameball.model.request;
 
-import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -42,20 +41,14 @@ public class Event
         private String eventName;
 
         public Builder(){
-            //this.playerUniqueId = SharedPreferencesUtils.getInstance().getPlayerUniqueId();
+
         }
 
-        public Builder AddUniquePlayerId(String uniquePlayerId){
-            if(uniquePlayerId == null || uniquePlayerId.trim().isEmpty()){
-                this.playerUniqueId = null;
-            }
-            else{
-                this.playerUniqueId = uniquePlayerId;
-            }
+        public Builder addUniquePlayerId(String uniquePlayerId){
+            this.playerUniqueId = uniquePlayerId;
             return this;
         }
-
-        public Builder AddEventName(String eventName){
+        public Builder addEventName(String eventName){
             this.eventName = eventName;
             if(this.events == null) {
                 this.events = new HashMap<String, HashMap<String, Object>>();
@@ -66,34 +59,25 @@ public class Event
             }
             return this;
         }
-
-        public Builder AddEventMetaData(String metaDataKey, Object metaDataValue){
+        public Builder addEventMetaData(String metaDataKey, Object metaDataValue){
             HashMap<String, Object> tempEvent = this.events.get(this.eventName);
             tempEvent.put(metaDataKey, metaDataValue);
             return this;
         }
-
-        public Builder AddEmail(String email){
+        public Builder addEmail(String email){
             this.email = email;
             return this;
         }
-
-        public Builder AddMobile(String mobile){
+        public Builder addMobile(String mobile){
             this.mobile = mobile;
             return this;
         }
-
         public Event build(){
             Event event = new Event();
 
-            if(this.playerUniqueId == null || this.playerUniqueId.isEmpty()){
-                event.playerUniqueId = null;
-            }
-            else event.playerUniqueId = this.playerUniqueId;
-
+            event.playerUniqueId = this.playerUniqueId;
             event.mobile = this.mobile;
             event.email = this.email;
-
             event.events = this.events;
 
             return event;
