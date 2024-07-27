@@ -73,4 +73,5 @@ lint/tmp/
 /build
 /captures
 
-
+.externalNativeBuild
+.cxx
