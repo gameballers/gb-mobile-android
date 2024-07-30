@@ -34,6 +34,9 @@ public class PlayerAttributes
     @SerializedName("preferredLanguage")
     @Expose
     private String preferredLanguage;
+    @SerializedName("channel")
+    @Expose
+    private String channel = "mobile";
     @SerializedName("custom")
     private HashMap<String, String> customAttributes;
     private HashMap<String, String> additionalAttributes;
