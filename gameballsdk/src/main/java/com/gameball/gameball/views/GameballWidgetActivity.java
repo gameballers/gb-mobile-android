@@ -14,6 +14,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,17 +24,16 @@ import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.utils.LanguageUtils;
 
-
 public class GameballWidgetActivity extends AppCompatActivity {
     private WebView widgetView;
     private String playerUniqueId;
-
+    private String language;
+    private ImageView closeButton;
+    private ImageView primaryCloseButton;
+    private ImageView secondaryCloseButton;
     private String widgetUrlPrefix = BuildConfig.Widget_Url;
-
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String PLAYER_UNIQUE_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
-
-    final private static String MOBILE_VIEW_PATH = "m/";
     final private static String LANGUAGE_QUERY_KEY = "lang";
     final private static String API_KEY_QUERY_KEY = "apiKey";
     final private static String MAIN_COLOR_QUERY_KEY = "main";
@@ -49,14 +49,23 @@ public class GameballWidgetActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gameball_widget);
+
         findViewById(R.id.widget_parent).setNestedScrollingEnabled(true);
         widgetView = (WebView) findViewById(R.id.gb_profile_webview);
+        primaryCloseButton = (ImageView) findViewById(R.id.btn_close_right);
+        secondaryCloseButton = (ImageView) findViewById(R.id.btn_close_left);
+
+        language = LanguageUtils.HandleLanguage();
+
+        closeButton = primaryCloseButton;
+
         extractDataFromBundle();
         setupWidget();
         loadWidget();
 
-        if (android.os.Build.VERSION.SDK_INT != Build.VERSION_CODES.O)
+        if (android.os.Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 
     private void extractDataFromBundle() {
@@ -103,8 +112,15 @@ public class GameballWidgetActivity extends AppCompatActivity {
             }
         });
 
+        if(LanguageUtils.shouldHandleCloseButtonDirection(this.language)){
 
-        findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
+            primaryCloseButton.setVisibility(View.GONE);
+            secondaryCloseButton.setVisibility(View.VISIBLE);
+
+            closeButton = secondaryCloseButton;
+        }
+
+        closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
@@ -118,8 +134,6 @@ public class GameballWidgetActivity extends AppCompatActivity {
         SharedPreferencesUtils sharedPreferences = SharedPreferencesUtils.getInstance();
 
         String apiKey = sharedPreferences.getApiKey();
-
-        String language = LanguageUtils.HandleLanguage();
 
         Uri.Builder uri = new Uri.Builder();
 
