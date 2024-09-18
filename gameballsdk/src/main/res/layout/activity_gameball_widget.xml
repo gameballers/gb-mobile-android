@@ -26,7 +26,7 @@
             android:visibility="gone" />
 
         <ImageButton
-            android:id="@+id/btn_close"
+            android:id="@+id/btn_close_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="20dp"
@@ -39,7 +39,25 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:scaleType="fitCenter"
-            tools:ignore="ContentDescription" />
+            tools:ignore="ContentDescription"
+            android:visibility="visible" />
+
+        <ImageButton
+            android:id="@+id/btn_close_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="20dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="10dp"
+            android:background="@null"
+            android:src="@drawable/ic_close"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:scaleType="fitCenter"
+            tools:ignore="ContentDescription"
+            android:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
