@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.utils.LanguageUtils;
 
 public class GameballWidgetActivity extends AppCompatActivity {
@@ -33,6 +34,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private ImageView secondaryCloseButton;
     private String widgetUrlPrefix = BuildConfig.Widget_Url;
     private static Boolean showCloseButton = true;
+    private static Callback<String> capturedLinkCallback;
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String PLAYER_UNIQUE_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
     final private static String LANGUAGE_QUERY_KEY = "lang";
@@ -97,15 +99,17 @@ public class GameballWidgetActivity extends AppCompatActivity {
 
         widgetView.setWebViewClient(new WebViewClient() {
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(url));
-                startActivity(intent);
-                return true;
-            }
-        });
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                if(request == null) {
+                    return false;
+                }
 
-        widgetView.setWebViewClient(new WebViewClient() {
+                return handleCapturedLink(request.getUrl().toString());
+            }
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return handleCapturedLink(url);
+            }
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
@@ -117,7 +121,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
             primaryCloseButton.setVisibility(View.GONE);
             secondaryCloseButton.setVisibility(View.GONE);
         }
-        else{
+        else
+        {
             if(LanguageUtils.shouldHandleCloseButtonDirection(this.language)){
 
                 primaryCloseButton.setVisibility(View.GONE);
@@ -129,12 +134,15 @@ public class GameballWidgetActivity extends AppCompatActivity {
             closeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    finish();
-                    GameballWidgetActivity.this
-                            .overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);
+                    closeWidget();
                 }
             });
         }
+    }
+
+    private void closeWidget(){
+        finish();
+        GameballWidgetActivity.this.overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);
     }
 
     private void loadWidget() {
@@ -186,6 +194,28 @@ public class GameballWidgetActivity extends AppCompatActivity {
         widgetView.loadUrl(uri.toString());
     }
 
+    private Boolean handleCapturedLink(String url){
+
+        if(capturedLinkCallback != null){
+            try{
+                capturedLinkCallback.onSuccess(url);
+                closeWidget();
+                return true;
+            }
+            catch(Exception e){
+                capturedLinkCallback.onError(e);
+                closeWidget();
+                return true;
+            }
+        }
+
+        Uri uri = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(uri);
+        startActivity(intent);
+        return true;
+    }
+
     @Override
     public void onBackPressed() {
         if (widgetView.canGoBack())
@@ -196,7 +226,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
         }
     }
 
-    public static void start(Activity context, String playerUniqueId, @Nullable Boolean showCloseButton, @Nullable String widgetUrlPrefix) {
+    public static void start(Activity context, String playerUniqueId, @Nullable Boolean showCloseButton, @Nullable String widgetUrlPrefix, @Nullable Callback<String> capturedUrlCallback) {
+        GameballWidgetActivity.capturedLinkCallback = capturedUrlCallback;
         if(showCloseButton != null){
             GameballWidgetActivity.showCloseButton = showCloseButton;
         }
