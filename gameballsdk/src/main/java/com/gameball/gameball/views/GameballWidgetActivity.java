@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -57,6 +58,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
         widgetView = (WebView) findViewById(R.id.gb_profile_webview);
         primaryCloseButton = (ImageView) findViewById(R.id.btn_close_right);
         secondaryCloseButton = (ImageView) findViewById(R.id.btn_close_left);
+
+        widgetView.setBackgroundColor(Color.WHITE);
 
         language = LanguageUtils.HandleLanguage();
 
