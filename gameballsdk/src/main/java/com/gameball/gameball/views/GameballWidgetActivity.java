@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -23,7 +25,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.network.Callback;
+import com.gameball.gameball.utils.GestureListener;
 import com.gameball.gameball.utils.LanguageUtils;
 
 public class GameballWidgetActivity extends AppCompatActivity {
@@ -36,6 +40,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private String widgetUrlPrefix = BuildConfig.Widget_Url;
     private static Boolean showCloseButton = true;
     private static Callback<String> capturedLinkCallback;
+    private GestureDetector gestureDetector;
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String PLAYER_UNIQUE_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
     final private static String LANGUAGE_QUERY_KEY = "lang";
@@ -60,6 +65,21 @@ public class GameballWidgetActivity extends AppCompatActivity {
         secondaryCloseButton = (ImageView) findViewById(R.id.btn_close_left);
 
         widgetView.setBackgroundColor(Color.WHITE);
+
+        // Initialize GestureDetector with a simple gesture listener
+        gestureDetector = new GestureDetector(this, new GestureListener(new Callback<Boolean>(){
+            @Override
+            public void onSuccess(Boolean aBoolean) {
+                if(aBoolean){
+                    closeWidget();
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        }));
 
         language = LanguageUtils.HandleLanguage();
 
@@ -99,6 +119,19 @@ public class GameballWidgetActivity extends AppCompatActivity {
 
         WebAppInterface webAppInterface = new WebAppInterface(this);
         widgetView.addJavascriptInterface(webAppInterface, "Android");
+
+        // Set an onTouchListener with accessibility in mind
+        widgetView.setOnTouchListener((view, event) -> {
+            gestureDetector.onTouchEvent(event);  // Pass touch events to GestureDetector
+
+            // Call performClick for accessibility purposes
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                view.performClick();
+            }
+
+            // Allow WebView to handle touch event as well
+            return false;
+        });
 
         widgetView.setWebViewClient(new WebViewClient() {
             @Override
@@ -227,6 +260,12 @@ public class GameballWidgetActivity extends AppCompatActivity {
             finish();
             this.overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);
         }
+    }
+
+    // Override the onTouchEvent to pass touch events to the GestureDetector
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 
     public static void start(Activity context, String playerUniqueId, @Nullable Boolean showCloseButton, @Nullable String widgetUrlPrefix, @Nullable Callback<String> capturedUrlCallback) {
