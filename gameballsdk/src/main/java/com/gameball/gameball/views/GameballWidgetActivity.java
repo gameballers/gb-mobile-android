@@ -4,10 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -22,6 +25,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
+import com.gameball.gameball.model.response.ClientBotSettings;
+import com.gameball.gameball.network.Callback;
+import com.gameball.gameball.utils.GestureListener;
 import com.gameball.gameball.utils.LanguageUtils;
 
 public class GameballWidgetActivity extends AppCompatActivity {
@@ -32,6 +38,9 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private ImageView primaryCloseButton;
     private ImageView secondaryCloseButton;
     private String widgetUrlPrefix = BuildConfig.Widget_Url;
+    private static Boolean showCloseButton = true;
+    private static Callback<String> capturedLinkCallback;
+    private GestureDetector gestureDetector;
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String PLAYER_UNIQUE_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
     final private static String LANGUAGE_QUERY_KEY = "lang";
@@ -54,6 +63,23 @@ public class GameballWidgetActivity extends AppCompatActivity {
         widgetView = (WebView) findViewById(R.id.gb_profile_webview);
         primaryCloseButton = (ImageView) findViewById(R.id.btn_close_right);
         secondaryCloseButton = (ImageView) findViewById(R.id.btn_close_left);
+
+        widgetView.setBackgroundColor(Color.WHITE);
+
+        // Initialize GestureDetector with a simple gesture listener
+        gestureDetector = new GestureDetector(this, new GestureListener(new Callback<Boolean>(){
+            @Override
+            public void onSuccess(Boolean aBoolean) {
+                if(aBoolean){
+                    closeWidget();
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        }));
 
         language = LanguageUtils.HandleLanguage();
 
@@ -94,17 +120,32 @@ public class GameballWidgetActivity extends AppCompatActivity {
         WebAppInterface webAppInterface = new WebAppInterface(this);
         widgetView.addJavascriptInterface(webAppInterface, "Android");
 
-        widgetView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(url));
-                startActivity(intent);
-                return true;
+        // Set an onTouchListener with accessibility in mind
+        widgetView.setOnTouchListener((view, event) -> {
+            gestureDetector.onTouchEvent(event);  // Pass touch events to GestureDetector
+
+            // Call performClick for accessibility purposes
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                view.performClick();
             }
+
+            // Allow WebView to handle touch event as well
+            return false;
         });
 
         widgetView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                if(request == null) {
+                    return false;
+                }
+
+                return handleCapturedLink(request.getUrl().toString());
+            }
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return handleCapturedLink(url);
+            }
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
@@ -112,22 +153,32 @@ public class GameballWidgetActivity extends AppCompatActivity {
             }
         });
 
-        if(LanguageUtils.shouldHandleCloseButtonDirection(this.language)){
-
+        if(!showCloseButton){
             primaryCloseButton.setVisibility(View.GONE);
-            secondaryCloseButton.setVisibility(View.VISIBLE);
-
-            closeButton = secondaryCloseButton;
+            secondaryCloseButton.setVisibility(View.GONE);
         }
+        else
+        {
+            if(LanguageUtils.shouldHandleCloseButtonDirection(this.language)){
 
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-                GameballWidgetActivity.this
-                        .overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);
+                primaryCloseButton.setVisibility(View.GONE);
+                secondaryCloseButton.setVisibility(View.VISIBLE);
+
+                closeButton = secondaryCloseButton;
             }
-        });
+
+            closeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    closeWidget();
+                }
+            });
+        }
+    }
+
+    private void closeWidget(){
+        finish();
+        GameballWidgetActivity.this.overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);
     }
 
     private void loadWidget() {
@@ -179,6 +230,28 @@ public class GameballWidgetActivity extends AppCompatActivity {
         widgetView.loadUrl(uri.toString());
     }
 
+    private Boolean handleCapturedLink(String url){
+
+        if(capturedLinkCallback != null){
+            try{
+                capturedLinkCallback.onSuccess(url);
+                closeWidget();
+                return true;
+            }
+            catch(Exception e){
+                capturedLinkCallback.onError(e);
+                closeWidget();
+                return true;
+            }
+        }
+
+        Uri uri = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(uri);
+        startActivity(intent);
+        return true;
+    }
+
     @Override
     public void onBackPressed() {
         if (widgetView.canGoBack())
@@ -189,7 +262,17 @@ public class GameballWidgetActivity extends AppCompatActivity {
         }
     }
 
-    public static void start(Activity context, String playerUniqueId, @Nullable String widgetUrlPrefix) {
+    // Override the onTouchEvent to pass touch events to the GestureDetector
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
+    }
+
+    public static void start(Activity context, String playerUniqueId, @Nullable Boolean showCloseButton, @Nullable String widgetUrlPrefix, @Nullable Callback<String> capturedUrlCallback) {
+        GameballWidgetActivity.capturedLinkCallback = capturedUrlCallback;
+        if(showCloseButton != null){
+            GameballWidgetActivity.showCloseButton = showCloseButton;
+        }
         Intent instance = new Intent(context, GameballWidgetActivity.class);
         instance.putExtra(PLAYER_UNIQUE_ID_KEY, playerUniqueId);
         instance.putExtra(WIDGET_URL_KEY, widgetUrlPrefix);

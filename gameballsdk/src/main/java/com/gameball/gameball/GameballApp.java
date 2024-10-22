@@ -363,20 +363,44 @@ public class GameballApp
         registerPlayer(playerUniqueId, playerAttributes, referralCode, responseCallback);
     }
 
-    public void showProfile(final Activity activity, @Nullable final String playerUniqueId, @Nullable String openDetail, @Nullable Boolean hideNavigation)
-    {
+    public void showProfile(final Activity activity,
+                            @Nullable final String playerUniqueId,
+                            @Nullable String openDetail,
+                            @Nullable Boolean hideNavigation,
+                            @Nullable Boolean showCloseButton,
+                            @Nullable String widgetUrlPrefix,
+                            @Nullable Callback<String> capturedLinkCallback) {
+
         SharedPreferencesUtils.getInstance().putOpenDetailPreference(openDetail);
         SharedPreferencesUtils.getInstance().putHideNavigationPreference(hideNavigation);
 
-        GameballWidgetActivity.start(activity, playerUniqueId, null);
+        GameballWidgetActivity.start(activity, playerUniqueId, showCloseButton, widgetUrlPrefix, capturedLinkCallback);
     }
-    
-    public void showProfile(final Activity activity, @Nullable final String playerUniqueId, @Nullable String openDetail, @Nullable Boolean hideNavigation, @Nullable String widgetUrlPrefix)
-    {
-        SharedPreferencesUtils.getInstance().putOpenDetailPreference(openDetail);
-        SharedPreferencesUtils.getInstance().putHideNavigationPreference(hideNavigation);
 
-        GameballWidgetActivity.start(activity, playerUniqueId, widgetUrlPrefix);
+    public void showProfile(final Activity activity,
+                            @Nullable final String playerUniqueId,
+                            @Nullable String openDetail,
+                            @Nullable Boolean hideNavigation,
+                            @Nullable Boolean showCloseButton) {
+        showProfile(activity, playerUniqueId, openDetail, hideNavigation, showCloseButton, null, null);
+    }
+
+    public void showProfile(final Activity activity,
+                            @Nullable final String playerUniqueId,
+                            @Nullable String openDetail,
+                            @Nullable Boolean hideNavigation,
+                            @Nullable Boolean showCloseButton,
+                            @Nullable String widgetUrlPrefix) {
+        showProfile(activity, playerUniqueId, openDetail, hideNavigation, showCloseButton, widgetUrlPrefix, null);
+    }
+
+    public void showProfile(final Activity activity,
+                            @Nullable final String playerUniqueId,
+                            @Nullable String openDetail,
+                            @Nullable Boolean hideNavigation,
+                            @Nullable Boolean showCloseButton,
+                            Callback<String> capturedLinkCallback) {
+        showProfile(activity, playerUniqueId, openDetail, hideNavigation, showCloseButton, null, capturedLinkCallback);
     }
 
     private void checkReferral(@NonNull Activity activity, @NonNull final Intent intent, @NonNull final Callback callback){
