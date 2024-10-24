@@ -79,7 +79,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
             public void onError(Throwable e) {
 
             }
-        }));
+        }, widgetView));
 
         language = LanguageUtils.HandleLanguage();
 
@@ -120,17 +120,10 @@ public class GameballWidgetActivity extends AppCompatActivity {
         WebAppInterface webAppInterface = new WebAppInterface(this);
         widgetView.addJavascriptInterface(webAppInterface, "Android");
 
-        // Set an onTouchListener with accessibility in mind
+        // Set an onTouchListener on the WebView to pass touch events to the GestureDetector
         widgetView.setOnTouchListener((view, event) -> {
             gestureDetector.onTouchEvent(event);  // Pass touch events to GestureDetector
-
-            // Call performClick for accessibility purposes
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                view.performClick();
-            }
-
-            // Allow WebView to handle touch event as well
-            return false;
+            return widgetView.onTouchEvent(event);  // Also allow WebView to handle the events
         });
 
         widgetView.setWebViewClient(new WebViewClient() {
