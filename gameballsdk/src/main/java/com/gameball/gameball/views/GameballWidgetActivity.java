@@ -28,6 +28,7 @@ import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.utils.GestureListener;
 import com.gameball.gameball.utils.LanguageUtils;
+import com.google.gson.Gson;
 
 public class GameballWidgetActivity extends AppCompatActivity {
     private WebView widgetView;
@@ -261,6 +262,9 @@ public class GameballWidgetActivity extends AppCompatActivity {
     }
 
     public static void start(Activity context, String customerId, @Nullable Boolean showCloseButton, @Nullable String widgetUrlPrefix, @Nullable Callback<String> capturedUrlCallback) {
+        // Re-initialize the sharedPreferences instance once more to make sure it won't throw a NRE
+        SharedPreferencesUtils.init(context, new Gson());
+
         GameballWidgetActivity.capturedLinkCallback = capturedUrlCallback;
         if(showCloseButton != null){
             GameballWidgetActivity.showCloseButton = showCloseButton;
