@@ -23,6 +23,7 @@ import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.utils.LanguageUtils;
+import com.google.gson.Gson;
 
 public class GameballWidgetActivity extends AppCompatActivity {
     private WebView widgetView;
@@ -190,6 +191,9 @@ public class GameballWidgetActivity extends AppCompatActivity {
     }
 
     public static void start(Activity context, String playerUniqueId, @Nullable String widgetUrlPrefix) {
+        // Re-initialize the sharedPreferences instance once more to make sure it won't throw a NRE
+        SharedPreferencesUtils.init(context, new Gson());
+
         Intent instance = new Intent(context, GameballWidgetActivity.class);
         instance.putExtra(PLAYER_UNIQUE_ID_KEY, playerUniqueId);
         instance.putExtra(WIDGET_URL_KEY, widgetUrlPrefix);
