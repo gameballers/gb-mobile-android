@@ -10,9 +10,9 @@ public class Event
     @SerializedName("events")
     @Expose
     private HashMap<String, HashMap<String,Object>> events;
-    @SerializedName("playerUniqueId")
+    @SerializedName("customerId")
     @Expose
-    private String playerUniqueId;
+    private String customerId;
     @SerializedName("mobile")
     @Expose
     private String mobile;
@@ -35,7 +35,7 @@ public class Event
 
     public static class Builder{
         private HashMap<String, HashMap<String,Object>> events;
-        private String playerUniqueId;
+        private String customerId;
         private String mobile;
         private String email;
         private String eventName;
@@ -44,8 +44,8 @@ public class Event
 
         }
 
-        public Builder addUniquePlayerId(String uniquePlayerId){
-            this.playerUniqueId = uniquePlayerId;
+        public Builder addCustomerId(String customerId){
+            this.customerId = customerId;
             return this;
         }
         public Builder addEventName(String eventName){
@@ -75,7 +75,7 @@ public class Event
         public Event build(){
             Event event = new Event();
 
-            event.playerUniqueId = this.playerUniqueId;
+            event.customerId = this.customerId;
             event.mobile = this.mobile;
             event.email = this.email;
             event.events = this.events;
