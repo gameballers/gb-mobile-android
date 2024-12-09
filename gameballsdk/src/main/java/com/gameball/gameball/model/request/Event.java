@@ -44,11 +44,11 @@ public class Event
 
         }
 
-        public Builder addCustomerId(String customerId){
+        public Builder withCustomerId(String customerId){
             this.customerId = customerId;
             return this;
         }
-        public Builder addEventName(String eventName){
+        public Builder withEventName(String eventName){
             this.eventName = eventName;
             if(this.events == null) {
                 this.events = new HashMap<String, HashMap<String, Object>>();
@@ -59,16 +59,16 @@ public class Event
             }
             return this;
         }
-        public Builder addEventMetaData(String metaDataKey, Object metaDataValue){
+        public Builder withEventMetaData(String metaDataKey, Object metaDataValue){
             HashMap<String, Object> tempEvent = this.events.get(this.eventName);
             tempEvent.put(metaDataKey, metaDataValue);
             return this;
         }
-        public Builder addEmail(String email){
+        public Builder withEmail(String email){
             this.email = email;
             return this;
         }
-        public Builder addMobile(String mobile){
+        public Builder withMobile(String mobile){
             this.mobile = mobile;
             return this;
         }
