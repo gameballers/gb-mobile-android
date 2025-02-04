@@ -3,7 +3,7 @@ package com.gameball.gameball.model.response;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class PlayerRegisterResponse {
+public class CustomerRegisterResponse {
 
     @SerializedName("gameballId")
     @Expose()

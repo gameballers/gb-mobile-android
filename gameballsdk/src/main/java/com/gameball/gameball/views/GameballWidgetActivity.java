@@ -25,14 +25,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
 import com.gameball.gameball.local.SharedPreferencesUtils;
-import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.utils.GestureListener;
 import com.gameball.gameball.utils.LanguageUtils;
+import com.google.gson.Gson;
 
 public class GameballWidgetActivity extends AppCompatActivity {
     private WebView widgetView;
-    private String playerUniqueId;
+    private String customerId;
     private String language;
     private ImageView closeButton;
     private ImageView primaryCloseButton;
@@ -42,11 +42,11 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private static Callback<String> capturedLinkCallback;
     private GestureDetector gestureDetector;
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
-    final private static String PLAYER_UNIQUE_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
+    final private static String CUSTOMER_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
     final private static String LANGUAGE_QUERY_KEY = "lang";
     final private static String API_KEY_QUERY_KEY = "apiKey";
     final private static String MAIN_COLOR_QUERY_KEY = "main";
-    final private static String PLAYER_UNIQUE_QUERY_KEY = "playerid";
+    final private static String CUSTOMER_QUERY_KEY = "playerid";
     final private static String SHOP_QUERY_KEY = "shop";
     final private static String PLATFORM_QUERY_KEY = "platform";
     final private static String OS_VERSION_QUERY_KEY = "os";
@@ -95,7 +95,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     }
 
     private void extractDataFromBundle() {
-        playerUniqueId = getIntent().getStringExtra(PLAYER_UNIQUE_ID_KEY);
+        customerId = getIntent().getStringExtra(CUSTOMER_ID_KEY);
         String widgetUrlPrefixTmp = getIntent().getStringExtra(WIDGET_URL_KEY);
         widgetUrlPrefix = widgetUrlPrefixTmp == null ||
                 widgetUrlPrefixTmp.isEmpty() ? BuildConfig.Widget_Url : widgetUrlPrefixTmp;
@@ -190,10 +190,10 @@ public class GameballWidgetActivity extends AppCompatActivity {
         if (sharedPreferences.getClientBotSettings() != null)
             uri.appendQueryParameter(MAIN_COLOR_QUERY_KEY, sharedPreferences.getClientBotSettings().getBotMainColor().replace("#", ""));
 
-        if (playerUniqueId != null)
-            uri.appendQueryParameter(PLAYER_UNIQUE_QUERY_KEY, playerUniqueId);
-        else if (sharedPreferences.getPlayerUniqueId() != null)
-            uri.appendQueryParameter(PLAYER_UNIQUE_QUERY_KEY, sharedPreferences.getPlayerUniqueId());
+        if (customerId != null)
+            uri.appendQueryParameter(CUSTOMER_QUERY_KEY, customerId);
+        else if (sharedPreferences.getCustomerId() != null)
+            uri.appendQueryParameter(CUSTOMER_QUERY_KEY, sharedPreferences.getCustomerId());
 
         String platform = sharedPreferences.getPlatformPreference();
         String shop = sharedPreferences.getShopPreference();
@@ -261,13 +261,16 @@ public class GameballWidgetActivity extends AppCompatActivity {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 
-    public static void start(Activity context, String playerUniqueId, @Nullable Boolean showCloseButton, @Nullable String widgetUrlPrefix, @Nullable Callback<String> capturedUrlCallback) {
+    public static void start(Activity context, String customerId, @Nullable Boolean showCloseButton, @Nullable String widgetUrlPrefix, @Nullable Callback<String> capturedUrlCallback) {
+        // Re-initialize the sharedPreferences instance once more to make sure it won't throw a NRE
+        SharedPreferencesUtils.init(context, new Gson());
+
         GameballWidgetActivity.capturedLinkCallback = capturedUrlCallback;
         if(showCloseButton != null){
             GameballWidgetActivity.showCloseButton = showCloseButton;
         }
         Intent instance = new Intent(context, GameballWidgetActivity.class);
-        instance.putExtra(PLAYER_UNIQUE_ID_KEY, playerUniqueId);
+        instance.putExtra(CUSTOMER_ID_KEY, customerId);
         instance.putExtra(WIDGET_URL_KEY, widgetUrlPrefix);
         context.startActivity(instance);
         context.overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);

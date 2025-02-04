@@ -126,8 +126,8 @@ public class SharedPreferencesUtils {
         putString(PreferencesContract.DEVICE_TOKEN, deviceToken);
     }
 
-    public void putPlayerUniqueId(String playerUniqueId) {
-        putString(PreferencesContract.PLAYER_UNIQUE_ID, playerUniqueId);
+    public void putCustomerId(String customerId) {
+        putString(PreferencesContract.CUSTOMER_ID, customerId);
     }
 
     public void putApiKey(String apiKey) {
@@ -138,8 +138,8 @@ public class SharedPreferencesUtils {
         return getString(PreferencesContract.DEVICE_TOKEN, null);
     }
 
-    public String getPlayerUniqueId() {
-        return getString(PreferencesContract.PLAYER_UNIQUE_ID, null);
+    public String getCustomerId() {
+        return getString(PreferencesContract.CUSTOMER_ID, null);
     }
 
     public String getApiKey() {
@@ -158,14 +158,14 @@ public class SharedPreferencesUtils {
         return clientBotSettings;
     }
 
-    public void putPlayerRefferalLink(String playerReferralLink)
+    public void putCustomerRefferalLink(String customerReferralLink)
     {
-        putString(PreferencesContract.PLAYER_DYNAMIC_LINK, playerReferralLink);
+        putString(PreferencesContract.CUSTOMER_DYNAMIC_LINK, customerReferralLink);
     }
 
-    public String getPlayerReferralLink()
+    public String getCustomerReferralLink()
     {
-        return getString(PreferencesContract.PLAYER_DYNAMIC_LINK, null);
+        return getString(PreferencesContract.CUSTOMER_DYNAMIC_LINK, null);
     }
 
     public void putGlobalPreferredLanguage(String language) {
@@ -233,22 +233,22 @@ public class SharedPreferencesUtils {
         remove(PreferencesContract.HIDE_NAVIGATION_PREFERENCE);
     }
 
-    public String getPlayerPreferredLanguage(){
-        return getString(PreferencesContract.PLAYER_PREFERRED_LANGUAGE, null);
+    public String getCustomerPreferredLanguage(){
+        return getString(PreferencesContract.CUSTOMER_PREFERRED_LANGUAGE, null);
     }
 
-    public void putPlayerPreferredLanguage(String preferredLanguage){
-        putString(PreferencesContract.PLAYER_PREFERRED_LANGUAGE, preferredLanguage);
+    public void putCustomerPreferredLanguage(String preferredLanguage){
+        putString(PreferencesContract.CUSTOMER_PREFERRED_LANGUAGE, preferredLanguage);
     }
 
     private static final class PreferencesContract {
 
-        private static final String PLAYER_UNIQUE_ID = "PLAYER_UNIQUE_ID";
+        private static final String CUSTOMER_ID = "CUSTOMER_ID";
         private static final String DEVICE_TOKEN = "DEVICE_TOKEN";
         private static final String API_KEY = "API_KEY";
         private static final String CLIENT_BOT_SETTINGS = "BOT_SETTINGS";
-        private static final String PLAYER_TYPE_ID = "PLAYER_TYPE_ID";
-        private static final String PLAYER_DYNAMIC_LINK = "PLAYER_DYNAMIC_LINK";
+        private static final String CUSTOMER_TYPE_ID = "CUSTOMER_TYPE_ID";
+        private static final String CUSTOMER_DYNAMIC_LINK = "CUSTOMER_DYNAMIC_LINK";
         private static final String GLOBAL_PREFERRED_LANGUAGE = "GLOBAL_PREFERRED_LANGUAGE";
         private static final String PLATFORM_PREFERENCE = "PLATFORM_PREFERENCE";
         private static final String SHOP_PREFERENCE = "SHOP_PREFERENCE";
@@ -256,7 +256,7 @@ public class SharedPreferencesUtils {
         private static final String SDK_VERSION_PREFERENCE = "SDK_VERSION_PREFERENCE";
         private static final String OPEN_DETAIL_PREFERENCE = "OPEN_DETAIL_PREFERENCE";
         private static final String HIDE_NAVIGATION_PREFERENCE = "HIDE_NAVIGATION_PREFERENCE";
-        private static final String PLAYER_PREFERRED_LANGUAGE = "PLAYER_PREFERRED_LANGUAGE";
+        private static final String CUSTOMER_PREFERRED_LANGUAGE = "CUSTOMER_PREFERRED_LANGUAGE";
     }
 
 }

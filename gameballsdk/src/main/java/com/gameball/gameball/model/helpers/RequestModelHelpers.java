@@ -1,6 +1,6 @@
 package com.gameball.gameball.model.helpers;
 
-import com.gameball.gameball.model.request.PlayerAttributes;
+import com.gameball.gameball.model.request.CustomerAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -8,7 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import java.util.HashMap;
 
 public class RequestModelHelpers {
-    public static HashMap<String, Object> MapFromPlayerAttributes(PlayerAttributes playerAttributes){
+    public static HashMap<String, Object> MapFromCustomerAttributes(CustomerAttributes playerAttributes){
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
         String jsonPlayerAttributes = gson.toJson(playerAttributes);
@@ -29,10 +29,10 @@ public class RequestModelHelpers {
         return mappedAttributes;
     }
 
-    public static PlayerAttributes MapToPlayerAtrributes(HashMap<String, Object> PlayerAttributesHashMap){
+    public static CustomerAttributes MapToCustomerAtrributes(HashMap<String, Object> PlayerAttributesHashMap){
         HashMap<String, Object> tempAttr = new HashMap<>(PlayerAttributesHashMap);
 
-        PlayerAttributes.Builder attributesBuilder = new PlayerAttributes.Builder();
+        CustomerAttributes.Builder attributesBuilder = new CustomerAttributes.Builder();
 
         Object attrDisplayName = tempAttr.get("displayName");
         if(attrDisplayName != null)

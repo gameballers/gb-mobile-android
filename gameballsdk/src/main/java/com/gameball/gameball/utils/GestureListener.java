@@ -10,8 +10,8 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
     private static Callback<Boolean> onSwipeDown;
     private WebView webView; // Add WebView reference
-    private static final int SWIPE_THRESHOLD = 500;  // Minimum swipe distance
-    private static final int SWIPE_VELOCITY_THRESHOLD = 500;  // Minimum swipe velocity
+    private static final int SWIPE_THRESHOLD = 1000;  // Minimum swipe distance
+    private static final int SWIPE_VELOCITY_THRESHOLD = 1250;  // Minimum swipe velocity
 
     public GestureListener(Callback<Boolean> onSwipeDown, WebView webView) {
         this.onSwipeDown = onSwipeDown;

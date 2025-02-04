@@ -10,19 +10,19 @@ import java.util.HashMap;
 /**
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
  */
-public class PlayerRegisterRequest {
-    @SerializedName("playerUniqueId")
+public class CustomerRegisterRequest {
+    @SerializedName("customerId")
     @Expose
-    private String playerUniqueID;
+    private String customerId;
     @SerializedName("deviceToken")
     @Expose
     private String deviceToken;
     @SerializedName("osType")
     @Expose
     private String oSType = "Android";
-    @SerializedName("playerAttributes")
+    @SerializedName("customerAttributes")
     @Expose
-    private HashMap<String, Object> playerAttributes;
+    private HashMap<String, Object> customerAttributes;
     @SerializedName("referrerCode")
     @Expose
     private String ReferrerCode;
@@ -32,14 +32,17 @@ public class PlayerRegisterRequest {
     @SerializedName("mobile")
     @Expose
     private String mobile;
+    @SerializedName("guest")
+    @Expose
+    private Boolean isGuest;
 
-    public String getPlayerUniqueID()
+    public String getCustomerId()
     {
-        return playerUniqueID;
+        return customerId;
     }
-    public void setPlayerUniqueID(String playerUniqueID)
+    public void setCustomerId(String customerId)
     {
-        this.playerUniqueID = playerUniqueID;
+        this.customerId = customerId;
     }
     public String getDeviceToken()
     {
@@ -49,13 +52,13 @@ public class PlayerRegisterRequest {
     {
         this.deviceToken = deviceToken;
     }
-    public PlayerAttributes getPLayerInfo()
+    public CustomerAttributes getCustomerAttributes()
     {
-        return MapToPlayerAtrributes(playerAttributes);
+        return MapToCustomerAtrributes(customerAttributes);
     }
-    public void setPlayerAttributes(PlayerAttributes playerAttributes)
+    public void setCustomerAttributes(CustomerAttributes customerAttributes)
     {
-        this.playerAttributes = MapFromPlayerAttributes(playerAttributes);
+        this.customerAttributes = MapFromCustomerAttributes(customerAttributes);
     }
     public void setReferrerCode(String referrerCode){
         this.ReferrerCode = referrerCode;
@@ -74,5 +77,11 @@ public class PlayerRegisterRequest {
     }
     public String getMobile(){
         return this.mobile;
+    }
+    public void setIsGuest(Boolean isGuest){
+        this.isGuest = isGuest;
+    }
+    public Boolean getIsGuest(){
+        return this.isGuest;
     }
 }

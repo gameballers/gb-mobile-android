@@ -11,15 +11,14 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
 import com.gameball.gameball.model.request.Event;
-import com.gameball.gameball.model.request.PlayerAttributes;
-import com.gameball.gameball.model.request.PlayerRegisterRequest;
+import com.gameball.gameball.model.request.CustomerAttributes;
+import com.gameball.gameball.model.request.CustomerRegisterRequest;
 import com.gameball.gameball.model.response.BaseResponse;
 import com.gameball.gameball.model.response.ClientBotSettings;
-import com.gameball.gameball.model.response.PlayerRegisterResponse;
+import com.gameball.gameball.model.response.CustomerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
@@ -55,10 +54,11 @@ public class GameballApp
     private Context mContext;
     private FirebaseApp clientFirebaseApp;
     private String mApiKey;
-    private String mPlayerUniqueId;
-    private String mPlayerEmail;
-    private String mPlayerMobile;
+    private String mCustomerId;
+    private String mCustomerEmail;
+    private String mCustomerMobile;
     private String mDeviceToken;
+    private Boolean mIsGuest;
     private GameBallApi gameBallApi;
     private String shop = null;
     private String platform = null;
@@ -91,19 +91,19 @@ public class GameballApp
         return ourInstance;
     }
 
-    private void registerDevice(@Nullable PlayerAttributes playerAttributes, final Callback<PlayerRegisterResponse> callback)
+    private void registerDevice(@Nullable CustomerAttributes customerAttributes, final Callback<CustomerRegisterResponse> callback)
     {
 
-        if (mPlayerUniqueId == null || mApiKey == null)
+        if (mCustomerId == null || mApiKey == null)
         {
             return;
         }
 
         SharedPreferencesUtils.getInstance().putApiKey(mApiKey);
-        SharedPreferencesUtils.getInstance().putPlayerUniqueId(mPlayerUniqueId);
+        SharedPreferencesUtils.getInstance().putCustomerId(mCustomerId);
 
-        PlayerRegisterRequest registerDeviceRequest = new PlayerRegisterRequest();
-        registerDeviceRequest.setPlayerUniqueID(mPlayerUniqueId);
+        CustomerRegisterRequest registerDeviceRequest = new CustomerRegisterRequest();
+        registerDeviceRequest.setCustomerId(mCustomerId);
 
         if(mReferralCode != null)
             registerDeviceRequest.setReferrerCode(mReferralCode);
@@ -114,24 +114,30 @@ public class GameballApp
             SharedPreferencesUtils.getInstance().putDeviceToken(mDeviceToken);
         }
 
-        if(mPlayerMobile != null)
+        if(mCustomerMobile != null)
         {
-            registerDeviceRequest.setMobile(mPlayerMobile);
+            registerDeviceRequest.setMobile(mCustomerMobile);
         }
 
-        if(mPlayerEmail != null){
-            registerDeviceRequest.setEmail(mPlayerEmail);
+        if(mCustomerEmail != null){
+            registerDeviceRequest.setEmail(mCustomerEmail);
         }
 
-        if (playerAttributes != null)
-            registerDeviceRequest.setPlayerAttributes(playerAttributes);
+        if (customerAttributes != null)
+            registerDeviceRequest.setCustomerAttributes(customerAttributes);
+
+        if(mIsGuest == null){
+            mIsGuest = false;
+        }
+
+        registerDeviceRequest.setIsGuest(mIsGuest);
 
         Log.d(TAG, new Gson().toJson(registerDeviceRequest));
 
-        gameBallApi.registrationPlayer(registerDeviceRequest)
+        gameBallApi.registerCustomer(registerDeviceRequest)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<PlayerRegisterResponse>()
+                .subscribe(new SingleObserver<CustomerRegisterResponse>()
                 {
                     @Override
                     public void onSubscribe(Disposable d)
@@ -140,10 +146,10 @@ public class GameballApp
                     }
 
                     @Override
-                    public void onSuccess(PlayerRegisterResponse playerRegisterResponseBaseResponse)
+                    public void onSuccess(CustomerRegisterResponse customerRegisterResponseBaseResponse)
                     {
                         if (callback != null)
-                            callback.onSuccess(playerRegisterResponseBaseResponse);
+                            callback.onSuccess(customerRegisterResponseBaseResponse);
                     }
 
                     @Override
@@ -275,96 +281,103 @@ public class GameballApp
     }
 
     //Checks for referral automatically
-    public void registerPlayer(@NonNull final String playerUniqueId, final PlayerAttributes playerAttributes,
-                               @NonNull Activity activity, @NonNull Intent intent,
-                               @NonNull final Callback<PlayerRegisterResponse> responseCallback)
+    public void registerCustomer(@NonNull final String customerId, final CustomerAttributes customerAttributes,
+                               @Nullable Boolean isGuest, @NonNull Activity activity, @NonNull Intent intent,
+                               @NonNull final Callback<CustomerRegisterResponse> responseCallback)
     {
         try{
-            if (!playerUniqueId.trim().isEmpty()){
-                this.mPlayerUniqueId = playerUniqueId;
+            if (!customerId.trim().isEmpty()){
+                this.mCustomerId = customerId;
             }
             else {
-                Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
+                Log.e(TAG, "Customer registration: customerId cannot be empty");
             }
 
-            if(playerAttributes != null){
-                setPlayerPreferredLanguage(playerAttributes.getPreferredLanguage());
+            if(customerAttributes != null){
+                setCustomerPreferredLanguage(customerAttributes.getPreferredLanguage());
             }
+
+            this.mIsGuest = isGuest;
 
             checkReferral(activity, intent, new Callback<String>() {
                 @Override
                 public void onSuccess(String s) {
                     mReferralCode = s;
-                    registerDevice(playerAttributes, responseCallback);
+                    registerDevice(customerAttributes, responseCallback);
                 }
                 @Override
                 public void onError(Throwable e) {
                     mReferralCode = null;
-                    registerDevice(playerAttributes, responseCallback);
+                    registerDevice(customerAttributes, responseCallback);
                 }
             });
         }
         catch (Throwable t){
             Log.d(TAG, t.getMessage(), t);
             mReferralCode = null;
-            registerDevice(playerAttributes, responseCallback);
+            registerDevice(customerAttributes, responseCallback);
         }
     }
 
-    public void registerPlayer(@NonNull final String playerUniqueId, @Nullable final String playerEmail, @Nullable final String playerMobile,
-                               final PlayerAttributes playerAttributes, @NonNull Activity activity, @NonNull Intent intent,
-                               @NonNull final Callback<PlayerRegisterResponse> responseCallback){
-        if(playerEmail != null || !playerEmail.trim().isEmpty()){
-            this.mPlayerEmail = playerEmail;
+    public void registerCustomer(@NonNull final String customerId, @Nullable final String customerEmail, @Nullable final String customerMobile,
+                               final CustomerAttributes customerAttributes, @Nullable Boolean isGuest, @NonNull Activity activity, @NonNull Intent intent,
+                               @NonNull final Callback<CustomerRegisterResponse> responseCallback){
+        if(customerEmail != null || !customerEmail.trim().isEmpty()){
+            this.mCustomerEmail = customerEmail;
         }
 
-        if(playerMobile != null || !playerEmail.trim().isEmpty()){
-            this.mPlayerMobile = playerMobile;
+        if(customerMobile != null || !customerEmail.trim().isEmpty()){
+            this.mCustomerMobile = customerMobile;
         }
-        registerPlayer(playerUniqueId, playerAttributes, activity, intent, responseCallback);
+        registerCustomer(customerId, customerAttributes, isGuest, activity, intent, responseCallback);
     }
 
-    public void registerPlayer(@NonNull final String playerUniqueId, final PlayerAttributes playerAttributes,
-                               final String referralCode, @NonNull final Callback<PlayerRegisterResponse> responseCallback)
+    public void registerCustomer(@NonNull final String customerId, final CustomerAttributes customerAttributes,
+                                 final String referralCode, @Nullable Boolean isGuest,
+                                 @NonNull final Callback<CustomerRegisterResponse> responseCallback)
     {
         try{
-            if (!playerUniqueId.trim().isEmpty()){
-                this.mPlayerUniqueId = playerUniqueId;
+            if (!customerId.trim().isEmpty()){
+                this.mCustomerId = customerId;
             }
             else {
-                Log.e(TAG, "Player registration: PlayerUniqueId cannot be empty");
+                Log.e(TAG, "Customer registration: customerId cannot be empty");
             }
 
-            if(playerAttributes != null){
-                setPlayerPreferredLanguage(playerAttributes.getPreferredLanguage());
+            if(customerAttributes != null){
+                setCustomerPreferredLanguage(customerAttributes.getPreferredLanguage());
             }
 
             this.mReferralCode = referralCode;
-            registerDevice(playerAttributes, responseCallback);
+
+            this.mIsGuest = isGuest;
+
+            registerDevice(customerAttributes, responseCallback);
         }
         catch (Throwable t){
             Log.d(TAG, t.getMessage(), t);
             this.mReferralCode = null;
-            registerDevice(playerAttributes, responseCallback);
+            registerDevice(customerAttributes, responseCallback);
         }
     }
 
-    public void registerPlayer(@NonNull final String playerUniqueId, @Nullable final String playerEmail, @Nullable final String playerMobile,
-                               final PlayerAttributes playerAttributes, final String referralCode,
-                               @NonNull final Callback<PlayerRegisterResponse> responseCallback){
-        if(playerEmail != null || !playerEmail.trim().isEmpty()){
-            this.mPlayerEmail = playerEmail;
+    public void registerCustomer(@NonNull final String customerId, @Nullable final String customerEmail, @Nullable final String customerMobile,
+                                 final CustomerAttributes customerAttributes, final String referralCode, @Nullable Boolean isGuest,
+                                 @NonNull final Callback<CustomerRegisterResponse> responseCallback)
+    {
+        if(customerEmail != null || !customerEmail.trim().isEmpty()){
+            this.mCustomerEmail = customerEmail;
         }
 
-        if(playerMobile != null || !playerEmail.trim().isEmpty()){
-            this.mPlayerMobile = playerMobile;
+        if(customerMobile != null || !customerEmail.trim().isEmpty()){
+            this.mCustomerMobile = customerMobile;
         }
 
-        registerPlayer(playerUniqueId, playerAttributes, referralCode, responseCallback);
+        registerCustomer(customerId, customerAttributes, referralCode, isGuest, responseCallback);
     }
 
     public void showProfile(final Activity activity,
-                            @Nullable final String playerUniqueId,
+                            @Nullable final String customerId,
                             @Nullable String openDetail,
                             @Nullable Boolean hideNavigation,
                             @Nullable Boolean showCloseButton,
@@ -374,33 +387,33 @@ public class GameballApp
         SharedPreferencesUtils.getInstance().putOpenDetailPreference(openDetail);
         SharedPreferencesUtils.getInstance().putHideNavigationPreference(hideNavigation);
 
-        GameballWidgetActivity.start(activity, playerUniqueId, showCloseButton, widgetUrlPrefix, capturedLinkCallback);
+        GameballWidgetActivity.start(activity, customerId, showCloseButton, widgetUrlPrefix, capturedLinkCallback);
     }
 
     public void showProfile(final Activity activity,
-                            @Nullable final String playerUniqueId,
+                            @Nullable final String customerId,
                             @Nullable String openDetail,
                             @Nullable Boolean hideNavigation,
                             @Nullable Boolean showCloseButton) {
-        showProfile(activity, playerUniqueId, openDetail, hideNavigation, showCloseButton, null, null);
+        showProfile(activity, customerId, openDetail, hideNavigation, showCloseButton, null, null);
     }
 
     public void showProfile(final Activity activity,
-                            @Nullable final String playerUniqueId,
+                            @Nullable final String customerId,
                             @Nullable String openDetail,
                             @Nullable Boolean hideNavigation,
                             @Nullable Boolean showCloseButton,
                             @Nullable String widgetUrlPrefix) {
-        showProfile(activity, playerUniqueId, openDetail, hideNavigation, showCloseButton, widgetUrlPrefix, null);
+        showProfile(activity, customerId, openDetail, hideNavigation, showCloseButton, widgetUrlPrefix, null);
     }
 
     public void showProfile(final Activity activity,
-                            @Nullable final String playerUniqueId,
+                            @Nullable final String customerId,
                             @Nullable String openDetail,
                             @Nullable Boolean hideNavigation,
                             @Nullable Boolean showCloseButton,
                             Callback<String> capturedLinkCallback) {
-        showProfile(activity, playerUniqueId, openDetail, hideNavigation, showCloseButton, null, capturedLinkCallback);
+        showProfile(activity, customerId, openDetail, hideNavigation, showCloseButton, null, capturedLinkCallback);
     }
 
     private void checkReferral(@NonNull Activity activity, @NonNull final Intent intent, @NonNull final Callback callback){
@@ -482,9 +495,9 @@ public class GameballApp
         return isGmsAvailable;
     }
 
-    private void setPlayerPreferredLanguage(String playerPreferredLanguage){
-        if(playerPreferredLanguage != null && playerPreferredLanguage.length() == 2){
-            SharedPreferencesUtils.getInstance().putPlayerPreferredLanguage(playerPreferredLanguage);
+    private void setCustomerPreferredLanguage(String customerPreferredLanguage){
+        if(customerPreferredLanguage != null && customerPreferredLanguage.length() == 2){
+            SharedPreferencesUtils.getInstance().putCustomerPreferredLanguage(customerPreferredLanguage);
         }
     }
 }

@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.HashMap;
 
-public class PlayerAttributes
+public class CustomerAttributes
 {
     @SerializedName("displayName")
     @Expose
@@ -160,29 +160,29 @@ public class PlayerAttributes
             additionalAttributes.put(key, value);
             return this;
         }
-        public PlayerAttributes build()
+        public CustomerAttributes build()
         {
-            PlayerAttributes playerAttributes = new PlayerAttributes();
+            CustomerAttributes customerAttributes = new CustomerAttributes();
 
             if(this.customAttributes != null) {
-                playerAttributes.customAttributes = this.customAttributes;
+                customerAttributes.customAttributes = this.customAttributes;
             }
 
             if(this.additionalAttributes != null) {
-                playerAttributes.additionalAttributes = this.additionalAttributes;
+                customerAttributes.additionalAttributes = this.additionalAttributes;
             }
 
-            playerAttributes.dateOfBirth = this.dateOfBirth;
-            playerAttributes.displayName = this.displayName;
-            playerAttributes.firstName = this.firstName;
-            playerAttributes.lastName = this.lastName;
-            playerAttributes.email = this.email;
-            playerAttributes.gender = this.gender;
-            playerAttributes.mobile = this.mobile;
-            playerAttributes.joinDate = this.joinDate;
-            playerAttributes.preferredLanguage = this.preferredLanguage;
+            customerAttributes.dateOfBirth = this.dateOfBirth;
+            customerAttributes.displayName = this.displayName;
+            customerAttributes.firstName = this.firstName;
+            customerAttributes.lastName = this.lastName;
+            customerAttributes.email = this.email;
+            customerAttributes.gender = this.gender;
+            customerAttributes.mobile = this.mobile;
+            customerAttributes.joinDate = this.joinDate;
+            customerAttributes.preferredLanguage = this.preferredLanguage;
 
-            return playerAttributes;
+            return customerAttributes;
         }
     }
 }

@@ -12,7 +12,7 @@ public class LanguageUtils {
     private static final List<String> rtlLanguageCodes = Arrays.asList("ar");
 
     public static String HandleLanguage(){
-        String language = SharedPreferencesUtils.getInstance().getPlayerPreferredLanguage();
+        String language = SharedPreferencesUtils.getInstance().getCustomerPreferredLanguage();
         if(language == null || language.length() != 2){
             language = SharedPreferencesUtils.getInstance().getGlobalPreferredLanguage();
 
