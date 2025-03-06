@@ -1,5 +1,7 @@
 package com.gameball.gameball.network.interceptor;
 
+import static com.gameball.gameball.utils.Constants.TAG;
+
 import android.util.Log;
 
 import com.gameball.gameball.local.SharedPreferencesUtils;
@@ -41,7 +43,7 @@ public class HeaderInterceptor implements Interceptor
 
         request = builder.build();
 
-        Log.d("OkHttp", request.url().toString());
+        Log.d(TAG, request.url().toString());
 
         return chain.proceed(request);
     }
