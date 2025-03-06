@@ -17,6 +17,9 @@ public class CustomerRegisterRequest {
     @SerializedName("deviceToken")
     @Expose
     private String deviceToken;
+    @SerializedName("pushServiceProvider")
+    @Expose
+    private String pushProvider;
     @SerializedName("osType")
     @Expose
     private String oSType = "Android";
@@ -51,6 +54,13 @@ public class CustomerRegisterRequest {
     public void setDeviceToken(String deviceToken)
     {
         this.deviceToken = deviceToken;
+    }
+    public String getPushProvider()
+    {
+        return pushProvider;
+    }
+    public void setPushProvider(String pushProvider){
+        this.pushProvider = pushProvider;
     }
     public CustomerAttributes getCustomerAttributes()
     {
