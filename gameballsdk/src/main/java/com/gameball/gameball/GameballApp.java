@@ -1,6 +1,6 @@
 package com.gameball.gameball;
 
-import static com.google.android.gms.tasks.Tasks.await;
+import static com.gameball.gameball.utils.Constants.TAG;
 
 import android.app.Activity;
 import android.content.Context;
@@ -485,15 +485,7 @@ public class GameballApp
                 });
     }
 
-    private boolean isGmsAvailable(Context context){
-        boolean isGmsAvailable = false;
-        if (context != null) {
-            int result = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
-            isGmsAvailable = (com.google.android.gms.common.ConnectionResult.SUCCESS == result);
-        }
-        Log.i(TAG, "isGmsAvailable: " + isGmsAvailable);
-        return isGmsAvailable;
-    }
+
 
     private void setCustomerPreferredLanguage(String customerPreferredLanguage){
         if(customerPreferredLanguage != null && customerPreferredLanguage.length() == 2){
