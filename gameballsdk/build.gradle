@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace 'com.gameball.gameball'
-    compileSdk 30
+    compileSdk 34
 
     defaultConfig {
         minSdk 21
