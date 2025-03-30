@@ -1,6 +1,6 @@
 package com.gameball.gameball;
 
-import static com.google.android.gms.tasks.Tasks.await;
+import static com.gameball.gameball.utils.Constants.TAG;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,8 +22,10 @@ import com.gameball.gameball.model.response.CustomerRegisterResponse;
 import com.gameball.gameball.network.Callback;
 import com.gameball.gameball.network.Network;
 import com.gameball.gameball.network.api.GameBallApi;
+import com.gameball.gameball.services.FirebaseServices;
+import com.gameball.gameball.services.GameballCoroutineService;
+import com.gameball.gameball.services.HuaweiServices;
 import com.gameball.gameball.views.GameballWidgetActivity;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
@@ -44,7 +46,6 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class GameballApp
 {
-    private static final String TAG = GameballApp.class.getSimpleName();
     private static final String MAIN_ACTIVITY_ACTION = "GAME_BALL_MAIN_ACTIVITY";
     private static final String TAG_GAMEBALL_PROFILE_DIALOG = "gameball_profile_dialog";
     private static GameballApp ourInstance;
@@ -58,6 +59,7 @@ public class GameballApp
     private String mCustomerEmail;
     private String mCustomerMobile;
     private String mDeviceToken;
+    private String mPushProvider;
     private Boolean mIsGuest;
     private GameBallApi gameBallApi;
     private String shop = null;
@@ -94,8 +96,7 @@ public class GameballApp
     private void registerDevice(@Nullable CustomerAttributes customerAttributes, final Callback<CustomerRegisterResponse> callback)
     {
 
-        if (mCustomerId == null || mApiKey == null)
-        {
+        if (mCustomerId == null || mApiKey == null) {
             return;
         }
 
@@ -105,60 +106,29 @@ public class GameballApp
         CustomerRegisterRequest registerDeviceRequest = new CustomerRegisterRequest();
         registerDeviceRequest.setCustomerId(mCustomerId);
 
-        if(mReferralCode != null)
+        if(mReferralCode != null) {
             registerDeviceRequest.setReferrerCode(mReferralCode);
-
-        if (mDeviceToken != null)
-        {
-            registerDeviceRequest.setDeviceToken(mDeviceToken);
-            SharedPreferencesUtils.getInstance().putDeviceToken(mDeviceToken);
         }
 
-        if(mCustomerMobile != null)
-        {
+        if(mCustomerMobile != null) {
             registerDeviceRequest.setMobile(mCustomerMobile);
         }
 
-        if(mCustomerEmail != null){
+        if(mCustomerEmail != null) {
             registerDeviceRequest.setEmail(mCustomerEmail);
         }
 
-        if (customerAttributes != null)
+        if (customerAttributes != null) {
             registerDeviceRequest.setCustomerAttributes(customerAttributes);
+        }
 
-        if(mIsGuest == null){
+        if(mIsGuest == null) {
             mIsGuest = false;
         }
 
         registerDeviceRequest.setIsGuest(mIsGuest);
 
-        Log.d(TAG, new Gson().toJson(registerDeviceRequest));
-
-        gameBallApi.registerCustomer(registerDeviceRequest)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<CustomerRegisterResponse>()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onSuccess(CustomerRegisterResponse customerRegisterResponseBaseResponse)
-                    {
-                        if (callback != null)
-                            callback.onSuccess(customerRegisterResponseBaseResponse);
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-                        if (callback != null)
-                            callback.onError(e);
-                    }
-                });
+        GameballCoroutineService.INSTANCE.registerDevice(TAG, registerDeviceRequest, mPushProvider, mDeviceToken, callback, gameBallApi);
     }
 
     private void getBotSettings()
@@ -219,64 +189,34 @@ public class GameballApp
         }
     }
 
+    public void initializeHuawei(String appId){
+        if(HuaweiServices.INSTANCE.isHmsAvailable(this.mContext)){
+            HuaweiServices.INSTANCE.loadDeviceToken(appId, mContext);
+            this.mPushProvider = "Huawei";
+        }
+    }
+
     public void initializeFirebase()
     {
-        if(isGmsAvailable(this.mContext)) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try{
-                        String deviceToken = await(FirebaseMessaging.getInstance().getToken());
-                        Log.d(TAG, deviceToken);
-
-                        if(deviceToken != null && !deviceToken.trim().isEmpty()){
-                            mDeviceToken = deviceToken;
-                            Log.d(TAG, "Device token retrieved successfully");
-                        }
-                        else{
-                            mDeviceToken = null;
-                            Log.d(TAG, "Failed to retrieve device token.");
-                        }
-                    }
-                    catch(Throwable t){
-                        mDeviceToken = null;
-                        Log.d(TAG, t.getMessage(), t);
-                    }
-                }
-            }).start();
+        if(FirebaseServices.INSTANCE.isGmsAvailable(this.mContext)) {
+            FirebaseMessaging firebaseMessagingInstance = FirebaseMessaging.getInstance();
+            FirebaseServices.INSTANCE.loadDeviceToken(firebaseMessagingInstance);
+            mPushProvider = "Firebase";
         }
     }
 
     public void initializeFirebase(final FirebaseMessaging firebaseMessagingInstance)
     {
-        if(isGmsAvailable(this.mContext)) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try{
-                        String deviceToken = await(firebaseMessagingInstance.getInstance().getToken());
-
-                        if(deviceToken != null && !deviceToken.trim().isEmpty()){
-                            mDeviceToken = deviceToken;
-                            Log.d(TAG, "Device token retrieved successfully");
-                        }
-                        else{
-                            mDeviceToken = null;
-                            Log.d(TAG, "Failed to retrieve device token.");
-                        }
-                    }
-                    catch(Throwable t){
-                        mDeviceToken = null;
-                        Log.d(TAG, t.getMessage(), t);
-                    }
-                }
-            }).start();
+        if(FirebaseServices.INSTANCE.isGmsAvailable(this.mContext)) {
+            FirebaseServices.INSTANCE.loadDeviceToken(firebaseMessagingInstance);
+            mPushProvider = "Firebase";
         }
     }
 
     public void initializeFirebase(String deviceToken){
         if(deviceToken != null && !deviceToken.trim().isEmpty()){
             this.mDeviceToken = deviceToken;
+            mPushProvider = "Firebase";
         }
     }
 
@@ -417,7 +357,7 @@ public class GameballApp
     }
 
     private void checkReferral(@NonNull Activity activity, @NonNull final Intent intent, @NonNull final Callback callback){
-        if(isGmsAvailable(this.mContext)){
+        if(FirebaseServices.INSTANCE.isGmsAvailable(this.mContext)){
             FirebaseDynamicLinks.getInstance()
                     .getDynamicLink(intent)
                     .addOnSuccessListener(activity, new OnSuccessListener<PendingDynamicLinkData>()
@@ -485,15 +425,7 @@ public class GameballApp
                 });
     }
 
-    private boolean isGmsAvailable(Context context){
-        boolean isGmsAvailable = false;
-        if (context != null) {
-            int result = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
-            isGmsAvailable = (com.google.android.gms.common.ConnectionResult.SUCCESS == result);
-        }
-        Log.i(TAG, "isGmsAvailable: " + isGmsAvailable);
-        return isGmsAvailable;
-    }
+
 
     private void setCustomerPreferredLanguage(String customerPreferredLanguage){
         if(customerPreferredLanguage != null && customerPreferredLanguage.length() == 2){
