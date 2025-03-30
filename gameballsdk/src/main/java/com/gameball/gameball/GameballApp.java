@@ -67,9 +67,7 @@ public class GameballApp
     private String SDKVersion = BuildConfig.SDK_VERSION;
     private String OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT);
     private String mReferralCode;
-
     private String openDetail;
-
     private Boolean hideNavigation;
 
     private GameballApp(Context context)
@@ -220,7 +218,15 @@ public class GameballApp
         }
     }
 
-    //Checks for referral automatically
+    // This method is no longer recommended as it uses Firebase dynamic links which will be deprecated by August 2025.
+    // Use registerCustomer(String, CustomerAttributes, String, Boolean, Callback<CustomerRegisterResponse>)
+    // that takes in the referralCode as a string instead.
+    /**
+     * @deprecated This method is no longer recommended as it uses Firebase dynamic links which will be deprecated by August 2025.
+     * Use {@link #registerCustomer(String, CustomerAttributes, String, Boolean, Callback<CustomerRegisterResponse>)} instead.
+     */
+    @Deprecated
+//    Checks for referral automatically
     public void registerCustomer(@NonNull final String customerId, final CustomerAttributes customerAttributes,
                                @Nullable Boolean isGuest, @NonNull Activity activity, @NonNull Intent intent,
                                @NonNull final Callback<CustomerRegisterResponse> responseCallback)
@@ -239,18 +245,18 @@ public class GameballApp
 
             this.mIsGuest = isGuest;
 
-            checkReferral(activity, intent, new Callback<String>() {
-                @Override
-                public void onSuccess(String s) {
-                    mReferralCode = s;
-                    registerDevice(customerAttributes, responseCallback);
-                }
-                @Override
-                public void onError(Throwable e) {
-                    mReferralCode = null;
-                    registerDevice(customerAttributes, responseCallback);
-                }
-            });
+            handleFirebaseDynamicLink(activity, intent, new Callback<String>() {
+                 @Override
+                 public void onSuccess(String s) {
+                     mReferralCode = s;
+                     registerDevice(customerAttributes, responseCallback);
+                 }
+                 @Override
+                 public void onError(Throwable e) {
+                     mReferralCode = null;
+                     registerDevice(customerAttributes, responseCallback);
+                 }
+             });
         }
         catch (Throwable t){
             Log.d(TAG, t.getMessage(), t);
@@ -259,6 +265,14 @@ public class GameballApp
         }
     }
 
+    //This method is no longer recommended as it uses Firebase dynamic links which will be deprecated by August 2025.
+    // registerCustomer(String, String, String, CustomerAttributes, String, Boolean, Callback<CustomerRegisterResponse>)
+    // that takes in the referralCode as a string instead.
+    /**
+     * @deprecated This method is no longer recommended as it uses Firebase dynamic links which will be deprecated by August 2025.
+     * Use {@link #registerCustomer(String, String, String, CustomerAttributes, String, Boolean, Callback<CustomerRegisterResponse>)} instead.
+     */
+    @Deprecated
     public void registerCustomer(@NonNull final String customerId, @Nullable final String customerEmail, @Nullable final String customerMobile,
                                final CustomerAttributes customerAttributes, @Nullable Boolean isGuest, @NonNull Activity activity, @NonNull Intent intent,
                                @NonNull final Callback<CustomerRegisterResponse> responseCallback){
@@ -356,7 +370,17 @@ public class GameballApp
         showProfile(activity, customerId, openDetail, hideNavigation, showCloseButton, null, capturedLinkCallback);
     }
 
-    private void checkReferral(@NonNull Activity activity, @NonNull final Intent intent, @NonNull final Callback callback){
+    //This method is no longer recommended as it uses Firebase dynamic links which will be deprecated by August 2025.
+    // registerCustomer(String, String, String, CustomerAttributes, String, Boolean, Callback<CustomerRegisterResponse>)
+    // registerCustomer(String, CustomerAttributes, String, Boolean, Callback<CustomerRegisterResponse>)
+    // that takes in the referralCode as a string instead.
+    /**
+     * @deprecated This method is no longer recommended as it uses Firebase dynamic links which will be deprecated by August 2025.
+     * Use {@link #registerCustomer(String, String, String, CustomerAttributes, String, Boolean, Callback<CustomerRegisterResponse>)}
+     * or {@link #registerCustomer(String,CustomerAttributes, String, Boolean, Callback<CustomerRegisterResponse>)} instead.
+     */
+    @Deprecated
+    public void handleFirebaseDynamicLink(@NonNull Activity activity, @NonNull final Intent intent, @NonNull final Callback callback){
         if(FirebaseServices.INSTANCE.isGmsAvailable(this.mContext)){
             FirebaseDynamicLinks.getInstance()
                     .getDynamicLink(intent)
@@ -424,8 +448,6 @@ public class GameballApp
                     }
                 });
     }
-
-
 
     private void setCustomerPreferredLanguage(String customerPreferredLanguage){
         if(customerPreferredLanguage != null && customerPreferredLanguage.length() == 2){
