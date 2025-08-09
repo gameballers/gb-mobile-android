@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
+ * Maintained by Ahmed El Monady since March 2023
  */
 public class BaseResponse<T> {
     @SerializedName("response")

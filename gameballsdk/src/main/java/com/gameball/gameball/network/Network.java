@@ -16,6 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by Ahmed Abdelmoneam Abdelfattah on 8/23/2018.
+ * Maintained by Ahmed El Monady since March 2023
  */
 public class Network {
     private static final String DATE_FORMAT = "MM/dd/yyyy HH:mm:ss a";
