@@ -39,6 +39,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private ImageView secondaryCloseButton;
     private String widgetUrlPrefix = BuildConfig.Widget_Url;
     private static Boolean showCloseButton = true;
+    private static String closeButtonColor = null;
     private static Callback<String> capturedLinkCallback;
     private GestureDetector gestureDetector;
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
@@ -170,6 +171,10 @@ public class GameballWidgetActivity extends AppCompatActivity {
                     closeWidget();
                 }
             });
+            
+            // Apply close button color
+            String colorToUse = closeButtonColor != null ? closeButtonColor : "#CECECE";
+            closeButton.setColorFilter(Color.parseColor(colorToUse));
         }
     }
 
@@ -265,7 +270,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 
-    public static void start(Activity context, String customerId, @Nullable Boolean showCloseButton, @Nullable String widgetUrlPrefix, @Nullable Callback<String> capturedUrlCallback) {
+    public static void start(Activity context, String customerId, @Nullable Boolean showCloseButton, @Nullable String closeButtonColor, @Nullable String widgetUrlPrefix, @Nullable Callback<String> capturedUrlCallback) {
         // Ensure SharedPreferences is initialized
         if (!SharedPreferencesUtils.isInitialized()) {
             SharedPreferencesUtils.init(context, new Gson());
@@ -274,6 +279,9 @@ public class GameballWidgetActivity extends AppCompatActivity {
         GameballWidgetActivity.capturedLinkCallback = capturedUrlCallback;
         if(showCloseButton != null){
             GameballWidgetActivity.showCloseButton = showCloseButton;
+        }
+        if(closeButtonColor != null && !closeButtonColor.isEmpty()){
+            GameballWidgetActivity.closeButtonColor = closeButtonColor;
         }
         Intent instance = new Intent(context, GameballWidgetActivity.class);
         instance.putExtra(CUSTOMER_ID_KEY, customerId);

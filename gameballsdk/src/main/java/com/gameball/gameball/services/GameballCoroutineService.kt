@@ -1,8 +1,8 @@
 package com.gameball.gameball.services
 
 import android.util.Log
-import com.gameball.gameball.model.request.CustomerRegisterRequest
-import com.gameball.gameball.model.response.CustomerRegisterResponse
+import com.gameball.gameball.model.request.InitializeCustomerRequest
+import com.gameball.gameball.model.response.InitializeCustomerResponse
 import com.gameball.gameball.network.Callback
 import com.gameball.gameball.network.api.GameBallApi
 import com.google.gson.Gson
@@ -15,33 +15,31 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object GameballCoroutineService {
-    fun registerDevice(tag: String, registerDeviceRequest: CustomerRegisterRequest, pushProvider: String?, deviceToken: String?, callback: Callback<CustomerRegisterResponse>, gameBallApi: GameBallApi) {
+    fun registerDevice(tag: String, registerDeviceRequest: InitializeCustomerRequest, pushProvider: String?, deviceToken: String?, callback: Callback<InitializeCustomerResponse>, gameBallApi: GameBallApi) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-
-                if(deviceToken != null){
-                    registerDeviceRequest.deviceToken = deviceToken
-                }
-                else{
-                    val token = PushServicesHelper.getDeviceToken(pushProvider)
-
-                    token?.let{
-                        registerDeviceRequest.deviceToken = it
-                    }
-                }
                 
-                if(pushProvider != null){
-                    registerDeviceRequest.pushProvider = pushProvider
-                }
+                val finalDeviceToken = deviceToken ?: PushServicesHelper.getDeviceToken(pushProvider)
+                
+                val finalRequest = InitializeCustomerRequest.builder()
+                    .customerId(registerDeviceRequest.customerId)
+                    .deviceToken(finalDeviceToken)
+                    .pushProvider(pushProvider)
+                    .referralCode(registerDeviceRequest.referralCode)
+                    .email(registerDeviceRequest.email)
+                    .mobile(registerDeviceRequest.mobile)
+                    .isGuest(registerDeviceRequest.isGuest)
+                    .customerAttributes(registerDeviceRequest.customerAttributes)
+                    .build()
 
-                Log.d(tag, Gson().toJson(registerDeviceRequest))
+                Log.d(tag, Gson().toJson(finalRequest))
 
-                gameBallApi.registerCustomer(registerDeviceRequest)
+                gameBallApi.initializeCustomer(finalRequest)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(object : SingleObserver<CustomerRegisterResponse?> {
+                    .subscribe(object : SingleObserver<InitializeCustomerResponse?> {
                         override fun onSubscribe(d: Disposable) {}
-                        override fun onSuccess(t: CustomerRegisterResponse) {
+                        override fun onSuccess(t: InitializeCustomerResponse) {
                             callback.onSuccess(t)
                         }
                         override fun onError(e: Throwable) {
