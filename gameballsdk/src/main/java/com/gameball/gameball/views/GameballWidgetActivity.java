@@ -149,6 +149,25 @@ public class GameballWidgetActivity extends AppCompatActivity {
                 super.onReceivedError(view, request, error);
                 findViewById(R.id.no_internet_layout).setVisibility(View.VISIBLE);
             }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                String javascript =
+                        "javascript:(function() {" +
+                                "document.body.style.webkitUserSelect = 'none';" +
+                                "document.body.style.webkitTouchCallout = 'none';" +
+                                "document.body.style.userSelect = 'none';" +
+                                "document.addEventListener('contextmenu', function(e) { e.preventDefault(); });" +
+                                "})()";
+                view.evaluateJavascript(javascript, null);
+            }
+        });
+
+        widgetView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return true;
+            }
         });
 
         if(!showCloseButton){
