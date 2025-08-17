@@ -188,12 +188,6 @@ class SharedPreferencesUtils private constructor(
         }
     }
 
-    fun putCustomerReferralLink(customerReferralLink: String?) {
-        putString(PreferencesContract.CUSTOMER_DYNAMIC_LINK, customerReferralLink)
-    }
-
-    fun getCustomerReferralLink(): String? = getString(PreferencesContract.CUSTOMER_DYNAMIC_LINK)
-
     fun putGlobalPreferredLanguage(language: String?) {
         putString(PreferencesContract.GLOBAL_PREFERRED_LANGUAGE, language)
     }
@@ -257,7 +251,6 @@ class SharedPreferencesUtils private constructor(
         const val API_KEY = "API_KEY"
         const val CLIENT_BOT_SETTINGS = "BOT_SETTINGS"
         const val CUSTOMER_TYPE_ID = "CUSTOMER_TYPE_ID"
-        const val CUSTOMER_DYNAMIC_LINK = "CUSTOMER_DYNAMIC_LINK"
         const val GLOBAL_PREFERRED_LANGUAGE = "GLOBAL_PREFERRED_LANGUAGE"
         const val PLATFORM_PREFERENCE = "PLATFORM_PREFERENCE"
         const val SHOP_PREFERENCE = "SHOP_PREFERENCE"
