@@ -25,8 +25,6 @@ import com.gameball.gameball.views.GameballWidgetActivity
 import com.gameball.gameball.model.request.ShowProfileRequest
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
-import com.google.firebase.dynamiclinks.PendingDynamicLinkData
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import io.reactivex.CompletableObserver
@@ -82,20 +80,6 @@ class GameballApp private constructor(context: Context) {
          */
         @JvmStatic
         fun getInstance(context: Context): GameballApp = initGameball(context)
-
-        /**
-         * Extract referral code manually from intent data
-         */
-        @JvmStatic
-        fun getReferralCodeManually(intent: Intent): String? {
-            val uriString = intent.dataString
-            var referralCode: String? = null
-            if (uriString != null) {
-                val uri = Uri.parse(uriString)
-                referralCode = uri.getQueryParameter("GBReferral")
-            }
-            return referralCode
-        }
     }
 
     private fun registerDevice(@Nullable customerAttributes: CustomerAttributes?, callback: Callback<InitializeCustomerResponse>) {
@@ -266,44 +250,5 @@ class GameballApp private constructor(context: Context) {
             profileRequest.widgetUrlPrefix,
             profileRequest.capturedLinkCallback
         )
-    }
-
-    /**
-     * Handle Firebase Dynamic Link for referral code extraction
-     * @deprecated This method is no longer recommended as it uses Firebase dynamic links which will be deprecated by August 2025.
-     */
-    @Deprecated("Firebase Dynamic Links will be deprecated by August 2025. Extract referral codes manually instead.")
-    fun handleFirebaseDynamicLink(@NonNull activity: Activity, @NonNull intent: Intent, @NonNull callback: Callback<String>) {
-        if (FirebaseServices.isGmsAvailable(this.mContext)) {
-            FirebaseDynamicLinks.getInstance()
-                .getDynamicLink(intent)
-                .addOnSuccessListener(activity, OnSuccessListener<PendingDynamicLinkData> { pendingDynamicLinkData ->
-                    if (pendingDynamicLinkData != null) {
-                        val deepLink = pendingDynamicLinkData.link
-                        val referralCode = deepLink?.getQueryParameter("GBReferral")
-                        callback.onSuccess(referralCode)
-                    } else {
-                        val referralCode = extractReferralCodeManually(intent)
-                        callback.onSuccess(referralCode)
-                    }
-                })
-                .addOnFailureListener(activity, OnFailureListener { e ->
-                    Log.e(TAG, "getDynamicLink:onFailure", e)
-                    callback.onError(e)
-                })
-        }
-    }
-
-    /**
-     * Extract referral code manually from intent data
-     */
-    private fun extractReferralCodeManually(intent: Intent): String? {
-        val uriString = intent.dataString
-        var referralCode: String? = null
-        if (uriString != null) {
-            val uri = Uri.parse(uriString)
-            referralCode = uri.getQueryParameter("GBReferral")
-        }
-        return referralCode
     }
 }
