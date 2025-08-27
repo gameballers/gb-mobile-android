@@ -23,22 +23,23 @@ public class HeaderInterceptor implements Interceptor
 
         Request.Builder builder = request.newBuilder();
 
-        if (SharedPreferencesUtils.getInstance().getApiKey() != null)
+        SharedPreferencesUtils sharedPrefs = SharedPreferencesUtils.getInstanceOrNull();
+        
+        if (sharedPrefs != null && sharedPrefs.getApiKey() != null)
         {
-            builder.addHeader(Constants.APIKey,
-                    SharedPreferencesUtils.getInstance().getApiKey());
-
+            builder.addHeader(Constants.APIKey, sharedPrefs.getApiKey());
         }
 
-        String langHeader = LanguageUtils.HandleLanguage();
-
+        String langHeader = LanguageUtils.handleLanguage();
         builder.addHeader(Constants.LangKey, langHeader);
 
-        String osVersion = SharedPreferencesUtils.getInstance().getOSPreference();
-        String sdkVersion = SharedPreferencesUtils.getInstance().getSDKPreference();
-        if(osVersion != null && sdkVersion != null){
-            builder.addHeader(Constants.USER_AGENT,
-                    String.format("GB/%s/%s", osVersion, sdkVersion));
+        if (sharedPrefs != null) {
+            String osVersion = sharedPrefs.getOSPreference();
+            String sdkVersion = sharedPrefs.getSDKPreference();
+            if(osVersion != null && sdkVersion != null){
+                builder.addHeader(Constants.USER_AGENT,
+                        String.format("GB/%s/%s", osVersion, sdkVersion));
+            }
         }
 
         request = builder.build();
