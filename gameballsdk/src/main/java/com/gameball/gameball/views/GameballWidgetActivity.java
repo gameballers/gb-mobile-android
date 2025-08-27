@@ -59,6 +59,11 @@ public class GameballWidgetActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gameball_widget);
 
+        // Ensure SharedPreferences is initialized before any usage
+        if (!SharedPreferencesUtils.isInitialized()) {
+            SharedPreferencesUtils.init(this, new Gson());
+        }
+
         findViewById(R.id.widget_parent).setNestedScrollingEnabled(true);
         widgetView = (WebView) findViewById(R.id.gb_profile_webview);
         primaryCloseButton = (ImageView) findViewById(R.id.btn_close_right);
@@ -81,7 +86,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
             }
         }, widgetView));
 
-        language = LanguageUtils.HandleLanguage();
+        language = LanguageUtils.handleLanguage();
 
         closeButton = primaryCloseButton;
 
@@ -261,8 +266,10 @@ public class GameballWidgetActivity extends AppCompatActivity {
     }
 
     public static void start(Activity context, String customerId, @Nullable Boolean showCloseButton, @Nullable String widgetUrlPrefix, @Nullable Callback<String> capturedUrlCallback) {
-        // Re-initialize the sharedPreferences instance once more to make sure it won't throw a NRE
-        SharedPreferencesUtils.init(context, new Gson());
+        // Ensure SharedPreferences is initialized
+        if (!SharedPreferencesUtils.isInitialized()) {
+            SharedPreferencesUtils.init(context, new Gson());
+        }
 
         GameballWidgetActivity.capturedLinkCallback = capturedUrlCallback;
         if(showCloseButton != null){
