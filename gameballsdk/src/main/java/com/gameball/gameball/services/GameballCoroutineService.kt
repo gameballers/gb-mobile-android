@@ -1,6 +1,7 @@
 package com.gameball.gameball.services
 
 import android.util.Log
+import com.gameball.gameball.model.enums.PushProvider
 import com.gameball.gameball.model.request.InitializeCustomerRequest
 import com.gameball.gameball.model.response.InitializeCustomerResponse
 import com.gameball.gameball.network.Callback
@@ -15,15 +16,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object GameballCoroutineService {
-    fun registerDevice(tag: String, registerDeviceRequest: InitializeCustomerRequest, pushProvider: String?, deviceToken: String?, callback: Callback<InitializeCustomerResponse>, gameBallApi: GameBallApi) {
+    fun registerDevice(tag: String, registerDeviceRequest: InitializeCustomerRequest, pushProvider: PushProvider?, deviceToken: String?, callback: Callback<InitializeCustomerResponse>, gameBallApi: GameBallApi) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                
-                val finalDeviceToken = deviceToken ?: PushServicesHelper.getDeviceToken(pushProvider)
-                
                 val finalRequest = InitializeCustomerRequest.builder()
                     .customerId(registerDeviceRequest.customerId)
-                    .deviceToken(finalDeviceToken)
+                    .deviceToken(deviceToken)
                     .pushProvider(pushProvider)
                     .referralCode(registerDeviceRequest.referralCode)
                     .email(registerDeviceRequest.email)

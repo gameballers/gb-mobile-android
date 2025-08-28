@@ -1,5 +1,6 @@
 package com.gameball.gameball.model.request
 
+import com.gameball.gameball.model.enums.PushProvider
 import com.gameball.gameball.model.helpers.RequestModelHelpers.MapFromCustomerAttributes
 import com.gameball.gameball.model.helpers.RequestModelHelpers.MapToCustomerAtrributes
 import com.google.gson.annotations.Expose
@@ -48,7 +49,7 @@ data class InitializeCustomerRequest private constructor(
     class Builder {
         private var customerId: String = ""
         private var deviceToken: String? = null
-        private var pushProvider: String? = null
+        private var pushProvider: PushProvider? = null
         private var customerAttributesMap: MutableMap<String, Any>? = null
         private var referralCode: String? = null
         private var email: String? = null
@@ -57,7 +58,7 @@ data class InitializeCustomerRequest private constructor(
 
         fun customerId(customerId: String) = apply { this.customerId = customerId }
         fun deviceToken(deviceToken: String?) = apply { this.deviceToken = deviceToken }
-        fun pushProvider(pushProvider: String?) = apply { this.pushProvider = pushProvider }
+        fun pushProvider(pushProvider: PushProvider?) = apply { this.pushProvider = pushProvider }
         fun referralCode(referralCode: String?) = apply { this.referralCode = referralCode }
         fun email(email: String?) = apply { this.email = email }
         fun mobile(mobile: String?) = apply { this.mobile = mobile }
@@ -69,10 +70,21 @@ data class InitializeCustomerRequest private constructor(
         
         fun build(): InitializeCustomerRequest {
             require(customerId.isNotEmpty()) { "Customer ID cannot be empty" }
+            
+            // Validate that device token and push provider are both provided or both null
+            when {
+                pushProvider != null && deviceToken.isNullOrEmpty() -> {
+                    throw IllegalArgumentException("Device token is required when push provider is set")
+                }
+                pushProvider == null && !deviceToken.isNullOrEmpty() -> {
+                    throw IllegalArgumentException("Push provider is required when device token is set")
+                }
+            }
+            
             return InitializeCustomerRequest(
                 customerId = customerId,
                 deviceToken = deviceToken,
-                pushProvider = pushProvider,
+                pushProvider = pushProvider?.name,
                 customerAttributesMap = customerAttributesMap ?: MapFromCustomerAttributes(CustomerAttributes.builder().build()),
                 referralCode = referralCode,
                 email = email,

@@ -2,38 +2,31 @@ package com.gameball.gameball
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.util.Log
-import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import com.gameball.gameball.local.SharedPreferencesUtils
-import com.gameball.gameball.model.request.Event
+import com.gameball.gameball.model.enums.PushProvider
 import com.gameball.gameball.model.request.CustomerAttributes
+import com.gameball.gameball.model.request.Event
+import com.gameball.gameball.model.request.GameballConfig
 import com.gameball.gameball.model.request.InitializeCustomerRequest
+import com.gameball.gameball.model.request.ShowProfileRequest
 import com.gameball.gameball.model.response.BaseResponse
 import com.gameball.gameball.model.response.ClientBotSettings
+import com.gameball.gameball.model.response.InitializeCustomerResponse
 import com.gameball.gameball.network.Callback
 import com.gameball.gameball.network.Network
 import com.gameball.gameball.network.api.GameBallApi
-import com.gameball.gameball.services.FirebaseServices
 import com.gameball.gameball.services.GameballCoroutineService
-import com.gameball.gameball.services.HuaweiServices
 import com.gameball.gameball.utils.Constants.TAG
 import com.gameball.gameball.views.GameballWidgetActivity
-import com.gameball.gameball.model.request.ShowProfileRequest
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import io.reactivex.CompletableObserver
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import com.gameball.gameball.model.request.GameballConfig
-import com.gameball.gameball.model.response.InitializeCustomerResponse
 
 /**
  * Primary Gameball SDK entry point providing comprehensive functionality
@@ -48,7 +41,7 @@ class GameballApp private constructor(context: Context) {
     private var mCustomerEmail: String? = null
     private var mCustomerMobile: String? = null
     private var mDeviceToken: String? = null
-    private var mPushProvider: String? = null
+    private var mPushProvider: PushProvider? = null
     private var mIsGuest: Boolean? = null
     private var shop: String? = null
     private var platform: String? = null
@@ -153,39 +146,6 @@ class GameballApp private constructor(context: Context) {
     fun changeLanguage(lang: String) {
         if (lang.length == 2) {
             SharedPreferencesUtils.getInstance().putGlobalPreferredLanguage(lang)
-        }
-    }
-
-    /** Initialize Firebase push notifications */
-    fun initializeFirebase() {
-        if (FirebaseServices.isGmsAvailable(this.mContext)) {
-            val firebaseMessagingInstance = FirebaseMessaging.getInstance()
-            FirebaseServices.loadDeviceToken(firebaseMessagingInstance)
-            mPushProvider = "Firebase"
-        }
-    }
-
-    /** Initialize Firebase push notifications with custom instance */
-    fun initializeFirebase(firebaseMessagingInstance: FirebaseMessaging) {
-        if (FirebaseServices.isGmsAvailable(this.mContext)) {
-            FirebaseServices.loadDeviceToken(firebaseMessagingInstance)
-            mPushProvider = "Firebase"
-        }
-    }
-
-    /** Initialize Firebase push notifications with device token */
-    fun initializeFirebase(deviceToken: String) {
-        if (deviceToken.isNotEmpty()) {
-            this.mDeviceToken = deviceToken
-            mPushProvider = "Firebase"
-        }
-    }
-
-    /** Initialize Huawei Push Kit */
-    fun initializeHuawei(appId: String) {
-        if (HuaweiServices.isHmsAvailable(this.mContext)) {
-            HuaweiServices.loadDeviceToken(appId, mContext)
-            this.mPushProvider = "Huawei"
         }
     }
 
