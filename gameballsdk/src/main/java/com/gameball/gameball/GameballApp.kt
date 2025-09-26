@@ -4,10 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.util.Log
-import androidx.annotation.Nullable
 import com.gameball.gameball.local.SharedPreferencesUtils
-import com.gameball.gameball.model.enums.PushProvider
-import com.gameball.gameball.model.request.CustomerAttributes
 import com.gameball.gameball.model.request.Event
 import com.gameball.gameball.model.request.GameballConfig
 import com.gameball.gameball.model.request.InitializeCustomerRequest
@@ -37,17 +34,8 @@ class GameballApp private constructor(context: Context) {
     private val mContext: Context = context
     private var gameBallApi: GameBallApi = Network.getInstance().getGameBallApi()
     private var mApiKey: String? = null
-    private var mCustomerId: String? = null
-    private var mCustomerEmail: String? = null
-    private var mCustomerMobile: String? = null
-    private var mDeviceToken: String? = null
-    private var mPushProvider: PushProvider? = null
-    private var mIsGuest: Boolean? = null
-    private var shop: String? = null
-    private var platform: String? = null
     private val SDKVersion = BuildConfig.SDK_VERSION
     private val OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT)
-    private var mReferralCode: String? = null
 
     init {
         SharedPreferencesUtils.init(mContext, Gson())
@@ -75,25 +63,6 @@ class GameballApp private constructor(context: Context) {
         fun getInstance(context: Context): GameballApp = initGameball(context)
     }
 
-    private fun registerDevice(@Nullable customerAttributes: CustomerAttributes?, callback: Callback<InitializeCustomerResponse>) {
-        if (mCustomerId == null || mApiKey == null) {
-            return
-        }
-
-        SharedPreferencesUtils.getInstance().putApiKey(mApiKey!!)
-        SharedPreferencesUtils.getInstance().putCustomerId(mCustomerId!!)
-
-        val registerDeviceRequest = InitializeCustomerRequest.builder()
-            .customerId(mCustomerId!!)
-            .apply { mReferralCode?.let { referralCode(it) } }
-            .apply { mCustomerMobile?.let { mobile(it) } }
-            .apply { mCustomerEmail?.let { email(it) } }
-            .apply { customerAttributes?.let { customerAttributes(it) } }
-            .isGuest(mIsGuest ?: false)
-            .build()
-
-        GameballCoroutineService.registerDevice(TAG, registerDeviceRequest, mPushProvider, mDeviceToken, callback, gameBallApi)
-    }
 
     private fun getBotSettings() {
         gameBallApi.getBotSettings()
@@ -120,15 +89,13 @@ class GameballApp private constructor(context: Context) {
 
     /** Initialize the Gameball SDK */
     fun init(config: GameballConfig) {
-        if (config.apiPrefix != null) {
-            gameBallApi = Network.getInstance().getGameBallApi(config.apiPrefix)
+        config.apiPrefix?.let {
+            gameBallApi = Network.getInstance().getGameBallApi(it)
         }
-        
-        this.platform = config.platform
-        this.shop = config.shop
+
         this.mApiKey = config.apiKey
 
-        if (config.lang != null && config.lang.length == 2) {
+        if (config.lang.length == 2) {
             SharedPreferencesUtils.getInstance().putGlobalPreferredLanguage(config.lang)
         }
 
@@ -141,9 +108,8 @@ class GameballApp private constructor(context: Context) {
         getBotSettings()
     }
 
-
     /** Change the preferred language */
-    fun changeLanguage(lang: String) {
+    private fun changeLanguage(lang: String) {
         if (lang.length == 2) {
             SharedPreferencesUtils.getInstance().putGlobalPreferredLanguage(lang)
         }
@@ -154,33 +120,32 @@ class GameballApp private constructor(context: Context) {
         customerRequest: InitializeCustomerRequest,
         callback: Callback<InitializeCustomerResponse>
     ) {
-        try {
-            if (customerRequest.customerId?.isNotEmpty() == true) {
-                this.mCustomerId = customerRequest.customerId
-            } else {
-                Log.e(TAG, "Customer registration: customerId cannot be empty")
-                return
-            }
-
-            customerRequest.email?.let { this.mCustomerEmail = it }
-            customerRequest.mobile?.let { this.mCustomerMobile = it }
-            
-            val attributes = customerRequest.customerAttributes
-            attributes?.let { setCustomerPreferredLanguage(it.preferredLanguage) }
-            
-            this.mReferralCode = customerRequest.referralCode
-            this.mIsGuest = customerRequest.isGuest
-
-            registerDevice(attributes, callback)
-        } catch (t: Throwable) {
-            Log.d(TAG, t.message, t)
-            this.mReferralCode = null
-            registerDevice(null, callback)
+        if (mApiKey.isNullOrBlank()) {
+            val error = IllegalStateException("API key is required for customer initialization")
+            Log.e(TAG, error.message, error)
+            callback.onError(error)
+            return
         }
+
+        val attributes = customerRequest.customerAttributes
+        attributes?.let { setCustomerPreferredLanguage(it.preferredLanguage) }
+
+        // Save to SharedPreferences
+        SharedPreferencesUtils.getInstance().putApiKey(mApiKey!!)
+        SharedPreferencesUtils.getInstance().putCustomerId(customerRequest.customerId)
+
+        GameballCoroutineService.initializeCustomerService(TAG, customerRequest, callback, gameBallApi)
     }
 
     /** Send an event using builder pattern request */
     fun sendEvent(event: Event, callback: Callback<Boolean>) {
+        if (mApiKey.isNullOrBlank()) {
+            val error = IllegalStateException("API key is required for sending events")
+            Log.e(TAG, error.message, error)
+            callback.onError(error)
+            return
+        }
+
         gameBallApi.sendEvent(event)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

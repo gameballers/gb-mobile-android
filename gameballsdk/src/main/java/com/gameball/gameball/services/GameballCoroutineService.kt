@@ -1,7 +1,6 @@
 package com.gameball.gameball.services
 
 import android.util.Log
-import com.gameball.gameball.model.enums.PushProvider
 import com.gameball.gameball.model.request.InitializeCustomerRequest
 import com.gameball.gameball.model.response.InitializeCustomerResponse
 import com.gameball.gameball.network.Callback
@@ -16,23 +15,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object GameballCoroutineService {
-    fun registerDevice(tag: String, registerDeviceRequest: InitializeCustomerRequest, pushProvider: PushProvider?, deviceToken: String?, callback: Callback<InitializeCustomerResponse>, gameBallApi: GameBallApi) {
+    fun initializeCustomerService(tag: String, initializeCustomerRequest: InitializeCustomerRequest, callback: Callback<InitializeCustomerResponse>, gameBallApi: GameBallApi) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val finalRequest = InitializeCustomerRequest.builder()
-                    .customerId(registerDeviceRequest.customerId)
-                    .deviceToken(deviceToken)
-                    .pushProvider(pushProvider)
-                    .referralCode(registerDeviceRequest.referralCode)
-                    .email(registerDeviceRequest.email)
-                    .mobile(registerDeviceRequest.mobile)
-                    .isGuest(registerDeviceRequest.isGuest)
-                    .customerAttributes(registerDeviceRequest.customerAttributes)
-                    .build()
+                Log.d(tag, Gson().toJson(initializeCustomerRequest))
 
-                Log.d(tag, Gson().toJson(finalRequest))
-
-                gameBallApi.initializeCustomer(finalRequest)
+                gameBallApi.initializeCustomer(initializeCustomerRequest)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(object : SingleObserver<InitializeCustomerResponse?> {
