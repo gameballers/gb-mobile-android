@@ -78,17 +78,9 @@ data class CustomerAttributes private constructor(
             customAttributes!![key] = value
         }
         
-        fun customAttributes(attributes: Map<String, String>?) = apply {
-            this.customAttributes = attributes?.toMutableMap()
-        }
-        
         fun addAdditionalAttribute(key: String, value: String) = apply {
             if (additionalAttributes == null) additionalAttributes = mutableMapOf()
             additionalAttributes!![key] = value
-        }
-        
-        fun additionalAttributes(attributes: Map<String, String>?) = apply {
-            this.additionalAttributes = attributes?.toMutableMap()
         }
         
         fun build(): CustomerAttributes {
