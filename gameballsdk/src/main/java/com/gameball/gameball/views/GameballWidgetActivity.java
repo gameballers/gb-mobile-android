@@ -43,11 +43,11 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private static Callback<String> capturedLinkCallback;
     private GestureDetector gestureDetector;
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
-    final private static String CUSTOMER_ID_KEY = "PLAYER_UNIQUE_ID_KEY";
+    final private static String CUSTOMER_ID_KEY = "CUSTOMER_ID_KEY";
     final private static String LANGUAGE_QUERY_KEY = "lang";
     final private static String API_KEY_QUERY_KEY = "apiKey";
     final private static String MAIN_COLOR_QUERY_KEY = "main";
-    final private static String CUSTOMER_QUERY_KEY = "playerid";
+    final private static String CUSTOMER_QUERY_KEY = "customerId";
     final private static String SHOP_QUERY_KEY = "shop";
     final private static String PLATFORM_QUERY_KEY = "platform";
     final private static String OS_VERSION_QUERY_KEY = "os";
