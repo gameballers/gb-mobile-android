@@ -2,6 +2,32 @@
 
 All notable changes to Gameball Android SDK are documented here
 
+## [3.1.0] - 2025-10-14 🔒
+
+> **Security Release**: Token-based authentication with per-request override support
+
+### 🔒 Security
+- 🛡️ Added Session Token authentication mechanism for secure API communication
+- 🔐 Optional `sessionToken` parameter in `GameballConfig` for global token-based authentication
+- 🎯 Per-request session token override support for flexible authentication control
+- 🔄 Automatic secure endpoint routing (API v4.0 → v4.1) when session token is provided
+- 📡 `X-GB-TOKEN` header added to requests when using session token authentication
+
+### ✨ Added
+- 🎯 Optional `sessionToken` parameter added to `initializeCustomer()` method
+- 🎯 Optional `sessionToken` parameter added to `sendEvent()` method
+- 🎯 Optional `sessionToken` parameter added to `showProfile()` method
+- 🔄 Per-request token override allows temporary authentication changes without affecting global state
+- ♻️ Passing `null` as sessionToken clears the token for that specific request
+
+### 🔧 Internal Changes
+- 💾 Added SharedPreferences support for secure token storage and management
+- 🏷️ Standardized internal widget parameters (`playerid` → `customerId`)
+- 📊 Added API version constants (`API_V4_0`, `API_V4_1`) for version management
+- 🎨 Added `@JvmOverloads` annotation for backward compatibility with existing code
+
+---
+
 ## [3.0.0] - 2025-09-29 🎉
 
 > **Major Release**: Complete Kotlin rewrite with modern architecture
