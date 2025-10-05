@@ -2,6 +2,23 @@
 
 All notable changes to Gameball Android SDK are documented here
 
+## [3.1.0] - 2025-10-07 🔒
+
+> **Security Release**: Token-based authentication for enhanced API security
+
+### 🔒 Security
+- 🛡️ Added GB Token authentication mechanism for secure API communication
+- 🔐 Optional `gbToken` parameter in `GameballConfig` for token-based authentication
+- 🔄 Automatic secure endpoint routing (API v4.0 → v4.1) when GB token is provided
+- 📡 `X-GB-TOKEN` header added to requests when using GB token authentication
+
+### 🔧 Internal Changes
+- 💾 Added SharedPreferences support for secure token storage and management
+- 🏷️ Standardized internal widget parameters (`playerid` → `customerId`)
+- 📊 Added API version constants (`API_V4_0`, `API_V4_1`) for version management
+
+---
+
 ## [3.0.0] - 2025-09-29 🎉
 
 > **Major Release**: Complete Kotlin rewrite with modern architecture

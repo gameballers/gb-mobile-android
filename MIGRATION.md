@@ -1,4 +1,113 @@
-# Migration Guide: Gameball Android SDK v2.x → v3.0.0
+# Migration Guide: Gameball Android SDK
+
+This guide provides migration instructions for upgrading between major versions of the Gameball Android SDK.
+
+---
+
+## Table of Contents
+
+- [v3.0.0 → v3.1.0](#migration-guide-v300--v310)
+- [v2.x → v3.0.0](#migration-guide-v2x--v300)
+
+---
+
+## Migration Guide: v3.0.0 → v3.1.0
+
+Version 3.1.0 introduces security enhancements. This is a **minor update** with no breaking changes.
+
+### Overview of Changes
+
+#### 🔒 What's New
+- **Token-based authentication** with automatic endpoint versioning for improved security
+
+### Update Dependencies
+
+Update your dependency to v3.1.0:
+
+```kotlin
+dependencies {
+    implementation 'com.gameball:gameball-sdk:3.1.0'
+}
+```
+
+### Security Enhancement: GB Token Authentication
+
+Version 3.1.0 introduces **optional GB Token authentication** for enhanced API security. This feature is completely **backward-compatible**—existing implementations continue to work without any changes.
+
+#### When to Use GB Token Authentication
+
+GB Token authentication provides an additional security layer for:
+- Production environments handling sensitive customer data
+- Applications requiring enhanced API security
+- Compliance with security standards and regulations
+
+#### Enabling GB Token Authentication (Optional)
+
+**Without GB Token (Standard Configuration - v3.0.0 style):**
+```kotlin
+val config = GameballConfig.builder()
+    .apiKey("your-api-key")
+    .lang("en")
+    .platform("android")
+    .shop("your-shop-id")
+    .build()
+
+GameballApp.getInstance(this).init(config)
+```
+
+**With GB Token (Enhanced Security - v3.1.0):**
+```kotlin
+val config = GameballConfig.builder()
+    .apiKey("your-api-key")
+    .lang("en")
+    .platform("android")
+    .shop("your-shop-id")
+    .gbToken("your-secure-gb-token")  // Optional: Add for secure authentication
+    .build()
+
+GameballApp.getInstance(this).init(config)
+```
+
+#### How GB Token Authentication Works
+
+When a GB token is provided, the SDK automatically:
+
+1. **Secure Endpoint Routing**: Switches from API v4.0 to v4.1 endpoints
+2. **Header Authentication**: Adds `X-GB-TOKEN` header to all API requests
+3. **Secure Storage**: Stores token securely using Android SharedPreferences
+4. **Lifecycle Management**: Handles token validation and session management
+
+#### Security Benefits
+
+✅ **Token-Based Authentication**: Additional authentication layer beyond API key
+✅ **Automatic Secure Routing**: No manual endpoint configuration required
+✅ **Transparent Security**: Once configured, works automatically without code changes
+✅ **Backward Compatible**: Enable only when needed; existing code works unchanged
+
+> **Note**: GB Token is optional. If you don't provide it, the SDK continues to work with standard API v4.0 endpoints using API key authentication only.
+
+### Migration Checklist
+
+- [ ] Update Gradle dependency to v3.1.0
+- [ ] (Optional) Add `gbToken` to your GameballConfig if needed
+- [ ] Verify all SDK functionality works correctly
+- [ ] Test push notifications
+- [ ] Test profile widget displays correctly
+- [ ] Test event tracking
+
+### Benefits After Migration
+
+After upgrading to v3.1.0, you'll benefit from:
+
+✅ **Optional Enhanced Security**: GB Token authentication when needed
+
+✅ **Automatic Secure Routing**: SDK automatically uses secure endpoints when token is provided
+
+✅ **Backward Compatible**: Existing code continues to work without changes
+
+---
+
+## Migration Guide: v2.x → v3.0.0
 
 This guide will help you migrate from Gameball Android SDK v2.x to v3.0.0. Version 3.0.0 introduces significant improvements with modern Kotlin architecture, but requires some code changes due to breaking changes.
 
@@ -391,7 +500,8 @@ If you encounter issues during migration:
 1. **Check the Examples**: Refer to the code examples in this guide
 2. **Review the README**: See [README.md](README.md) for complete usage examples
 3. **Check the Changelog**: See [CHANGELOG.md](CHANGELOG.md) for all changes
-4. **Contact Support**: Email support@gameball.co for assistance
+4. **Developer Documentation**: Visit [https://developer.gameball.co/](https://developer.gameball.co/)
+5. **Contact Support**: Email support@gameball.co for assistance
 
 ---
 
@@ -413,4 +523,4 @@ After completing the migration, you'll benefit from:
 
 ---
 
-*For additional help with migration, please contact our support team at support@gameball.co*
+*For additional help with migration, please visit our [Developer Documentation](https://developer.gameball.co/) or contact our support team at support@gameball.co*

@@ -1,6 +1,6 @@
 # Gameball Android SDK
 
-[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://github.com/gameballers/gameball-android)
+[![Version](https://img.shields.io/badge/version-3.1.0-blue.svg)](https://github.com/gameballers/gameball-android)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
 
@@ -41,7 +41,7 @@ Then add the dependency to your app-level `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation 'com.gameball:gameball-sdk:3.0.0'
+    implementation 'com.gameball:gameball-sdk:3.1.0'
 }
 ```
 
@@ -76,7 +76,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.gameball</groupId>
     <artifactId>gameball-sdk</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
 </dependency>
 ```
 
@@ -266,6 +266,7 @@ GameballApp.getInstance(this).initializeCustomer(
 | `lang` | String | ✅ **Required** | Language code (e.g., "en", "ar") |
 | `platform` | String | ❌ Optional | Platform identifier |
 | `shop` | String | ❌ Optional | Shop identifier |
+| `gbToken` | String | ❌ Optional | GB Token for secure authentication (enables automatic v4.1 endpoint routing) |
 | `apiPrefix` | String | ❌ Optional | Custom API endpoint prefix |
 
 **GameballConfig Validation Rules:**
@@ -405,7 +406,7 @@ To view SDK logs, filter by these tags:
 ## Support
 
 - 📧 **Email**: support@gameball.co
-- 📖 **Documentation**: [https://docs.gameball.co](https://docs.gameball.co)
+- 📖 **Documentation**: [https://developer.gameball.co/](https://developer.gameball.co/)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/gameballers/gameball-android/issues)
 
 ## License
