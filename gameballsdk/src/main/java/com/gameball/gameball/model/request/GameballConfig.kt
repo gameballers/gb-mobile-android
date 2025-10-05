@@ -8,6 +8,7 @@ data class GameballConfig private constructor(
     val lang: String,
     val platform: String? = null,
     val shop: String? = null,
+    val sessionToken: String? = null,
     val apiPrefix: String? = null
 ) {
     class Builder {
@@ -15,12 +16,14 @@ data class GameballConfig private constructor(
         private var lang: String? = null
         private var platform: String? = null
         private var shop: String? = null
+        private var sessionToken: String? = null
         private var apiPrefix: String? = null
 
         fun apiKey(apiKey: String) = apply { this.apiKey = apiKey }
         fun lang(lang: String?) = apply { this.lang = lang }
         fun platform(platform: String?) = apply { this.platform = platform }
         fun shop(shop: String?) = apply { this.shop = shop }
+        fun sessionToken(sessionToken: String?) = apply { this.sessionToken = sessionToken }
         fun apiPrefix(apiPrefix: String?) = apply { this.apiPrefix = apiPrefix }
 
         fun build(): GameballConfig {
@@ -32,6 +35,7 @@ data class GameballConfig private constructor(
                 lang = lang!!,
                 platform = platform,
                 shop = shop,
+                sessionToken = sessionToken,
                 apiPrefix = apiPrefix
             )
         }
