@@ -101,6 +101,9 @@ class GameballApp private constructor(context: Context) {
 
         config.platform?.let { SharedPreferencesUtils.getInstance().putPlatformPreference(it) }
         config.shop?.let { SharedPreferencesUtils.getInstance().putShopPreference(it) }
+
+        config.gbToken?.let { SharedPreferencesUtils.getInstance().putGbTokenPreference(it) } ?: SharedPreferencesUtils.getInstance().removeGbTokenPreference()
+
         SharedPreferencesUtils.getInstance().putOSPreference(this.OS)
         SharedPreferencesUtils.getInstance().putSDKPreference(this.SDKVersion)
         SharedPreferencesUtils.getInstance().putApiKey(this.mApiKey)

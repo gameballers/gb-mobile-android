@@ -54,6 +54,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     final private static String GB_SDK_VERSION_QUERY_KEY = "sdk";
     final private static String OPEN_DETAIL_QUERY_KEY = "openDetail";
     final private static String HIDE_NAVIGATION_QUERY_KEY = "hideNavigation";
+    final private static String GB_TOKEN_QUERY_KEY = "gbToken";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -229,6 +230,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
         String sdkVersion = sharedPreferences.getSDKPreference();
         String openDetail = sharedPreferences.getOpenDetailPreference();
         String hideNavigation = sharedPreferences.getHideNavigationPreference();
+        String gbToken = sharedPreferences.getGbTokenPreference();
 
         sharedPreferences.removeOpenDetailPreference();
         sharedPreferences.removeHideNavigationPreference();
@@ -245,6 +247,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
             uri.appendQueryParameter(OPEN_DETAIL_QUERY_KEY, openDetail);
         if(hideNavigation != null)
             uri.appendQueryParameter(HIDE_NAVIGATION_QUERY_KEY, hideNavigation);
+        if(gbToken != null)
+            uri.appendQueryParameter(GB_TOKEN_QUERY_KEY, gbToken);
 
         Log.d("GameballApp", uri.toString());
 

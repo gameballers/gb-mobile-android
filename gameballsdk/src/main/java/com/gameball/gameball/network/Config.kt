@@ -5,6 +5,9 @@ package com.gameball.gameball.network
  * Maintained by Ahmed El Monady since March 2023
  */
 object Config {
+    const val API_V4_0 = "api/v4.0/"
+    const val API_V4_1 = "api/v4.1/"
+
     const val SendEvent = "api/v4.0/integrations/events"
     const val GetBotSettings = "api/v1.0/Bots/BotSettings?c=mobile"
     const val InitializeCustomer = "api/v4.0/integrations/customers"
