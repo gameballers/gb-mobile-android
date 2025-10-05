@@ -245,6 +245,16 @@ class SharedPreferencesUtils private constructor(
         putString(PreferencesContract.CUSTOMER_PREFERRED_LANGUAGE, preferredLanguage)
     }
 
+    fun removeSessionTokenPreference() {
+        remove(PreferencesContract.GB_TOKEN_PREFERENCE)
+    }
+
+    fun putSessionTokenPreference(sessionToken: String?) {
+        putString(PreferencesContract.GB_TOKEN_PREFERENCE, sessionToken)
+    }
+
+    fun getSessionTokenPreference(): String? = getString(PreferencesContract.GB_TOKEN_PREFERENCE)
+
     private object PreferencesContract {
         const val CUSTOMER_ID = "CUSTOMER_ID"
         const val DEVICE_TOKEN = "DEVICE_TOKEN"
@@ -259,5 +269,6 @@ class SharedPreferencesUtils private constructor(
         const val OPEN_DETAIL_PREFERENCE = "OPEN_DETAIL_PREFERENCE"
         const val HIDE_NAVIGATION_PREFERENCE = "HIDE_NAVIGATION_PREFERENCE"
         const val CUSTOMER_PREFERRED_LANGUAGE = "CUSTOMER_PREFERRED_LANGUAGE"
+        const val GB_TOKEN_PREFERENCE = "GB_TOKEN_PREFERENCE"
     }
 }

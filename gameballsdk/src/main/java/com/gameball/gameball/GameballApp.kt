@@ -101,6 +101,9 @@ class GameballApp private constructor(context: Context) {
 
         config.platform?.let { SharedPreferencesUtils.getInstance().putPlatformPreference(it) }
         config.shop?.let { SharedPreferencesUtils.getInstance().putShopPreference(it) }
+
+        config.sessionToken?.let { SharedPreferencesUtils.getInstance().putSessionTokenPreference(it) } ?: SharedPreferencesUtils.getInstance().removeSessionTokenPreference()
+
         SharedPreferencesUtils.getInstance().putOSPreference(this.OS)
         SharedPreferencesUtils.getInstance().putSDKPreference(this.SDKVersion)
         SharedPreferencesUtils.getInstance().putApiKey(this.mApiKey)
@@ -115,10 +118,20 @@ class GameballApp private constructor(context: Context) {
         }
     }
 
-    /** Register a customer using builder pattern request */
+    /**
+     * Register a customer using builder pattern request
+     *
+     * @param customerRequest The customer initialization request
+     * @param callback Callback for handling the response
+     * @param sessionToken Optional session token for this request.
+     *                     If provided, overrides the global sessionToken.
+     *                     If null, clears the global sessionToken.
+     */
+    @JvmOverloads
     fun initializeCustomer(
         customerRequest: InitializeCustomerRequest,
-        callback: Callback<InitializeCustomerResponse>
+        callback: Callback<InitializeCustomerResponse>,
+        sessionToken: String? = null
     ) {
         if (mApiKey.isNullOrBlank()) {
             val error = IllegalStateException("API key is required for customer initialization")
@@ -126,6 +139,11 @@ class GameballApp private constructor(context: Context) {
             callback.onError(error)
             return
         }
+
+        // Override or clear sessionToken based on parameter
+        sessionToken?.let {
+            SharedPreferencesUtils.getInstance().putSessionTokenPreference(it)
+        } ?: SharedPreferencesUtils.getInstance().removeSessionTokenPreference()
 
         val attributes = customerRequest.customerAttributes
         attributes?.let { setCustomerPreferredLanguage(it.preferredLanguage) }
@@ -137,14 +155,28 @@ class GameballApp private constructor(context: Context) {
         GameballCoroutineService.initializeCustomerService(TAG, customerRequest, callback, gameBallApi)
     }
 
-    /** Send an event using builder pattern request */
-    fun sendEvent(event: Event, callback: Callback<Boolean>) {
+    /**
+     * Send an event using builder pattern request
+     *
+     * @param event The event to be sent
+     * @param callback Callback for handling the response
+     * @param sessionToken Optional session token for this request.
+     *                     If provided, overrides the global sessionToken.
+     *                     If null, clears the global sessionToken.
+     */
+    @JvmOverloads
+    fun sendEvent(event: Event, callback: Callback<Boolean>, sessionToken: String? = null) {
         if (mApiKey.isNullOrBlank()) {
             val error = IllegalStateException("API key is required for sending events")
             Log.e(TAG, error.message, error)
             callback.onError(error)
             return
         }
+
+        // Override or clear sessionToken based on parameter
+        sessionToken?.let {
+            SharedPreferencesUtils.getInstance().putSessionTokenPreference(it)
+        } ?: SharedPreferencesUtils.getInstance().removeSessionTokenPreference()
 
         gameBallApi.sendEvent(event)
             .subscribeOn(Schedulers.io())
@@ -162,8 +194,22 @@ class GameballApp private constructor(context: Context) {
             })
     }
 
-    /** Show profile widget */
-    fun showProfile(activity: Activity, profileRequest: ShowProfileRequest) {
+    /**
+     * Show profile widget
+     *
+     * @param activity The activity context
+     * @param profileRequest The profile display request
+     * @param sessionToken Optional session token for this request.
+     *                     If provided, overrides the global sessionToken.
+     *                     If null, clears the global sessionToken.
+     */
+    @JvmOverloads
+    fun showProfile(activity: Activity, profileRequest: ShowProfileRequest, sessionToken: String? = null) {
+        // Override or clear sessionToken based on parameter
+        sessionToken?.let {
+            SharedPreferencesUtils.getInstance().putSessionTokenPreference(it)
+        } ?: SharedPreferencesUtils.getInstance().removeSessionTokenPreference()
+
         SharedPreferencesUtils.getInstance().putOpenDetailPreference(profileRequest.openDetail)
         SharedPreferencesUtils.getInstance().putHideNavigationPreference(profileRequest.hideNavigation)
 
