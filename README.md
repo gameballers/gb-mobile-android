@@ -1,6 +1,6 @@
 # Gameball Android SDK
 
-[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://github.com/gameballers/gameball-android)
+[![Version](https://img.shields.io/badge/version-3.1.0-blue.svg)](https://github.com/gameballers/gameball-android)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
 
@@ -41,7 +41,7 @@ Then add the dependency to your app-level `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation 'com.gameball:gameball-sdk:3.0.0'
+    implementation 'com.gameball:gameball-sdk:3.1.0'
 }
 ```
 
@@ -76,7 +76,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.gameball</groupId>
     <artifactId>gameball-sdk</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
 </dependency>
 ```
 
@@ -169,11 +169,44 @@ GameballApp.getInstance(this).showProfile(this, profileRequest)
 The SDK provides the following public methods:
 
 - `init(config: GameballConfig)` - Initialize the SDK
-- `initializeCustomer(request, callback)` - Register/initialize customer
-- `sendEvent(event, callback)` - Track events
-- `showProfile(activity, request)` - Show profile widget
+- `initializeCustomer(request, callback, sessionToken?)` - Register/initialize customer
+- `sendEvent(event, callback, sessionToken?)` - Track events
+- `showProfile(activity, request, sessionToken?)` - Show profile widget
+
+**Note**: The optional `sessionToken` parameter (added in v3.1.0) allows per-request authentication override.
 
 ## Advanced Usage
+
+### Per-Request Session Token Override (v3.1.0+)
+
+Override or clear the session token for individual API calls:
+
+```kotlin
+val gameballApp = GameballApp.getInstance(this)
+
+// Initialize customer with a different session token
+gameballApp.initializeCustomer(
+    customerRequest,
+    callback,
+    sessionToken = "user-specific-token"  // Override global token
+)
+
+// Send an event without authentication (clear token for this request)
+gameballApp.sendEvent(
+    event,
+    callback,
+    sessionToken = null  // Clear token for this request
+)
+
+// Show profile with custom token
+gameballApp.showProfile(
+    this,
+    profileRequest,
+    sessionToken = "session-token"
+)
+```
+
+**Important Note:** The `sessionToken` parameter must be explicitly passed to **every method call** where you want to use a specific token. Passing it once does not persist across subsequent method calls. Each method call independently uses the token you provide in that call, or falls back to the global session token if no parameter is provided.
 
 ### Customer Attributes
 
@@ -266,6 +299,7 @@ GameballApp.getInstance(this).initializeCustomer(
 | `lang` | String | ✅ **Required** | Language code (e.g., "en", "ar") |
 | `platform` | String | ❌ Optional | Platform identifier |
 | `shop` | String | ❌ Optional | Shop identifier |
+| `sessionToken` | String | ❌ Optional | Session Token for secure authentication (enables automatic v4.1 endpoint routing) |
 | `apiPrefix` | String | ❌ Optional | Custom API endpoint prefix |
 
 **GameballConfig Validation Rules:**
@@ -405,7 +439,7 @@ To view SDK logs, filter by these tags:
 ## Support
 
 - 📧 **Email**: support@gameball.co
-- 📖 **Documentation**: [https://docs.gameball.co](https://docs.gameball.co)
+- 📖 **Documentation**: [https://developer.gameball.co/](https://developer.gameball.co/)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/gameballers/gameball-android/issues)
 
 ## License
