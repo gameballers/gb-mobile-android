@@ -4,7 +4,7 @@ import com.gameball.gameball.network.Callback
 
 /** Builder model for showing profile */
 data class ShowProfileRequest private constructor(
-    val customerId: String,
+    val customerId: String? = null,
     val openDetail: String? = null,
     val hideNavigation: Boolean? = null,
     val showCloseButton: Boolean? = null,
@@ -13,7 +13,7 @@ data class ShowProfileRequest private constructor(
     val capturedLinkCallback: Callback<String>? = null
 ) {
     class Builder {
-        private var customerId: String = ""
+        private var customerId: String? = null
         private var openDetail: String? = null
         private var hideNavigation: Boolean? = null
         private var showCloseButton: Boolean? = null
@@ -21,7 +21,7 @@ data class ShowProfileRequest private constructor(
         private var widgetUrlPrefix: String? = null
         private var capturedLinkCallback: Callback<String>? = null
 
-        fun customerId(customerId: String) = apply { this.customerId = customerId }
+        fun customerId(customerId: String?) = apply { this.customerId = customerId }
         fun openDetail(openDetail: String?) = apply { this.openDetail = openDetail }
         fun hideNavigation(hideNavigation: Boolean?) = apply { this.hideNavigation = hideNavigation }
         fun showCloseButton(showCloseButton: Boolean?) = apply { this.showCloseButton = showCloseButton }
@@ -30,7 +30,6 @@ data class ShowProfileRequest private constructor(
         fun capturedLinkCallback(callback: Callback<String>?) = apply { this.capturedLinkCallback = callback }
 
         fun build(): ShowProfileRequest {
-            require(customerId.isNotEmpty()) { "Customer ID cannot be empty" }
             return ShowProfileRequest(
                 customerId = customerId,
                 openDetail = openDetail,
