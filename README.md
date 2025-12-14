@@ -1,6 +1,6 @@
 # Gameball Android SDK
 
-[![Version](https://img.shields.io/badge/version-3.1.0-blue.svg)](https://github.com/gameballers/gameball-android)
+[![Version](https://img.shields.io/badge/version-3.1.1-blue.svg)](https://github.com/gameballers/gameball-android)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
 
@@ -41,7 +41,7 @@ Then add the dependency to your app-level `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation 'com.gameball:gameball-sdk:3.1.0'
+    implementation 'com.github.gameballers:gb-mobile-android:3.1.1'
 }
 ```
 
@@ -74,9 +74,9 @@ Then add the dependency:
 
 ```xml
 <dependency>
-    <groupId>com.gameball</groupId>
-    <artifactId>gameball-sdk</artifactId>
-    <version>3.1.0</version>
+    <groupId>com.github.gameballers</groupId>
+    <artifactId>gb-mobile-android</artifactId>
+    <version>3.1.1</version>
 </dependency>
 ```
 
@@ -153,6 +153,7 @@ GameballApp.getInstance(this).sendEvent(
 ### 4. Show Profile Widget
 
 ```kotlin
+// Authenticated mode
 val profileRequest = ShowProfileRequest.builder()
     .customerId("customer-123")
     .showCloseButton(true)
@@ -162,6 +163,20 @@ val profileRequest = ShowProfileRequest.builder()
     .build()
 
 GameballApp.getInstance(this).showProfile(this, profileRequest)
+```
+
+#### Guest Mode (v3.1.1+)
+
+Display the profile widget without customer authentication:
+
+```kotlin
+// Guest mode - no customer ID required
+val guestRequest = ShowProfileRequest.builder()
+    .showCloseButton(true)
+    .closeButtonColor("#4CAF50")
+    .build()
+
+GameballApp.getInstance(this).showProfile(this, guestRequest)
 ```
 
 ## API Methods
@@ -329,7 +344,7 @@ GameballApp.getInstance(this).initializeCustomer(
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `customerId` | String | ✅ **Required** | Unique customer identifier |
+| `customerId` | String | ❌ Optional | Unique customer identifier. When not provided, opens the guest view (v3.1.1+) |
 | `openDetail` | String | ❌ Optional | Detail section to open (e.g., "details_earn") |
 | `hideNavigation` | Boolean | ❌ Optional | Hide navigation bar |
 | `showCloseButton` | Boolean | ❌ Optional | Show close button |
@@ -338,7 +353,7 @@ GameballApp.getInstance(this).initializeCustomer(
 | `capturedLinkCallback` | Callback<String> | ❌ Optional | Callback for captured links |
 
 **ShowProfileRequest Validation Rules:**
-- Customer ID cannot be empty
+- No validation required (v3.1.1+) - all parameters are optional
 
 ### CustomerAttributes
 

@@ -6,8 +6,78 @@ This guide provides migration instructions for upgrading between major versions 
 
 ## Table of Contents
 
+- [v3.1.0 → v3.1.1](#migration-guide-v310--v311)
 - [v3.0.0 → v3.1.0](#migration-guide-v300--v310)
 - [v2.x → v3.0.0](#migration-guide-v2x--v300)
+
+---
+
+## Migration Guide: v3.1.0 → v3.1.1
+
+Version 3.1.1 fixes the profile widget to support guest mode. This is a **patch update** with no breaking changes.
+
+### Overview of Changes
+
+#### 🐛 What's Fixed
+- **Guest mode support** - Profile widget can now be displayed without customer authentication
+- **Optional customer ID** - `ShowProfileRequest` builder no longer requires customer ID
+
+### Update Dependencies
+
+Update your dependency to v3.1.1:
+
+```kotlin
+dependencies {
+    implementation 'com.github.gameballers:gb-mobile-android:3.1.1'
+}
+```
+
+### No Migration Required
+
+Your existing v3.1.0 and v3.0.0 code continues to work without any changes.
+
+### Guest Mode Enhancement (Optional)
+
+#### Before (v3.1.0)
+```kotlin
+// Customer ID was required
+val request = ShowProfileRequest.builder()
+    .customerId("customer_123")  // Required
+    .build()
+```
+
+#### After (v3.1.1)
+```kotlin
+// Customer ID is now optional
+
+// Authenticated mode
+val request = ShowProfileRequest.builder()
+    .customerId("customer_123")  // Optional
+    .build()
+
+// Guest mode - no customer ID
+val guestRequest = ShowProfileRequest.builder().build()
+```
+
+#### Conditional Widget Display
+
+Show guest mode for unauthenticated users:
+
+```kotlin
+fun showLoyaltyWidget(activity: Activity) {
+    val customerId = getCustomerId() // Your method to get customer ID
+
+    val profileRequest = if (customerId != null) {
+        ShowProfileRequest.builder()
+            .customerId(customerId)
+            .build()
+    } else {
+        ShowProfileRequest.builder().build()  // Guest mode
+    }
+
+    GameballApp.getInstance(activity).showProfile(activity, profileRequest)
+}
+```
 
 ---
 
@@ -27,7 +97,7 @@ Update your dependency to v3.1.0:
 
 ```kotlin
 dependencies {
-    implementation 'com.gameball:gameball-sdk:3.1.0'
+    implementation 'com.github.gameballers:gb-mobile-android:3.1.0'
 }
 ```
 
@@ -185,7 +255,7 @@ This guide will help you migrate from Gameball Android SDK v2.x to v3.0.0. Versi
 **Before (v2.x):**
 ```kotlin
 dependencies {
-    implementation 'com.gameball:gameball-sdk:2.3.0'
+    implementation 'com.github.gameballers:gb-mobile-android:2.3.0'
 }
 ```
 
@@ -206,7 +276,7 @@ Then update the dependency:
 
 ```kotlin
 dependencies {
-    implementation 'com.gameball:gameball-sdk:3.0.0'
+    implementation 'com.github.gameballers:gb-mobile-android:3.0.0'
 }
 ```
 
