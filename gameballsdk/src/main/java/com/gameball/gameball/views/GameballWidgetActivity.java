@@ -219,7 +219,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
         if (sharedPreferences.getClientBotSettings() != null)
             uri.appendQueryParameter(MAIN_COLOR_QUERY_KEY, sharedPreferences.getClientBotSettings().getBotMainColor().replace("#", ""));
 
-        uri.appendQueryParameter(CUSTOMER_QUERY_KEY, customerId);
+        uri.appendQueryParameter(CUSTOMER_QUERY_KEY, customerId != null ? customerId : "");
 
         String platform = sharedPreferences.getPlatformPreference();
         String shop = sharedPreferences.getShopPreference();
