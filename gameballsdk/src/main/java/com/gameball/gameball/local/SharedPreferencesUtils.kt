@@ -275,6 +275,16 @@ class SharedPreferencesUtils private constructor(
 
     fun getSessionTokenPreference(): String? = getString(PreferencesContract.GB_TOKEN_PREFERENCE)
 
+    /** Returns the persisted per-install UUID, generating and storing one on first access. Used to correlate a device's SDK calls in telemetry. */
+    fun getOrCreateInstallId(): String {
+        var installId = getString(PreferencesContract.INSTALL_ID)
+        if (installId.isNullOrBlank()) {
+            installId = UUID.randomUUID().toString()
+            putString(PreferencesContract.INSTALL_ID, installId)
+        }
+        return installId
+    }
+
     private object PreferencesContract {
         const val CUSTOMER_ID = "CUSTOMER_ID"
         const val DEVICE_TOKEN = "DEVICE_TOKEN"
@@ -292,5 +302,6 @@ class SharedPreferencesUtils private constructor(
         const val EMAIL_PREFERENCE = "EMAIL_PREFERENCE"
         const val CUSTOMER_PREFERRED_LANGUAGE = "CUSTOMER_PREFERRED_LANGUAGE"
         const val GB_TOKEN_PREFERENCE = "GB_TOKEN_PREFERENCE"
+        const val INSTALL_ID = "INSTALL_ID"
     }
 }
