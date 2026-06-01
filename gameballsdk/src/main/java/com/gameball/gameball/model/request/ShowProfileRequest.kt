@@ -10,6 +10,8 @@ data class ShowProfileRequest private constructor(
     val showCloseButton: Boolean? = null,
     val closeButtonColor: String? = null,
     val widgetUrlPrefix: String? = null,
+    val mobile: String? = null,
+    val email: String? = null,
     val capturedLinkCallback: Callback<String>? = null
 ) {
     class Builder {
@@ -19,6 +21,8 @@ data class ShowProfileRequest private constructor(
         private var showCloseButton: Boolean? = null
         private var closeButtonColor: String? = null
         private var widgetUrlPrefix: String? = null
+        private var mobile: String? = null
+        private var email: String? = null
         private var capturedLinkCallback: Callback<String>? = null
 
         fun customerId(customerId: String?) = apply { this.customerId = customerId }
@@ -27,6 +31,8 @@ data class ShowProfileRequest private constructor(
         fun showCloseButton(showCloseButton: Boolean?) = apply { this.showCloseButton = showCloseButton }
         fun closeButtonColor(closeButtonColor: String?) = apply { this.closeButtonColor = closeButtonColor }
         fun widgetUrlPrefix(widgetUrlPrefix: String?) = apply { this.widgetUrlPrefix = widgetUrlPrefix }
+        fun mobile(mobile: String?) = apply { this.mobile = mobile }
+        fun email(email: String?) = apply { this.email = email }
         fun capturedLinkCallback(callback: Callback<String>?) = apply { this.capturedLinkCallback = callback }
 
         fun build(): ShowProfileRequest {
@@ -37,6 +43,8 @@ data class ShowProfileRequest private constructor(
                 showCloseButton = showCloseButton,
                 closeButtonColor = closeButtonColor,
                 widgetUrlPrefix = widgetUrlPrefix,
+                mobile = mobile,
+                email = email,
                 capturedLinkCallback = capturedLinkCallback
             )
         }

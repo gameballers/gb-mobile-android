@@ -54,6 +54,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
     final private static String GB_SDK_VERSION_QUERY_KEY = "sdk";
     final private static String OPEN_DETAIL_QUERY_KEY = "openDetail";
     final private static String HIDE_NAVIGATION_QUERY_KEY = "hideNavigation";
+    final private static String MOBILE_QUERY_KEY = "mobile";
+    final private static String EMAIL_QUERY_KEY = "email";
     final private static String SESSION_TOKEN_QUERY_KEY = "sessionToken";
 
     @Override
@@ -227,10 +229,14 @@ public class GameballWidgetActivity extends AppCompatActivity {
         String sdkVersion = sharedPreferences.getSDKPreference();
         String openDetail = sharedPreferences.getOpenDetailPreference();
         String hideNavigation = sharedPreferences.getHideNavigationPreference();
+        String mobile = sharedPreferences.getMobilePreference();
+        String email = sharedPreferences.getEmailPreference();
         String sessionToken = sharedPreferences.getSessionTokenPreference();
 
         sharedPreferences.removeOpenDetailPreference();
         sharedPreferences.removeHideNavigationPreference();
+        sharedPreferences.removeMobilePreference();
+        sharedPreferences.removeEmailPreference();
 
         if(platform != null)
             uri.appendQueryParameter(PLATFORM_QUERY_KEY, platform);
@@ -244,6 +250,10 @@ public class GameballWidgetActivity extends AppCompatActivity {
             uri.appendQueryParameter(OPEN_DETAIL_QUERY_KEY, openDetail);
         if(hideNavigation != null)
             uri.appendQueryParameter(HIDE_NAVIGATION_QUERY_KEY, hideNavigation);
+        if(mobile != null)
+            uri.appendQueryParameter(MOBILE_QUERY_KEY, mobile);
+        if(email != null)
+            uri.appendQueryParameter(EMAIL_QUERY_KEY, email);
         if(sessionToken != null)
             uri.appendQueryParameter(SESSION_TOKEN_QUERY_KEY, sessionToken);
 

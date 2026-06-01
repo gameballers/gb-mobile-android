@@ -212,6 +212,8 @@ class GameballApp private constructor(context: Context) {
 
         SharedPreferencesUtils.getInstance().putOpenDetailPreference(profileRequest.openDetail)
         SharedPreferencesUtils.getInstance().putHideNavigationPreference(profileRequest.hideNavigation)
+        SharedPreferencesUtils.getInstance().putMobilePreference(profileRequest.mobile)
+        SharedPreferencesUtils.getInstance().putEmailPreference(profileRequest.email)
 
         GameballWidgetActivity.start(
             activity,
