@@ -239,6 +239,26 @@ class SharedPreferencesUtils private constructor(
         remove(PreferencesContract.HIDE_NAVIGATION_PREFERENCE)
     }
 
+    fun putMobilePreference(mobile: String?) {
+        putString(PreferencesContract.MOBILE_PREFERENCE, mobile)
+    }
+
+    fun getMobilePreference(): String? = getString(PreferencesContract.MOBILE_PREFERENCE)
+
+    fun removeMobilePreference() {
+        remove(PreferencesContract.MOBILE_PREFERENCE)
+    }
+
+    fun putEmailPreference(email: String?) {
+        putString(PreferencesContract.EMAIL_PREFERENCE, email)
+    }
+
+    fun getEmailPreference(): String? = getString(PreferencesContract.EMAIL_PREFERENCE)
+
+    fun removeEmailPreference() {
+        remove(PreferencesContract.EMAIL_PREFERENCE)
+    }
+
     fun getCustomerPreferredLanguage(): String? = getString(PreferencesContract.CUSTOMER_PREFERRED_LANGUAGE)
 
     fun putCustomerPreferredLanguage(preferredLanguage: String?) {
@@ -268,6 +288,8 @@ class SharedPreferencesUtils private constructor(
         const val SDK_VERSION_PREFERENCE = "SDK_VERSION_PREFERENCE"
         const val OPEN_DETAIL_PREFERENCE = "OPEN_DETAIL_PREFERENCE"
         const val HIDE_NAVIGATION_PREFERENCE = "HIDE_NAVIGATION_PREFERENCE"
+        const val MOBILE_PREFERENCE = "MOBILE_PREFERENCE"
+        const val EMAIL_PREFERENCE = "EMAIL_PREFERENCE"
         const val CUSTOMER_PREFERRED_LANGUAGE = "CUSTOMER_PREFERRED_LANGUAGE"
         const val GB_TOKEN_PREFERENCE = "GB_TOKEN_PREFERENCE"
     }
