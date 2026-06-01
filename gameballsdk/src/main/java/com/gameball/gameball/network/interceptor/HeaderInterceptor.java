@@ -48,11 +48,10 @@ public class HeaderInterceptor implements Interceptor
                 }
             }
 
-            String osVersion = sharedPrefs.getOSPreference();
             String sdkVersion = sharedPrefs.getSDKPreference();
-            if(osVersion != null && sdkVersion != null){
+            if (sdkVersion != null) {
                 builder.addHeader(Constants.USER_AGENT,
-                        String.format("GB/%s/%s", osVersion, sdkVersion));
+                        String.format("GB/android/%s", sdkVersion));
             }
         }
 
