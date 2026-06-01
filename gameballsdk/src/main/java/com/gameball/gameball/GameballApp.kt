@@ -234,7 +234,7 @@ class GameballApp private constructor(context: Context) {
             profileRequest.showCloseButton,
             profileRequest.closeButtonColor,
             profileRequest.widgetUrlPrefix,
-            profileRequest.capturedLinkCallback
+            profileRequest.externalLinkCallback
         )
     }
 }

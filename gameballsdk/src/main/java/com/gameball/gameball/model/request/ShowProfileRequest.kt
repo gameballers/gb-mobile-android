@@ -12,7 +12,7 @@ data class ShowProfileRequest private constructor(
     val widgetUrlPrefix: String? = null,
     val mobile: String? = null,
     val email: String? = null,
-    val capturedLinkCallback: Callback<String>? = null
+    @Transient val externalLinkCallback: Callback<String>? = null
 ) {
     class Builder {
         private var customerId: String? = null
@@ -23,7 +23,7 @@ data class ShowProfileRequest private constructor(
         private var widgetUrlPrefix: String? = null
         private var mobile: String? = null
         private var email: String? = null
-        private var capturedLinkCallback: Callback<String>? = null
+        private var externalLinkCallback: Callback<String>? = null
 
         fun customerId(customerId: String?) = apply { this.customerId = customerId }
         fun openDetail(openDetail: String?) = apply { this.openDetail = openDetail }
@@ -33,7 +33,7 @@ data class ShowProfileRequest private constructor(
         fun widgetUrlPrefix(widgetUrlPrefix: String?) = apply { this.widgetUrlPrefix = widgetUrlPrefix }
         fun mobile(mobile: String?) = apply { this.mobile = mobile }
         fun email(email: String?) = apply { this.email = email }
-        fun capturedLinkCallback(callback: Callback<String>?) = apply { this.capturedLinkCallback = callback }
+        fun externalLinkCallback(callback: Callback<String>?) = apply { this.externalLinkCallback = callback }
 
         fun build(): ShowProfileRequest {
             return ShowProfileRequest(
@@ -45,7 +45,7 @@ data class ShowProfileRequest private constructor(
                 widgetUrlPrefix = widgetUrlPrefix,
                 mobile = mobile,
                 email = email,
-                capturedLinkCallback = capturedLinkCallback
+                externalLinkCallback = externalLinkCallback
             )
         }
     }
