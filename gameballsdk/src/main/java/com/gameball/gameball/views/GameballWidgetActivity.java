@@ -40,7 +40,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private String widgetUrlPrefix = BuildConfig.Widget_Url;
     private static Boolean showCloseButton = true;
     private static String closeButtonColor = null;
-    private static Callback<String> capturedLinkCallback;
+    private static Callback<String> externalLinkCallback;
     private GestureDetector gestureDetector;
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String CUSTOMER_ID_KEY = "CUSTOMER_ID_KEY";
@@ -140,12 +140,11 @@ public class GameballWidgetActivity extends AppCompatActivity {
                 if(request == null) {
                     return false;
                 }
-
-                return handleCapturedLink(request.getUrl().toString());
+                return overrideIfExternal(request.getUrl().toString());
             }
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                return handleCapturedLink(url);
+                return overrideIfExternal(url);
             }
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
@@ -262,26 +261,67 @@ public class GameballWidgetActivity extends AppCompatActivity {
         widgetView.loadUrl(uri.toString());
     }
 
-    private Boolean handleCapturedLink(String url){
+    // Host that identifies Gameball widget content. Any subdomain of this (m., www.,
+    // app., alpha., …) loads in-webview; everything else is treated as a cross-host link.
+    private static final String GAMEBALL_HOST = "gameball.app";
+    private static final String GAMEBALL_HOST_SUFFIX = ".gameball.app";
+    // Query marker the widget appends to a link it wants opened in the device browser.
+    private static final String EXTERNAL_BROWSER_FLAG = "gbExternalBrowser=true";
 
-        if(capturedLinkCallback != null){
+    // Returns true (overriding the WebView's own load) when the URL is a cross-host link
+    // that has been handled externally; Gameball-host URLs return false to load in-webview.
+    private boolean overrideIfExternal(String url){
+        if(isGameballHost(url)){
+            return false;
+        }
+        handleExternalBrowserLink(url);
+        return true;
+    }
+
+    // True when the URL belongs to Gameball — host is "gameball.app" or ends with
+    // ".gameball.app" (so m./www./app./alpha. etc. all match). The suffix check with the
+    // leading dot rejects look-alikes such as "evilgameball.app". A URL with no host
+    // (about:blank, data:) is also treated as in-widget so the widget renders normally.
+    private boolean isGameballHost(String url){
+        if(url == null){
+            return true;
+        }
+        String host = Uri.parse(url).getHost();
+        if(host == null){
+            return true;
+        }
+        host = host.toLowerCase();
+        return host.equals(GAMEBALL_HOST) || host.endsWith(GAMEBALL_HOST_SUFFIX);
+    }
+
+    // Handle a cross-host link (never loads in-widget):
+    //   1) gbExternalBrowser=true → device browser (flag outranks the callback)
+    //   2) else if externalLinkCallback set → delegate to it
+    //   3) else → device browser (safety net)
+    private void handleExternalBrowserLink(String url){
+        if(url.contains(EXTERNAL_BROWSER_FLAG)){
+            openInDeviceBrowser(url);
+        }
+        else if(externalLinkCallback != null){
             try{
-                capturedLinkCallback.onSuccess(url);
-                closeWidget();
-                return true;
+                externalLinkCallback.onSuccess(url);
             }
             catch(Exception e){
-                capturedLinkCallback.onError(e);
-                closeWidget();
-                return true;
+                externalLinkCallback.onError(e);
             }
         }
+        else{
+            openInDeviceBrowser(url);
+        }
+    }
 
-        Uri uri = Uri.parse(url);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(uri);
-        startActivity(intent);
-        return true;
+    private void openInDeviceBrowser(String url){
+        try{
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        }
+        catch(Exception e){
+            // No app available to handle the link; ignore.
+        }
     }
 
     @Override
@@ -300,13 +340,13 @@ public class GameballWidgetActivity extends AppCompatActivity {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 
-    public static void start(Activity context, @Nullable String customerId, @Nullable Boolean showCloseButton, @Nullable String closeButtonColor, @Nullable String widgetUrlPrefix, @Nullable Callback<String> capturedUrlCallback) {
+    public static void start(Activity context, @Nullable String customerId, @Nullable Boolean showCloseButton, @Nullable String closeButtonColor, @Nullable String widgetUrlPrefix, @Nullable Callback<String> externalLinkCallback) {
         // Ensure SharedPreferences is initialized
         if (!SharedPreferencesUtils.isInitialized()) {
             SharedPreferencesUtils.init(context, new Gson());
         }
 
-        GameballWidgetActivity.capturedLinkCallback = capturedUrlCallback;
+        GameballWidgetActivity.externalLinkCallback = externalLinkCallback;
         if(showCloseButton != null){
             GameballWidgetActivity.showCloseButton = showCloseButton;
         }

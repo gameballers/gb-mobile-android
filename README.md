@@ -350,7 +350,7 @@ GameballApp.getInstance(this).initializeCustomer(
 | `showCloseButton` | Boolean | ❌ Optional | Show close button |
 | `closeButtonColor` | String | ❌ Optional | Close button color (hex format) |
 | `widgetUrlPrefix` | String | ❌ Optional | Custom widget URL prefix |
-| `capturedLinkCallback` | Callback<String> | ❌ Optional | Callback for captured links |
+| `externalLinkCallback` | Callback<String> | ❌ Optional | Handler for links tagged `gbExternalBrowser=true`. When provided, the link is delegated to it; otherwise the SDK opens it in the system browser |
 
 **ShowProfileRequest Validation Rules:**
 - No validation required (v3.1.1+) - all parameters are optional
