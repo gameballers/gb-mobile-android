@@ -7,6 +7,8 @@ import com.gameball.gameball.model.response.ClientBotSettings;
 import com.gameball.gameball.model.response.InitializeCustomerResponse;
 import com.gameball.gameball.network.Config;
 
+import java.util.Map;
+
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import retrofit2.http.Body;
@@ -26,4 +28,7 @@ public interface GameBallApi {
 
     @POST(Config.SendEvent)
     Completable sendEvent(@Body Event eventBody);
+
+    @POST(Config.MobileLogs)
+    Completable sendMobileLogs(@Body Map<String, Object> body);
 }

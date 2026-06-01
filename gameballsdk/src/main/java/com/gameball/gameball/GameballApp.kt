@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import com.gameball.gameball.local.SharedPreferencesUtils
+import com.gameball.gameball.logging.GameballLogger
 import com.gameball.gameball.model.request.Event
 import com.gameball.gameball.model.request.GameballConfig
 import com.gameball.gameball.model.request.InitializeCustomerRequest
@@ -36,6 +37,7 @@ class GameballApp private constructor(context: Context) {
     private var mApiKey: String? = null
     private val SDKVersion = BuildConfig.SDK_VERSION
     private val OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT)
+    private val logger = GameballLogger(mContext)
 
     init {
         SharedPreferencesUtils.init(mContext, Gson())
@@ -108,6 +110,10 @@ class GameballApp private constructor(context: Context) {
         SharedPreferencesUtils.getInstance().putSDKPreference(this.SDKVersion)
         SharedPreferencesUtils.getInstance().putApiKey(this.mApiKey)
 
+        // Point the logger at the active API client and record the init call (config logged as-is).
+        logger.api = gameBallApi
+        logger.log("sdk.init", config)
+
         getBotSettings()
     }
 
@@ -153,6 +159,8 @@ class GameballApp private constructor(context: Context) {
         SharedPreferencesUtils.getInstance().putCustomerId(customerRequest.customerId)
 
         GameballCoroutineService.initializeCustomerService(TAG, customerRequest, callback, gameBallApi)
+        // Fire telemetry immediately after dispatching the request.
+        logger.log("sdk.initializeCustomer", customerRequest)
     }
 
     /**
@@ -192,6 +200,8 @@ class GameballApp private constructor(context: Context) {
                     callback.onError(e)
                 }
             })
+        // Fire telemetry immediately after dispatching the request.
+        logger.log("sdk.sendEvent", event)
     }
 
     /**
@@ -214,6 +224,9 @@ class GameballApp private constructor(context: Context) {
         SharedPreferencesUtils.getInstance().putHideNavigationPreference(profileRequest.hideNavigation)
         SharedPreferencesUtils.getInstance().putMobilePreference(profileRequest.mobile)
         SharedPreferencesUtils.getInstance().putEmailPreference(profileRequest.email)
+
+        // showProfile opens a webview (never hits the backend), so it is invisible server-side — log it here.
+        logger.log("sdk.showProfile", profileRequest)
 
         GameballWidgetActivity.start(
             activity,

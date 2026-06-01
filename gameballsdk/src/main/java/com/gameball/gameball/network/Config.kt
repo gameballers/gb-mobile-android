@@ -11,4 +11,5 @@ object Config {
     const val SendEvent = "api/v4.0/integrations/events"
     const val GetBotSettings = "api/v1.0/Bots/BotSettings?c=mobile"
     const val InitializeCustomer = "api/v4.0/integrations/customers"
+    const val MobileLogs = "api/v4.0/integrations/mobile/logs"
 }
