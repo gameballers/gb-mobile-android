@@ -2,6 +2,29 @@
 
 All notable changes to Gameball Android SDK are documented here
 
+## [3.2.0] - 2026-06-17 📱
+
+> **Minor Release**: Widget event channel, widget dismissal controls, external-link handling, diagnostic logging, and channel-merging parameters
+
+### ✨ Added
+- 🏗️ **Widget Event Channel**: `ShowProfileRequest.widgetEventCallback` receives events posted from the widget (e.g. game completion) as a `Map<String, Object>` `{type, metadata}`; the `gameCompleted` payload carries `hasWon`, `rewardType`, `discountType`, `rewardName`, `campaignId`, `campaignType`
+- 🏗️ **Web-Initiated Close**: the widget can dismiss its own webview via `window.GameballWidget.closeWidget()`
+- 🏗️ **Host-Initiated Dismiss**: new `GameballApp.hideProfile()` dismisses the widget programmatically (no-op when nothing is shown)
+- ⚙️ **External-Link Handling**: links flagged `gbExternalBrowser=true` open in the system browser; optional `externalLinkCallback` lets the host intercept them
+- 📊 **Diagnostic Logging**: added internal diagnostic logging to aid SDK troubleshooting
+- 📇 **Channel-Merging Parameters**: `ShowProfileRequest.builder()` now accepts optional `mobile` and `email` to support customer channel merging
+
+### 🔄 Changed
+- 🔧 **User-Agent Header**: unified the `x-gb-agent` header format to `GB/<sdkType>/<version>`
+
+
+## [3.1.2] - 2025-12-15 🔧
+
+> **Patch Release**: Widget URL fix
+
+### 🐛 Fixed
+- 🔧 **Widget URL**: eliminated a null `customerId` value from the widget URL
+
 ## [3.1.1] - 2025-12-15 🔧
 
 > **Patch Release**: Guest mode support for profile widget

@@ -1,6 +1,6 @@
 # Gameball Android SDK
 
-[![Version](https://img.shields.io/badge/version-3.1.1-blue.svg)](https://github.com/gameballers/gameball-android)
+[![Version](https://img.shields.io/badge/version-3.2.0-blue.svg)](https://github.com/gameballers/gameball-android)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
 
@@ -41,7 +41,7 @@ Then add the dependency to your app-level `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation 'com.github.gameballers:gb-mobile-android:3.1.1'
+    implementation 'com.github.gameballers:gb-mobile-android:3.2.0'
 }
 ```
 
@@ -76,7 +76,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.github.gameballers</groupId>
     <artifactId>gb-mobile-android</artifactId>
-    <version>3.1.1</version>
+    <version>3.2.0</version>
 </dependency>
 ```
 
@@ -179,6 +179,71 @@ val guestRequest = ShowProfileRequest.builder()
 GameballApp.getInstance(this).showProfile(this, guestRequest)
 ```
 
+### Widget Events & Dismissal (v3.2.0+)
+
+Pass `widgetEventCallback` to react to events the widget posts (e.g. game completion). Each event is a `Map<String, Object>` with a top-level `type` and a nested `metadata`:
+
+```kotlin
+val request = ShowProfileRequest.builder()
+    .customerId("customer-123")
+    .widgetEventCallback(object : Callback<Map<String, Any?>> {
+        override fun onSuccess(event: Map<String, Any?>) {
+            val type = event["type"] as? String                       // e.g. "gameCompleted"
+            val metadata = event["metadata"] as? Map<*, *>
+            if (type == "gameCompleted") {
+                val hasWon = metadata?.get("hasWon") as? Boolean ?: false
+                val rewardType = metadata?.get("rewardType") as? String       // "Default", "Bonus", "NoReward"…
+                val discountType = metadata?.get("discountType") as? String   // "FreeShipping", "Percentage"… (null if not a coupon win)
+                val rewardName = metadata?.get("rewardName") as? String        // localized display name
+                val campaignId = metadata?.get("campaignId") as? String          // e.g. 90340
+                val campaignType = metadata?.get("campaignType") as? String    // "spinTheWheel", "scratchCard"…
+                if (hasWon) { /* refresh balance, show win UI… */ }
+            }
+        }
+        override fun onError(e: Throwable) { }
+    })
+    .build()
+
+GameballApp.getInstance(this).showProfile(this, request)
+```
+
+The `gameCompleted` event's `metadata` carries:
+
+| Field | Type | Description |
+|---|---|---|
+| `hasWon` | `Boolean` | Whether the player won a reward this round |
+| `rewardType` | `String?` | Reward category — `Default`, `Friend`, `Bonus`, `CustomText`, `Streak`, `NoReward` |
+| `discountType` | `String?` | Coupon kind when the win is a coupon — e.g. `Fixed`, `Percentage`, `FreeShipping`, `FreeProduct`, `Custom`, `RechargeFixed`, `RechargePercentage`, `ExternalReward`; `null` for non-coupon wins |
+| `rewardName` | `String?` | Localized, human-readable reward name |
+| `campaignId` | `String` | Challenge / campaign identifier |
+| `campaignType` | `String?` | Game type — `spinTheWheel`, `slotMachine`, `quiz`, `scratchCard`, `matchCards`, `catcher`, `ticTacToe`, `shooter`, `puzzle`, `tapTarget`, `highwayDrive` |
+
+> All `gameCompleted` values arrive as `String` or `Boolean` — there are no numeric fields.
+
+Dismiss the widget programmatically from your app (no-op when nothing is shown):
+
+```kotlin
+GameballApp.getInstance(context).hideProfile()
+```
+
+The widget can also dismiss itself by calling `window.GameballWidget.closeWidget()`.
+
+### Channel Merging & Diagnostic Logging (v3.2.0+)
+
+`ShowProfileRequest.builder()` also accepts optional `mobile` and `email` for channel merging:
+
+```kotlin
+val request = ShowProfileRequest.builder()
+    .customerId("customer_123")
+    .mobile("+201234567890")
+    .email("customer@example.com")
+    .build()
+
+GameballApp.getInstance(this).showProfile(this, request)
+```
+
+The SDK also records internal diagnostic logs automatically to aid troubleshooting.
+
 ## API Methods
 
 The SDK provides the following public methods:
@@ -187,6 +252,7 @@ The SDK provides the following public methods:
 - `initializeCustomer(request, callback, sessionToken?)` - Register/initialize customer
 - `sendEvent(event, callback, sessionToken?)` - Track events
 - `showProfile(activity, request, sessionToken?)` - Show profile widget
+- `hideProfile()` - Dismiss the currently shown profile widget (no-op when nothing is shown)
 
 **Note**: The optional `sessionToken` parameter (added in v3.1.0) allows per-request authentication override.
 
