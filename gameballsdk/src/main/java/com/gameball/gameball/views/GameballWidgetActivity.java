@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -30,6 +31,7 @@ import com.gameball.gameball.utils.GestureListener;
 import com.gameball.gameball.utils.LanguageUtils;
 import com.google.gson.Gson;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
 public class GameballWidgetActivity extends AppCompatActivity {
@@ -44,6 +46,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private static String closeButtonColor = null;
     private static Callback<String> externalLinkCallback;
     private static Callback<Map<String, Object>> widgetEventCallback;
+    private static WeakReference<GameballWidgetActivity> currentInstance;
     private GestureDetector gestureDetector;
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String CUSTOMER_ID_KEY = "CUSTOMER_ID_KEY";
@@ -65,6 +68,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gameball_widget);
+        currentInstance = new WeakReference<>(this);
 
         // Ensure SharedPreferences is initialized before any usage
         if (!SharedPreferencesUtils.isInitialized()) {
@@ -131,6 +135,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
         WebAppInterface webAppInterface = new WebAppInterface(this);
         widgetView.addJavascriptInterface(webAppInterface, "Android");
         widgetView.addJavascriptInterface(new WidgetEventInterface(widgetEventCallback), "WidgetEvent");
+        widgetView.addJavascriptInterface(this, "GameballWidget");
 
         // Set an onTouchListener on the WebView to pass touch events to the GestureDetector
         widgetView.setOnTouchListener((view, event) -> {
@@ -203,9 +208,32 @@ public class GameballWidgetActivity extends AppCompatActivity {
         }
     }
 
-    private void closeWidget(){
-        finish();
-        GameballWidgetActivity.this.overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);
+    /** Dismisses the widget. Exposed to the widget webview as window.GameballWidget.closeWidget(). */
+    @JavascriptInterface
+    public void closeWidget(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+                GameballWidgetActivity.this.overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);
+            }
+        });
+    }
+
+    /** Dismisses the currently shown widget. No-op when nothing is shown. Backs GameballApp.hideProfile(). */
+    public static void closeCurrentWidget() {
+        GameballWidgetActivity activity = currentInstance != null ? currentInstance.get() : null;
+        if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
+            activity.closeWidget();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (currentInstance != null && currentInstance.get() == this) {
+            currentInstance = null;
+        }
+        super.onDestroy();
     }
 
     private void loadWidget() {
