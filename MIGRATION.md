@@ -6,9 +6,52 @@ This guide provides migration instructions for upgrading between major versions 
 
 ## Table of Contents
 
+- [v3.1.1 → v3.2.0](#migration-guide-v311--v320)
 - [v3.1.0 → v3.1.1](#migration-guide-v310--v311)
 - [v3.0.0 → v3.1.0](#migration-guide-v300--v310)
 - [v2.x → v3.0.0](#migration-guide-v2x--v300)
+
+---
+
+## Migration Guide: v3.1.1 → v3.2.0
+
+Version 3.2.0 adds a widget event channel, widget dismissal controls, and external-link handling. This is a **minor update** with no breaking changes — all v3.1.x and v3.0.0 code continues to work.
+
+### Overview of Changes
+
+#### ✨ What's New
+- **Widget event channel** - pass `widgetEventCallback` to `ShowProfileRequest` to receive widget events as a `Map<String, Object>` `{type, metadata}`; `gameCompleted` includes `hasWon`, `rewardType`, `discountType`, `rewardName`, `campaignId`, `campaignType`
+- **Widget dismissal** - the widget can close itself via `window.GameballWidget.closeWidget()`; the host can dismiss it via `GameballApp.getInstance(context).hideProfile()`
+- **External links** - pass `externalLinkCallback` to intercept links the widget flags with `gbExternalBrowser=true`
+- **Channel merging** - `ShowProfileRequest.builder()` accepts optional `mobile` and `email`
+- **Diagnostic logging** - the SDK now records internal diagnostic logs (automatic, no integration change required)
+- **Header** - the `x-gb-agent` header format is now `GB/<sdkType>/<version>`
+
+### Update Dependencies
+
+Update your dependency to v3.2.0:
+
+```kotlin
+dependencies {
+    implementation 'com.github.gameballers:gb-mobile-android:3.2.0'
+}
+```
+
+### Action Required
+
+None. To adopt the new features, add the optional callbacks to your existing `ShowProfileRequest.builder()`:
+
+```kotlin
+val request = ShowProfileRequest.builder()
+    .customerId("customer_123")
+    .widgetEventCallback(object : Callback<Map<String, Any?>> {
+        override fun onSuccess(event: Map<String, Any?>) { /* handle {type, metadata} */ }
+        override fun onError(e: Throwable) { }
+    })
+    .build()
+
+GameballApp.getInstance(this).showProfile(this, request)
+```
 
 ---
 
