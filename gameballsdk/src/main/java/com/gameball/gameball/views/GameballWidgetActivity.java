@@ -30,6 +30,8 @@ import com.gameball.gameball.utils.GestureListener;
 import com.gameball.gameball.utils.LanguageUtils;
 import com.google.gson.Gson;
 
+import java.util.Map;
+
 public class GameballWidgetActivity extends AppCompatActivity {
     private WebView widgetView;
     @Nullable private String customerId;
@@ -41,6 +43,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private static Boolean showCloseButton = true;
     private static String closeButtonColor = null;
     private static Callback<String> externalLinkCallback;
+    private static Callback<Map<String, Object>> widgetEventCallback;
     private GestureDetector gestureDetector;
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String CUSTOMER_ID_KEY = "CUSTOMER_ID_KEY";
@@ -127,6 +130,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
 
         WebAppInterface webAppInterface = new WebAppInterface(this);
         widgetView.addJavascriptInterface(webAppInterface, "Android");
+        widgetView.addJavascriptInterface(new WidgetEventInterface(widgetEventCallback), "WidgetEvent");
 
         // Set an onTouchListener on the WebView to pass touch events to the GestureDetector
         widgetView.setOnTouchListener((view, event) -> {
@@ -149,7 +153,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
-                findViewById(R.id.no_internet_layout).setVisibility(View.VISIBLE);
+//                findViewById(R.id.no_internet_layout).setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -340,13 +344,19 @@ public class GameballWidgetActivity extends AppCompatActivity {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 
+    /** Backwards-compatible overload — no widget event listener. */
     public static void start(Activity context, @Nullable String customerId, @Nullable Boolean showCloseButton, @Nullable String closeButtonColor, @Nullable String widgetUrlPrefix, @Nullable Callback<String> externalLinkCallback) {
+        start(context, customerId, showCloseButton, closeButtonColor, widgetUrlPrefix, externalLinkCallback, null);
+    }
+
+    public static void start(Activity context, @Nullable String customerId, @Nullable Boolean showCloseButton, @Nullable String closeButtonColor, @Nullable String widgetUrlPrefix, @Nullable Callback<String> externalLinkCallback, @Nullable Callback<Map<String, Object>> widgetEventCallback) {
         // Ensure SharedPreferences is initialized
         if (!SharedPreferencesUtils.isInitialized()) {
             SharedPreferencesUtils.init(context, new Gson());
         }
 
         GameballWidgetActivity.externalLinkCallback = externalLinkCallback;
+        GameballWidgetActivity.widgetEventCallback = widgetEventCallback;
         if(showCloseButton != null){
             GameballWidgetActivity.showCloseButton = showCloseButton;
         }
