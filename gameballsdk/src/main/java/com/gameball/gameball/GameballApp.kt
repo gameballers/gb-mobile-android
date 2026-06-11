@@ -238,4 +238,9 @@ class GameballApp private constructor(context: Context) {
             profileRequest.widgetEventCallback
         )
     }
+
+    /** Hides the currently shown profile widget. No-op when nothing is shown. Counterpart to [showProfile]. */
+    fun hideProfile() {
+        GameballWidgetActivity.closeCurrentWidget()
+    }
 }
