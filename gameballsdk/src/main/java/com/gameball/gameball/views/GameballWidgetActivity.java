@@ -22,6 +22,8 @@ import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.gameball.gameball.BuildConfig;
 import com.gameball.gameball.R;
@@ -76,6 +78,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
         }
 
         findViewById(R.id.widget_parent).setNestedScrollingEnabled(true);
+        applyTopInsetPadding(findViewById(R.id.widget_content));
         widgetView = (WebView) findViewById(R.id.gb_profile_webview);
         primaryCloseButton = (ImageView) findViewById(R.id.btn_close_right);
         secondaryCloseButton = (ImageView) findViewById(R.id.btn_close_left);
@@ -108,6 +111,41 @@ public class GameballWidgetActivity extends AppCompatActivity {
         if (android.os.Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
+    }
+
+    // The widget uses a translucent theme, so the activity always draws behind the status
+    // bar / display cutout. Pad the content's top by that height so the header and close
+    // buttons sit below the bar and stay tappable (fixes the overlap seen on Pixel / Android 15).
+    private void applyTopInsetPadding(View content) {
+        if (content == null) {
+            return;
+        }
+        // Baseline: apply the status-bar height immediately. Translucent windows don't reliably
+        // dispatch WindowInsets, so we can't depend on the listener below firing with a real value.
+        int fallback = getStatusBarHeight();
+        content.setPadding(content.getPaddingLeft(), fallback, content.getPaddingRight(), content.getPaddingBottom());
+
+        // Refine with the real inset (includes tall cutouts) whenever the system dispatches it.
+        ViewCompat.setOnApplyWindowInsetsListener(content, (v, insets) -> {
+            int top = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()).top;
+            if (top <= 0) {
+                top = getStatusBarHeight();
+            }
+            v.setPadding(v.getPaddingLeft(), top, v.getPaddingRight(), v.getPaddingBottom());
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(content);
+    }
+
+    // Status-bar height from the framework resource; works even when window insets report 0
+    // (translucent window). Falls back to 24dp if the resource is unavailable.
+    private int getStatusBarHeight() {
+        int id = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (id > 0) {
+            return getResources().getDimensionPixelSize(id);
+        }
+        return Math.round(24 * getResources().getDisplayMetrics().density);
     }
 
     private void extractDataFromBundle() {

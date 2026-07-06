@@ -9,7 +9,7 @@
             android:name=".views.GameballWidgetActivity"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.Transparent" />
+            android:theme="@style/Theme.GameballWidget" />
         <activity android:name=".views.laregNotificationView.LargeNotificationActivity"
             android:theme="@style/Theme.Transparent"
             />

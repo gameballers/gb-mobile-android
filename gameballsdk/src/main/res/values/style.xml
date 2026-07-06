@@ -13,6 +13,13 @@
         <item name="android:fontFamily">@font/font_family_poppins</item>
     </style>
 
+    <!-- Widget-only theme. Inherits Theme.Transparent and adds dark status-bar
+         icons so they stay visible over the widget's white top band. Kept separate
+         so LargeNotificationActivity (also on Theme.Transparent) is unaffected. -->
+    <style name="Theme.GameballWidget" parent="Theme.Transparent">
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
     <style name="GameballTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
