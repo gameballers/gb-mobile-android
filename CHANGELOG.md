@@ -2,6 +2,14 @@
 
 All notable changes to Gameball Android SDK are documented here
 
+## [3.2.1] - 2026-07-09 🔧
+
+> **Patch Release**: Widget header no longer sits under the status bar / display cutout
+
+### 🐛 Fixed
+- 📱 **Widget Top Buttons Tappable**: the widget content is now padded by the status-bar / display-cutout height, so the header and close buttons are no longer drawn underneath the system bar and stay tappable (seen on Pixel and Android 15)
+- 🎨 **Status-Bar Icon Contrast**: `GameballWidgetActivity` uses a dedicated `Theme.GameballWidget` with dark status-bar icons, keeping them visible over the widget's white top band
+
 ## [3.2.0] - 2026-06-17 📱
 
 > **Minor Release**: Widget event channel, widget dismissal controls, external-link handling, diagnostic logging, and channel-merging parameters
