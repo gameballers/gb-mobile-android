@@ -9,10 +9,23 @@ object LanguageUtils {
     )
     private val rtlLanguageCodes = listOf("ar")
 
+    /**
+     * Resolves the language to use, in priority order:
+     * 1. Explicit per-call [override] (e.g. passed to showProfile)
+     * 2. Customer preferred language (set via CustomerAttributes)
+     * 3. Global preferred language (set during SDK init)
+     * 4. Device locale (fallback)
+     */
     @JvmStatic
-    fun handleLanguage(): String {
+    @JvmOverloads
+    fun handleLanguage(override: String? = null): String {
+        // Highest priority: explicit per-call override
+        if (override != null && override.length == 2) {
+            return override
+        }
+
         val sharedPrefs = SharedPreferencesUtils.getInstanceOrNull()
-        
+
         // First try customer preferred language
         val customerLanguage = sharedPrefs?.getCustomerPreferredLanguage()
         if (customerLanguage != null && customerLanguage.length == 2) {

@@ -117,10 +117,20 @@ class GameballApp private constructor(context: Context) {
         getBotSettings()
     }
 
-    /** Change the preferred language */
-    private fun changeLanguage(lang: String) {
+    /**
+     * Changes the SDK's global language on demand, without re-calling [init]. Affects everything
+     * that isn't overridden per-call: future [showProfile] presentations that don't pass their own
+     * `lang`, and any other SDK call that resolves language via [LanguageUtils.handleLanguage].
+     *
+     * A `showProfile` call with an explicit `lang` still takes precedence over this for that one
+     * presentation — this only changes the fallback used when no per-call override is given.
+     *
+     * @param lang A 2-letter language code (e.g. "en", "ar"). Ignored if invalid.
+     */
+    fun setLanguage(lang: String) {
         if (lang.length == 2) {
             SharedPreferencesUtils.getInstance().putGlobalPreferredLanguage(lang)
+            logger.log("sdk.setLanguage", mapOf("lang" to lang))
         }
     }
 
@@ -234,6 +244,7 @@ class GameballApp private constructor(context: Context) {
             profileRequest.showCloseButton,
             profileRequest.closeButtonColor,
             profileRequest.widgetUrlPrefix,
+            profileRequest.lang,
             profileRequest.externalLinkCallback,
             profileRequest.widgetEventCallback
         )
