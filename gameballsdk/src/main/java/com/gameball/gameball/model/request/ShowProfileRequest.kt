@@ -12,6 +12,10 @@ data class ShowProfileRequest private constructor(
     val widgetUrlPrefix: String? = null,
     val mobile: String? = null,
     val email: String? = null,
+    /** Optional 2-letter language code (e.g. "en", "ar") to use for this widget presentation only.
+     *  When not provided, falls back to the SDK's existing language resolution
+     *  (customer preferred language, then global preferred language, then device locale). */
+    val lang: String? = null,
     @Transient val externalLinkCallback: Callback<String>? = null,
     @Transient val widgetEventCallback: Callback<Map<String, Any?>>? = null
 ) {
@@ -24,6 +28,7 @@ data class ShowProfileRequest private constructor(
         private var widgetUrlPrefix: String? = null
         private var mobile: String? = null
         private var email: String? = null
+        private var lang: String? = null
         private var externalLinkCallback: Callback<String>? = null
         private var widgetEventCallback: Callback<Map<String, Any?>>? = null
 
@@ -35,6 +40,8 @@ data class ShowProfileRequest private constructor(
         fun widgetUrlPrefix(widgetUrlPrefix: String?) = apply { this.widgetUrlPrefix = widgetUrlPrefix }
         fun mobile(mobile: String?) = apply { this.mobile = mobile }
         fun email(email: String?) = apply { this.email = email }
+        /** Optional 2-letter language code (e.g. "en", "ar") to use for this widget presentation only. */
+        fun lang(lang: String?) = apply { this.lang = lang }
         fun externalLinkCallback(callback: Callback<String>?) = apply { this.externalLinkCallback = callback }
         /** Register a listener that receives widget events as a map of key-value pairs ({type, metadata}). */
         fun widgetEventCallback(callback: Callback<Map<String, Any?>>?) = apply { this.widgetEventCallback = callback }
@@ -49,6 +56,7 @@ data class ShowProfileRequest private constructor(
                 widgetUrlPrefix = widgetUrlPrefix,
                 mobile = mobile,
                 email = email,
+                lang = lang,
                 externalLinkCallback = externalLinkCallback,
                 widgetEventCallback = widgetEventCallback
             )

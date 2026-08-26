@@ -39,6 +39,7 @@ import java.util.Map;
 public class GameballWidgetActivity extends AppCompatActivity {
     private WebView widgetView;
     @Nullable private String customerId;
+    @Nullable private String langOverride;
     private String language;
     private ImageView closeButton;
     private ImageView primaryCloseButton;
@@ -52,6 +53,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private GestureDetector gestureDetector;
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String CUSTOMER_ID_KEY = "CUSTOMER_ID_KEY";
+    final private static String LANG_KEY = "LANG_KEY";
     final private static String LANGUAGE_QUERY_KEY = "lang";
     final private static String API_KEY_QUERY_KEY = "apiKey";
     final private static String MAIN_COLOR_QUERY_KEY = "main";
@@ -100,11 +102,10 @@ public class GameballWidgetActivity extends AppCompatActivity {
             }
         }, widgetView));
 
-        language = LanguageUtils.handleLanguage();
-
         closeButton = primaryCloseButton;
 
         extractDataFromBundle();
+        language = LanguageUtils.handleLanguage(langOverride);
         setupWidget();
         loadWidget();
 
@@ -153,6 +154,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
         String widgetUrlPrefixTmp = getIntent().getStringExtra(WIDGET_URL_KEY);
         widgetUrlPrefix = widgetUrlPrefixTmp == null ||
                 widgetUrlPrefixTmp.isEmpty() ? BuildConfig.Widget_Url : widgetUrlPrefixTmp;
+        langOverride = getIntent().getStringExtra(LANG_KEY);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -412,10 +414,15 @@ public class GameballWidgetActivity extends AppCompatActivity {
 
     /** Backwards-compatible overload — no widget event listener. */
     public static void start(Activity context, @Nullable String customerId, @Nullable Boolean showCloseButton, @Nullable String closeButtonColor, @Nullable String widgetUrlPrefix, @Nullable Callback<String> externalLinkCallback) {
-        start(context, customerId, showCloseButton, closeButtonColor, widgetUrlPrefix, externalLinkCallback, null);
+        start(context, customerId, showCloseButton, closeButtonColor, widgetUrlPrefix, null, externalLinkCallback, null);
     }
 
+    /** Backwards-compatible overload — no per-call language override. */
     public static void start(Activity context, @Nullable String customerId, @Nullable Boolean showCloseButton, @Nullable String closeButtonColor, @Nullable String widgetUrlPrefix, @Nullable Callback<String> externalLinkCallback, @Nullable Callback<Map<String, Object>> widgetEventCallback) {
+        start(context, customerId, showCloseButton, closeButtonColor, widgetUrlPrefix, null, externalLinkCallback, widgetEventCallback);
+    }
+
+    public static void start(Activity context, @Nullable String customerId, @Nullable Boolean showCloseButton, @Nullable String closeButtonColor, @Nullable String widgetUrlPrefix, @Nullable String lang, @Nullable Callback<String> externalLinkCallback, @Nullable Callback<Map<String, Object>> widgetEventCallback) {
         // Ensure SharedPreferences is initialized
         if (!SharedPreferencesUtils.isInitialized()) {
             SharedPreferencesUtils.init(context, new Gson());
@@ -432,6 +439,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
         Intent instance = new Intent(context, GameballWidgetActivity.class);
         instance.putExtra(CUSTOMER_ID_KEY, customerId);
         instance.putExtra(WIDGET_URL_KEY, widgetUrlPrefix);
+        instance.putExtra(LANG_KEY, lang);
         context.startActivity(instance);
         context.overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);
     }
