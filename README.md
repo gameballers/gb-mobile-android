@@ -1,6 +1,6 @@
 # Gameball Android SDK
 
-[![Version](https://img.shields.io/badge/version-3.2.1-blue.svg)](https://github.com/gameballers/gameball-android)
+[![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)](https://github.com/gameballers/gameball-android)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
 
@@ -11,6 +11,7 @@ The Gameball Android SDK provides a comprehensive solution for integrating custo
 - 🎯 **Customer Management** - Initialize and manage customer profiles
 - 📊 **Event Tracking** - Track user actions and behaviors
 - 🎁 **Profile Widget** - Display customer loyalty information
+- 🔔 **In-App Messaging** - Dashboard-configured campaigns, drawn over your UI (opt-in)
 - 🔧 **Modern Architecture** - Built with Kotlin and modern Android patterns
 - 🛡️ **Type Safety** - Builder pattern with compile-time validation
 - ⚡ **Coroutines Support** - Async operations with structured concurrency
@@ -41,7 +42,7 @@ Then add the dependency to your app-level `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation 'com.github.gameballers:gb-mobile-android:3.2.1'
+    implementation 'com.github.gameballers:gb-mobile-android:3.3.0'
 }
 ```
 
@@ -76,7 +77,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.github.gameballers</groupId>
     <artifactId>gb-mobile-android</artifactId>
-    <version>3.2.1</version>
+    <version>3.3.0</version>
 </dependency>
 ```
 
@@ -244,6 +245,117 @@ GameballApp.getInstance(this).showProfile(this, request)
 
 The SDK also records internal diagnostic logs automatically to aid troubleshooting.
 
+## In-App Messaging
+
+Campaigns are configured in the Gameball dashboard; the SDK fetches them, decides which one to
+show, draws it over your app and reports the results.
+
+**It is entirely opt-in.** Until you call `startInAppMessaging`, the module issues no requests,
+arms no timers, writes no storage, draws nothing and registers no Activity lifecycle callbacks.
+Existing integrations upgrading from 3.2.x need no changes at all.
+
+### Getting started
+
+Call it once you know who the customer is — typically right after `initializeCustomer`.
+
+```kotlin
+val gameball = GameballApp.getInstance(context)
+gameball.init(config)
+gameball.initializeCustomer(customerRequest, callback)
+
+gameball.startInAppMessaging("customer-123")
+```
+
+```java
+GameballApp gameball = GameballApp.getInstance(context);
+gameball.startInAppMessaging("customer-123");
+```
+
+That is enough. Messages appear on session start and when you send matching events.
+
+### Hooks
+
+Every hook is optional, and each one is individually guarded — if yours throws, you lose the
+override, never the message.
+
+```kotlin
+val options = InAppMessagingOptions.builder()
+    // Hold a message back, or drop it entirely.
+    .beforeDisplay { message ->
+        if (checkoutInProgress) DisplayDecision.LATER else DisplayDecision.SHOW
+    }
+    // Handle a tap yourself. Return true and the SDK does nothing further; the click is
+    // reported to Gameball either way.
+    .onAction { message, button, action -> false }
+    // Route a campaign's navigate action into your own navigation.
+    .onNavigate { route, arguments -> navController.navigate(route) }
+    // See every message the SDK selects, whatever happens to it next.
+    .observer { message -> analytics.log("gb_message_selected", message.campaignId) }
+    .build()
+
+gameball.startInAppMessaging("customer-123", options)
+```
+
+```java
+InAppMessagingOptions options = InAppMessagingOptions.builder()
+    .onNavigate((route, arguments) -> navController.navigate(route))
+    .build();
+
+gameball.startInAppMessaging("customer-123", options);
+```
+
+### Triggering messages
+
+Campaigns fire on session start or on a named event. Events you already send through
+`sendEvent` reach the trigger engine automatically, metadata included, so filters work:
+
+```kotlin
+gameball.sendEvent(
+    Event.builder()
+        .customerId("customer-123")
+        .eventName("place_order")
+        .eventMetaData("total", 250)
+        .build(),
+    callback
+)
+```
+
+Purchases have a dedicated entry point and reach campaigns as an event named `purchase`:
+
+```kotlin
+gameball.logPurchase(
+    productId = "sku-42",
+    price = 250.0,
+    currency = "USD",
+    quantity = 1
+)
+```
+
+### Stopping
+
+On logout, or whenever messaging should stop:
+
+```kotlin
+gameball.stopInAppMessaging()
+```
+
+This dismisses anything on screen, clears cached campaigns, frequency caps and stored
+personalisation values, flushes pending analytics and unregisters the module's lifecycle
+callbacks. Calling it when messaging was never started is safe.
+
+A different customer needs no stop first — `startInAppMessaging` with a new id refetches,
+resets caps and discards the previous customer's data.
+
+### Notes
+
+| | |
+|---|---|
+| **Widget and messaging are independent** | Use either, both, or neither. Nothing in messaging requires the widget; while your widget is open, messages wait and appear once it closes |
+| **Message styling** | Colours, copy and behaviour come from the campaign. Anything the campaign leaves unset falls back to your app's Material theme, so messages adopt your colours |
+| **Diagnostics** | `adb logcat -s GameballIAM` |
+| **Requirements** | None beyond the SDK's own. No new dependencies, no manifest entries, no permissions |
+
+
 ## API Methods
 
 The SDK provides the following public methods:
@@ -253,6 +365,10 @@ The SDK provides the following public methods:
 - `sendEvent(event, callback, sessionToken?)` - Track events
 - `showProfile(activity, request, sessionToken?)` - Show profile widget
 - `hideProfile()` - Dismiss the currently shown profile widget (no-op when nothing is shown)
+- `startInAppMessaging(customerId, options?)` - Start in-app messaging for a customer (v3.3.0+, opt-in)
+- `stopInAppMessaging()` - Stop in-app messaging and clear its state (v3.3.0+)
+- `isInAppMessagingStarted()` - Whether in-app messaging is running (v3.3.0+)
+- `logPurchase(productId, price, currency, quantity, properties?)` - Record a purchase for purchase-triggered campaigns (v3.3.0+)
 
 **Note**: The optional `sessionToken` parameter (added in v3.1.0) allows per-request authentication override.
 
@@ -380,7 +496,7 @@ GameballApp.getInstance(this).initializeCustomer(
 | `lang` | String | ✅ **Required** | Language code (e.g., "en", "ar") |
 | `platform` | String | ❌ Optional | Platform identifier |
 | `shop` | String | ❌ Optional | Shop identifier |
-| `sessionToken` | String | ❌ Optional | Session Token for secure authentication (enables automatic v4.1 endpoint routing) |
+| `sessionToken` | String | ❌ Optional | Session Token for secure authentication (enables automatic v4.1 endpoint routing; the in-app messaging endpoints stay on v4.0, where they are served) |
 | `apiPrefix` | String | ❌ Optional | Custom API endpoint prefix |
 
 **GameballConfig Validation Rules:**

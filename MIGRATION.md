@@ -6,10 +6,49 @@ This guide provides migration instructions for upgrading between major versions 
 
 ## Table of Contents
 
+- [v3.2.1 → v3.3.0](#migration-guide-v321--v330)
 - [v3.1.1 → v3.2.0](#migration-guide-v311--v320)
 - [v3.1.0 → v3.1.1](#migration-guide-v310--v311)
 - [v3.0.0 → v3.1.0](#migration-guide-v300--v310)
 - [v2.x → v3.0.0](#migration-guide-v2x--v300)
+
+---
+
+## Migration Guide: v3.2.1 → v3.3.0
+
+Version 3.3.0 adds in-app messaging. **No migration is required** — all v3.2.x and earlier code
+continues to work unchanged, and no existing API was modified.
+
+### If you are not using in-app messaging
+
+Bump the version. That is the whole change.
+
+```groovy
+implementation 'com.github.gameballers:gb-mobile-android:3.3.0'
+```
+
+The module is opt-in: until `startInAppMessaging` is called it issues no requests, arms no
+timers, writes no storage, draws nothing and registers no Activity lifecycle callbacks. Your
+widget integration behaves exactly as it did on 3.2.1.
+
+### If you want in-app messaging
+
+Add one call after you have identified the customer:
+
+```kotlin
+GameballApp.getInstance(context).startInAppMessaging("customer-123")
+```
+
+Events you already send through `sendEvent` feed the trigger engine automatically, so
+event-triggered campaigns work with no further wiring. See the In-App Messaging section of the
+README for the hooks, purchase tracking and lifecycle control.
+
+### One fix worth knowing about
+
+`HeaderInterceptor` rewrote every `api/v4.0/` request to `api/v4.1/` when a session token was
+stored. The in-app messaging endpoints answer 401 on v4.1, so that rewrite is now skipped for
+them. **No other endpoint is affected** — the version switch still applies to every request it
+applied to before.
 
 ---
 

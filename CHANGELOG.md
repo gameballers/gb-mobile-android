@@ -2,6 +2,28 @@
 
 All notable changes to Gameball Android SDK are documented here
 
+## [3.3.0] - 2026-08-28 🔔
+
+> **Minor Release**: In-app messaging — an opt-in module for dashboard-configured campaigns. No existing API changed; integrations that do not opt in are unaffected.
+
+### ✨ Added
+- 🔔 **In-App Messaging**: `GameballApp.startInAppMessaging(customerId, options)` syncs campaigns for a customer, chooses at most one per trigger, draws it above the host's UI, and reports impressions, clicks and dismissals
+- 🎨 **Three Message Types**: slideup (non-blocking banner), modal (card over a scrim) and fullscreen (edge to edge), each with a stacked and an image-only composition, styled per campaign from the dashboard
+- 🎯 **Triggers & Targeting**: `session_start` and named events, with metadata filters (`equals`, `notEquals`, `greaterThan`, `greaterThanOrEqual`, `lessThan`, `lessThanOrEqual`, `contains`), per-campaign repeat rules, a global cooldown floor and UTC quiet hours
+- 🪝 **Four Host Hooks**: `beforeDisplay` (show / later / discard), `onAction`, `onNavigate` and a message observer, each contained so a throwing hook loses its override rather than its messages
+- 🛒 **Purchase Tracking**: `GameballApp.logPurchase(productId, price, currency, quantity, properties)` reaches campaigns as an event named `purchase`, so ordinary filters work on its fields
+- ✍️ **Personalisation**: `{player_name}`, `{points_balance}` and the rest are substituted immediately before display, and any token that cannot be resolved is blanked rather than reaching the screen
+- ⏹️ **Lifecycle Control**: `stopInAppMessaging()` and `isInAppMessagingStarted()`
+
+### 🐛 Fixed
+- 🔐 **v4.0 Pinned for Messaging**: `HeaderInterceptor` rewrote every `api/v4.0/` path to `api/v4.1/` when a session token was stored. The in-app messaging endpoints answer **401** on v4.1, so messaging would have worked in testing and been dead in production for every integration using session tokens. The messaging path is now exempt; all other endpoints are unchanged
+- 🔧 **Executable `gradlew`**: the wrapper was committed without its executable bit, so `./gradlew` failed on a fresh clone
+
+### 📝 Notes
+- No existing API changed. Until `startInAppMessaging` is called the module issues no requests, arms no timers, writes no storage, draws nothing and registers no Activity lifecycle callbacks
+- No new runtime dependencies
+- Still `minSdk 21`
+
 ## [3.2.1] - 2026-07-09 🔧
 
 > **Patch Release**: Widget header no longer sits under the status bar / display cutout
