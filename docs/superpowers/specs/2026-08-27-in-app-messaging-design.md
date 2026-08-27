@@ -793,7 +793,7 @@ transition, and leaving the message up briefly covers the screen the user just a
 | `initializeCustomer(...)` | notify the module of a customer change, in its own try/catch outside the Rx chain |
 | `sendEvent(event, …)` | feed the trigger engine with the event name **and its metadata map** — omitting metadata was **defect 7**: filters fully unit-tested and completely unreachable |
 | `showProfile` / `hideProfile` | publish the widget-open signal; `hideProfile` is a retry trigger |
-| `logPurchase` | **must not** both send an event and notify the service — that was **defect 3**, one purchase firing the trigger engine twice and displacing the pending slot |
+| `logPurchase` | routes through the existing `sendEvent` path, which is the single place that feeds the trigger engine. It **must not** also notify the service — that was **defect 3**, one purchase firing the trigger engine twice and displacing the pending slot. Decided 27 Aug 2026; asserted by a test counting evaluations for one purchase |
 
 ### 14.3 The compatibility invariant
 
@@ -931,11 +931,15 @@ aligned trailing, not a row — two German or Arabic labels overflowed a row by 
 testing. `image_only`: artwork fills the card at `cover`, capped at 65 % of screen height,
 buttons stretched and stacked over it, text never drawn.
 
-**Fullscreen** (type 3) — edge to edge, opaque, no scrim. `image_only`: `cover` over the full
-bounds *ignoring* the safe area, buttons anchored bottom-centre *inside* it. `text_with_image`:
-the whole stack inside the safe area, image a fixed 50 % of available height, copy scrolling
-in the remainder, buttons outside the scroll view. Header and body default to **centre** here
-and to **start** on a modal.
+**Fullscreen** (type 3) — edge to edge, opaque, no scrim. `image_only`: `centerCrop` over the
+full bounds *ignoring* the safe area, buttons anchored bottom-centre *inside* it.
+`text_with_image`: the whole stack inside the safe area, the image given a **fixed 50 % of
+available height** and drawn **`fitCenter`** within that box, copy scrolling in the remainder,
+buttons outside the scroll view. Header and body default to **centre** here and to **start** on
+a modal.
+
+The fixed box and the fit are separate properties, and the two source documents each settle
+one — see §19 Q1.
 
 ### 15.6 Motion
 
@@ -1104,17 +1108,41 @@ Metadata filters are the expensive gap — they have never met the real backend 
 
 ## 19. Open questions
 
-**Q1 — fullscreen `text_with_image` scale type. The two source documents conflict.**
-The port guide's defect 9 says "use `fitCenter` where artwork shares the screen with copy;
-`centerCrop` only for the image-only variant". The UI spec says the fullscreen stacked image
-is "exactly 50 % of the available height … at `cover`", and reasons explicitly that a fixed
-share at cover "is what stops it letterboxing".
+**Q1 — fullscreen `text_with_image` scale type. RESOLVED (27 Aug 2026) as a synthesis.**
 
-Proceeding with the **UI spec** (`centerCrop` at a fixed 50 %), because it is the designated
-canonical source for UI and it already supersedes the guide elsewhere — it names and replaces
-the guide's "40 % of screen height" modal cap. Worth a confirmation from whoever owns the UI
-spec, since defect 9 was a real device-QA finding about losing an offer baked into the top of
-a promo image.
+The two documents appeared to conflict: the port guide's defect 9 prescribes `fitCenter`
+"where artwork shares the screen with copy, `centerCrop` only for the image-only variant";
+the UI spec specifies "exactly 50 % of the available height … at `cover`" and reasons that a
+fixed share "is what stops it letterboxing".
+
+They are settling **two different properties**. The UI spec's argument is about the *height
+allocation* — a fixed share rather than whatever slack the copy leaves. Defect 9 is about the
+*fill within that box*. Nothing forces them to be answered together.
+
+Decided: **fixed 50 % box from the UI spec, `fitCenter` within it from defect 9.**
+
+Three reasons:
+
+1. **The measured harm is severe.** With the live 384×640 asset on a 390×844 device the box
+   is 390 × 375.5. `cover` scales to fill the width, producing a 650-tall image in a 375.5
+   box — **42 % of the poster is cropped away, top and bottom**. That is exactly defect 9's
+   finding: an offer baked into the top of a promo image, lost. `fitCenter` pillarboxes
+   instead, at 225 × 375.5 with 82 px bars.
+2. **Losing campaign content is a worse failure than bars.** A letterboxed poster is
+   cosmetically imperfect and every pixel the marketer authored is still on screen. A cropped
+   one silently deletes the call to action. This is the same asymmetry §15.8 applies
+   everywhere else — degrade, do not discard.
+3. **The UI spec is internally inconsistent in this exact section.** Its prose introduction
+   says "the image takes whatever the copy does not need"; its composition table says
+   "exactly 50 % … a fixed share, not the slack the copy leaves". Where a document contradicts
+   itself, it is weak authority on the neighbouring claim.
+
+`centerCrop` remains correct for `image_only` on both types, where bleeding to every edge is
+the point. The modal is unaffected — both documents already agree its artwork is never
+cropped.
+
+To raise with the UI spec's owner, not blocking: the spec should state the fit and the box
+separately, and reconcile its own prose with its table.
 
 **Q2 — exit animations and the modal's scale** are flagged as unsettled in the UI spec: we are
 the only implementation with no exit animation, and the 4 % modal scale is ours alone.
@@ -1139,7 +1167,7 @@ filter operator vocabulary; whether `Or` is reachable from the dashboard),
 | 6 | quiet hours ignored | §7.2 — parsed, UTC, suppresses, survives the cache |
 | 7 | filters built and unreachable | §14.2 — pass name **and** metadata; e2e test |
 | 8 | display history skipped on cold start | §13 — no read timeout on Android |
-| 9 | fullscreen cropped what the modal rendered whole | §19 Q1 — open |
+| 9 | fullscreen cropped what the modal rendered whole | §15.5 — `fitCenter` when sharing with copy |
 | 10 | deferred repeatable campaign discarded | §8.8 — reuse `repeatEligible` on retry |
 | 11 | artwork failure cached for the session | §10 — retry the failed set once per 30 s |
 
