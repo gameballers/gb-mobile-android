@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import com.gameball.gameball.inappmessaging.GameballInAppMessaging
+import com.gameball.gameball.inappmessaging.InAppMessagingOptions
 import com.gameball.gameball.local.SharedPreferencesUtils
 import com.gameball.gameball.logging.GameballLogger
 import com.gameball.gameball.model.request.Event
@@ -38,6 +40,16 @@ class GameballApp private constructor(context: Context) {
     private val SDKVersion = BuildConfig.SDK_VERSION
     private val OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT)
     private val logger = GameballLogger(mContext)
+    private var apiPrefix: String? = null
+
+    /**
+     * Lazy on purpose: constructing it does nothing, and until startInAppMessaging is called
+     * the module makes no requests, arms no timers, writes no storage, draws nothing and
+     * registers no lifecycle callbacks.
+     */
+    private val inAppMessaging: GameballInAppMessaging by lazy {
+        GameballInAppMessaging(mContext.applicationContext)
+    }
 
     init {
         SharedPreferencesUtils.init(mContext, Gson())
@@ -45,6 +57,9 @@ class GameballApp private constructor(context: Context) {
     }
 
     companion object {
+        /** Purchases reach campaigns as an ordinary event, so filters work on their fields. */
+        private const val PURCHASE_EVENT = "purchase"
+
         @Volatile
         private var instance: GameballApp? = null
 
@@ -93,6 +108,7 @@ class GameballApp private constructor(context: Context) {
     fun init(config: GameballConfig) {
         config.apiPrefix?.let {
             gameBallApi = Network.getInstance().getGameBallApi(it)
+            apiPrefix = it
         }
 
         this.mApiKey = config.apiKey
@@ -159,6 +175,21 @@ class GameballApp private constructor(context: Context) {
         SharedPreferencesUtils.getInstance().putCustomerId(customerRequest.customerId)
 
         GameballCoroutineService.initializeCustomerService(TAG, customerRequest, callback, gameBallApi)
+
+        // Its own guard, outside the Rx chain above: a throw inside an addition to someone
+        // else's chain escapes into their code path.
+        try {
+            if (inAppMessaging.isStarted) {
+                // Keeps the options the host started with; restarting with defaults would
+                // quietly drop their hooks.
+                inAppMessaging.onCustomerChanged(
+                    customerRequest.customerId, apiPrefix, SDKVersion
+                )
+            }
+        } catch (t: Throwable) {
+            Log.e(TAG, "in-app messaging could not follow the customer change", t)
+        }
+
         // Fire telemetry immediately after dispatching the request.
         logger.log("sdk.initializeCustomer", customerRequest)
     }
@@ -200,6 +231,14 @@ class GameballApp private constructor(context: Context) {
                     callback.onError(e)
                 }
             })
+        // Pass the name AND the metadata map. Passing only the name is what made every
+        // metadata-filtered campaign unmatchable in Flutter while all its unit tests passed.
+        try {
+            event.events.forEach { (name, metadata) -> inAppMessaging.onEvent(name, metadata) }
+        } catch (t: Throwable) {
+            Log.e(TAG, "in-app messaging could not process the event", t)
+        }
+
         // Fire telemetry immediately after dispatching the request.
         logger.log("sdk.sendEvent", event)
     }
@@ -228,6 +267,12 @@ class GameballApp private constructor(context: Context) {
         // showProfile opens a webview (never hits the backend), so it is invisible server-side — log it here.
         logger.log("sdk.showProfile", profileRequest)
 
+        try {
+            inAppMessaging.onWidgetOpened()
+        } catch (t: Throwable) {
+            Log.e(TAG, "in-app messaging could not record the widget opening", t)
+        }
+
         GameballWidgetActivity.start(
             activity,
             profileRequest.customerId,
@@ -242,5 +287,101 @@ class GameballApp private constructor(context: Context) {
     /** Hides the currently shown profile widget. No-op when nothing is shown. Counterpart to [showProfile]. */
     fun hideProfile() {
         GameballWidgetActivity.closeCurrentWidget()
+        // Closing the widget is a retry trigger for anything deferred while it was open.
+        try {
+            inAppMessaging.onWidgetClosed()
+        } catch (t: Throwable) {
+            Log.e(TAG, "in-app messaging could not record the widget closing", t)
+        }
+    }
+
+    // --- in-app messaging -------------------------------------------------------------
+    //
+    // Entirely opt-in. A host that never calls startInAppMessaging is unaffected by this
+    // module: nothing is constructed, nothing is requested, nothing is registered.
+
+    /**
+     * Starts in-app messaging for [customerId].
+     *
+     * Idempotent for the same customer - a second call logs and returns. A different customer
+     * refetches, resets frequency caps and discards the previous customer's cached campaigns
+     * and stored values, so there is no need to stop first.
+     *
+     * Call it after [init]. Campaigns are configured in the Gameball dashboard.
+     */
+    @JvmOverloads
+    fun startInAppMessaging(customerId: String, options: InAppMessagingOptions? = null) {
+        try {
+            inAppMessaging.start(
+                customerId = customerId,
+                options = options ?: InAppMessagingOptions.builder().build(),
+                apiPrefix = apiPrefix,
+                sdkVersion = SDKVersion
+            )
+        } catch (t: Throwable) {
+            // Messaging must never take the host app down.
+            Log.e(TAG, "in-app messaging failed to start", t)
+        }
+    }
+
+    /**
+     * Stops in-app messaging: dismisses anything showing, clears campaigns, caps and stored
+     * personalisation values, flushes pending telemetry, and unregisters the module's
+     * lifecycle callbacks. Safe to call when it was never started.
+     */
+    fun stopInAppMessaging() {
+        try {
+            inAppMessaging.stop()
+        } catch (t: Throwable) {
+            Log.e(TAG, "in-app messaging failed to stop cleanly", t)
+        }
+    }
+
+    /** Whether in-app messaging is currently running. */
+    fun isInAppMessagingStarted(): Boolean = try {
+        inAppMessaging.isStarted
+    } catch (t: Throwable) {
+        false
+    }
+
+    /**
+     * Records a purchase so purchase-triggered campaigns can fire.
+     *
+     * Routed through [sendEvent], which is the single place that feeds the trigger engine, so
+     * one call produces exactly one trigger occurrence. Notifying the module here as well
+     * would fire it twice, and the duplicate would take the pending slot from whatever was
+     * legitimately waiting.
+     */
+    @JvmOverloads
+    fun logPurchase(
+        productId: String,
+        price: Double,
+        currency: String,
+        quantity: Int,
+        properties: Map<String, Any>? = null,
+        callback: Callback<Boolean>? = null
+    ) {
+        val customerId = SharedPreferencesUtils.getInstance().getCustomerId()
+        if (customerId.isNullOrBlank()) {
+            Log.e(TAG, "logPurchase needs an initialized customer")
+            callback?.onError(IllegalStateException("No customer has been initialized"))
+            return
+        }
+        val builder = Event.builder()
+            .customerId(customerId)
+            .eventName(PURCHASE_EVENT)
+            .eventMetaData("productId", productId)
+            .eventMetaData("price", price)
+            .eventMetaData("currency", currency)
+            .eventMetaData("quantity", quantity)
+        properties?.forEach { (key, value) -> builder.eventMetaData(key, value) }
+
+        sendEvent(
+            builder.build(),
+            callback ?: object : Callback<Boolean> {
+                override fun onSuccess(t: Boolean?) = Unit
+                override fun onError(e: Throwable?) = Unit
+            }
+        )
     }
 }
