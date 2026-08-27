@@ -285,6 +285,24 @@ class SharedPreferencesUtils private constructor(
         return installId
     }
 
+    // --- in-app messaging (opt-in module; nothing writes these until it is started) ---
+
+    fun putIamCampaignCache(value: String?) = putString(PreferencesContract.IAM_CAMPAIGN_CACHE, value)
+
+    fun getIamCampaignCache(): String? = getString(PreferencesContract.IAM_CAMPAIGN_CACHE)
+
+    fun putIamDisplayHistory(value: String?) = putString(PreferencesContract.IAM_DISPLAY_HISTORY, value)
+
+    fun getIamDisplayHistory(): String? = getString(PreferencesContract.IAM_DISPLAY_HISTORY)
+
+    fun putIamOutbox(value: String?) = putString(PreferencesContract.IAM_OUTBOX, value)
+
+    fun getIamOutbox(): String? = getString(PreferencesContract.IAM_OUTBOX)
+
+    fun putIamVariables(value: String?) = putString(PreferencesContract.IAM_VARIABLES, value)
+
+    fun getIamVariables(): String? = getString(PreferencesContract.IAM_VARIABLES)
+
     private object PreferencesContract {
         const val CUSTOMER_ID = "CUSTOMER_ID"
         const val DEVICE_TOKEN = "DEVICE_TOKEN"
@@ -303,5 +321,9 @@ class SharedPreferencesUtils private constructor(
         const val CUSTOMER_PREFERRED_LANGUAGE = "CUSTOMER_PREFERRED_LANGUAGE"
         const val GB_TOKEN_PREFERENCE = "GB_TOKEN_PREFERENCE"
         const val INSTALL_ID = "INSTALL_ID"
+        const val IAM_CAMPAIGN_CACHE = "IAM_CAMPAIGN_CACHE"
+        const val IAM_DISPLAY_HISTORY = "IAM_DISPLAY_HISTORY"
+        const val IAM_OUTBOX = "IAM_OUTBOX"
+        const val IAM_VARIABLES = "IAM_VARIABLES"
     }
 }
