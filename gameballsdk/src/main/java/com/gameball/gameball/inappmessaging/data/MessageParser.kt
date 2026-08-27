@@ -1,7 +1,11 @@
 package com.gameball.gameball.inappmessaging.data
 
 import androidx.annotation.VisibleForTesting
+import com.gameball.gameball.inappmessaging.domain.ButtonColors
 import com.gameball.gameball.inappmessaging.domain.Campaign
+import com.gameball.gameball.inappmessaging.domain.MessageAction
+import com.gameball.gameball.inappmessaging.domain.MessageButton
+import com.gameball.gameball.inappmessaging.domain.TextAlign
 import com.gameball.gameball.inappmessaging.domain.DEFAULT_COOLDOWN_SECONDS
 import com.gameball.gameball.inappmessaging.domain.MessageColors
 import com.gameball.gameball.inappmessaging.domain.MessageContent
@@ -28,6 +32,9 @@ import com.google.gson.JsonParser
 internal object MessageParser {
 
     private const val PRERENDERED = "prerendered"
+    private const val MODAL_MAX_BUTTONS = 2
+    private const val SLIDEUP_DEFAULT_AUTO_DISMISS_MS = 8_000L
+    private val KNOWN_CLOSE_BEHAVIOURS = setOf("both", "button", "swipe")
 
     fun parse(rawJson: String?): SyncResult {
         if (rawJson.isNullOrBlank()) {
@@ -132,7 +139,6 @@ internal object MessageParser {
         )
     }
 
-    // Task 5 replaces this with the full implementation.
     private fun parseContent(
         campaignObject: JsonObject,
         campaignId: Int,
@@ -140,38 +146,256 @@ internal object MessageParser {
     ): MessageContent? {
         val content = campaignObject.obj("content") ?: JsonObject()
         val locale = campaignObject.obj("locale") ?: JsonObject()
+
         val header = locale.str("header")
-        val body = locale.str("message") ?: locale.str("body")
-        val imageUrl = content.str("imageUrl")
+        // A slideup shows one line and falls back to the header, so a campaign that filled
+        // the wrong field still says something.
+        val body = if (messageType == MessageType.SLIDEUP) {
+            locale.str("message") ?: header
+        } else {
+            locale.str("message") ?: locale.str("body")
+        }
+
+        val imageUrl = resolveArtwork(content, messageType, campaignId)
         val iconUrl = content.str("iconUrl")
 
+        // Drawing an empty box is worse than showing nothing.
         if (header == null && body == null && imageUrl == null) {
             IamLog.w("campaign $campaignId has no header, body or image; dropped")
             return null
         }
-        if (messageType == MessageType.SLIDEUP && header == null && body == null) {
+        // A 40dp icon with no words is not a message.
+        if (messageType == MessageType.SLIDEUP && body.isNullOrBlank()) {
             IamLog.w("campaign $campaignId is a slideup with no text; dropped")
             return null
         }
+
+        val buttons = parseButtons(content, locale, messageType, campaignId)
+        val (showClose, dismissOnScrim) = parseCloseBehaviour(
+            content.str("closeBehaviour"), messageType, campaignId
+        )
 
         return MessageContent(
             header = header,
             body = body,
             imageUrl = imageUrl,
             iconUrl = iconUrl,
-            layout = MessageLayout.DEFAULT,
-            colors = MessageColors.EMPTY,
-            buttons = emptyList(),
-            clickAction = null,
-            showCloseButton = true,
-            dismissOnScrimTap = true,
-            slidePosition = SlidePosition.BOTTOM,
-            orientation = MessageOrientation.ANY,
-            autoDismissMillis = null,
-            headerAlign = null,
-            bodyAlign = null,
-            extras = emptyMap()
+            layout = parseLayout(content.str("layout"), imageUrl, campaignId),
+            colors = parseColors(content.obj("colors")),
+            buttons = buttons,
+            clickAction = parseAction(content.obj("action")),
+            showCloseButton = showClose,
+            dismissOnScrimTap = dismissOnScrim,
+            slidePosition = if (content.str("slideFrom")?.lowercase() == "top") {
+                SlidePosition.TOP
+            } else {
+                SlidePosition.BOTTOM
+            },
+            orientation = when (content.str("orientation")?.lowercase()) {
+                "portrait" -> MessageOrientation.PORTRAIT
+                "landscape" -> MessageOrientation.LANDSCAPE
+                else -> MessageOrientation.ANY
+            },
+            autoDismissMillis = parseAutoDismiss(content, messageType),
+            headerAlign = TextAlign.from(content.obj("textAlignment")?.str("header")),
+            bodyAlign = TextAlign.from(content.obj("textAlignment")?.str("body")),
+            extras = parseExtras(content.obj("extras"))
         )
+    }
+
+    /**
+     * Fullscreen prefers media.url; every other type prefers imageUrl. Each falls back to the
+     * other. A parser reading only imageUrl finds nothing on the live QA campaign, renders
+     * nothing, and looks like a backend problem.
+     */
+    private fun resolveArtwork(
+        content: JsonObject,
+        messageType: MessageType,
+        campaignId: Int
+    ): String? {
+        val direct = content.str("imageUrl")
+        val media = content.obj("media")
+        val mediaType = media?.str("type")?.lowercase()
+        val fromMedia = when {
+            media == null -> null
+            mediaType == null || mediaType == "image" -> media.str("url")
+            else -> {
+                // Handing a video URL to an ImageView draws a broken frame.
+                IamLog.w("campaign $campaignId has media.type '$mediaType'; ignored")
+                null
+            }
+        }
+        return if (messageType == MessageType.FULLSCREEN) fromMedia ?: direct
+        else direct ?: fromMedia
+    }
+
+    /**
+     * Buttons arrive split across the styled half and the translated half and are paired by
+     * string id. One without the other has no action or no label; either way it is dropped.
+     */
+    private fun parseButtons(
+        content: JsonObject,
+        locale: JsonObject,
+        messageType: MessageType,
+        campaignId: Int
+    ): List<MessageButton> {
+        // JsonArray is Gson's Iterable, not a Kotlin collection, so no orEmpty() here.
+        val styled = LinkedHashMap<String, JsonObject>()
+        content.arr("buttons")?.forEach { element ->
+            val obj = element.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+            obj.str("id")?.let { styled[it] = obj }
+        }
+
+        val translated = LinkedHashMap<String, JsonObject>()
+        locale.arr("buttons")?.forEach { element ->
+            val obj = element.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+            obj.str("id")?.let { translated[it] = obj }
+        }
+
+        // Order follows the styled half, which is the payload order the dashboard arranged.
+        var buttons = styled.mapNotNull { (id, styledObject) ->
+            val text = translated[id]?.str("text") ?: return@mapNotNull null
+            MessageButton(
+                id = id,
+                text = text,
+                // A dead button is worse than a closing one.
+                action = parseAction(styledObject.obj("action")) ?: MessageAction.Dismiss,
+                colors = styledObject.obj("colors")?.let { colors ->
+                    ButtonColors(
+                        background = ColorParser.parse(colors.scalar("background")),
+                        text = ColorParser.parse(colors.scalar("text")),
+                        border = ColorParser.parse(colors.scalar("border"))
+                    )
+                }
+            )
+        }
+
+        val dropped = styled.size - buttons.size
+        if (dropped > 0) IamLog.w("campaign $campaignId dropped $dropped unpaired button(s)")
+
+        when (messageType) {
+            MessageType.SLIDEUP -> if (buttons.isNotEmpty()) {
+                IamLog.w(
+                    "campaign $campaignId is a slideup carrying ${buttons.size} button(s); " +
+                        "dropped - a slideup's whole surface is the tap target"
+                )
+                buttons = emptyList()
+            }
+            MessageType.MODAL -> if (buttons.size > MODAL_MAX_BUTTONS) {
+                IamLog.w(
+                    "campaign $campaignId is a modal carrying ${buttons.size} buttons; " +
+                        "keeping the first $MODAL_MAX_BUTTONS"
+                )
+                buttons = buttons.take(MODAL_MAX_BUTTONS)
+            }
+            else -> Unit // fullscreen has no cap; buttons stack full-width
+        }
+        return buttons
+    }
+
+    /** Null means "no action" - the caller decides whether that is inert or a dismiss. */
+    private fun parseAction(action: JsonObject?): MessageAction? {
+        val type = action?.str("type")?.lowercase() ?: return null
+        return when (type) {
+            "dismiss" -> MessageAction.Dismiss
+            "open_url" -> action.str("url")
+                ?.let { MessageAction.OpenUrl(it, action.bool("external") ?: false) }
+            "navigate" -> action.str("route")
+                ?.let { MessageAction.Navigate(it, parseArguments(action.obj("arguments"))) }
+            else -> MessageAction.Unsupported(type)
+        }
+    }
+
+    private fun parseArguments(arguments: JsonObject?): Map<String, Any?>? =
+        arguments?.entrySet()?.associate { (key, value) -> key to value.scalar() }
+
+    private fun parseLayout(raw: String?, imageUrl: String?, campaignId: Int): MessageLayout {
+        val layout = when (raw?.lowercase()) {
+            null -> MessageLayout.DEFAULT
+            "text_with_image", "image_and_text" -> MessageLayout.DEFAULT
+            "image_only" -> MessageLayout.IMAGE_ONLY
+            else -> {
+                IamLog.w("campaign $campaignId has layout '$raw'; using the type's default")
+                MessageLayout.DEFAULT
+            }
+        }
+        // The full-bleed branch never references header or body, so without artwork it would
+        // render a bare background, count an impression and report nothing wrong.
+        if (layout == MessageLayout.IMAGE_ONLY && imageUrl.isNullOrBlank()) {
+            IamLog.w(
+                "campaign $campaignId declares image_only with no artwork; " +
+                    "using the stacked layout"
+            )
+            return MessageLayout.DEFAULT
+        }
+        return layout
+    }
+
+    private fun parseColors(colors: JsonObject?): MessageColors {
+        if (colors == null) return MessageColors.EMPTY
+        return MessageColors(
+            background = ColorParser.parse(colors.scalar("background")),
+            text = ColorParser.parse(colors.scalar("text")),
+            header = ColorParser.parse(colors.scalar("header")),
+            closeButton = ColorParser.parse(colors.scalar("closeButton")),
+            border = ColorParser.parse(colors.scalar("border")),
+            frame = ColorParser.parse(colors.scalar("frame"))
+        )
+    }
+
+    /** Returns (showCloseButton, dismissOnScrimTap). */
+    private fun parseCloseBehaviour(
+        raw: String?,
+        messageType: MessageType,
+        campaignId: Int
+    ): Pair<Boolean, Boolean> {
+        val behaviour = raw?.trim()?.lowercase()
+        if (behaviour != null && behaviour !in KNOWN_CLOSE_BEHAVIOURS) {
+            IamLog.w("campaign $campaignId has closeBehaviour '$raw'; treating it as 'both'")
+            return true to true
+        }
+        // A fullscreen has no scrim and no swipe gesture of its own, so "swipe" would leave
+        // only the system back gesture - and that does not exist on iOS. Promote and log.
+        if (behaviour == "swipe" && messageType == MessageType.FULLSCREEN) {
+            IamLog.w(
+                "campaign $campaignId is a fullscreen with closeBehaviour 'swipe', which would " +
+                    "leave no way out; promoted to 'both'"
+            )
+            return true to true
+        }
+        return when (behaviour) {
+            null, "both" -> true to true
+            "button" -> true to false
+            "swipe" -> false to true
+            else -> true to true
+        }
+    }
+
+    /**
+     * Absent and zero are different values. A slideup draws no glyph and has no scrim, so
+     * without a timer its only exit is a gesture nobody told the customer about - hence the
+     * default. An explicit 0 is an author turning the timer off and is honoured.
+     */
+    private fun parseAutoDismiss(content: JsonObject, messageType: MessageType): Long? {
+        val seconds = content.double("autoDismissSeconds")
+        if (seconds == null) {
+            return if (messageType == MessageType.SLIDEUP) SLIDEUP_DEFAULT_AUTO_DISMISS_MS else null
+        }
+        if (seconds <= 0.0) return null
+        return Math.round(seconds * 1000.0)
+    }
+
+    /**
+     * Braze silently drops non-string extras and loses campaign data with no diagnostic.
+     * Coerce instead. A null value is dropped.
+     */
+    private fun parseExtras(extras: JsonObject?): Map<String, String> {
+        if (extras == null) return emptyMap()
+        val result = LinkedHashMap<String, String>()
+        extras.entrySet().forEach { (key, value) ->
+            value.scalar()?.let { result[key] = it.toString() }
+        }
+        return result
     }
 
     // Task 6 replaces this with the full implementation.
