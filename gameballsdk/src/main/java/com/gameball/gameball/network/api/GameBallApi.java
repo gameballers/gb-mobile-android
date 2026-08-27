@@ -31,4 +31,7 @@ public interface GameBallApi {
 
     @POST(Config.MobileLogs)
     Completable sendMobileLogs(@Body Map<String, Object> body);
+
+    @POST(Config.PushClick)
+    Completable reportPushClick(@Body Map<String, String> body);
 }

@@ -17,6 +17,7 @@ import com.gameball.gameball.network.Callback
 import com.gameball.gameball.network.Network
 import com.gameball.gameball.network.api.GameBallApi
 import com.gameball.gameball.services.GameballCoroutineService
+import com.gameball.gameball.utils.Constants
 import com.gameball.gameball.utils.Constants.TAG
 import com.gameball.gameball.views.GameballWidgetActivity
 import com.google.gson.Gson
@@ -253,5 +254,60 @@ class GameballApp private constructor(context: Context) {
     /** Hides the currently shown profile widget. No-op when nothing is shown. Counterpart to [showProfile]. */
     fun hideProfile() {
         GameballWidgetActivity.closeCurrentWidget()
+    }
+
+    /**
+     * Handle a tap on a push notification, called from the host app's own
+     * notification handler with the notification's FCM data payload
+     * (e.g. RemoteMessage.data, or the launcher intent extras when the
+     * system tray showed the notification).
+     *
+     * Returns true when the notification is a Gameball one. When it also
+     * carries a click token, the tap is reported to Gameball to count the
+     * campaign click; the optional callback receives that report's result.
+     *
+     * @param sessionToken Optional session token for this request.
+     *                     If provided, overrides the global sessionToken.
+     *                     If null, clears the global sessionToken.
+     */
+    @JvmOverloads
+    fun handlePushClick(payload: Map<String, String>, callback: Callback<Boolean>? = null, sessionToken: String? = null): Boolean {
+        if (!payload[Constants.IS_GB_KEY].equals("true", ignoreCase = true)) {
+            return false
+        }
+
+        val token = payload[Constants.PUSH_CLICK_TOKEN_KEY]
+        // Fire telemetry immediately, regardless of what happens below.
+        logger.log("sdk.handlePushClick", mapOf("hasToken" to !token.isNullOrBlank()))
+
+        // Override or clear sessionToken based on parameter
+        sessionToken?.let {
+            SharedPreferencesUtils.getInstance().putSessionTokenPreference(it)
+        } ?: SharedPreferencesUtils.getInstance().removeSessionTokenPreference()
+
+        if (mApiKey.isNullOrBlank()) {
+            callback?.onError(IllegalStateException("API key is required for handling push click"))
+            return true
+        }
+
+        if (token.isNullOrBlank()) {
+            return true
+        }
+
+        gameBallApi.reportPushClick(mapOf("clickToken" to token))
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
+
+                override fun onComplete() {
+                    callback?.onSuccess(true)
+                }
+
+                override fun onError(e: Throwable) {
+                    callback?.onError(e)
+                }
+            })
+        return true
     }
 }
