@@ -4,13 +4,10 @@
   edge; it intercepts nothing outside the card's own band, so the app underneath stays fully
   usable. See SlideupMessageView.onTouchEvent.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/gb_iam_slideup_root"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clipChildren="false"
-    android:clipToPadding="false">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.widget.FrameLayout">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/gb_iam_slideup_card"
@@ -62,4 +59,4 @@
                 android:importantForAccessibility="no" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-</FrameLayout>
+</merge>

@@ -42,6 +42,11 @@ internal class SlideupMessageView(context: Context) : FrameLayout(context) {
     private val root: View = LayoutInflater
         .from(ContextThemeWrapper(context, R.style.Theme_GameballIAM))
         .inflate(R.layout.gb_iam_slideup, this, true)
+        .also {
+            // A <merge> root, so the banner is a direct child and there is no redundant level.
+            clipChildren = false
+            clipToPadding = false
+        }
 
     val banner: MaterialCardView = root.findViewById(R.id.gb_iam_slideup_card)
     private val row: View = root.findViewById(R.id.gb_iam_slideup_row)

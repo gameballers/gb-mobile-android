@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A centred card over a dimmed app. The scrim fills the overlay and swallows every tap that is
+  not on the card - that is what separates it from a slideup.
+
+  Only the copy scrolls. The image and the button block sit OUTSIDE the scroll view, so long
+  copy, or any copy at an accessibility text scale, can never push the call to action off the
+  bottom. Clipping removes the buttons first, which is the one part that has to stay reachable.
+-->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.widget.FrameLayout">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/gb_iam_modal_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="24dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:cardPreventCornerOverlap="false"
+        app:cardUseCompatPadding="false">
+
+        <LinearLayout
+            android:id="@+id/gb_iam_modal_column"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/gb_iam_modal_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                android:importantForAccessibility="no" />
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/gb_iam_modal_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fillViewport="false"
+                android:paddingStart="20dp"
+                android:paddingTop="20dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/gb_iam_modal_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="viewStart"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/gb_iam_modal_body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="viewStart"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+
+            <!-- Outside the scroll view, and a wrap rather than a row: two German or Arabic
+                 labels are wider than two English ones, and a row overflowed by 360px. -->
+            <com.gameball.gameball.inappmessaging.ui.GbFlowRow
+                android:id="@+id/gb_iam_modal_buttons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:paddingTop="20dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="16dp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- A sibling of the tappable card body, never a child: closing must never also fire the
+         click action or count as engagement. -->
+    <FrameLayout
+        android:id="@+id/gb_iam_modal_close_target"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/gb_iam_modal_close"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/gb_iam_ic_close"
+            android:contentDescription="@string/gb_iam_close" />
+    </FrameLayout>
+</merge>
