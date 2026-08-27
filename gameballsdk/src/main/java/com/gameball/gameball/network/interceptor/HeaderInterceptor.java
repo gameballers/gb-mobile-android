@@ -40,9 +40,12 @@ public class HeaderInterceptor implements Interceptor
             if (sessionToken != null) {
                 builder.addHeader("X-GB-TOKEN", sessionToken);
 
-                // Switch to secure endpoint (v4.1) if sessionToken is present
+                // Switch to secure endpoint (v4.1) if sessionToken is present.
+                // In-app messaging is exempt: v4.1 exists for those paths and answers 401 to
+                // APIKey auth, which would silently kill messaging for every integration that
+                // sets a token. See Config.IAM_PATH_SEGMENT.
                 String path = request.url().encodedPath();
-                if (path.contains(Config.API_V4_0)) {
+                if (path.contains(Config.API_V4_0) && !path.contains(Config.IAM_PATH_SEGMENT)) {
                     String newPath = path.replace(Config.API_V4_0, Config.API_V4_1);
                     builder.url(request.url().newBuilder().encodedPath(newPath).build());
                 }
