@@ -4,34 +4,70 @@ This file contains detailed release notes for the latest version. For complete v
 
 ---
 
-## Latest Release: v3.2.1
+## Latest Release: v3.3.0
 
-**Release Date**: 2026-07-09
-**Version**: 3.2.1
-**Type**: Patch Release
+**Release Date**: 2026-08-29
+**Version**: 3.3.0
+**Type**: Minor Release
 
 ---
 
-## 🐛 What's Fixed
+## ✨ What's New
 
-v3.2.1 is a bug-fix release. On devices where the system draws a status bar or display cutout over the app window — most visibly on Pixel devices and Android 15 — the widget's header row was rendered underneath it. The close buttons were partially covered and could not be tapped.
+v3.3.0 adds **per-call and global language control** and **push notification click tracking**. All v3.2.x and v3.1.x code continues to work without modification — every addition is backward compatible.
 
-### Widget Header Under the Status Bar
+### Per-Call Widget Language
 
-The widget activity uses a translucent theme and therefore always draws edge-to-edge, behind the status bar. The widget content is now padded at the top by the status-bar / display-cutout height, so the header and its close buttons render below the system bar and remain tappable.
+`ShowProfileRequest.builder()` now accepts an optional `lang` (2-letter code, e.g. `"en"`, `"ar"`) to present that one widget in a specific language:
 
-Because translucent windows do not reliably dispatch `WindowInsets`, the padding is applied immediately from the framework's `status_bar_height` resource and then refined from the real inset (including tall cutouts) once the system dispatches it.
+```kotlin
+val request = ShowProfileRequest.builder()
+    .customerId("customer_123")
+    .lang("ar")
+    .build()
 
-### Status-Bar Icon Contrast
+GameballApp.getInstance(this).showProfile(this, request)
+```
 
-`GameballWidgetActivity` now uses a dedicated `Theme.GameballWidget` theme that enables `windowLightStatusBar`, so the system's status-bar icons stay dark and visible over the widget's white top band. The theme is kept separate from `Theme.Transparent` so `LargeNotificationActivity` is unaffected.
+When `lang` is omitted, the SDK's existing resolution applies: customer preferred language, then global preferred language, then device locale.
+
+### Global Language Switch
+
+`GameballApp.setLanguage(lang)` changes the SDK's global language on demand, without re-calling `init`:
+
+```kotlin
+GameballApp.getInstance(this).setLanguage("ar")
+```
+
+This changes the fallback used by future `showProfile` presentations that don't pass their own `lang` (a per-call `lang` still wins) and any other SDK call that resolves language. Invalid codes are ignored.
+
+### Push Click Tracking
+
+`GameballApp.handlePushClick(payload, callback?, sessionToken?)` reports taps on Gameball push notifications so campaign clicks are counted. Call it from your notification-tap handler with the notification's FCM data payload (e.g. `RemoteMessage.data`, or the launcher intent extras when the system tray showed the notification):
+
+```kotlin
+val isGameball = GameballApp.getInstance(this).handlePushClick(
+    payload = remoteMessage.data,
+    callback = object : Callback<Boolean> {
+        override fun onSuccess(result: Boolean) { Log.d(TAG, "Click reported") }
+        override fun onError(t: Throwable) { Log.e(TAG, "Click report failed", t) }
+    }
+)
+
+if (!isGameball) {
+    // Not a Gameball notification — run your own handling.
+}
+```
+
+It returns `true` when the notification is a Gameball one; the tap is reported to Gameball when the payload carries a click token. An optional `sessionToken` overrides the global session token for this request.
 
 ---
 
 ## 🔄 Changes
 
-- Padded widget content by the status-bar / display-cutout inset so top buttons stay tappable
-- Added `Theme.GameballWidget` (dark status-bar icons) and applied it to `GameballWidgetActivity`
+- Added optional `ShowProfileRequest.builder().lang(...)` (per-presentation language override)
+- Added `GameballApp.setLanguage(lang)` (global language switch)
+- Added `GameballApp.handlePushClick(payload, callback?, sessionToken?)` (push click tracking)
 
 ---
 
@@ -45,7 +81,7 @@ Because translucent windows do not reliably dispatch `WindowInsets`, the padding
 
 ## Migration
 
-No changes required. v3.2.1 is a drop-in replacement for v3.2.0 — no public API changed.
+No changes required. v3.3.0 is a drop-in upgrade from v3.2.x — no existing public API changed.
 
 See [MIGRATION.md](MIGRATION.md) for details.
 
@@ -55,7 +91,7 @@ See [MIGRATION.md](MIGRATION.md) for details.
 
 ```kotlin
 dependencies {
-    implementation 'com.github.gameballers:gb-mobile-android:3.2.1'
+    implementation 'com.github.gameballers:gb-mobile-android:3.3.0'
 }
 ```
 
@@ -69,9 +105,9 @@ dependencies {
 
 ---
 
-## Previous Release: v3.2.0
+## Previous Release: v3.2.1
 
-**Release Date**: 2026-06-17
-**Type**: Minor Release
+**Release Date**: 2026-07-09
+**Type**: Patch Release
 
-Widget event channel (`ShowProfileRequest.widgetEventCallback`), widget dismissal controls (`GameballApp.hideProfile()` and `window.GameballWidget.closeWidget()`), external-link handling, optional `mobile` / `email` channel-merging parameters, and internal diagnostic logging. See [CHANGELOG.md](CHANGELOG.md) for the full history.
+Widget content is now padded by the status-bar / display-cutout height so the header close buttons stay tappable, and `GameballWidgetActivity` uses a dedicated `Theme.GameballWidget` with dark status-bar icons. See [CHANGELOG.md](CHANGELOG.md) for the full history.
