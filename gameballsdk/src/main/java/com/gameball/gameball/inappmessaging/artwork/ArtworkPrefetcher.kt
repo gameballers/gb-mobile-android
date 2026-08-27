@@ -4,7 +4,6 @@ import androidx.annotation.VisibleForTesting
 import com.gameball.gameball.inappmessaging.domain.MessageContent
 import com.gameball.gameball.inappmessaging.runtime.IamLog
 import com.squareup.picasso.Callback
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -137,7 +136,7 @@ internal class PicassoArtworkPrefetcher(
  */
 private suspend fun picassoFetch(url: String): Boolean = suspendCancellableCoroutine { cont ->
     try {
-        Picasso.get().load(url).fetch(object : Callback {
+        IamImageLoader.fetch(url, object : Callback {
             override fun onSuccess() { if (cont.isActive) cont.resume(true) }
             override fun onError(e: Exception?) {
                 IamLog.d("artwork failed to load: $url (${e?.message})")
