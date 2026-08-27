@@ -12,4 +12,5 @@ object Config {
     const val GetBotSettings = "api/v1.0/Bots/BotSettings?c=mobile"
     const val InitializeCustomer = "api/v4.0/integrations/customers"
     const val MobileLogs = "api/v4.0/integrations/mobile/logs"
+    const val PushClick = "api/v4.0/integrations/mobile/push-click"
 }
