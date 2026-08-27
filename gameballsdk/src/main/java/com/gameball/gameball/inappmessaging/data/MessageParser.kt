@@ -2,6 +2,8 @@ package com.gameball.gameball.inappmessaging.data
 
 import androidx.annotation.VisibleForTesting
 import com.gameball.gameball.inappmessaging.domain.ButtonColors
+import com.gameball.gameball.inappmessaging.domain.FilterOperator
+import com.gameball.gameball.inappmessaging.domain.MetadataFilter
 import com.gameball.gameball.inappmessaging.domain.Campaign
 import com.gameball.gameball.inappmessaging.domain.MessageAction
 import com.gameball.gameball.inappmessaging.domain.MessageButton
@@ -398,11 +400,83 @@ internal object MessageParser {
         return result
     }
 
-    // Task 6 replaces this with the full implementation.
-    private fun parseTrigger(triggerObject: JsonObject?, campaignId: Int): Trigger? =
-        when (triggerObject?.str("type")?.lowercase()) {
-            "session_start" -> Trigger(TriggerType.SESSION_START)
-            "event" -> Trigger(TriggerType.EVENT, eventName = triggerObject.str("name"))
-            else -> null
+    private fun parseTrigger(triggerObject: JsonObject?, campaignId: Int): Trigger? {
+        if (triggerObject == null) {
+            IamLog.w("campaign $campaignId has no trigger; dropped")
+            return null
         }
+        return when (triggerObject.str("type")?.lowercase()) {
+            "session_start" -> Trigger(TriggerType.SESSION_START)
+
+            "event" -> {
+                // Match on name, never on eventId - the numeric id is internal to the backend.
+                val name = triggerObject.str("name")
+                if (name == null) {
+                    IamLog.w("campaign $campaignId has an event trigger with no name; dropped")
+                    return null
+                }
+                val logicalOperator = triggerObject.str("metadataLogicalOperator")
+                if (logicalOperator != null && !logicalOperator.equals("And", ignoreCase = true)) {
+                    IamLog.w(
+                        "campaign $campaignId uses metadataLogicalOperator " +
+                            "'$logicalOperator', which this SDK cannot evaluate; dropped"
+                    )
+                    return null
+                }
+                val filters = parseFilters(triggerObject, campaignId) ?: return null
+                Trigger(
+                    type = TriggerType.EVENT,
+                    eventName = name,
+                    filters = filters,
+                    repeatable = triggerObject.bool("repeatable") ?: false,
+                    minIntervalSeconds = triggerObject.int("minIntervalSeconds")?.takeIf { it > 0 }
+                )
+            }
+
+            else -> {
+                IamLog.w(
+                    "campaign $campaignId has trigger type " +
+                        "'${triggerObject.str("type")}'; dropped"
+                )
+                null
+            }
+        }
+    }
+
+    /** Null means "drop the campaign"; an empty list means "no filters". */
+    private fun parseFilters(trigger: JsonObject, campaignId: Int): List<MetadataFilter>? {
+        val raw = trigger.arr("metadataFilters") ?: return emptyList()
+        val filters = ArrayList<MetadataFilter>(raw.size())
+        for (element in raw) {
+            val obj = element.takeIf { it.isJsonObject }?.asJsonObject ?: continue
+
+            // A filter that cannot be named cannot be evaluated, and treating it as always
+            // true silently widens the campaign - a "spent over $100" message shown to
+            // everyone. That is worse than showing nothing, so the campaign goes.
+            val name = obj.str("name")
+            if (name == null) {
+                IamLog.w("campaign $campaignId has a metadata filter with no name; dropped")
+                return null
+            }
+
+            // One bad field widens rather than narrows, which is the right response here.
+            val operator = FilterOperator.from(obj.str("operator"))
+            if (operator == null) {
+                IamLog.w(
+                    "campaign $campaignId filter '$name' has operator " +
+                        "'${obj.str("operator")}'; that filter dropped"
+                )
+                continue
+            }
+            val value = obj.scalar("value")
+            if (value == null) {
+                IamLog.w(
+                    "campaign $campaignId filter '$name' has a null value; that filter dropped"
+                )
+                continue
+            }
+            filters.add(MetadataFilter(name, operator, value))
+        }
+        return filters
+    }
 }
