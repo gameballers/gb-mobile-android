@@ -27,8 +27,13 @@ internal interface IamApi {
     @POST(Config.InAppMessagesSync)
     suspend fun sync(@Body body: SyncRequest): Response<ResponseBody>
 
+    /**
+     * Returns the raw body deliberately. Letting the converter bind it would make an
+     * unparseable 2xx throw, and the batch would then be retried forever even though the
+     * backend accepted it.
+     */
     @POST(Config.InAppMessagesEvents)
-    suspend fun sendEvents(@Body body: EventBatchRequest): Response<EventBatchResponse>
+    suspend fun sendEvents(@Body body: EventBatchRequest): Response<ResponseBody>
 
     @POST(Config.InAppMessagesVariables)
     suspend fun variables(@Body body: VariablesRequest): Response<VariablesResponse>
