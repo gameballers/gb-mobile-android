@@ -2,6 +2,15 @@
 
 All notable changes to Gameball Android SDK are documented here
 
+## [3.3.0] - 2026-08-29 📱
+
+> **Minor Release**: Per-call and global language control, and push notification click tracking
+
+### ✨ Added
+- 🌐 **Per-Call Widget Language**: `ShowProfileRequest.builder()` now accepts an optional `lang` (2-letter code, e.g. `"en"`, `"ar"`) to present that one widget in a specific language; when omitted, the SDK's existing language resolution applies (customer preferred language, then global preferred language, then device locale)
+- 🌐 **Global Language Switch**: new `GameballApp.setLanguage(lang)` changes the SDK's global language on demand without re-calling `init` — affects future `showProfile` presentations that don't pass their own `lang` and any other SDK call that resolves language
+- 📣 **Push Click Tracking**: new `GameballApp.handlePushClick(payload, callback?, sessionToken?)` — call it from your notification-tap handler with the notification's FCM data payload; returns `true` when the notification is a Gameball one and reports the campaign click to Gameball when a click token is present
+
 ## [3.2.1] - 2026-07-09 🔧
 
 > **Patch Release**: Widget header no longer sits under the status bar / display cutout

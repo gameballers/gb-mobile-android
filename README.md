@@ -1,6 +1,6 @@
 # Gameball Android SDK
 
-[![Version](https://img.shields.io/badge/version-3.2.1-blue.svg)](https://github.com/gameballers/gameball-android)
+[![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)](https://github.com/gameballers/gameball-android)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
 
@@ -41,7 +41,7 @@ Then add the dependency to your app-level `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation 'com.github.gameballers:gb-mobile-android:3.2.1'
+    implementation 'com.github.gameballers:gb-mobile-android:3.3.0'
 }
 ```
 
@@ -76,7 +76,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.github.gameballers</groupId>
     <artifactId>gb-mobile-android</artifactId>
-    <version>3.2.1</version>
+    <version>3.3.0</version>
 </dependency>
 ```
 
@@ -244,6 +244,51 @@ GameballApp.getInstance(this).showProfile(this, request)
 
 The SDK also records internal diagnostic logs automatically to aid troubleshooting.
 
+### Language Control (v3.3.0+)
+
+Present a single widget in a specific language with `ShowProfileRequest.builder().lang(...)` (2-letter code, e.g. `"en"`, `"ar"`):
+
+```kotlin
+val request = ShowProfileRequest.builder()
+    .customerId("customer_123")
+    .lang("ar")
+    .build()
+
+GameballApp.getInstance(this).showProfile(this, request)
+```
+
+When `lang` is omitted, the SDK's existing resolution applies: customer preferred language, then global preferred language, then device locale.
+
+Or switch the SDK's global language on demand — no re-`init` needed:
+
+```kotlin
+GameballApp.getInstance(this).setLanguage("ar")
+```
+
+This changes the fallback used by future `showProfile` presentations (a per-call `lang` still wins) and any other SDK call that resolves language. Invalid codes are ignored.
+
+### Push Click Tracking (v3.3.0+)
+
+Report taps on Gameball push notifications so campaign clicks are counted. Call `handlePushClick` from your notification-tap handler with the notification's FCM data payload (e.g. `RemoteMessage.data`, or the launcher intent extras when the system tray showed the notification):
+
+> **Call this from wherever your app handles the notification tap — not on receive/delivery.** If you call it as soon as the notification arrives, you'll count every delivery as a click; call it from the tap handler so it only counts when the user actually opens it.
+
+```kotlin
+val isGameball = GameballApp.getInstance(this).handlePushClick(
+    payload = remoteMessage.data,
+    callback = object : Callback<Boolean> {
+        override fun onSuccess(result: Boolean) { Log.d(TAG, "Click reported") }
+        override fun onError(t: Throwable) { Log.e(TAG, "Click report failed", t) }
+    }
+)
+
+if (!isGameball) {
+    // Not a Gameball notification — run your own handling.
+}
+```
+
+An optional `sessionToken` parameter overrides the global session token for this request.
+
 ## API Methods
 
 The SDK provides the following public methods:
@@ -253,6 +298,8 @@ The SDK provides the following public methods:
 - `sendEvent(event, callback, sessionToken?)` - Track events
 - `showProfile(activity, request, sessionToken?)` - Show profile widget
 - `hideProfile()` - Dismiss the currently shown profile widget (no-op when nothing is shown)
+- `setLanguage(lang)` - Change the SDK's global language on demand without re-calling `init`
+- `handlePushClick(payload, callback?, sessionToken?)` - Report a tap on a Gameball push notification for click tracking
 
 **Note**: The optional `sessionToken` parameter (added in v3.1.0) allows per-request authentication override.
 
@@ -416,6 +463,7 @@ GameballApp.getInstance(this).initializeCustomer(
 | `showCloseButton` | Boolean | ❌ Optional | Show close button |
 | `closeButtonColor` | String | ❌ Optional | Close button color (hex format) |
 | `widgetUrlPrefix` | String | ❌ Optional | Custom widget URL prefix |
+| `lang` | String | ❌ Optional | 2-letter language code for this presentation only (v3.3.0+) |
 | `externalLinkCallback` | Callback<String> | ❌ Optional | Handler for links tagged `gbExternalBrowser=true`. When provided, the link is delegated to it; otherwise the SDK opens it in the system browser |
 
 **ShowProfileRequest Validation Rules:**
