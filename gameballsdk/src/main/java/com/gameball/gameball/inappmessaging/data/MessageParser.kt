@@ -20,6 +20,7 @@ import com.gameball.gameball.inappmessaging.domain.SyncResult
 import com.gameball.gameball.inappmessaging.domain.Trigger
 import com.gameball.gameball.inappmessaging.domain.TriggerType
 import com.gameball.gameball.inappmessaging.runtime.IamLog
+import com.gameball.gameball.inappmessaging.ui.MessageMetrics
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 
@@ -35,7 +36,6 @@ internal object MessageParser {
 
     private const val PRERENDERED = "prerendered"
     private const val MODAL_MAX_BUTTONS = 2
-    private const val SLIDEUP_DEFAULT_AUTO_DISMISS_MS = 8_000L
     private val KNOWN_CLOSE_BEHAVIOURS = setOf("both", "button", "swipe")
 
     fun parse(rawJson: String?): SyncResult {
@@ -381,7 +381,7 @@ internal object MessageParser {
     private fun parseAutoDismiss(content: JsonObject, messageType: MessageType): Long? {
         val seconds = content.double("autoDismissSeconds")
         if (seconds == null) {
-            return if (messageType == MessageType.SLIDEUP) SLIDEUP_DEFAULT_AUTO_DISMISS_MS else null
+            return if (messageType == MessageType.SLIDEUP) MessageMetrics.Slideup.DEFAULT_AUTO_DISMISS_MS else null
         }
         if (seconds <= 0.0) return null
         return Math.round(seconds * 1000.0)
