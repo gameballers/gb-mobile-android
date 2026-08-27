@@ -166,13 +166,13 @@ internal class ModalMessageView(context: Context) : FrameLayout(context) {
         header.text = resolved.header
         header.textSize = MessageMetrics.Modal.HEADER_TEXT_SP
         header.setTextColor(headerColor)
-        header.textAlignment = content.headerAlign.toTextAlignment(View.TEXT_ALIGNMENT_VIEW_START)
+        header.gravity = content.headerAlign.toGravity(android.view.Gravity.START)
 
         body.visibility = if (resolved.body.isNullOrBlank()) View.GONE else View.VISIBLE
         body.text = resolved.body
         body.textSize = MessageMetrics.Modal.BODY_TEXT_SP
         body.setTextColor(bodyColor)
-        body.textAlignment = content.bodyAlign.toTextAlignment(View.TEXT_ALIGNMENT_VIEW_START)
+        body.gravity = content.bodyAlign.toGravity(android.view.Gravity.START)
 
         // Applied only when both are present.
         val spacing = if (header.visibility == View.VISIBLE && body.visibility == View.VISIBLE) {

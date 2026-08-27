@@ -20,6 +20,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
+import com.gameball.gameball.inappmessaging.artwork.IamImageLoader
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,6 +44,9 @@ class SlideupMessageViewTest {
     @Before
     fun setUp() {
         activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        // Without this the loader reports an immediate failure and every image
+        // collapses - correct degradation, but it hides what these tests measure.
+        IamImageLoader.init(activity)
     }
 
     private fun content(

@@ -16,6 +16,7 @@ import com.gameball.gameball.inappmessaging.runtime.ResolvedMessage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
+import com.gameball.gameball.inappmessaging.artwork.IamImageLoader
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,6 +41,9 @@ class ModalMessageViewTest {
     @Before
     fun setUp() {
         activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        // Without this the loader reports an immediate failure and every image
+        // collapses - correct degradation, but it hides what these tests measure.
+        IamImageLoader.init(activity)
         tapped = null; tapCount = 0; dismissed = 0
     }
 

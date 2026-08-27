@@ -47,7 +47,7 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="3"
-                android:textAlignment="viewStart" />
+                android:gravity="start" />
 
             <ImageView
                 android:id="@+id/gb_iam_slideup_chevron"

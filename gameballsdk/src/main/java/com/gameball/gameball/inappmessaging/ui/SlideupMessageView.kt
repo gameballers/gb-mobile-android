@@ -120,7 +120,7 @@ internal class SlideupMessageView(context: Context) : FrameLayout(context) {
         // The clamp is a mechanism, not a number: bounding the container's height instead
         // truncates where a clamp grows the banner, and they diverge at a large text scale.
         copy.maxLines = MessageMetrics.Slideup.MAX_TEXT_LINES
-        copy.textAlignment = content.bodyAlign.toTextAlignment(View.TEXT_ALIGNMENT_VIEW_START)
+        copy.gravity = content.bodyAlign.toGravity(android.view.Gravity.START)
     }
 
     private fun applyIcon(content: MessageContent) {
@@ -217,14 +217,21 @@ internal class SlideupMessageView(context: Context) : FrameLayout(context) {
     override fun onTouchEvent(event: MotionEvent): Boolean = false
 }
 
-/** start/end rather than left/right, which is the difference between mirroring and not. */
-internal fun com.gameball.gameball.inappmessaging.domain.TextAlign?.toTextAlignment(
+/**
+ * start/end rather than left/right, which is the difference between a layout that mirrors in
+ * Arabic and one that does not.
+ *
+ * Expressed as a Gravity rather than View.textAlignment: Gravity.START/END are equally
+ * directional and mirror the same way, and unlike textAlignment they are observable, so the
+ * rule can be tested rather than only inspected.
+ */
+internal fun com.gameball.gameball.inappmessaging.domain.TextAlign?.toGravity(
     default: Int
 ): Int = when (this) {
-    com.gameball.gameball.inappmessaging.domain.TextAlign.START -> View.TEXT_ALIGNMENT_VIEW_START
-    com.gameball.gameball.inappmessaging.domain.TextAlign.END -> View.TEXT_ALIGNMENT_VIEW_END
-    com.gameball.gameball.inappmessaging.domain.TextAlign.CENTER -> View.TEXT_ALIGNMENT_CENTER
-    com.gameball.gameball.inappmessaging.domain.TextAlign.LEFT -> View.TEXT_ALIGNMENT_TEXT_START
-    com.gameball.gameball.inappmessaging.domain.TextAlign.RIGHT -> View.TEXT_ALIGNMENT_TEXT_END
+    com.gameball.gameball.inappmessaging.domain.TextAlign.START -> android.view.Gravity.START
+    com.gameball.gameball.inappmessaging.domain.TextAlign.END -> android.view.Gravity.END
+    com.gameball.gameball.inappmessaging.domain.TextAlign.CENTER -> android.view.Gravity.CENTER_HORIZONTAL
+    com.gameball.gameball.inappmessaging.domain.TextAlign.LEFT -> android.view.Gravity.LEFT
+    com.gameball.gameball.inappmessaging.domain.TextAlign.RIGHT -> android.view.Gravity.RIGHT
     null -> default
 }
