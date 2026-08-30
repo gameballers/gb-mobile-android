@@ -238,6 +238,10 @@ internal class ModalMessageView(context: Context) : FrameLayout(context) {
             closeTarget, closeGlyph, content.colors, hostContext
         ) { callbacks?.onDismissed() }
 
+        // FrameLayout orders siblings by elevation, not by declaration - the card's shadow
+        // otherwise draws on top of the close target and swallows both the glyph and the tap.
+        closeTarget.elevation = card.cardElevation + 1f
+
         // Top trailing corner of the card, inset 4dp. It mirrors under RTL because the
         // gravity is END rather than RIGHT.
         val inset = MessageMetrics.dp(context, MessageMetrics.Modal.CLOSE_INSET_DP)

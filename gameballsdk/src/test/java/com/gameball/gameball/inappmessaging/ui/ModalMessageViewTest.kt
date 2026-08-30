@@ -270,6 +270,20 @@ class ModalMessageViewTest {
         assertTrue(target.layoutParams.height >= minimum)
     }
 
+    /**
+     * A FrameLayout orders siblings by elevation, so the card's shadow otherwise draws over the
+     * close target and hides both the glyph and its tap area (defect 4, 30 Aug 2026).
+     */
+    @Test
+    fun `the close target sits above the card`() {
+        val v = view(content())
+        val target = v.findViewById<View>(R.id.gb_iam_modal_close_target)
+        assertTrue(
+            "close elevation ${target.elevation} must exceed card ${v.card.cardElevation}",
+            target.elevation > v.card.cardElevation
+        )
+    }
+
     @Test
     fun `the card stops growing at its maximum width`() {
         val v = view(content(), width = 2400)
