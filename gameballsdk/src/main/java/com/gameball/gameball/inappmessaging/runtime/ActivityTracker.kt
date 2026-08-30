@@ -38,6 +38,53 @@ internal class ActivityTracker(
         if (registered) return
         registered = true
         application.registerActivityLifecycleCallbacks(this)
+        // Callbacks fire for future events only. If the calling Activity is already resumed - the
+        // usual case when a host toggles startInAppMessaging from a toolbar - onActivityResumed
+        // will not re-fire, so currentActivity would stay null until the next screen change and
+        // the first campaign would be deferred as "no surface available". Peek at ActivityThread's
+        // internal records to seed the current Activity if we can; the SDK self-heals from the
+        // next real onActivityResumed even if the reflection fails.
+        seedFromActivityThread()
+    }
+
+    /**
+     * Reflection is kept narrow: one static method and two field reads on classes that have
+     * carried the same shape since API 24. Failures are silent - the caller gets the same
+     * behaviour it had before this seed existed. The window-attached guard excludes an
+     * Activity that only reached onCreate: reflected records also list an Activity whose
+     * window has not been added yet, and treating that one as current would give the
+     * presenter a decor view with no attached content root.
+     */
+    private fun seedFromActivityThread() {
+        val activity = try {
+            val threadClass = Class.forName("android.app.ActivityThread")
+            val thread = threadClass.getMethod("currentActivityThread").invoke(null) ?: return
+            val activitiesField = threadClass.getDeclaredField("mActivities").apply {
+                isAccessible = true
+            }
+            val activities = activitiesField.get(thread) as? Map<*, *> ?: return
+            activities.values.asSequence().mapNotNull { record ->
+                val cls = record?.javaClass ?: return@mapNotNull null
+                val pausedField = cls.getDeclaredField("paused").apply { isAccessible = true }
+                if (pausedField.getBoolean(record)) return@mapNotNull null
+                val activityField = cls.getDeclaredField("activity").apply { isAccessible = true }
+                activityField.get(record) as? Activity
+            }.firstOrNull {
+                !it.isFinishing && it.window?.decorView?.isAttachedToWindow == true
+            }
+        } catch (t: Throwable) {
+            IamLog.d(
+                "could not seed current Activity from ActivityThread; " +
+                    "waiting for the next lifecycle callback (${t.javaClass.simpleName})"
+            )
+            null
+        } ?: return
+        current = WeakReference(activity)
+        // startedActivities is a session-boundary counter, not a UI-presence one; leaving it at
+        // zero here would make the tracker's first onActivityStopped fire onAppBackgrounded on an
+        // Activity that was already foregrounded before we registered.
+        startedActivities = 1
+        callbacks.onSurfaceAvailable()
     }
 
     fun unregister() {
