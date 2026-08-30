@@ -61,6 +61,14 @@ internal class InAppMessagingService(
 
     private var held: SyncResult = SyncResult.EMPTY
     private var neededTokens: Set<String> = emptySet()
+
+    /**
+     * Two distinct slots, not one. [displayed] is the campaign the presenter is currently
+     * carrying (or was carrying pre-rotation); [pending] is the queued-to-display-next.
+     * Conflating them let a cross-session displacer clear the wrong slot on the previous
+     * session's dismissal and the queued campaign was silently lost (defect 8, 30 Aug 2026).
+     */
+    private var displayed: PendingPresentation? = null
     private var pending: PendingPresentation? = null
     private var currentCustomerId: String? = null
 
@@ -93,6 +101,7 @@ internal class InAppMessagingService(
         presenter.dismissCurrent()
         held = SyncResult.EMPTY
         neededTokens = emptySet()
+        displayed = null
         pending = null
         artwork.reset()
         sessionState.reset()
@@ -111,6 +120,7 @@ internal class InAppMessagingService(
         presenter.dismissCurrent()
         held = SyncResult.EMPTY
         neededTokens = emptySet()
+        displayed = null
         pending = null
         artwork.reset()
         cache.clear()
@@ -206,7 +216,7 @@ internal class InAppMessagingService(
         // paint, so the second onShown is suppressed internally. The service-side slot must
         // mirror that or a dismiss after rotation would race the "shown and ignored" check with
         // an impression that never fired on this slot.
-        val slot = pending?.takeIf { it.campaign.campaignId == campaign.campaignId }
+        val slot = displayed?.takeIf { it.campaign.campaignId == campaign.campaignId }
             ?: PendingPresentation(campaign, impressionReported = true)
         scope.launch {
             val resolved = resolve(campaign)
@@ -306,12 +316,14 @@ internal class InAppMessagingService(
             defer(slot.campaign, "no surface was available")
             return
         }
-        pending = slot
+        displayed = slot
     }
 
     /**
      * One pending slot, not a queue. A newer deferral displaces an older one, with a log
      * naming both. The slot is in-memory only and dies with the process, deliberately.
+     * [pending] is distinct from [displayed]; a new arrival while a message is on screen
+     * queues here, and only the on-screen slot's dismissal clears [displayed].
      */
     private fun defer(campaign: Campaign, reason: String) {
         val existing = pending
@@ -427,8 +439,11 @@ internal class InAppMessagingService(
             val handled = hooks.onAction(slot.campaign, button, action)
 
             // Dismiss before performing: a navigate starts a transition, and leaving the
-            // message up during it briefly covers the screen the user just asked for.
+            // message up during it briefly covers the screen the user just asked for. Drop
+            // the queued slot too: a click that navigates should not suddenly render a
+            // deferred campaign over the destination the customer just asked for.
             presenter.dismissCurrent()
+            displayed = null
             pending = null
 
             if (!handled) scope.launch { perform(action) }
@@ -438,7 +453,9 @@ internal class InAppMessagingService(
             // A dismissal without an impression is nonsense, and the dismissal that follows a
             // tap must not also count as "shown and ignored".
             if (slot.impressionReported && !slot.engaged) report(slot, IamEventType.DISMISS)
-            pending = null
+            // Do not touch pending: a cross-session displacer sits there waiting for its
+            // turn, and the on-screen dismissal is exactly the trigger it needs.
+            displayed = null
             retryPending()
         }
     }

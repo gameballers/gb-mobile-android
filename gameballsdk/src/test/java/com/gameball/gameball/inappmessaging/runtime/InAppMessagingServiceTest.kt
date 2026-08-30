@@ -371,6 +371,73 @@ class InAppMessagingServiceTest {
         assertEquals("no grace wait for a confirmed-failed url", 0, artwork.awaitCalls)
     }
 
+    // --- displayed vs pending ---
+
+    /**
+     * The on-screen slot and the queued-next slot lived in the same field, so a new arrival
+     * that displaced the on-screen tracking was silently lost when the current message
+     * dismissed and the shared field was nulled (defect 8, 30 Aug 2026).
+     */
+    @Test
+    fun `a queued campaign is presented when the on-screen message dismisses`() {
+        val bothTriggers = """
+            { "cooldownSeconds": 0, "messages": [
+                { "campaignId": 100, "messageType": 2, "priority": 10,
+                  "trigger": { "type": "session_start" },
+                  "content": {}, "locale": { "header": "First" } },
+                { "campaignId": 200, "messageType": 2, "priority": 5,
+                  "trigger": { "type": "event", "name": "checkout" },
+                  "content": {}, "locale": { "header": "Second" } }
+            ] }
+        """.trimIndent()
+        source.outcome = success(bothTriggers)
+        val svc = service()
+        svc.start("alice")
+        assertEquals("the session-start winner presents first", 100, presenter.presented?.campaignId)
+
+        // A new event fires while the first is still on screen. Under the old design the
+        // displacer silently overwrote the on-screen tracking; the fix keeps the two slots
+        // independent so the queued one survives the on-screen dismissal.
+        svc.onEvent("checkout", emptyMap())
+        assertEquals("the second stays queued while the first is showing", 100, presenter.presented?.campaignId)
+
+        // The real presenter's inner wrapper dismisses its own view before calling the
+        // service's onDismissed, so isShowing is false when retryPending checks it. Mirror
+        // that sequence here.
+        val firstCallbacks = presenter.callbacks
+        presenter.dismissCurrent()
+        firstCallbacks?.onDismissed()
+
+        assertEquals("the queued campaign must present on the first's dismissal", 200, presenter.presented?.campaignId)
+    }
+
+    @Test
+    fun `a tap on the on-screen message drops the queue`() {
+        val bothTriggers = """
+            { "cooldownSeconds": 0, "messages": [
+                { "campaignId": 100, "messageType": 2, "priority": 10,
+                  "trigger": { "type": "session_start" },
+                  "content": { "clickAction": { "type": "dismiss" } },
+                  "locale": { "header": "First" } },
+                { "campaignId": 200, "messageType": 2, "priority": 5,
+                  "trigger": { "type": "event", "name": "checkout" },
+                  "content": {}, "locale": { "header": "Second" } }
+            ] }
+        """.trimIndent()
+        source.outcome = success(bothTriggers)
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("checkout", emptyMap())
+        assertEquals(100, presenter.presented?.campaignId)
+
+        // A tap navigates or is at least engagement, so the queued slot is dropped rather
+        // than rendered over the destination the customer just asked for.
+        val firstCallbacks = presenter.callbacks
+        firstCallbacks?.onTapped(null)
+
+        assertEquals("no other campaign is presented after a tap", 100, presenter.presented?.campaignId)
+    }
+
     @Test
     fun `beforeDisplay later defers and discard spends the occurrence`() {
         source.outcome = success(payload())
