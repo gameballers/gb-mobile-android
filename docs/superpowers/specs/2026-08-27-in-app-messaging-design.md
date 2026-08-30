@@ -20,7 +20,7 @@ The feature must be **opt-in and runtime-independent**. Three client shapes must
 |---|---|
 | Widget only | Upgrades the SDK version and changes nothing. Zero IAM code executes. |
 | IAM only | `init` → `initializeCustomer` → `startInAppMessaging`. Never calls `showProfile`. |
-| Both | Coexist. IAM defers while the widget is open and retries when it closes. |
+| Both | Independent. Triggers fire regardless of widget state; messages render on top of the widget when its Activity is the resumed one. |
 
 ## 2. Non-goals
 
@@ -153,9 +153,9 @@ com.gameball.gameball.inappmessaging/
 ### 4.2 Dependency rule
 
 IAM may depend on `network`, `local`, `utils`. **Nothing outside `inappmessaging.*` may
-import it**, with one exception: `GameballApp` calls the public facade. The widget-open
-signal is a boolean IAM observes, not a call into `GameballWidgetActivity`, so a host that
-never opens the widget simply reads `false` forever.
+import it**, with one exception: `GameballApp` calls the public facade. IAM does not
+observe widget lifecycle — the two features are independent and can render on the same
+screen at the same time.
 
 ### 4.3 Threading
 
@@ -534,15 +534,15 @@ Android 15 enforces edge-to-edge for apps targeting it.
 | Defer — hold in the pending slot, retry | Suppress — the occurrence is spent |
 |---|---|
 | no Activity available | inside the cooldown floor |
-| the host's Gameball widget is open | the campaign's repeat rule says no |
-| another message is already showing | artwork is not ready |
-| a fullscreen campaign's orientation does not match | inside the quiet-hours window |
-| `beforeDisplay` returned `later` | `beforeDisplay` returned `discard` |
+| another message is already showing | the campaign's repeat rule says no |
+| a fullscreen campaign's orientation does not match | artwork is not ready |
+| `beforeDisplay` returned `later` | inside the quiet-hours window |
+|  | `beforeDisplay` returned `discard` |
 
 - **One pending slot, not a queue.** A newer deferral displaces an older one, with a log
   naming both.
-- Retry when: the current message is dismissed, the host widget closes, an Activity becomes
-  available, or the device rotates.
+- Retry when: the current message is dismissed, an Activity becomes available, or the
+  device rotates.
 - **Re-validate on retry** — ask "may this display now", not "has it ever displayed". The
   cruder question threw away every repeatable campaign that happened to be waiting (defect
   10). Re-check the floor too.
@@ -792,7 +792,7 @@ transition, and leaving the message up briefly covers the screen the user just a
 |---|---|
 | `initializeCustomer(...)` | notify the module of a customer change, in its own try/catch outside the Rx chain |
 | `sendEvent(event, …)` | feed the trigger engine with the event name **and its metadata map** — omitting metadata was **defect 7**: filters fully unit-tested and completely unreachable |
-| `showProfile` / `hideProfile` | publish the widget-open signal; `hideProfile` is a retry trigger |
+| `showProfile` / `hideProfile` | unchanged; IAM does not observe widget lifecycle |
 | `logPurchase` | routes through the existing `sendEvent` path, which is the single place that feeds the trigger engine. It **must not** also notify the service — that was **defect 3**, one purchase firing the trigger engine twice and displacing the pending slot. Decided 27 Aug 2026; asserted by a test counting evaluations for one purchase |
 
 ### 14.3 The compatibility invariant

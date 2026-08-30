@@ -157,10 +157,6 @@ class GameballInAppMessaging internal constructor(private val appContext: Contex
         service?.onEvent(name, metadata)
     }
 
-    fun onWidgetOpened() { service?.onWidgetOpened() }
-
-    fun onWidgetClosed() { service?.onWidgetClosed() }
-
     /** Every hook is wrapped so a throwing host loses its override, not its messages. */
     private fun hooks(options: InAppMessagingOptions) = HostHooks(
         beforeDisplay = { campaign ->

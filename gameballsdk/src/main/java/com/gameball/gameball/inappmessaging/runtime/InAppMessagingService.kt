@@ -54,7 +54,6 @@ internal class InAppMessagingService(
     private var held: SyncResult = SyncResult.EMPTY
     private var neededTokens: Set<String> = emptySet()
     private var pending: PendingPresentation? = null
-    private var widgetOpen = false
     private var currentCustomerId: String? = null
 
     var isStarted: Boolean = false
@@ -87,7 +86,6 @@ internal class InAppMessagingService(
         held = SyncResult.EMPTY
         neededTokens = emptySet()
         pending = null
-        widgetOpen = false
         artwork.reset()
         sessionState.reset()
         variables.clear()
@@ -189,15 +187,6 @@ internal class InAppMessagingService(
         retryPending()
     }
 
-    fun onWidgetOpened() {
-        widgetOpen = true
-    }
-
-    fun onWidgetClosed() {
-        widgetOpen = false
-        retryPending()
-    }
-
     fun setHooks(hooks: HostHooks) {
         this.hooks = hooks
     }
@@ -241,10 +230,6 @@ internal class InAppMessagingService(
     }
 
     private suspend fun presentOrDefer(slot: PendingPresentation) {
-        if (widgetOpen) {
-            defer(slot.campaign, "the host's widget is open")
-            return
-        }
         if (presenter.isShowing) {
             defer(slot.campaign, "another message is already showing")
             return
@@ -276,7 +261,7 @@ internal class InAppMessagingService(
 
     private fun retryPending() {
         val slot = pending ?: return
-        if (presenter.isShowing || widgetOpen) return
+        if (presenter.isShowing) return
         val customerId = currentCustomerId ?: return
 
         // "May this display now", not "has it ever displayed". The cruder question threw away

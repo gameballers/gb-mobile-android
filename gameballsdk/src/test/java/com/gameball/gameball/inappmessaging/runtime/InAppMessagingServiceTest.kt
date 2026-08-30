@@ -244,18 +244,6 @@ class InAppMessagingServiceTest {
     }
 
     @Test
-    fun `the widget being open defers, and closing it retries`() {
-        source.outcome = success(payload())
-        val svc = service()
-        svc.onWidgetOpened()
-        svc.start("alice")
-        assertNull(presenter.presented)
-
-        svc.onWidgetClosed()
-        assertEquals(1, presenter.presented?.campaignId)
-    }
-
-    @Test
     fun `beforeDisplay later defers and discard spends the occurrence`() {
         source.outcome = success(payload())
         val deferring = service(HostHooks(beforeDisplay = { DisplayDecision.LATER }))
