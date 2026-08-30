@@ -4,10 +4,8 @@ import androidx.annotation.VisibleForTesting
 import com.gameball.gameball.inappmessaging.domain.MessageContent
 import com.gameball.gameball.inappmessaging.runtime.IamLog
 import com.squareup.picasso.Callback
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
@@ -22,12 +20,27 @@ import kotlin.coroutines.resume
  *
  * Why it matters: the impression fires when the view becomes visible, so artwork arriving a
  * beat later means a view was counted of something the customer could not see.
+ *
+ * Slow is not failed. The batch warm has a budget that bounds how long the SDK waits before
+ * evaluating the first trigger, but a URL that has not landed by then continues fetching in
+ * the background and moves to READY or FAILED on its own verdict. The selector treats FAILED
+ * as ineligible; the service treats LOADING as "wait a short grace for it before falling
+ * through to a lower priority", so a slow CDN never silently inverts a marketer's priority.
  */
 internal interface ArtworkPrefetcher {
     suspend fun warm(urls: Set<String>)
 
     /** Null or blank counts as ready - a campaign with no artwork has nothing to wait for. */
-    fun isReady(url: String?): Boolean
+    fun isReady(url: String?): Boolean = stateOf(url) == ArtworkState.READY
+
+    fun stateOf(url: String?): ArtworkState
+
+    /**
+     * Suspend until [url] leaves the LOADING state or [timeoutMs] elapses. Returns true iff
+     * the URL is READY on wake. A URL that was not in LOADING to begin with resolves against
+     * its current state without waiting.
+     */
+    suspend fun awaitReady(url: String, timeoutMs: Long): Boolean
 
     /** Re-attempts only the failed set, at most once per 30s. Does not block the caller. */
     fun retryFailedIfDue(nowMillis: Long)
@@ -35,9 +48,25 @@ internal interface ArtworkPrefetcher {
     fun reset()
 }
 
+internal enum class ArtworkState { READY, LOADING, FAILED }
+
 /** Both slots must be ready before a campaign is eligible. */
 internal fun ArtworkPrefetcher.isReady(content: MessageContent): Boolean =
-    isReady(content.imageUrl) && isReady(content.iconUrl)
+    stateOf(content) == ArtworkState.READY
+
+/**
+ * FAILED dominates LOADING dominates READY: a campaign with a failed image is ineligible
+ * regardless of its icon; a loading image still gives it a grace at display time.
+ */
+internal fun ArtworkPrefetcher.stateOf(content: MessageContent): ArtworkState {
+    val image = stateOf(content.imageUrl)
+    val icon = stateOf(content.iconUrl)
+    return when {
+        image == ArtworkState.FAILED || icon == ArtworkState.FAILED -> ArtworkState.FAILED
+        image == ArtworkState.LOADING || icon == ArtworkState.LOADING -> ArtworkState.LOADING
+        else -> ArtworkState.READY
+    }
+}
 
 internal class PicassoArtworkPrefetcher(
     private val scope: CoroutineScope,
@@ -46,24 +75,40 @@ internal class PicassoArtworkPrefetcher(
 
     private companion object {
         /**
-         * Concurrent, so the ceiling is the slowest single image regardless of how many
-         * campaigns arrive rather than the sum. Picasso has no per-request timeout.
+         * The ceiling on the initial batch wait, not on any single fetch. Fetches that
+         * outlast the wait continue in the background and land into READY or FAILED on their
+         * own verdict; the wait exists so the first trigger after sync is not held forever.
          */
         const val WARM_TIMEOUT_MS = 5_000L
         const val RETRY_INTERVAL_MS = 30_000L
     }
 
+    private val lock = Any()
     private val ready = LinkedHashSet<String>()
     private val failed = LinkedHashSet<String>()
+    private val loading = mutableMapOf<String, CompletableDeferred<Boolean>>()
     private var lastRetryAtMillis = 0L
 
     override suspend fun warm(urls: Set<String>) {
-        val pending = synchronized(ready) {
-            urls.filter { it.isNotBlank() && it !in ready }.toSet()
+        val toStart = mutableMapOf<String, CompletableDeferred<Boolean>>()
+        val toAwait = mutableListOf<CompletableDeferred<Boolean>>()
+        synchronized(lock) {
+            urls.filter { it.isNotBlank() }.forEach { url ->
+                when {
+                    url in ready -> Unit
+                    loading[url] != null -> toAwait += loading.getValue(url)
+                    else -> {
+                        val d = CompletableDeferred<Boolean>()
+                        loading[url] = d
+                        toStart[url] = d
+                        toAwait += d
+                    }
+                }
+            }
         }
-        if (pending.isEmpty()) return
+        if (toAwait.isEmpty()) return
 
-        pending.filter { it.startsWith("http://") }.forEach {
+        toStart.keys.filter { it.startsWith("http://") }.forEach {
             // Cleartext is blocked by default since API 28, so the load fails and the only
             // symptom is a campaign that silently never shows. Name it in the log.
             IamLog.w(
@@ -72,29 +117,52 @@ internal class PicassoArtworkPrefetcher(
             )
         }
 
-        val results = withTimeoutOrNull(WARM_TIMEOUT_MS) {
-            coroutineScope {
-                pending.map { url -> async { url to runCatching { fetch(url) }.getOrDefault(false) } }
-                    .awaitAll()
+        // The fetches run on the module scope, not the caller's, so the WARM_TIMEOUT_MS below
+        // bounds only the wait. A URL that lands after the deadline still moves to READY or
+        // FAILED on its own timeline, and the next evaluation picks it up correctly.
+        toStart.forEach { (url, deferred) ->
+            scope.launch {
+                val ok = runCatching { fetch(url) }.getOrDefault(false)
+                synchronized(lock) {
+                    loading.remove(url)
+                    if (ok) { ready.add(url); failed.remove(url) } else failed.add(url)
+                }
+                deferred.complete(ok)
             }
         }
 
-        synchronized(ready) {
-            if (results == null) {
-                // The whole set timed out; whatever has not already succeeded is unready.
-                pending.forEach { if (it !in ready) failed.add(it) }
-                IamLog.w("artwork warming exceeded ${WARM_TIMEOUT_MS}ms; ${failed.size} unready")
-            } else {
-                results.forEach { (url, ok) ->
-                    if (ok) { ready.add(url); failed.remove(url) } else failed.add(url)
-                }
+        withTimeoutOrNull(WARM_TIMEOUT_MS) {
+            toAwait.forEach { runCatching { it.await() } }
+        }
+
+        val stillLoading = synchronized(lock) { toStart.keys.count { it in loading } }
+        if (stillLoading > 0) {
+            IamLog.w(
+                "artwork warming exceeded ${WARM_TIMEOUT_MS}ms; $stillLoading still loading " +
+                    "in the background"
+            )
+        }
+    }
+
+    override fun stateOf(url: String?): ArtworkState {
+        if (url.isNullOrBlank()) return ArtworkState.READY
+        return synchronized(lock) {
+            when {
+                url in ready -> ArtworkState.READY
+                url in loading -> ArtworkState.LOADING
+                url in failed -> ArtworkState.FAILED
+                else -> ArtworkState.FAILED
             }
         }
     }
 
-    override fun isReady(url: String?): Boolean {
-        if (url.isNullOrBlank()) return true
-        return synchronized(ready) { url in ready }
+    override suspend fun awaitReady(url: String, timeoutMs: Long): Boolean {
+        if (url.isBlank()) return true
+        val deferred = synchronized(lock) { loading[url] } ?: return isReady(url)
+        val landed = withTimeoutOrNull(timeoutMs) {
+            runCatching { deferred.await() }.getOrDefault(false)
+        }
+        return landed == true
     }
 
     /**
@@ -104,7 +172,7 @@ internal class PicassoArtworkPrefetcher(
      * it a question about the past.
      */
     override fun retryFailedIfDue(nowMillis: Long) {
-        val toRetry = synchronized(ready) {
+        val toRetry = synchronized(lock) {
             if (failed.isEmpty()) return
             if (nowMillis - lastRetryAtMillis < RETRY_INTERVAL_MS) return
             lastRetryAtMillis = nowMillis
@@ -119,15 +187,17 @@ internal class PicassoArtworkPrefetcher(
     }
 
     override fun reset() {
-        synchronized(ready) {
+        synchronized(lock) {
             ready.clear()
             failed.clear()
+            loading.values.forEach { it.complete(false) }
+            loading.clear()
             lastRetryAtMillis = 0L
         }
     }
 
     @VisibleForTesting
-    internal fun failedCount(): Int = synchronized(ready) { failed.size }
+    internal fun failedCount(): Int = synchronized(lock) { failed.size }
 }
 
 /**

@@ -60,7 +60,8 @@ class EndToEndTest {
 
     private class ReadyArtwork : ArtworkPrefetcher {
         override suspend fun warm(urls: Set<String>) = Unit
-        override fun isReady(url: String?) = true
+        override fun stateOf(url: String?) = com.gameball.gameball.inappmessaging.artwork.ArtworkState.READY
+        override suspend fun awaitReady(url: String, timeoutMs: Long) = true
         override fun retryFailedIfDue(nowMillis: Long) = Unit
         override fun reset() = Unit
     }

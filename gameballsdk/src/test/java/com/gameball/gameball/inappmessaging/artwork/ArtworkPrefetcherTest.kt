@@ -3,6 +3,7 @@ package com.gameball.gameball.inappmessaging.artwork
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -142,5 +143,65 @@ class ArtworkPrefetcherTest {
         p.reset()
         assertFalse(p.isReady("https://x/good.jpg"))
         assertEquals(0, p.failedCount())
+    }
+
+    // --- tri-state readiness ---
+
+    /**
+     * A URL that outlasts the warm budget is LOADING, not FAILED - so a slow CDN cannot
+     * silently invert a marketer's priority in the selector (defect 7, 30 Aug 2026).
+     */
+    @Test
+    fun `a url that outlasts the warm budget stays in the loading state`() {
+        val p = prefetcher { delay(60_000); true }
+        runBlocking { p.warm(setOf("https://x/slow.jpg")) }
+        assertEquals(ArtworkState.LOADING, p.stateOf("https://x/slow.jpg"))
+    }
+
+    @Test
+    fun `a failed fetch moves the url to the failed state`() {
+        val p = prefetcher { false }
+        runBlocking { p.warm(setOf("https://x/dead.jpg")) }
+        assertEquals(ArtworkState.FAILED, p.stateOf("https://x/dead.jpg"))
+    }
+
+    @Test
+    fun `a warmed url is in the ready state`() {
+        val p = prefetcher { true }
+        runBlocking { p.warm(setOf("https://x/ok.jpg")) }
+        assertEquals(ArtworkState.READY, p.stateOf("https://x/ok.jpg"))
+    }
+
+    // --- awaitReady ---
+
+    @Test
+    fun `awaitReady resolves true when a loading url lands within the budget`() {
+        val p = prefetcher { delay(200); true }
+        runBlocking {
+            // Kick off the warm but do not await it - the fetch is still in flight when
+            // awaitReady is called.
+            val warmJob = launch { p.warm(setOf("https://x/slow.jpg")) }
+            // Small yield so warm registers the loading entry before we ask.
+            delay(20)
+            val landed = p.awaitReady("https://x/slow.jpg", 1_000)
+            assertTrue("awaitReady must return true once the url lands", landed)
+            warmJob.join()
+        }
+    }
+
+    @Test
+    fun `awaitReady resolves false when the budget elapses before the url lands`() {
+        val p = prefetcher { delay(60_000); true }
+        runBlocking { p.warm(setOf("https://x/slow.jpg")) }
+        val landed = runBlocking { p.awaitReady("https://x/slow.jpg", 100) }
+        assertFalse("awaitReady must return false when the wait times out", landed)
+    }
+
+    @Test
+    fun `awaitReady on an already-ready url returns immediately`() {
+        val p = prefetcher { true }
+        runBlocking { p.warm(setOf("https://x/ok.jpg")) }
+        val landed = runBlocking { p.awaitReady("https://x/ok.jpg", 0) }
+        assertTrue(landed)
     }
 }

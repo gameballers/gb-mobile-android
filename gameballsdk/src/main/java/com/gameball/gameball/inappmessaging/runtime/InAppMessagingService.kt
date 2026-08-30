@@ -1,7 +1,8 @@
 package com.gameball.gameball.inappmessaging.runtime
 
 import com.gameball.gameball.inappmessaging.artwork.ArtworkPrefetcher
-import com.gameball.gameball.inappmessaging.artwork.isReady
+import com.gameball.gameball.inappmessaging.artwork.ArtworkState
+import com.gameball.gameball.inappmessaging.artwork.stateOf
 import com.gameball.gameball.inappmessaging.data.CampaignCache
 import com.gameball.gameball.inappmessaging.data.DisplayHistory
 import com.gameball.gameball.inappmessaging.data.IamEvent
@@ -49,6 +50,13 @@ internal class InAppMessagingService(
     private companion object {
         /** A dead network must not delay a tap the user is waiting on. */
         const val OUTWARD_FLUSH_BUDGET_MS = 800L
+
+        /**
+         * Grace given to the top-priority winner when its artwork is still loading. Falls
+         * back to the next priority only after this budget elapses, so a slow CDN cannot
+         * silently promote a lower-priority campaign over the marketer's stated preference.
+         */
+        const val ARTWORK_GRACE_MS = 1_000L
     }
 
     private var held: SyncResult = SyncResult.EMPTY
@@ -213,21 +221,30 @@ internal class InAppMessagingService(
 
     // --- evaluation ---
 
-    private fun evaluate(occurrence: TriggerOccurrence, snapshot: DisplayHistorySnapshot) {
+    private fun evaluate(
+        occurrence: TriggerOccurrence,
+        snapshot: DisplayHistorySnapshot,
+        exclude: Set<Int> = emptySet()
+    ) {
         // Before the early return: a session where everything failed is exactly the one that
         // has to recover.
         artwork.retryFailedIfDue(clock.nowMillis())
 
         if (held.campaigns.isEmpty()) return
 
+        val pool = if (exclude.isEmpty()) held.campaigns
+            else held.campaigns.filterNot { it.campaignId in exclude }
+
         val winner = MessageSelector.select(
             occurrence = occurrence,
-            campaigns = held.campaigns,
+            campaigns = pool,
             history = snapshot,
             nowMillis = clock.nowMillis(),
             cooldownSeconds = held.cooldownSeconds,
             quietHours = held.quietHours,
-            isArtworkReady = { artwork.isReady(it.content) }
+            // LOADING is eligible; the grace below gives the winner a chance to land before
+            // the service falls through to a lower priority. FAILED alone drops a campaign.
+            isArtworkReady = { artwork.stateOf(it.content) != ArtworkState.FAILED }
         ) ?: return
 
         // Every message selected is observed, whatever happens to it next — including one a
@@ -246,7 +263,37 @@ internal class InAppMessagingService(
             DisplayDecision.SHOW -> Unit
         }
 
-        scope.launch { presentOrDefer(PendingPresentation(winner)) }
+        scope.launch {
+            if (artwork.stateOf(winner.content) == ArtworkState.LOADING) {
+                if (!waitForArtwork(winner)) {
+                    IamLog.d(
+                        "campaign ${winner.campaignId} artwork did not land in " +
+                            "${ARTWORK_GRACE_MS}ms; re-selecting without it"
+                    )
+                    evaluate(occurrence, snapshot, exclude + winner.campaignId)
+                    return@launch
+                }
+            }
+            presentOrDefer(PendingPresentation(winner))
+        }
+    }
+
+    /**
+     * Sequential awaits share the budget - a URL that lands in 200ms leaves the icon 800ms.
+     * The verdict at the end is the aggregate state, not either await's return: an icon that
+     * completes after the budget still updates the ready set, and the check reflects it.
+     */
+    private suspend fun waitForArtwork(campaign: Campaign): Boolean {
+        val start = clock.nowMillis()
+        campaign.content.imageUrl?.takeIf { it.isNotBlank() }?.let {
+            artwork.awaitReady(it, ARTWORK_GRACE_MS)
+        }
+        val elapsed = clock.nowMillis() - start
+        val remaining = (ARTWORK_GRACE_MS - elapsed).coerceAtLeast(0L)
+        campaign.content.iconUrl?.takeIf { it.isNotBlank() }?.let {
+            artwork.awaitReady(it, remaining)
+        }
+        return artwork.stateOf(campaign.content) == ArtworkState.READY
     }
 
     private suspend fun presentOrDefer(slot: PendingPresentation) {
@@ -292,7 +339,7 @@ internal class InAppMessagingService(
             nowMillis = clock.nowMillis(),
             cooldownSeconds = held.cooldownSeconds,
             quietHours = held.quietHours,
-            isArtworkReady = { artwork.isReady(it.content) }
+            isArtworkReady = { artwork.stateOf(it.content) != ArtworkState.FAILED }
         )
         if (!eligible) {
             IamLog.d("pending campaign ${slot.campaign.campaignId} is no longer eligible; dropped")
@@ -300,7 +347,18 @@ internal class InAppMessagingService(
             return
         }
         pending = null
-        scope.launch { presentOrDefer(slot) }
+        scope.launch {
+            if (artwork.stateOf(slot.campaign.content) == ArtworkState.LOADING) {
+                if (!waitForArtwork(slot.campaign)) {
+                    IamLog.d(
+                        "pending campaign ${slot.campaign.campaignId} artwork did not land " +
+                            "in ${ARTWORK_GRACE_MS}ms; dropped"
+                    )
+                    return@launch
+                }
+            }
+            presentOrDefer(slot)
+        }
     }
 
     // --- personalisation ---

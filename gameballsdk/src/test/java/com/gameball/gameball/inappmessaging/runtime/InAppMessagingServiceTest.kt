@@ -2,6 +2,7 @@ package com.gameball.gameball.inappmessaging.runtime
 
 import androidx.test.core.app.ApplicationProvider
 import com.gameball.gameball.inappmessaging.artwork.ArtworkPrefetcher
+import com.gameball.gameball.inappmessaging.artwork.ArtworkState
 import com.gameball.gameball.inappmessaging.data.CampaignCache
 import com.gameball.gameball.inappmessaging.data.DisplayHistory
 import com.gameball.gameball.inappmessaging.data.IamEvent
@@ -54,13 +55,25 @@ class InAppMessagingServiceTest {
     }
 
     private class FakePrefetcher : ArtworkPrefetcher {
-        var readyAlways = true
+        var defaultState: ArtworkState = ArtworkState.READY
+        val states = mutableMapOf<String, ArtworkState>()
+        val awaitResults = mutableMapOf<String, Boolean>()
         val warmed = mutableListOf<String>()
         var retryCalls = 0
+        var awaitCalls = 0
         override suspend fun warm(urls: Set<String>) { warmed.addAll(urls) }
-        override fun isReady(url: String?) = readyAlways
+        override fun stateOf(url: String?) = when {
+            url.isNullOrBlank() -> ArtworkState.READY
+            else -> states.getOrDefault(url, defaultState)
+        }
+        override suspend fun awaitReady(url: String, timeoutMs: Long): Boolean {
+            awaitCalls++
+            val ok = awaitResults.getOrDefault(url, true)
+            if (ok) states[url] = ArtworkState.READY
+            return ok
+        }
         override fun retryFailedIfDue(nowMillis: Long) { retryCalls++ }
-        override fun reset() { warmed.clear() }
+        override fun reset() { warmed.clear(); states.clear(); awaitResults.clear() }
     }
 
     private class FakeVariables : VariableSource {
@@ -139,6 +152,29 @@ class InAppMessagingServiceTest {
             "campaignId": $campaignId, "messageType": 2, "priority": $priority,
             "trigger": $trigger, "content": {}, "locale": { "header": "$header" } $extra
         } ] }
+    """.trimIndent()
+
+    private fun payloadWithImage(campaignId: Int, priority: Int, imageUrl: String) = """
+        { "cooldownSeconds": 0, "messages": [ {
+            "campaignId": $campaignId, "messageType": 2, "priority": $priority,
+            "trigger": { "type": "session_start" },
+            "content": { "imageUrl": "$imageUrl" },
+            "locale": { "header": "Hi" }
+        } ] }
+    """.trimIndent()
+
+    private fun twoCampaignPayload(
+        campaignA: Int, priorityA: Int, imageA: String,
+        campaignB: Int, priorityB: Int, imageB: String
+    ) = """
+        { "cooldownSeconds": 0, "messages": [
+            { "campaignId": $campaignA, "messageType": 2, "priority": $priorityA,
+              "trigger": { "type": "session_start" }, "content": { "imageUrl": "$imageA" },
+              "locale": { "header": "A" } },
+            { "campaignId": $campaignB, "messageType": 2, "priority": $priorityB,
+              "trigger": { "type": "session_start" }, "content": { "imageUrl": "$imageB" },
+              "locale": { "header": "B" } }
+        ] }
     """.trimIndent()
 
     private fun success(raw: String) = SyncOutcome.Success(
@@ -286,6 +322,53 @@ class InAppMessagingServiceTest {
 
         svc.onSurfaceAvailable()
         assertEquals("no orphan means no re-present", 0, presenter.rePresentCount)
+    }
+
+    // --- artwork readiness ---
+
+    /**
+     * Priority is a marketer contract. When the top-priority winner's artwork is still loading,
+     * the selector must give it a grace window rather than silently falling through to a
+     * lower-priority ready campaign (defect 7, 30 Aug 2026).
+     */
+    @Test
+    fun `a loading winner is presented after grace when its artwork lands`() {
+        source.outcome = success(payloadWithImage(campaignId = 1, priority = 10, imageUrl = "https://x/slow.jpg"))
+        artwork.states["https://x/slow.jpg"] = ArtworkState.LOADING
+        artwork.awaitResults["https://x/slow.jpg"] = true
+
+        service().start("alice")
+
+        assertEquals(1, presenter.presented?.campaignId)
+        assertEquals("the service must await the loading winner", 1, artwork.awaitCalls)
+    }
+
+    @Test
+    fun `a loading winner whose artwork does not land falls through to the lower priority`() {
+        source.outcome = success(twoCampaignPayload(
+            campaignA = 10, priorityA = 10, imageA = "https://x/slow.jpg",
+            campaignB = 20, priorityB = 1, imageB = ""
+        ))
+        artwork.states["https://x/slow.jpg"] = ArtworkState.LOADING
+        artwork.awaitResults["https://x/slow.jpg"] = false
+
+        service().start("alice")
+
+        assertEquals("must fall through to the lower priority", 20, presenter.presented?.campaignId)
+    }
+
+    @Test
+    fun `a failed winner is filtered out by the selector`() {
+        source.outcome = success(twoCampaignPayload(
+            campaignA = 10, priorityA = 10, imageA = "https://x/dead.jpg",
+            campaignB = 20, priorityB = 1, imageB = ""
+        ))
+        artwork.states["https://x/dead.jpg"] = ArtworkState.FAILED
+
+        service().start("alice")
+
+        assertEquals("the ready lower-priority campaign wins", 20, presenter.presented?.campaignId)
+        assertEquals("no grace wait for a confirmed-failed url", 0, artwork.awaitCalls)
     }
 
     @Test
