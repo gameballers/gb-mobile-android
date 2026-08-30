@@ -78,12 +78,16 @@ class InAppMessagingServiceTest {
         var resolved: ResolvedMessage? = null
         var callbacks: PresentationCallbacks? = null
         var dismissCount = 0
+        var rePresentCount = 0
         override var isShowing = false
+        override var isOrphaned = false
+        override var currentCampaign: Campaign? = null
         override fun present(
             campaign: Campaign, resolved: ResolvedMessage, callbacks: PresentationCallbacks
         ): Boolean {
             if (!canPresent) return false
             presented = campaign
+            currentCampaign = campaign
             this.resolved = resolved
             this.callbacks = callbacks
             isShowing = true
@@ -92,6 +96,18 @@ class InAppMessagingServiceTest {
         override fun dismissCurrent() {
             if (isShowing) dismissCount++
             isShowing = false
+            isOrphaned = false
+            currentCampaign = null
+        }
+        override fun rePresent(
+            resolved: ResolvedMessage, callbacks: PresentationCallbacks
+        ): Boolean {
+            rePresentCount++
+            this.resolved = resolved
+            this.callbacks = callbacks
+            isOrphaned = false
+            isShowing = true
+            return true
         }
     }
 
@@ -241,6 +257,35 @@ class InAppMessagingServiceTest {
         presenter.canPresent = true
         svc.onSurfaceAvailable()
         assertEquals("the deferred campaign must come back", 1, presenter.presented?.campaignId)
+    }
+
+    /**
+     * Rotation destroys the Activity carrying a message. The presenter is left holding an
+     * orphan view, and the naive retry gives up on `isShowing`; the message would then never
+     * come back (defect 5, 30 Aug 2026).
+     */
+    @Test
+    fun `an orphaned presenter is re-presented when a new surface arrives`() {
+        source.outcome = success(payload())
+        val svc = service()
+        svc.start("alice")
+        assertEquals(1, presenter.presented?.campaignId)
+        assertEquals("no re-present yet", 0, presenter.rePresentCount)
+
+        presenter.isOrphaned = true
+        svc.onSurfaceAvailable()
+
+        assertEquals("the presenter must be driven back onto the new surface", 1, presenter.rePresentCount)
+    }
+
+    @Test
+    fun `a non-orphaned presenter is not re-presented`() {
+        source.outcome = success(payload())
+        val svc = service()
+        svc.start("alice")
+
+        svc.onSurfaceAvailable()
+        assertEquals("no orphan means no re-present", 0, presenter.rePresentCount)
     }
 
     @Test

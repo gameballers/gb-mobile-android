@@ -49,6 +49,21 @@ internal class OverlayPresenter(
     override val isShowing: Boolean
         get() = currentView != null
 
+    /**
+     * The window-attached check catches the case that isShowing cannot: after rotation the
+     * view reference is still non-null (dismissCurrent has not run), but its window is gone.
+     * That is what tells the service the presenter is holding an orphan and needs to
+     * re-present against the new Activity.
+     */
+    override val isOrphaned: Boolean
+        get() {
+            val view = currentView ?: return false
+            return view.windowToken == null || currentActivity !== tracker.currentActivity
+        }
+
+    override val currentCampaign: Campaign?
+        get() = presentation?.campaign
+
     override fun present(
         campaign: Campaign,
         resolved: ResolvedMessage,
@@ -266,9 +281,12 @@ internal class OverlayPresenter(
     /**
      * Rotation destroys the Activity and takes the view with it. The message was not dismissed
      * by the user, so it comes back - but re-presenting must not log a second impression, or a
-     * single view becomes two and impressions = clicks + dismissals stops holding.
+     * single view becomes two and impressions = clicks + dismissals stops holding. The internal
+     * presentation slot's impressionReported flag survives the config change and suppresses the
+     * second onShown; the service passes fresh callbacks bound to a slot that also treats the
+     * impression as booked, so a subsequent dismiss reports without a phantom re-impression.
      */
-    fun rePresentAfterConfigurationChange(
+    override fun rePresent(
         resolved: ResolvedMessage,
         callbacks: PresentationCallbacks
     ): Boolean {

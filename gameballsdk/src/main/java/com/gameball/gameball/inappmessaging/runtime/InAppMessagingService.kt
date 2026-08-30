@@ -184,7 +184,27 @@ internal class InAppMessagingService(
 
     fun onSurfaceAvailable() {
         if (!isStarted) return
+        // Rotation is the canonical case: the presenter is still carrying a view whose Activity
+        // was destroyed under it, and retryPending would treat isShowing as authoritative and
+        // leave the customer staring at a screen that used to have a message on it.
+        if (rePresentIfOrphaned()) return
         retryPending()
+    }
+
+    private fun rePresentIfOrphaned(): Boolean {
+        if (!presenter.isOrphaned) return false
+        val campaign = presenter.currentCampaign ?: return false
+        // The presenter's own presentation slot has impressionReported=true from the pre-rotation
+        // paint, so the second onShown is suppressed internally. The service-side slot must
+        // mirror that or a dismiss after rotation would race the "shown and ignored" check with
+        // an impression that never fired on this slot.
+        val slot = pending?.takeIf { it.campaign.campaignId == campaign.campaignId }
+            ?: PendingPresentation(campaign, impressionReported = true)
+        scope.launch {
+            val resolved = resolve(campaign)
+            presenter.rePresent(resolved, callbacksFor(slot))
+        }
+        return true
     }
 
     fun setHooks(hooks: HostHooks) {

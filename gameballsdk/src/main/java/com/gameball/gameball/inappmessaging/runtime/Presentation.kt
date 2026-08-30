@@ -25,6 +25,25 @@ internal interface MessagePresenter {
     fun dismissCurrent()
 
     val isShowing: Boolean
+
+    /**
+     * True when the presenter still holds a view whose Activity was destroyed under it - the
+     * canonical case is a device rotation, which recreates the Activity and leaves the previous
+     * view orphaned. The service picks this up on the next [InAppMessagingService.onSurfaceAvailable]
+     * and drives [rePresent] against the new content root.
+     */
+    val isOrphaned: Boolean
+
+    /** The campaign the presenter is carrying, or null when nothing is being shown. */
+    val currentCampaign: Campaign?
+
+    /**
+     * Re-attach the campaign the presenter is carrying against the current Activity. Called by
+     * the service after a rotation. The presenter's own impression bookkeeping suppresses a
+     * second [PresentationCallbacks.onShown] so a single customer view produces a single
+     * impression event.
+     */
+    fun rePresent(resolved: ResolvedMessage, callbacks: PresentationCallbacks): Boolean
 }
 
 internal interface PresentationCallbacks {

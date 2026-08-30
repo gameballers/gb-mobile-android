@@ -186,14 +186,14 @@ class OverlayPresenterTest {
         paint()
         assertEquals(1, shown)
 
-        assertTrue(p.rePresentAfterConfigurationChange(resolved, callbacks))
+        assertTrue(p.rePresent(resolved, callbacks))
         paint()
         assertEquals("still one view of one message", 1, shown)
     }
 
     @Test
     fun `re-presenting with nothing pending does nothing`() {
-        assertFalse(presenter().rePresentAfterConfigurationChange(resolved, callbacks))
+        assertFalse(presenter().rePresent(resolved, callbacks))
     }
 
     // --- dismissal ---
