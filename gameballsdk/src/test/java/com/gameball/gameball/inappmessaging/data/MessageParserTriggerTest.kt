@@ -29,6 +29,24 @@ class MessageParserTriggerTest {
     }
 
     @Test
+    fun `session_start carries its repeat rule`() {
+        val trigger = parseOne(
+            """{ "type": "session_start", "repeatable": true, "minIntervalSeconds": 60 }"""
+        )!!.trigger
+        assertEquals(TriggerType.SESSION_START, trigger.type)
+        assertEquals(true, trigger.repeatable)
+        assertEquals(60, trigger.minIntervalSeconds)
+    }
+
+    @Test
+    fun `session_start with minIntervalSeconds of zero means every occurrence`() {
+        val trigger = parseOne(
+            """{ "type": "session_start", "repeatable": true, "minIntervalSeconds": 0 }"""
+        )!!.trigger
+        assertNull(trigger.minIntervalSeconds)
+    }
+
+    @Test
     fun `an event trigger matches on name and carries its repeat rule`() {
         val trigger = parseOne(
             """{ "type": "event", "eventId": 1382, "name": "place_order",

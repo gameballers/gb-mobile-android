@@ -406,7 +406,11 @@ internal object MessageParser {
             return null
         }
         return when (triggerObject.str("type")?.lowercase()) {
-            "session_start" -> Trigger(TriggerType.SESSION_START)
+            "session_start" -> Trigger(
+                type = TriggerType.SESSION_START,
+                repeatable = triggerObject.bool("repeatable") ?: false,
+                minIntervalSeconds = triggerObject.int("minIntervalSeconds")?.takeIf { it > 0 }
+            )
 
             "event" -> {
                 // Match on name, never on eventId - the numeric id is internal to the backend.
