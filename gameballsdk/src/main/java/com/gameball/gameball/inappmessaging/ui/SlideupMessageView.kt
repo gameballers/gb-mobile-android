@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.updatePadding
 import com.gameball.gameball.R
 import com.gameball.gameball.inappmessaging.domain.MessageContent
@@ -73,6 +74,33 @@ internal class SlideupMessageView(context: Context) : FrameLayout(context) {
         applyChevron(content)
         applyInsets()
         applySwipe()
+    }
+
+    /**
+     * A slideup enters by translating from its own edge alongside a fade. The banner is the
+     * only visible piece, so translating it (rather than the transparent overlay) keeps the
+     * off-screen offset equal to its own measured height regardless of the window's size, and
+     * translationY is set inside doOnPreDraw so the initial offset lands in the same frame as
+     * the first paint - no flicker at the resting position before the slide begins.
+     */
+    fun animateEnter(durationMs: Long) {
+        if (durationMs == 0L) {
+            banner.alpha = 1f
+            banner.translationY = 0f
+            return
+        }
+        banner.alpha = 0f
+        banner.doOnPreDraw { view ->
+            view.translationY = when (slidePosition) {
+                SlidePosition.TOP -> -view.height.toFloat()
+                SlidePosition.BOTTOM -> view.height.toFloat()
+            }
+            view.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(durationMs)
+                .start()
+        }
     }
 
     private fun applyGeometry() {

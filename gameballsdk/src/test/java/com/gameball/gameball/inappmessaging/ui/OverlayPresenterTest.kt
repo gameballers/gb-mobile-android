@@ -305,6 +305,23 @@ class OverlayPresenterTest {
         assertEquals("no fade at all, not merely a shorter one", 1f, view.alpha, 0.001f)
     }
 
+    /**
+     * A slideup translates the banner (not the transparent overlay) - so reduce motion is
+     * asserted on the banner itself, not the top-level view. Anything else would only prove
+     * the overlay is opaque, which is not the property that matters.
+     */
+    @Test
+    fun `reduce motion lands the slideup banner at rest, translated and opaque`() {
+        android.provider.Settings.Global.putFloat(
+            activity.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 0f
+        )
+        tracker.onActivityResumed(activity)
+        presenter().present(campaign(type = MessageType.SLIDEUP), resolved, callbacks)
+        val overlay = contentRoot().getChildAt(contentRoot().childCount - 1) as SlideupMessageView
+        assertEquals("banner sits at its resting position", 0f, overlay.banner.translationY, 0.001f)
+        assertEquals("banner is fully opaque", 1f, overlay.banner.alpha, 0.001f)
+    }
+
     @Test
     fun `an unsupported type is never drawn`() {
         tracker.onActivityResumed(activity)

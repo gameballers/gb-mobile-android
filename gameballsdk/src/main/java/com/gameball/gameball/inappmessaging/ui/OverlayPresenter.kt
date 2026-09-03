@@ -238,6 +238,12 @@ internal class OverlayPresenter(
             MessageType.SLIDEUP -> MessageMetrics.Motion.SLIDEUP_DURATION_MS
             MessageType.UNSUPPORTED -> 0L
         }
+        // The slideup owns a direction the modal does not, so it translates rather than fades
+        // and the view knows its own edge.
+        if (campaign.messageType == MessageType.SLIDEUP && view is SlideupMessageView) {
+            view.animateEnter(duration)
+            return
+        }
         if (duration == 0L) {
             view.alpha = 1f
             return
