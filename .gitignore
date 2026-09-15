@@ -75,3 +75,5 @@ lint/tmp/
 
 .externalNativeBuild
 .cxx
+# Internal design docs, plans and research — kept locally, never published
+docs/
