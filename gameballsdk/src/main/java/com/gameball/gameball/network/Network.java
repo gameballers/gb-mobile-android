@@ -61,6 +61,21 @@ public class Network {
         return mRetrofit.create(GameBallApi.class);
     }
 
+    /**
+     * The shared OkHttp client. Exposed so the in-app messaging module can build its own
+     * Retrofit (it uses suspend functions rather than the Rx call adapter) over the same
+     * connection pool, interceptors and header handling, rather than standing up a second
+     * client whose header logic would drift.
+     */
+    public OkHttpClient getOkHttpClient() {
+        return mOkHttpClient;
+    }
+
+    /** The shared Gson instance, for the same reason. */
+    public Gson getGson() {
+        return mGson;
+    }
+
     public GameBallApi getGameBallApi(String apiPrefix) {
         if(apiPrefix != null){
             return setApiPrefix(apiPrefix).create(GameBallApi.class);
