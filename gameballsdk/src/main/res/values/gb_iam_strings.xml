@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Content description for the in-app message close button. A hard-coded "Close" would be
+         the only untranslated word in the module, and Gameball serves Arabic customers. -->
+    <string name="gb_iam_close">Close</string>
+</resources>

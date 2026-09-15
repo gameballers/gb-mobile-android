@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      The theme the module inflates its own views under.
+
+      The SDK draws into whatever Activity the host happens to be showing, and Material
+      components refuse to inflate under a non-Material theme. A host on a plain
+      android:Theme, Theme.Holo, or any AppCompat theme that is not bridged would otherwise
+      crash the message - so the module never trusts the host's theme for inflation.
+
+      Campaign-absent colours are still resolved against the HOST's theme, so a message keeps
+      adopting the app it lives in. See ColorResolver.
+    -->
+    <style name="Theme.GameballIAM" parent="Theme.MaterialComponents.DayNight.Bridge">
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+</resources>
