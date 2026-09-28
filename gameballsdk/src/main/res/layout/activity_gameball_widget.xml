@@ -26,6 +26,9 @@
             layout="@layout/no_internet_connection_layout"
             android:visibility="gone" />
 
+        <!-- The close buttons are pinned to the absolute left/right edges, not start/end, so the
+             activity's layout direction can't move them. GameballWidgetActivity shows one of them
+             based on the widget language alone. -->
         <ImageButton
             android:id="@+id/btn_close_right"
             android:layout_width="wrap_content"
@@ -37,10 +40,10 @@
             android:paddingBottom="10dp"
             android:background="@null"
             android:src="@drawable/ic_close"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:scaleType="fitCenter"
-            tools:ignore="ContentDescription"
+            tools:ignore="ContentDescription,RtlHardcoded"
             android:visibility="visible" />
 
         <ImageButton
@@ -54,10 +57,10 @@
             android:paddingBottom="10dp"
             android:background="@null"
             android:src="@drawable/ic_close"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:scaleType="fitCenter"
-            tools:ignore="ContentDescription"
+            tools:ignore="ContentDescription,RtlHardcoded"
             android:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -102,8 +102,6 @@ public class GameballWidgetActivity extends AppCompatActivity {
             }
         }, widgetView));
 
-        closeButton = primaryCloseButton;
-
         extractDataFromBundle();
         language = LanguageUtils.handleLanguage(langOverride);
         setupWidget();
@@ -221,20 +219,19 @@ public class GameballWidgetActivity extends AppCompatActivity {
             }
         });
 
-        if(!showCloseButton){
-            primaryCloseButton.setVisibility(View.GONE);
-            secondaryCloseButton.setVisibility(View.GONE);
-        }
-        else
-        {
-            if(LanguageUtils.shouldHandleCloseButtonDirection(this.language)){
+        // The buttons are pinned to the absolute left/right edges in the layout, not start/end, so
+        // the activity's layout direction (which follows the host app's locale and whether it
+        // declares android:supportsRtl) can't flip them a second time. The side is decided once,
+        // here, from the resolved widget language alone: btn_close_right for left-to-right
+        // languages, btn_close_left for right-to-left ones. The device locale is deliberately not
+        // consulted: it is already the last fallback in LanguageUtils.handleLanguage, so checking
+        // it again could only re-introduce a signal the resolution had just overridden.
+        boolean isRtl = LanguageUtils.isRtl(this.language);
+        closeButton = isRtl ? secondaryCloseButton : primaryCloseButton;
+        primaryCloseButton.setVisibility(showCloseButton && !isRtl ? View.VISIBLE : View.GONE);
+        secondaryCloseButton.setVisibility(showCloseButton && isRtl ? View.VISIBLE : View.GONE);
 
-                primaryCloseButton.setVisibility(View.GONE);
-                secondaryCloseButton.setVisibility(View.VISIBLE);
-
-                closeButton = secondaryCloseButton;
-            }
-
+        if(showCloseButton){
             closeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
