@@ -31,7 +31,14 @@ import com.gameball.gameball.inappmessaging.runtime.ResolvedMessage
  */
 internal class OverlayPresenter(
     private val tracker: ActivityTracker,
-    private val clock: Clock
+    private val clock: Clock,
+    /**
+     * Composes the widget URL a game campaign opens, from the open-details text.
+     *
+     * Null means this build cannot open games — every game campaign is then passed over with a
+     * log rather than drawn as an empty card.
+     */
+    private val widgetUrlBuilder: ((String) -> String)? = null
 ) : MessagePresenter {
 
     private var currentView: View? = null
@@ -81,6 +88,10 @@ internal class OverlayPresenter(
             ?: PendingPresentation(campaign)
         presentation = slot
 
+        if (campaign.isWidget) {
+            return presentWidget(campaign, activity, root, slot, callbacks)
+        }
+
         val view = when (campaign.messageType) {
             MessageType.SLIDEUP -> SlideupMessageView(activity)
                 .also { it.bind(campaign.content, resolved, wrap(slot, callbacks)) }
@@ -129,6 +140,64 @@ internal class OverlayPresenter(
             // rotation continues the countdown rather than restarting it.
             startAutoDismiss(campaign, slot, callbacks)
         }
+        return true
+    }
+
+    /**
+     * Mounts a game campaign, hidden, and reveals it only once the widget reports itself drawn.
+     *
+     * The impression is counted at readiness rather than at the first pre-draw pass, which is the
+     * whole point: the surface is attached and painting for seconds before there is anything on
+     * it, so counting at pre-draw books a view of a loading skeleton.
+     *
+     * A readiness timeout takes the message away **without** counting an impression, so no
+     * telemetry is logged and the cap is untouched; the campaign retries at its next trigger.
+     */
+    private fun presentWidget(
+        campaign: Campaign,
+        activity: Activity,
+        root: ViewGroup,
+        slot: PendingPresentation,
+        callbacks: PresentationCallbacks
+    ): Boolean {
+        val widget = campaign.widget ?: return false
+        val builder = widgetUrlBuilder ?: run {
+            IamLog.w("campaign ${campaign.label} needs the Gameball widget, which this build cannot open; passed over")
+            return false
+        }
+
+        val view = WidgetMessageView(activity)
+        view.bind(campaign) { if (campaign.content.dismissOnScrimTap) callbacks.onDismissed() }
+
+        root.addView(
+            view,
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        )
+        currentView = view
+        currentActivity = activity
+        registerBack(activity, campaign, slot, callbacks)
+
+        view.widget.load(
+            url = builder(widget.openDetail),
+            onReady = {
+                view.reveal()
+                if (!slot.impressionReported) {
+                    slot.impressionReported = true
+                    slot.impressionAtMillis = clock.nowMillis()
+                    callbacks.onShown()
+                }
+            },
+            // Taken away unshown: nothing was ever visible, so nothing is reported and the cap is
+            // left alone. onDismissed would log a dismissal for a message nobody saw.
+            onFailed = {
+                IamLog.w("campaign ${campaign.label} never became ready; removed unshown")
+                dismissCurrent()
+            },
+            onCloseRequested = { callbacks.onDismissed() }
+        )
         return true
     }
 
@@ -254,6 +323,8 @@ internal class OverlayPresenter(
         backCallback?.remove()
         backCallback = null
         currentView?.let { view ->
+            // A WebView left attached keeps a renderer process and this Activity alive.
+            (view as? WidgetMessageView)?.destroy()
             // Dismissal removes the overlay on the spot: there is no exit animation on any
             // type, the one exception being a swiped slideup, which the gesture drives.
             (view.parent as? ViewGroup)?.removeView(view)
