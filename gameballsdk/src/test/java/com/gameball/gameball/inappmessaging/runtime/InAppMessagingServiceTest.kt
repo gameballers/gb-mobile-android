@@ -1,5 +1,6 @@
 package com.gameball.gameball.inappmessaging.runtime
 
+import com.gameball.gameball.inappmessaging.domain.CampaignKey
 import androidx.test.core.app.ApplicationProvider
 import com.gameball.gameball.inappmessaging.artwork.ArtworkPrefetcher
 import com.gameball.gameball.inappmessaging.data.CampaignCache
@@ -220,7 +221,7 @@ class InAppMessagingServiceTest {
         source.outcome = success(payload())
         val svc = service()
         svc.start("alice")
-        history.recordImpression("alice", 1, clock.now)
+        history.recordImpression("alice", CampaignKey.message(1), clock.now)
 
         svc.start("bob")
         assertEquals(2, source.fetchCount)
@@ -284,7 +285,7 @@ class InAppMessagingServiceTest {
         presenter.canPresent = false
         val svc = service()
         svc.start("alice")
-        history.recordImpression("alice", 5, clock.now - 10_000L)
+        history.recordImpression("alice", CampaignKey.message(5), clock.now - 10_000L)
 
         svc.onEvent("x", emptyMap())
         presenter.canPresent = true
@@ -300,7 +301,7 @@ class InAppMessagingServiceTest {
         svc.start("alice")
 
         // Something else displayed while ours was waiting.
-        history.recordImpression("alice", 999, clock.now)
+        history.recordImpression("alice", CampaignKey.message(999), clock.now)
         presenter.canPresent = true
         svc.onSurfaceAvailable()
         assertNull("inside the floor it must keep waiting", presenter.presented)

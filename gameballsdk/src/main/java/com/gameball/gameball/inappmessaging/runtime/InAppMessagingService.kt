@@ -132,7 +132,7 @@ internal class InAppMessagingService(
             // race where a slow cache read lands after a fast sync and clobbers fresher data.
             is SyncOutcome.Failure -> {
                 IamLog.w("sync failed (${outcome.reason}); falling back to the cache")
-                cache.get(customerId) ?: SyncResult.EMPTY
+                dropCachedGames(cache.get(customerId) ?: SyncResult.EMPTY)
             }
         }
 
@@ -341,7 +341,7 @@ internal class InAppMessagingService(
             slot.impressionReported = true
             val at = clock.nowMillis()
             slot.impressionAtMillis = at
-            currentCustomerId?.let { history.recordImpression(it, slot.campaign.campaignId, at) }
+            currentCustomerId?.let { history.recordImpression(it, slot.campaign.key, at) }
             report(slot, IamEventType.IMPRESSION)
         }
 
@@ -376,6 +376,25 @@ internal class InAppMessagingService(
         }
     }
 
+    /**
+     * Drops game campaigns from a cached set.
+     *
+     * A message carries its own content, so a cached one is still correct to draw. A game carries
+     * only a pointer and fetches its content live: the campaign may have ended, been paused, or
+     * run out of rewards since it was cached, and the customer would open it to an error. This
+     * narrows the exposure to one foreground session rather than eliminating it.
+     */
+    private fun dropCachedGames(cached: SyncResult): SyncResult {
+        val openable = cached.campaigns.filterNot { it.isWidget }
+        val dropped = cached.campaigns.size - openable.size
+        if (dropped == 0) return cached
+        IamLog.w(
+            "$dropped cached game campaign(s) skipped: a game's content is fetched live and a " +
+                "cached entry may no longer be open"
+        )
+        return cached.copy(campaigns = openable)
+    }
+
     private fun report(
         slot: PendingPresentation,
         type: IamEventType,
@@ -385,6 +404,11 @@ internal class InAppMessagingService(
         // An isTest campaign displays normally so a marketer can see their work; its
         // telemetry must never reach campaign statistics.
         if (slot.campaign.isTest) return
+        // A game has no message analytics to report against: its campaignId is always 0, so the
+        // default path would file every impression, click and dismiss under campaign zero. The
+        // game reports its own engagement from inside the widget. This does NOT suppress the
+        // display history — that still records, or a once-ever game would reappear every session.
+        if (slot.campaign.isWidget) return
         val customerId = currentCustomerId ?: return
         analytics.record(
             IamEvent(
