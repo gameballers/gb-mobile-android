@@ -116,6 +116,62 @@ internal data class MessageContent(
     val hasArtwork: Boolean get() = !imageUrl.isNullOrBlank()
     val hasIcon: Boolean get() = !iconUrl.isNullOrBlank()
     val hasText: Boolean get() = !header.isNullOrBlank() || !body.isNullOrBlank()
+
+    companion object {
+        /**
+         * The content of a campaign whose content is a game.
+         *
+         * Every field is empty because the campaign *is* the content: the widget draws itself and
+         * offers its own close affordance. This exists because [Campaign.content] is non-null —
+         * it is not a message with missing fields, and nothing reads it for a game.
+         */
+        fun forGame(): MessageContent = MessageContent(
+            header = null,
+            body = null,
+            imageUrl = null,
+            iconUrl = null,
+            layout = MessageLayout.DEFAULT,
+            colors = MessageColors.EMPTY,
+            buttons = emptyList(),
+            clickAction = null,
+            showCloseButton = true,
+            dismissOnScrimTap = true,
+            slidePosition = SlidePosition.BOTTOM,
+            orientation = MessageOrientation.ANY,
+            autoDismissMillis = null,
+            headerAlign = null,
+            bodyAlign = null,
+            extras = emptyMap()
+        )
+    }
+}
+
+/**
+ * A reward campaign rendered as the message's own content.
+ *
+ * The campaign **is** the content — no header, body, image or button, because this is not a
+ * teaser that links to a game, it is the game.
+ *
+ * Deliberately not a URL on the wire: one would carry the api key and the player id, making the
+ * payload both credential-bearing and customer-specific, and stale the moment either changed.
+ * The SDK composes the URL from state it already holds and the two fields here.
+ */
+internal data class WidgetContent(
+    /** The challenge to open. All bookkeeping keys off this, never off the entry's campaignId. */
+    val gameCampaignId: Int,
+    /** Which game it is, as the open-details text: `wheel`, `quiz`, `scratch`... */
+    val gameCampaignType: String,
+    /**
+     * How long to wait after the trigger fires. Null means open immediately.
+     *
+     * Not on the sync entry today. Read when it appears, so this needs no change on that day.
+     */
+    val delayMillis: Long? = null,
+    /** Stop offering after this many dismissals without a play. Null means no cap. */
+    val dismissLimit: Int? = null
+) {
+    /** What the host widget is asked to open. */
+    val openDetail: String get() = "details_${gameCampaignType}_$gameCampaignId"
 }
 
 internal data class Campaign(
@@ -137,8 +193,34 @@ internal data class Campaign(
      * Position in the response's messages array. The marketer's dashboard ordering, and the
      * tie-break for equal priorities — meaningful, not merely deterministic.
      */
-    val responseIndex: Int
-)
+    val responseIndex: Int,
+    /**
+     * A reward campaign to open instead of drawing artwork and copy. Null for every message.
+     *
+     * A campaign carrying this fetches its content over the network at display time rather than
+     * receiving it in the payload, which is why it is exempt from the parser's
+     * "needs something to render" rule.
+     */
+    val widget: WidgetContent? = null
+) {
+    val isWidget: Boolean get() = widget != null
+
+    /**
+     * How this campaign is identified in display history.
+     *
+     * A game's campaignId is always 0, so its identity is the id of the game it opens.
+     */
+    val key: CampaignKey
+        get() = widget?.let { CampaignKey.game(it.gameCampaignId) } ?: CampaignKey.message(campaignId)
+
+    /**
+     * How this campaign appears in a log line.
+     *
+     * A game's campaignId is always 0, so labelling it by that number would make every log line
+     * about every game read "campaign 0".
+     */
+    val label: String get() = if (isWidget) key.storageKey else campaignId.toString()
+}
 
 internal data class SyncResult(
     val campaigns: List<Campaign>,

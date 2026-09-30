@@ -18,6 +18,7 @@ import com.gameball.gameball.inappmessaging.domain.QuietHours
 import com.gameball.gameball.inappmessaging.domain.SlidePosition
 import com.gameball.gameball.inappmessaging.domain.SyncResult
 import com.gameball.gameball.inappmessaging.domain.Trigger
+import com.gameball.gameball.inappmessaging.domain.WidgetContent
 import com.gameball.gameball.inappmessaging.domain.TriggerType
 import com.gameball.gameball.inappmessaging.runtime.IamLog
 import com.gameball.gameball.inappmessaging.ui.MessageMetrics
@@ -36,6 +37,27 @@ internal object MessageParser {
 
     private const val PRERENDERED = "prerendered"
     private const val MODAL_MAX_BUTTONS = 2
+
+    /** An outbound message: content in the payload, drawn by this SDK. */
+    private const val OUTBOUND_CAMPAIGN_TYPE = 1
+
+    /** A game campaign: a pointer to a reward campaign this SDK opens in the Gameball widget. */
+    private const val GAME_CAMPAIGN_TYPE = 2
+
+    /**
+     * The games this SDK version can open, as the widget's open-details text spells them.
+     *
+     * An unrecognised value drops the campaign rather than composing a details string the widget
+     * will not understand — which would open to "this campaign is not available", indistinguishable
+     * from a campaign that has ended.
+     */
+    private val KNOWN_GAME_TYPES = setOf(
+        "wheel", "slot", "quiz", "scratch", "match", "catcher",
+        "tictactoe", "shooter", "puzzle", "tap_target", "highway_drive"
+    )
+
+    /** The contract's ceiling on how long a game may be held back after its trigger fires. */
+    private const val MAX_GAME_DELAY_SECONDS = 60
     private val KNOWN_CLOSE_BEHAVIOURS = setOf("both", "button", "swipe")
 
     fun parse(rawJson: String?): SyncResult {
@@ -104,6 +126,18 @@ internal object MessageParser {
             return null
         }
 
+        // The fork. An entry with no campaignType is a message: that is what every payload
+        // written before this field existed contains, and defaulting to a game would try to open
+        // a campaign that is not there.
+        val campaignType = obj.int("campaignType") ?: OUTBOUND_CAMPAIGN_TYPE
+        if (campaignType != OUTBOUND_CAMPAIGN_TYPE && campaignType != GAME_CAMPAIGN_TYPE) {
+            IamLog.w(
+                "campaign $campaignId has campaignType $campaignType, which this SDK version " +
+                    "neither renders nor opens; dropped"
+            )
+            return null
+        }
+
         val contentMode = obj.str("contentMode") ?: PRERENDERED
         if (!contentMode.equals(PRERENDERED, ignoreCase = true)) {
             IamLog.w("campaign $campaignId has contentMode '$contentMode'; dropped")
@@ -123,7 +157,21 @@ internal object MessageParser {
         }
 
         val trigger = parseTrigger(obj.obj("trigger"), campaignId) ?: return null
-        val content = parseContent(obj, campaignId, messageType) ?: return null
+
+        val widget = if (campaignType == GAME_CAMPAIGN_TYPE) {
+            parseGameContent(obj, campaignId) ?: return null
+        } else {
+            null
+        }
+
+        // A game carries no content of its own — the campaign is the content — so the
+        // "nothing to render" guard is skipped. Keyed off the kind rather than off which fields
+        // are absent, so a *message* missing everything still fails for that reason.
+        val content = if (widget != null) {
+            MessageContent.forGame()
+        } else {
+            parseContent(obj, campaignId, messageType) ?: return null
+        }
 
         return Campaign(
             campaignId = campaignId,
@@ -137,8 +185,53 @@ internal object MessageParser {
             isTest = obj.bool("isTest") ?: false,
             trigger = trigger,
             content = content,
-            responseIndex = index
+            responseIndex = index,
+            widget = widget
         )
+    }
+
+    /**
+     * Reads the game fields from a `campaignType: 2` entry.
+     *
+     * Null when the entry cannot be opened, which drops it. Both fields are required: without the
+     * id there is nothing to open, and without a recognised type there is no renderer to ask for.
+     */
+    private fun parseGameContent(obj: JsonObject, campaignId: Int): WidgetContent? {
+        val gameCampaignId = obj.int("gameCampaignId")
+        if (gameCampaignId == null || gameCampaignId == 0) {
+            IamLog.w(
+                "campaign $campaignId is a game with no gameCampaignId; dropped " +
+                    "(its campaignId is always 0 and identifies nothing)"
+            )
+            return null
+        }
+
+        val gameCampaignType = obj.str("gameCampaignType")
+        if (gameCampaignType == null || gameCampaignType !in KNOWN_GAME_TYPES) {
+            IamLog.w(
+                "campaign $campaignId has gameCampaignType '$gameCampaignType', which this SDK " +
+                    "version has no renderer for; dropped"
+            )
+            return null
+        }
+
+        return WidgetContent(
+            gameCampaignId = gameCampaignId,
+            gameCampaignType = gameCampaignType,
+            delayMillis = parseGameDelay(obj, campaignId),
+            dismissLimit = obj.int("dismissLimit")
+        )
+    }
+
+    /** Seconds on the wire, capped: a campaign held back longer than a minute has missed its moment. */
+    private fun parseGameDelay(obj: JsonObject, campaignId: Int): Long? {
+        val seconds = obj.int("delay") ?: return null
+        if (seconds <= 0) return null
+        if (seconds > MAX_GAME_DELAY_SECONDS) {
+            IamLog.w("campaign $campaignId asked for a ${seconds}s delay; capped at ${MAX_GAME_DELAY_SECONDS}s")
+            return MAX_GAME_DELAY_SECONDS * 1000L
+        }
+        return seconds * 1000L
     }
 
     private fun parseContent(
@@ -407,6 +500,17 @@ internal object MessageParser {
         }
         return when (triggerObject.str("type")?.lowercase()) {
             "session_start" -> Trigger(TriggerType.SESSION_START)
+
+            // Deliberate, not unimplemented. A screen trigger addresses a registered screen name,
+            // which this SDK has no API to report; the same targeting is expressed as a custom
+            // event. Named separately from the catch-all below so the log says why, not just what.
+            "screen" -> {
+                IamLog.w(
+                    "campaign $campaignId has a screen trigger ('${triggerObject.str("name")}'), " +
+                        "which this SDK does not support; dropped"
+                )
+                null
+            }
 
             "event" -> {
                 // Match on name, never on eventId - the numeric id is internal to the backend.
