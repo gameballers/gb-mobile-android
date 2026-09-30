@@ -73,7 +73,9 @@ class GameballInAppMessaging internal constructor(private val appContext: Contex
         customerId: String,
         options: InAppMessagingOptions,
         apiPrefix: String?,
-        sdkVersion: String
+        sdkVersion: String,
+        /** Composes the URL a game campaign opens. Null in tests, where nothing is drawn. */
+        widgetUrlBuilder: ((String) -> String)? = null
     ) {
         if (customerId.isBlank()) {
             IamLog.e("startInAppMessaging needs a customer id; ignoring the call")
@@ -101,7 +103,7 @@ class GameballInAppMessaging internal constructor(private val appContext: Contex
                 override fun onSurfaceAvailable() { service?.onSurfaceAvailable() }
             }
         )
-        val overlay = OverlayPresenter(activityTracker, clock)
+        val overlay = OverlayPresenter(activityTracker, clock, widgetUrlBuilder)
 
         val created = InAppMessagingService(
             scope = newScope,

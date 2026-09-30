@@ -6,6 +6,8 @@ import android.os.Build
 import android.util.Log
 import com.gameball.gameball.inappmessaging.GameballInAppMessaging
 import com.gameball.gameball.inappmessaging.InAppMessagingOptions
+import com.gameball.gameball.inappmessaging.data.WidgetUrl
+import com.gameball.gameball.utils.LanguageUtils
 import com.gameball.gameball.inappmessaging.runtime.IamLog
 import com.gameball.gameball.local.SharedPreferencesUtils
 import com.gameball.gameball.logging.GameballLogger
@@ -45,6 +47,12 @@ class GameballApp private constructor(context: Context) {
     private val OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT)
     private val logger = GameballLogger(mContext)
     private var apiPrefix: String? = null
+
+    /**
+     * The widget host from [init], shared by showProfile and by campaigns a message opens.
+     * Null means the production default.
+     */
+    private var widgetUrlPrefix: String? = null
 
     /**
      * Lazy on purpose: constructing it does nothing, and until startInAppMessaging is called
@@ -142,6 +150,10 @@ class GameballApp private constructor(context: Context) {
             gameBallApi = Network.getInstance().getGameBallApi(it)
             apiPrefix = it
         }
+
+        // Set once, on configuration, so the profile widget and the campaigns a message opens
+        // cannot end up pointed at different environments.
+        widgetUrlPrefix = config.widgetUrlPrefix?.takeIf { it.isNotBlank() }
 
         this.mApiKey = config.apiKey
 
@@ -322,7 +334,7 @@ class GameballApp private constructor(context: Context) {
             profileRequest.customerId,
             profileRequest.showCloseButton,
             profileRequest.closeButtonColor,
-            profileRequest.widgetUrlPrefix,
+            profileRequest.widgetUrlPrefix ?: widgetUrlPrefix,
             profileRequest.lang,
             profileRequest.externalLinkCallback,
             profileRequest.widgetEventCallback
@@ -335,6 +347,33 @@ class GameballApp private constructor(context: Context) {
                 Log.e(TAG, "in-app messaging could not record the widget closing", t)
             }
         }
+    }
+
+    /**
+     * The widget URL a game campaign opens.
+     *
+     * Composed from state the SDK already holds. Logged because it is otherwise invisible: a
+     * campaign that opens on "this campaign is not available" looks identical whether the id is
+     * wrong, the customer cannot play it, or the host is pointed at a different widget
+     * environment than its api key belongs to.
+     */
+    private fun buildInAppWidgetUrl(openDetail: String): String {
+        val prefs = SharedPreferencesUtils.getInstance()
+        val url = WidgetUrl.build(
+            host = widgetUrlPrefix ?: BuildConfig.Widget_Url,
+            apiKey = mApiKey,
+            customerId = prefs.getCustomerId(),
+            openDetail = openDetail,
+            language = LanguageUtils.handleLanguage(),
+            mainColor = prefs.getClientBotSettings()?.botMainColor,
+            platform = prefs.getPlatformPreference(),
+            shop = prefs.getShopPreference(),
+            sdkVersion = SDKVersion,
+            osVersion = OS,
+            sessionToken = prefs.getSessionTokenPreference()
+        )
+        IamLog.d("opening widget $url")
+        return url
     }
 
     /** Hides the currently shown profile widget. No-op when nothing is shown. Counterpart to [showProfile]. */
@@ -419,7 +458,8 @@ class GameballApp private constructor(context: Context) {
                 customerId = customerId,
                 options = options ?: InAppMessagingOptions.builder().build(),
                 apiPrefix = apiPrefix,
-                sdkVersion = SDKVersion
+                sdkVersion = SDKVersion,
+                widgetUrlBuilder = ::buildInAppWidgetUrl
             )
         } catch (t: Throwable) {
             // Messaging must never take the host app down.
