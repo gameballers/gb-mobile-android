@@ -51,15 +51,5 @@ object LanguageUtils {
     }
 
     @JvmStatic
-    fun shouldHandleCloseButtonDirection(selectedLanguage: String): Boolean {
-        val deviceLocale = Locale.getDefault().language
-        return (isRtl(deviceLocale) && isLtr(selectedLanguage)) || 
-               (isRtl(selectedLanguage) && isLtr(deviceLocale))
-    }
-
-    @JvmStatic
-    fun isLtr(languageCode: String): Boolean = ltrLanguageCodes.contains(languageCode)
-
-    @JvmStatic
     fun isRtl(languageCode: String): Boolean = rtlLanguageCodes.contains(languageCode)
 }

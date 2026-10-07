@@ -102,8 +102,6 @@ public class GameballWidgetActivity extends AppCompatActivity {
             }
         }, widgetView));
 
-        closeButton = primaryCloseButton;
-
         extractDataFromBundle();
         language = LanguageUtils.handleLanguage(langOverride);
         setupWidget();
@@ -221,20 +219,12 @@ public class GameballWidgetActivity extends AppCompatActivity {
             }
         });
 
-        if(!showCloseButton){
-            primaryCloseButton.setVisibility(View.GONE);
-            secondaryCloseButton.setVisibility(View.GONE);
-        }
-        else
-        {
-            if(LanguageUtils.shouldHandleCloseButtonDirection(this.language)){
+        boolean isRtl = LanguageUtils.isRtl(this.language);
+        closeButton = isRtl ? secondaryCloseButton : primaryCloseButton;
+        primaryCloseButton.setVisibility(showCloseButton && !isRtl ? View.VISIBLE : View.GONE);
+        secondaryCloseButton.setVisibility(showCloseButton && isRtl ? View.VISIBLE : View.GONE);
 
-                primaryCloseButton.setVisibility(View.GONE);
-                secondaryCloseButton.setVisibility(View.VISIBLE);
-
-                closeButton = secondaryCloseButton;
-            }
-
+        if(showCloseButton){
             closeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
