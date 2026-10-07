@@ -1,6 +1,6 @@
 # Gameball Android SDK
 
-[![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)](https://github.com/gameballers/gameball-android)
+[![Version](https://img.shields.io/badge/version-3.3.1-blue.svg)](https://github.com/gameballers/gameball-android)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
 
@@ -41,7 +41,7 @@ Then add the dependency to your app-level `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation 'com.github.gameballers:gb-mobile-android:3.3.0'
+    implementation 'com.github.gameballers:gb-mobile-android:3.3.1'
 }
 ```
 
@@ -76,7 +76,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.github.gameballers</groupId>
     <artifactId>gb-mobile-android</artifactId>
-    <version>3.3.0</version>
+    <version>3.3.1</version>
 </dependency>
 ```
 
@@ -246,7 +246,7 @@ The SDK also records internal diagnostic logs automatically to aid troubleshooti
 
 ### Language Control (v3.3.0+)
 
-Present a single widget in a specific language with `ShowProfileRequest.builder().lang(...)` (2-letter code, e.g. `"en"`, `"ar"`):
+Present a single widget in a specific language with `ShowProfileRequest.builder().lang(...)` (a supported language code, e.g. `"en"`, `"ar"`):
 
 ```kotlin
 val request = ShowProfileRequest.builder()
@@ -265,7 +265,11 @@ Or switch the SDK's global language on demand — no re-`init` needed:
 GameballApp.getInstance(this).setLanguage("ar")
 ```
 
-This changes the fallback used by future `showProfile` presentations (a per-call `lang` still wins) and any other SDK call that resolves language. Invalid codes are ignored.
+This changes the fallback used by future `showProfile` presentations (a per-call `lang` still wins) and any other SDK call that resolves language.
+
+As of v3.3.1 it also becomes the customer's preferred language, taking precedence over one set earlier through `initializeCustomer`, and is mirrored onto the customer's Gameball profile so server-driven communications follow it too. The profile update goes to the most recently initialized customer (remembered across app launches) and is skipped until one has been initialized — to set the language before that, pass it as `preferredLanguage` to `initializeCustomer`.
+
+**Supported languages:** `en`, `ar`, `fr`, `es`, `de`, `pt`, `pl`, `it`, `hu`, `zh-tw`, `nl`, `sv`, `no`, `dk`, `ja`, matched case-insensitively. As of v3.3.1, any other code passed to `init`, `setLanguage`, `initializeCustomer` or `ShowProfileRequest.builder().lang(...)`, and an unsupported device language, falls back to `en` (earlier versions ignored codes that weren't 2 characters long). Codes must match one of these exactly (letter case doesn't matter): regional variants such as `ar-EG` and three-letter codes such as `ara` aren't mapped and fall back to `en`. `initializeCustomer` still sends `preferredLanguage` to Gameball exactly as passed; only the language the SDK itself uses falls back to `en`.
 
 ### Push Click Tracking (v3.3.0+)
 
@@ -445,7 +449,7 @@ GameballApp.getInstance(this).initializeCustomer(
 | `pushProvider` | PushProvider | ❌ Optional | Push service provider (Firebase/Huawei) |
 | `customerAttributes` | CustomerAttributes | ❌ Optional | Additional customer data |
 | `referralCode` | String | ❌ Optional | Referral code |
-| `isGuest` | Boolean | ❌ Optional | Guest user flag (defaults to false) |
+| `isGuest` | Boolean | ❌ Optional | Ignored as of v3.3.1 — customers are always initialized as registered |
 | `osType` | String | ❌ Auto-set | Operating system type (automatically set to "Android") |
 
 **InitializeCustomerRequest Validation Rules:**
@@ -463,7 +467,7 @@ GameballApp.getInstance(this).initializeCustomer(
 | `showCloseButton` | Boolean | ❌ Optional | Show close button |
 | `closeButtonColor` | String | ❌ Optional | Close button color (hex format) |
 | `widgetUrlPrefix` | String | ❌ Optional | Custom widget URL prefix |
-| `lang` | String | ❌ Optional | 2-letter language code for this presentation only (v3.3.0+) |
+| `lang` | String | ❌ Optional | Supported language code for this presentation only (v3.3.0+) |
 | `externalLinkCallback` | Callback<String> | ❌ Optional | Handler for links tagged `gbExternalBrowser=true`. When provided, the link is delegated to it; otherwise the SDK opens it in the system browser |
 
 **ShowProfileRequest Validation Rules:**
