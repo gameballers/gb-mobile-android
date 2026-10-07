@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.Log
 import com.gameball.gameball.local.SharedPreferencesUtils
 import com.gameball.gameball.logging.GameballLogger
+import com.gameball.gameball.model.request.CustomerAttributes
 import com.gameball.gameball.model.request.Event
 import com.gameball.gameball.model.request.GameballConfig
 import com.gameball.gameball.model.request.InitializeCustomerRequest
@@ -90,6 +91,13 @@ class GameballApp private constructor(context: Context) {
         }
     }
 
+    private fun applyGlobalLanguage(lang: String): Boolean {
+        if (lang.length != 2) return false
+
+        SharedPreferencesUtils.getInstance().putGlobalPreferredLanguage(lang)
+        return true
+    }
+
     /** Initialize the Gameball SDK */
     fun init(config: GameballConfig) {
         config.apiPrefix?.let {
@@ -98,9 +106,7 @@ class GameballApp private constructor(context: Context) {
 
         this.mApiKey = config.apiKey
 
-        if (config.lang.length == 2) {
-            SharedPreferencesUtils.getInstance().putGlobalPreferredLanguage(config.lang)
-        }
+        applyGlobalLanguage(config.lang)
 
         config.platform?.let { SharedPreferencesUtils.getInstance().putPlatformPreference(it) }
         config.shop?.let { SharedPreferencesUtils.getInstance().putShopPreference(it) }
@@ -126,13 +132,32 @@ class GameballApp private constructor(context: Context) {
      * A `showProfile` call with an explicit `lang` still takes precedence over this for that one
      * presentation — this only changes the fallback used when no per-call override is given.
      *
+     * Also becomes the customer's preferred language and is synced to the last initialized customer's profile.
+     *
      * @param lang A 2-letter language code (e.g. "en", "ar"). Ignored if invalid.
      */
     fun setLanguage(lang: String) {
-        if (lang.length == 2) {
-            SharedPreferencesUtils.getInstance().putGlobalPreferredLanguage(lang)
-            logger.log("sdk.setLanguage", mapOf("lang" to lang))
-        }
+        if (!applyGlobalLanguage(lang)) return
+
+        // Customer language is read before the global one, so set it too
+        SharedPreferencesUtils.getInstance().putCustomerPreferredLanguage(lang)
+
+        logger.log("sdk.setLanguage", mapOf("lang" to lang))
+
+        val customerId = SharedPreferencesUtils.getInstance().getCustomerId()
+        if (mApiKey.isNullOrBlank() || customerId.isNullOrEmpty()) return
+
+        val request = InitializeCustomerRequest.builder()
+            .customerId(customerId)
+            .customerAttributes(CustomerAttributes.builder().preferredLanguage(lang).build())
+            .build()
+
+        // Pass the current session token: initializeCustomer replaces the stored one
+        initializeCustomer(request, object : Callback<InitializeCustomerResponse> {
+            override fun onSuccess(response: InitializeCustomerResponse) {}
+
+            override fun onError(error: Throwable) {}
+        }, SharedPreferencesUtils.getInstance().getSessionTokenPreference())
     }
 
     /**
