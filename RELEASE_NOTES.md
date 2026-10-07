@@ -4,70 +4,52 @@ This file contains detailed release notes for the latest version. For complete v
 
 ---
 
-## Latest Release: v3.3.0
+## Latest Release: v3.3.1
 
-**Release Date**: 2026-08-29
-**Version**: 3.3.0
-**Type**: Minor Release
+**Release Date**: 2026-09-30
+**Version**: 3.3.1
+**Type**: Patch Release
 
 ---
 
-## ✨ What's New
+## 🐛 What's Fixed
 
-v3.3.0 adds **per-call and global language control** and **push notification click tracking**. All v3.2.x and v3.1.x code continues to work without modification — every addition is backward compatible.
+v3.3.1 is a bug-fix release: the widget's close button no longer lands on the wrong side, and `setLanguage(lang)` takes effect when a preferred language was already set.
 
-### Per-Call Widget Language
+### Close Button Direction
 
-`ShowProfileRequest.builder()` now accepts an optional `lang` (2-letter code, e.g. `"en"`, `"ar"`) to present that one widget in a specific language:
+The widget's close button is now positioned from the widget's own language alone and pinned to the screen's physical edge: left for Arabic, right for every other language.
 
-```kotlin
-val request = ShowProfileRequest.builder()
-    .customerId("customer_123")
-    .lang("ar")
-    .build()
+Previously its side was chosen by comparing the **device locale** against the widget language, and the button was laid out along the activity's layout direction (start/end). That only worked when the app's layout direction matched the device language and both languages were on the SDK's built-in lists; otherwise the button could land on the wrong side. For example, in an app that doesn't declare `android:supportsRtl`, an Arabic widget on an Arabic device showed it on the right.
 
-GameballApp.getInstance(this).showProfile(this, request)
-```
+### Runtime Language Switching
 
-When `lang` is omitted, the SDK's existing resolution applies: customer preferred language, then global preferred language, then device locale.
-
-### Global Language Switch
-
-`GameballApp.setLanguage(lang)` changes the SDK's global language on demand, without re-calling `init`:
+`setLanguage(lang)` was only setting the SDK's global preferred language, which is resolved *after* the customer's preferred language. When a preferred language had been persisted by an earlier `initializeCustomer`, that value won and the call silently had no effect.
 
 ```kotlin
 GameballApp.getInstance(this).setLanguage("ar")
 ```
 
-This changes the fallback used by future `showProfile` presentations that don't pass their own `lang` (a per-call `lang` still wins) and any other SDK call that resolves language. Invalid codes are ignored.
+It now takes precedence, so the change applies to `showProfile` presentations that don't pass their own `lang` and to any other SDK call that resolves language.
 
-### Push Click Tracking
+### Preferred Language Sync
 
-`GameballApp.handlePushClick(payload, callback?, sessionToken?)` reports taps on Gameball push notifications so campaign clicks are counted. Call it from your notification-tap handler with the notification's FCM data payload (e.g. `RemoteMessage.data`, or the launcher intent extras when the system tray showed the notification):
+`setLanguage(lang)` now also mirrors the new language onto the customer's Gameball profile, so server-driven communications (campaigns, emails) follow it as well — previously the change only affected this device. The profile update goes to the most recently initialized customer (remembered across app launches) and is skipped until one has been initialized; to set the language before that, pass it as `preferredLanguage` to `initializeCustomer`.
 
-```kotlin
-val isGameball = GameballApp.getInstance(this).handlePushClick(
-    payload = remoteMessage.data,
-    callback = object : Callback<Boolean> {
-        override fun onSuccess(result: Boolean) { Log.d(TAG, "Click reported") }
-        override fun onError(t: Throwable) { Log.e(TAG, "Click report failed", t) }
-    }
-)
+### Registered Customers Only
 
-if (!isGameball) {
-    // Not a Gameball notification — run your own handling.
-}
-```
-
-It returns `true` when the notification is a Gameball one; the tap is reported to Gameball when the payload carries a click token. An optional `sessionToken` overrides the global session token for this request.
+The SDK now always initializes customers as registered: `initializeCustomer` sends `guest` as `false`, and `InitializeCustomerRequest.builder().isGuest(...)` is ignored.
 
 ---
 
 ## 🔄 Changes
 
-- Added optional `ShowProfileRequest.builder().lang(...)` (per-presentation language override)
-- Added `GameballApp.setLanguage(lang)` (global language switch)
-- Added `GameballApp.handlePushClick(payload, callback?, sessionToken?)` (push click tracking)
+- Fixed the widget close button being positioned by device locale and layout direction instead of widget language
+- Fixed `setLanguage(lang)` being outranked by a preferred language set through `initializeCustomer`
+- `setLanguage(lang)` now mirrors the preferred language onto the customer's Gameball profile
+- `initializeCustomer` now always sends `guest: false`; `InitializeCustomerRequest.builder().isGuest(...)` is ignored
+- Internal diagnostic logging now only records widget usage
+- Removed the undocumented `LanguageUtils.isLtr` and `LanguageUtils.shouldHandleCloseButtonDirection` helpers
 
 ---
 
@@ -81,7 +63,7 @@ It returns `true` when the notification is a Gameball one; the tap is reported t
 
 ## Migration
 
-No changes required. v3.3.0 is a drop-in upgrade from v3.2.x — no existing public API changed.
+No code changes required — no public API signature changed. One behavior change: `isGuest(...)` is now ignored, so apps that passed `isGuest(true)` now initialize registered customers.
 
 See [MIGRATION.md](MIGRATION.md) for details.
 
@@ -91,7 +73,7 @@ See [MIGRATION.md](MIGRATION.md) for details.
 
 ```kotlin
 dependencies {
-    implementation 'com.github.gameballers:gb-mobile-android:3.3.0'
+    implementation 'com.github.gameballers:gb-mobile-android:3.3.1'
 }
 ```
 
@@ -105,9 +87,9 @@ dependencies {
 
 ---
 
-## Previous Release: v3.2.1
+## Previous Release: v3.3.0
 
-**Release Date**: 2026-07-09
-**Type**: Patch Release
+**Release Date**: 2026-08-29
+**Type**: Minor Release
 
-Widget content is now padded by the status-bar / display-cutout height so the header close buttons stay tappable, and `GameballWidgetActivity` uses a dedicated `Theme.GameballWidget` with dark status-bar icons. See [CHANGELOG.md](CHANGELOG.md) for the full history.
+Per-call widget language (`ShowProfileRequest.builder().lang(...)`), a global language switch (`GameballApp.setLanguage(lang)`), and push notification click tracking (`GameballApp.handlePushClick(...)`). See [CHANGELOG.md](CHANGELOG.md) for the full history.

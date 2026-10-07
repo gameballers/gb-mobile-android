@@ -1,6 +1,6 @@
 # Gameball Android SDK
 
-[![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)](https://github.com/gameballers/gameball-android)
+[![Version](https://img.shields.io/badge/version-3.3.1-blue.svg)](https://github.com/gameballers/gameball-android)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
 
@@ -41,7 +41,7 @@ Then add the dependency to your app-level `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation 'com.github.gameballers:gb-mobile-android:3.3.0'
+    implementation 'com.github.gameballers:gb-mobile-android:3.3.1'
 }
 ```
 
@@ -76,7 +76,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.github.gameballers</groupId>
     <artifactId>gb-mobile-android</artifactId>
-    <version>3.3.0</version>
+    <version>3.3.1</version>
 </dependency>
 ```
 
@@ -267,6 +267,8 @@ GameballApp.getInstance(this).setLanguage("ar")
 
 This changes the fallback used by future `showProfile` presentations (a per-call `lang` still wins) and any other SDK call that resolves language. Invalid codes are ignored.
 
+As of v3.3.1 it also becomes the customer's preferred language, taking precedence over one set earlier through `initializeCustomer`, and is mirrored onto the customer's Gameball profile so server-driven communications follow it too. The profile update goes to the most recently initialized customer (remembered across app launches) and is skipped until one has been initialized — to set the language before that, pass it as `preferredLanguage` to `initializeCustomer`.
+
 ### Push Click Tracking (v3.3.0+)
 
 Report taps on Gameball push notifications so campaign clicks are counted. Call `handlePushClick` from your notification-tap handler with the notification's FCM data payload (e.g. `RemoteMessage.data`, or the launcher intent extras when the system tray showed the notification):
@@ -445,7 +447,7 @@ GameballApp.getInstance(this).initializeCustomer(
 | `pushProvider` | PushProvider | ❌ Optional | Push service provider (Firebase/Huawei) |
 | `customerAttributes` | CustomerAttributes | ❌ Optional | Additional customer data |
 | `referralCode` | String | ❌ Optional | Referral code |
-| `isGuest` | Boolean | ❌ Optional | Guest user flag (defaults to false) |
+| `isGuest` | Boolean | ❌ Optional | Ignored as of v3.3.1 — customers are always initialized as registered |
 | `osType` | String | ❌ Auto-set | Operating system type (automatically set to "Android") |
 
 **InitializeCustomerRequest Validation Rules:**
