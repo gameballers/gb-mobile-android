@@ -2,6 +2,24 @@
 
 All notable changes to Gameball Android SDK are documented here
 
+## [3.3.1] - 2026-10-19 🔧
+
+> **Patch Release**: Widget close button direction, runtime language switching and supported language fallback
+
+### 🐛 Fixed
+- 🔧 **Widget Close Button Direction**: the close button is now positioned from the widget's own language alone and pinned to the screen's physical edge — left for Arabic, right for every other language. It was previously placed by comparing the device locale against the widget language and laid out along the app's layout direction, so it could land on the wrong side — e.g. in apps that don't declare `android:supportsRtl`, or when the device language was outside the SDK's built-in left-to-right list
+- 🌐 **Runtime Language Switching**: `setLanguage(lang)` is no longer outranked by a preferred language persisted from an earlier `initializeCustomer` — it now takes effect for `showProfile` presentations that don't pass their own `lang` and for any other SDK call that resolves language
+- 🌐 **Unsupported Language Codes**: any two-character code used to be accepted, so one that isn't a real language code (e.g. `"عر"`) could make every SDK request fail until the language was changed again
+
+### 🔄 Changed
+- 🌐 **Preferred Language Sync**: `setLanguage(lang)` now also mirrors the new language onto the customer's Gameball profile, so server-driven communications follow it too; the update goes to the most recently initialized customer (remembered across app launches) and is skipped until one has been initialized
+- 🌐 **Supported Languages**: language codes from `init`, `setLanguage`, `initializeCustomer` and a per-call `lang` are now matched case-insensitively against the supported languages (`en`, `ar`, `fr`, `es`, `de`, `pt`, `pl`, `it`, `hu`, `zh-tw`, `nl`, `sv`, `no`, `dk`, `ja`); any other code, including an unsupported device language, falls back to `en`; regional variants (e.g. `ar-EG`) and three-letter codes (e.g. `ara`) aren't mapped, and `initializeCustomer` still sends `preferredLanguage` to Gameball as passed
+- 👤 **Registered Customers Only**: the SDK now always initializes customers as registered — `initializeCustomer` sends `guest` as `false`, and `InitializeCustomerRequest.builder().isGuest(...)` is ignored
+- 📊 **Diagnostic Logging**: internal diagnostic logging now only records widget usage
+
+### 🗑️ Removed
+- 🧹 **Internal Direction Helpers**: removed the undocumented `LanguageUtils.isLtr` and `LanguageUtils.shouldHandleCloseButtonDirection`, which only served the old close-button placement
+
 ## [3.3.0] - 2026-08-29 📱
 
 > **Minor Release**: Per-call and global language control, and push notification click tracking
