@@ -117,9 +117,7 @@ class GameballApp private constructor(context: Context) {
         SharedPreferencesUtils.getInstance().putSDKPreference(this.SDKVersion)
         SharedPreferencesUtils.getInstance().putApiKey(this.mApiKey)
 
-        // Point the logger at the active API client and record the init call (config logged as-is).
         logger.api = gameBallApi
-        logger.log("sdk.init", config)
 
         getBotSettings()
     }
@@ -141,8 +139,6 @@ class GameballApp private constructor(context: Context) {
 
         // Customer language is read before the global one, so set it too
         SharedPreferencesUtils.getInstance().putCustomerPreferredLanguage(lang)
-
-        logger.log("sdk.setLanguage", mapOf("lang" to lang))
 
         val customerId = SharedPreferencesUtils.getInstance().getCustomerId()
         if (mApiKey.isNullOrBlank() || customerId.isNullOrEmpty()) return
@@ -195,8 +191,6 @@ class GameballApp private constructor(context: Context) {
         SharedPreferencesUtils.getInstance().putCustomerId(customerRequest.customerId)
 
         GameballCoroutineService.initializeCustomerService(TAG, customerRequest, callback, gameBallApi)
-        // Fire telemetry immediately after dispatching the request.
-        logger.log("sdk.initializeCustomer", customerRequest)
     }
 
     /**
@@ -236,8 +230,6 @@ class GameballApp private constructor(context: Context) {
                     callback.onError(e)
                 }
             })
-        // Fire telemetry immediately after dispatching the request.
-        logger.log("sdk.sendEvent", event)
     }
 
     /**
@@ -302,8 +294,6 @@ class GameballApp private constructor(context: Context) {
         }
 
         val token = payload[Constants.PUSH_CLICK_TOKEN_KEY]
-        // Fire telemetry immediately, regardless of what happens below.
-        logger.log("sdk.handlePushClick", mapOf("hasToken" to !token.isNullOrBlank()))
 
         // Override or clear sessionToken based on parameter
         sessionToken?.let {
