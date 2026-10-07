@@ -15,31 +15,39 @@ object LanguageUtils {
      * 2. Customer preferred language (set via CustomerAttributes)
      * 3. Global preferred language (set during SDK init)
      * 4. Device locale (fallback)
+     * The first one set wins; an unsupported code resolves to "en".
      */
     @JvmStatic
     @JvmOverloads
     fun handleLanguage(override: String? = null): String {
         // Highest priority: explicit per-call override
-        if (override != null && override.length == 2) {
-            return override
+        if (!override.isNullOrEmpty()) {
+            return normalizeLanguage(override)
         }
 
         val sharedPrefs = SharedPreferencesUtils.getInstanceOrNull()
 
         // First try customer preferred language
         val customerLanguage = sharedPrefs?.getCustomerPreferredLanguage()
-        if (customerLanguage != null && customerLanguage.length == 2) {
-            return customerLanguage
+        if (!customerLanguage.isNullOrEmpty()) {
+            return normalizeLanguage(customerLanguage)
         }
         
         // Then try global preferred language
         val globalLanguage = sharedPrefs?.getGlobalPreferredLanguage()
-        if (globalLanguage != null && globalLanguage.length == 2) {
-            return globalLanguage
+        if (!globalLanguage.isNullOrEmpty()) {
+            return normalizeLanguage(globalLanguage)
         }
         
         // Fall back to device locale
-        return Locale.getDefault().language
+        return normalizeLanguage(Locale.getDefault().language)
+    }
+
+    /** Returns [languageCode] trimmed and lowercased if it's supported, otherwise "en". */
+    @JvmStatic
+    fun normalizeLanguage(languageCode: String): String {
+        val code = languageCode.trim().lowercase(Locale.ROOT)
+        return if (code in ltrLanguageCodes || code in rtlLanguageCodes) code else "en"
     }
 
     @JvmStatic
