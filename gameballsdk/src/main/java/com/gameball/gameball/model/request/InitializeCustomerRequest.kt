@@ -89,7 +89,8 @@ data class InitializeCustomerRequest private constructor(
                 referralCode = referralCode,
                 email = email,
                 mobile = mobile,
-                isGuest = isGuest
+                // Hardcoded: the SDK never initializes a customer as a guest
+                isGuest = false
             )
         }
     }
