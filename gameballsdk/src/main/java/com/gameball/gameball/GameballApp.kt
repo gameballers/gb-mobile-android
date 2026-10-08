@@ -3,7 +3,11 @@ package com.gameball.gameball
 import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import androidx.lifecycle.ProcessLifecycleOwner
+import com.gameball.gameball.lifecycle.AppStartObserver
 import com.gameball.gameball.local.SharedPreferencesUtils
 import com.gameball.gameball.logging.GameballLogger
 import com.gameball.gameball.model.request.Event
@@ -116,6 +120,11 @@ class GameballApp private constructor(context: Context) {
         logger.log("sdk.init", config)
 
         getBotSettings()
+
+        // addObserver must run on the main thread; init can be called from any thread
+        Handler(Looper.getMainLooper()).post {
+            ProcessLifecycleOwner.get().lifecycle.addObserver(AppStartObserver)
+        }
     }
 
     /**
