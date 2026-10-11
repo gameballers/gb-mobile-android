@@ -1,7 +1,9 @@
 package com.gameball.gameball
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import com.gameball.gameball.local.SharedPreferencesUtils
@@ -16,6 +18,8 @@ import com.gameball.gameball.model.response.InitializeCustomerResponse
 import com.gameball.gameball.network.Callback
 import com.gameball.gameball.network.Network
 import com.gameball.gameball.network.api.GameBallApi
+import com.gameball.gameball.push.PushNotificationDisplay
+import com.gameball.gameball.push.PushOpenCapture
 import com.gameball.gameball.services.GameballCoroutineService
 import com.gameball.gameball.utils.Constants
 import com.gameball.gameball.utils.Constants.TAG
@@ -39,6 +43,8 @@ class GameballApp private constructor(context: Context) {
     private val SDKVersion = BuildConfig.SDK_VERSION
     private val OS = String.format("android-sdk-%s", Build.VERSION.SDK_INT)
     private val logger = GameballLogger(mContext)
+    // Click tokens reported in this process, so automatic capture and handlePushClick never count one tap twice
+    private val reportedClickTokens = mutableSetOf<String>()
 
     init {
         SharedPreferencesUtils.init(mContext, Gson())
@@ -116,6 +122,10 @@ class GameballApp private constructor(context: Context) {
         logger.log("sdk.init", config)
 
         getBotSettings()
+
+        // Only activities created after this are seen, so cold-start taps rely on init running in Application.onCreate, as the README shows
+        (mContext as? Application)?.let(PushOpenCapture::register)
+        PushOpenCapture.setReporter { reportPushClick(it, null) }
     }
 
     /**
@@ -294,6 +304,26 @@ class GameballApp private constructor(context: Context) {
             return true
         }
 
+        reportPushClick(token, callback)
+        return true
+    }
+
+    /**
+     * Shows a Gameball push the way FCM would, plus dismiss tracking. Call it first in your
+     * FirebaseMessagingService.handleIntent and skip super.handleIntent when it returns true.
+     *
+     * Returns false for other pushes, while the app is on screen (FCM then calls onMessageReceived
+     * as usual), and when the push can't be shown this way, so FCM shows it instead.
+     */
+    fun handlePushIntent(intent: Intent): Boolean = PushNotificationDisplay.handle(mContext, intent)
+
+    // Reports a tap once per click token, whether it came from automatic capture or handlePushClick
+    private fun reportPushClick(token: String, callback: Callback<Boolean>?) {
+        if (!synchronized(reportedClickTokens) { reportedClickTokens.add(token) }) {
+            callback?.onSuccess(true)
+            return
+        }
+
         gameBallApi.reportPushClick(mapOf("clickToken" to token))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -305,9 +335,10 @@ class GameballApp private constructor(context: Context) {
                 }
 
                 override fun onError(e: Throwable) {
+                    // Forget the token so a later handlePushClick can retry it
+                    synchronized(reportedClickTokens) { reportedClickTokens.remove(token) }
                     callback?.onError(e)
                 }
             })
-        return true
     }
 }
