@@ -58,6 +58,14 @@ class GameballApp private constructor(context: Context) {
     init {
         SharedPreferencesUtils.init(mContext, Gson())
         SharedPreferencesUtils.getInstance().putClientBotSettings(null)
+
+        // Settles the in-app messaging logging default up front, so inAppMessagingLogging reads
+        // correctly before messaging starts. It only reads the app's debuggable flag.
+        try {
+            IamLog.resolveDefaultFrom(mContext)
+        } catch (t: Throwable) {
+            Log.e(TAG, "could not read the app's build type for in-app messaging logging", t)
+        }
     }
 
     companion object {
@@ -82,6 +90,20 @@ class GameballApp private constructor(context: Context) {
          */
         @JvmStatic
         fun getInstance(context: Context): GameballApp = initGameball(context)
+
+        /**
+         * Whether in-app messaging writes its diagnostics to logcat, under the tag GameballIAM.
+         *
+         * On in a debuggable build and off in a release build, where these lines reach every end
+         * user's device log. Set it to true in a release build only to reproduce a reported
+         * problem. Takes effect immediately, before or after startInAppMessaging.
+         */
+        @JvmStatic
+        var inAppMessagingLogging: Boolean
+            get() = IamLog.enabled
+            set(value) {
+                IamLog.enabled = value
+            }
     }
 
 
@@ -426,26 +448,34 @@ class GameballApp private constructor(context: Context) {
     }
 
     /**
-     * Records a purchase so purchase-triggered campaigns can fire.
+     * Logs a purchase: sends Gameball an event named `purchase` with [productId], [price],
+     * [currency] and [quantity] as its metadata, whether or not in-app messaging is running.
+     * While it is, the same event reaches purchase-triggered campaigns, which can filter on
+     * those fields and on [properties].
      *
      * Routed through [sendEvent], which is the single place that feeds the trigger engine, so
      * one call produces exactly one trigger occurrence. Notifying the module here as well
      * would fire it twice, and the duplicate would take the pending slot from whatever was
      * legitimately waiting.
+     *
+     * A blank [customerId] is reported to [callback] and nothing is sent. [callback] and
+     * [sessionToken] behave as they do on [sendEvent].
      */
     @JvmOverloads
     fun logPurchase(
+        customerId: String,
         productId: String,
         price: Double,
         currency: String,
-        quantity: Int,
+        quantity: Int = 1,
         properties: Map<String, Any>? = null,
-        callback: Callback<Boolean>? = null
+        callback: Callback<Boolean>? = null,
+        sessionToken: String? = null
     ) {
-        val customerId = SharedPreferencesUtils.getInstance().getCustomerId()
-        if (customerId.isNullOrBlank()) {
-            Log.e(TAG, "logPurchase needs an initialized customer")
-            callback?.onError(IllegalStateException("No customer has been initialized"))
+        if (customerId.isBlank()) {
+            val error = IllegalArgumentException("logPurchase needs a customer ID")
+            Log.e(TAG, error.message, error)
+            callback?.onError(error)
             return
         }
         val builder = Event.builder()
@@ -462,7 +492,8 @@ class GameballApp private constructor(context: Context) {
             callback ?: object : Callback<Boolean> {
                 override fun onSuccess(t: Boolean?) = Unit
                 override fun onError(e: Throwable?) = Unit
-            }
+            },
+            sessionToken
         )
     }
 }
