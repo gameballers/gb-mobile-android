@@ -43,7 +43,9 @@ internal class InAppMessagingService(
     private val variables: VariableSource,
     private val presenter: MessagePresenter,
     private val sessionState: SessionState,
-    private var hooks: HostHooks = HostHooks()
+    private var hooks: HostHooks = HostHooks(),
+    /** Asked whenever a message is about to show: nothing is drawn over the host's widget. */
+    private val isWidgetOpen: () -> Boolean = { false }
 ) {
 
     private companion object {
@@ -54,7 +56,6 @@ internal class InAppMessagingService(
     private var held: SyncResult = SyncResult.EMPTY
     private var neededTokens: Set<String> = emptySet()
     private var pending: PendingPresentation? = null
-    private var widgetOpen = false
     private var currentCustomerId: String? = null
 
     var isStarted: Boolean = false
@@ -87,7 +88,6 @@ internal class InAppMessagingService(
         held = SyncResult.EMPTY
         neededTokens = emptySet()
         pending = null
-        widgetOpen = false
         artwork.reset()
         sessionState.reset()
         variables.clear()
@@ -189,12 +189,8 @@ internal class InAppMessagingService(
         retryPending()
     }
 
-    fun onWidgetOpened() {
-        widgetOpen = true
-    }
-
+    /** The host's widget closed, however it was closed: whatever waited for it may show now. */
     fun onWidgetClosed() {
-        widgetOpen = false
         retryPending()
     }
 
@@ -241,7 +237,7 @@ internal class InAppMessagingService(
     }
 
     private suspend fun presentOrDefer(slot: PendingPresentation) {
-        if (widgetOpen) {
+        if (isWidgetOpen()) {
             defer(slot.campaign, "the host's widget is open")
             return
         }
@@ -276,7 +272,7 @@ internal class InAppMessagingService(
 
     private fun retryPending() {
         val slot = pending ?: return
-        if (presenter.isShowing || widgetOpen) return
+        if (presenter.isShowing || isWidgetOpen()) return
         val customerId = currentCustomerId ?: return
 
         // "May this display now", not "has it ever displayed". The cruder question threw away

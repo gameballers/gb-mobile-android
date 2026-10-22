@@ -295,12 +295,6 @@ class GameballApp private constructor(context: Context) {
         // showProfile opens a webview (never hits the backend), so it is invisible server-side — log it here.
         logger.log("sdk.showProfile", profileRequest)
 
-        try {
-            inAppMessaging.onWidgetOpened()
-        } catch (t: Throwable) {
-            Log.e(TAG, "in-app messaging could not record the widget opening", t)
-        }
-
         GameballWidgetActivity.start(
             activity,
             profileRequest.customerId,
@@ -310,18 +304,22 @@ class GameballApp private constructor(context: Context) {
             profileRequest.lang,
             profileRequest.externalLinkCallback,
             profileRequest.widgetEventCallback
-        )
+        ) {
+            // The widget closed, however it was closed: a message held back while it was open
+            // may show now.
+            try {
+                inAppMessaging.onWidgetClosed()
+            } catch (t: Throwable) {
+                Log.e(TAG, "in-app messaging could not record the widget closing", t)
+            }
+        }
     }
 
     /** Hides the currently shown profile widget. No-op when nothing is shown. Counterpart to [showProfile]. */
     fun hideProfile() {
+        // In-app messaging hears about the close from the widget itself, as for every other way
+        // the widget can close.
         GameballWidgetActivity.closeCurrentWidget()
-        // Closing the widget is a retry trigger for anything deferred while it was open.
-        try {
-            inAppMessaging.onWidgetClosed()
-        } catch (t: Throwable) {
-            Log.e(TAG, "in-app messaging could not record the widget closing", t)
-        }
     }
 
     /**
