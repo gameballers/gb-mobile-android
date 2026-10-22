@@ -6,11 +6,153 @@ This guide provides migration instructions for upgrading between major versions 
 
 ## Table of Contents
 
+- [v3.x → v4.0.0](#migration-guide-v3x--v400)
 - [v3.2.x → v3.3.0](#migration-guide-v32x--v330)
 - [v3.1.1 → v3.2.0](#migration-guide-v311--v320)
 - [v3.1.0 → v3.1.1](#migration-guide-v310--v311)
 - [v3.0.0 → v3.1.0](#migration-guide-v300--v310)
 - [v2.x → v3.0.0](#migration-guide-v2x--v300)
+
+---
+
+## Migration Guide: v3.x → v4.0.0
+
+Version 4.0.0 adds in-app messaging: campaigns authored in the Gameball dashboard, displayed inside your app. It is a **major release** because it raises the minimum supported Android version to **API 24 (Android 7.0)**. Every v3.x API keeps its signature and behaviour, so no code changes are required beyond the minimum SDK.
+
+### Overview of Changes
+
+#### ✨ What's New
+- **In-app messaging** - `startInAppMessaging(customerId, options)` displays dashboard campaigns; `stopInAppMessaging()` stops it and clears state on logout
+- **Three message types** - modal, slideup and fullscreen, chosen per campaign in the dashboard rather than in code
+- **Triggers** - session start, and custom events matched by name and optionally filtered on their metadata
+- **Purchase logging** - `logPurchase(...)` sends a `purchase` event that campaigns can target and filter on
+- **Hooks** - `beforeDisplay`, `onAction`, `onNavigate` and `observer`, set through `InAppMessagingOptions`
+- **Automatic message analytics** - impressions, clicks and dismissals, batched and kept on the device until sent
+
+#### ⚠️ Breaking Changes
+- **Minimum Android version raised to API 24 (Android 7.0)** (was API 21 / Android 5.0)
+- No changes to the public API. In-app messaging is opt-in: until you call `startInAppMessaging`, it makes no requests, starts no timers, stores nothing, draws nothing and registers no lifecycle callbacks.
+
+### 1. Update Dependencies
+
+**Before (v3.x):**
+```groovy
+implementation 'com.github.gameballers:gb-mobile-android:3.3.1'
+```
+
+**After (v4.0.0):**
+```groovy
+implementation 'com.github.gameballers:gb-mobile-android:4.0.0'
+```
+
+### 2. Raise Your Minimum SDK
+
+**Before (v3.x):**
+```groovy
+android {
+    defaultConfig {
+        minSdk 21
+    }
+}
+```
+
+**After (v4.0.0):**
+```groovy
+android {
+    defaultConfig {
+        minSdk 24
+    }
+}
+```
+
+### 3. Adopt In-App Messaging (Optional)
+
+**Before (v3.x):** not available.
+
+**After (v4.0.0):**
+```kotlin
+val gameball = GameballApp.getInstance(context)
+
+// After init() and once the customer is known
+gameball.startInAppMessaging("customer-123")
+
+// On logout
+gameball.stopInAppMessaging()
+```
+
+- **Call `stopInAppMessaging()` on logout.** It dismisses anything on screen, sends pending analytics and clears the customer's state.
+- **Set `onNavigate` if campaigns navigate.** The SDK can't drive your app's navigation, so a campaign's navigate action does nothing without it. The route is a bare name with no leading slash.
+
+```kotlin
+val options = InAppMessagingOptions.builder()
+    .onNavigate { route, arguments -> navController.navigate(route) }
+    .build()
+
+gameball.startInAppMessaging("customer-123", options)
+```
+
+### 4. Log Purchases (Optional)
+
+**Before (v3.x):**
+```kotlin
+gameball.sendEvent(
+    Event.builder()
+        .customerId("customer-123")
+        .eventName("purchase")
+        .eventMetaData("productId", "sku-001")
+        .eventMetaData("price", 49.99)
+        .eventMetaData("currency", "USD")
+        .eventMetaData("quantity", 2)
+        .build(),
+    callback
+)
+```
+
+**After (v4.0.0):**
+```kotlin
+gameball.logPurchase(
+    customerId = "customer-123",
+    productId = "sku-001",
+    price = 49.99,
+    currency = "USD",
+    quantity = 2,
+    callback = callback
+)
+```
+
+`logPurchase` sends the same kind of event through `sendEvent`, with `productId`, `price`, `currency` and `quantity` as metadata, so purchase-triggered campaigns can filter on them. Replace a hand-built purchase event with `logPurchase` rather than sending both.
+
+### Availability
+
+In-app messaging needs the in-app messaging endpoints enabled for your account. Where they aren't, the SDK logs the error in debuggable builds and stays silent — nothing surfaces to your app.
+
+### Migration Checklist
+
+#### Pre-Migration
+- [ ] Confirm your app can drop support for Android versions below 7.0 (API 24)
+
+#### During Migration
+- [ ] Update `gb-mobile-android` to `4.0.0`
+- [ ] Set `minSdk` to 24 in your app module's `build.gradle`
+- [ ] (Optional) Call `startInAppMessaging(customerId)` after `init` and once the customer is known
+- [ ] (Optional) Call `stopInAppMessaging()` on logout
+- [ ] (Optional) Replace hand-built purchase events with `logPurchase`
+
+#### Post-Migration
+- [ ] Verify `initializeCustomer`, `sendEvent` and `showProfile` behave as before
+- [ ] If adopted, confirm a session-start campaign appears on launch
+
+### Troubleshooting
+
+1. **Build fails after the update**
+   ```
+   Manifest merger failed : uses-sdk:minSdkVersion 21 cannot be smaller than version 24 declared in library [com.github.gameballers:gb-mobile-android:4.0.0]
+   ```
+   **Solution**: Raise `minSdk` to 24 in your app module's `build.gradle`.
+
+2. **Campaigns never appear**
+
+   **Solution**: Check that `startInAppMessaging` runs after `init`, and that in-app messaging is enabled for your account. Set `GameballApp.inAppMessagingLogging = true` and filter logcat by `GameballIAM` to see why a campaign was skipped.
 
 ---
 

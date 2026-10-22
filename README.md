@@ -1,8 +1,8 @@
 # Gameball Android SDK
 
-[![Version](https://img.shields.io/badge/version-3.3.1-blue.svg)](https://github.com/gameballers/gameball-android)
+[![Version](https://img.shields.io/badge/version-4.0.0-blue.svg)](https://github.com/gameballers/gb-mobile-android)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
+[![API](https://img.shields.io/badge/API-24%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=24)
 
 The Gameball Android SDK provides a comprehensive solution for integrating customer engagement, loyalty programs, and analytics into your Android applications.
 
@@ -11,13 +11,14 @@ The Gameball Android SDK provides a comprehensive solution for integrating custo
 - 🎯 **Customer Management** - Initialize and manage customer profiles
 - 📊 **Event Tracking** - Track user actions and behaviors
 - 🎁 **Profile Widget** - Display customer loyalty information
+- 🔔 **In-App Messaging** - Dashboard-configured campaigns, drawn over your UI (opt-in)
 - 🔧 **Modern Architecture** - Built with Kotlin and modern Android patterns
 - 🛡️ **Type Safety** - Builder pattern with compile-time validation
 - ⚡ **Coroutines Support** - Async operations with structured concurrency
 
 ## Requirements
 
-- **Minimum SDK Version**: 21 (Android 5.0)
+- **Minimum SDK Version**: 24 (Android 7.0)
 - **Target SDK Version**: 34
 - **Kotlin**: 2.0.0+
 - **AndroidX**: Required
@@ -41,7 +42,7 @@ Then add the dependency to your app-level `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation 'com.github.gameballers:gb-mobile-android:3.3.1'
+    implementation 'com.github.gameballers:gb-mobile-android:4.0.0'
 }
 ```
 
@@ -76,7 +77,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.github.gameballers</groupId>
     <artifactId>gb-mobile-android</artifactId>
-    <version>3.3.1</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 
@@ -293,6 +294,122 @@ if (!isGameball) {
 
 An optional `sessionToken` parameter overrides the global session token for this request.
 
+## In-App Messaging (v4.0.0+)
+
+Campaigns are configured in the Gameball dashboard; the SDK fetches them, decides which one to
+show, draws it over your app and reports the results.
+
+**It is entirely opt-in.** Until you call `startInAppMessaging`, the module issues no requests,
+arms no timers, writes no storage, draws nothing and registers no Activity lifecycle callbacks.
+Upgrading without calling it changes nothing for an existing integration.
+
+### Getting started
+
+Call it once you know who the customer is — typically right after `initializeCustomer`.
+
+```kotlin
+val gameball = GameballApp.getInstance(context)
+gameball.init(config)
+gameball.initializeCustomer(customerRequest, callback)
+
+gameball.startInAppMessaging("customer-123")
+```
+
+```java
+GameballApp gameball = GameballApp.getInstance(context);
+gameball.startInAppMessaging("customer-123");
+```
+
+That is enough. Messages appear on session start and when you send matching events.
+
+### Hooks
+
+Every hook is optional, and each one is individually guarded — if yours throws, you lose the
+override, never the message.
+
+```kotlin
+val options = InAppMessagingOptions.builder()
+    // Hold a message back, or drop it entirely.
+    .beforeDisplay { message ->
+        if (checkoutInProgress) DisplayDecision.LATER else DisplayDecision.SHOW
+    }
+    // Handle a tap yourself. Return true and the SDK does nothing further; the click is
+    // reported to Gameball either way.
+    .onAction { message, button, action -> false }
+    // Route a campaign's navigate action into your own navigation.
+    .onNavigate { route, arguments -> navController.navigate(route) }
+    // See every message the SDK selects, whatever happens to it next.
+    .observer { message -> analytics.log("gb_message_selected", message.campaignId) }
+    .build()
+
+gameball.startInAppMessaging("customer-123", options)
+```
+
+```java
+InAppMessagingOptions options = InAppMessagingOptions.builder()
+    .onNavigate((route, arguments) -> navController.navigate(route))
+    .build();
+
+gameball.startInAppMessaging("customer-123", options);
+```
+
+### Triggering messages
+
+Campaigns fire on session start or on a named event. Events you already send through
+`sendEvent` reach the trigger engine automatically, metadata included, so filters work:
+
+```kotlin
+gameball.sendEvent(
+    Event.builder()
+        .customerId("customer-123")
+        .eventName("place_order")
+        .eventMetaData("total", 250)
+        .build(),
+    callback
+)
+```
+
+Purchases have a dedicated entry point. `logPurchase` sends Gameball an event named `purchase`,
+whose `productId`, `price`, `currency` and `quantity` campaigns can filter on:
+
+```kotlin
+gameball.logPurchase(
+    customerId = "customer-123",
+    productId = "sku-42",
+    price = 250.0,
+    currency = "USD"
+)
+```
+
+It's sent whether or not in-app messaging has started, so replace a hand-built purchase event with
+it rather than sending both.
+
+### Stopping
+
+On logout, or whenever messaging should stop:
+
+```kotlin
+gameball.stopInAppMessaging()
+```
+
+This dismisses anything on screen, sends pending analytics and clears state. Calling it when
+messaging was never started is safe.
+
+A different customer needs no stop first — `startInAppMessaging` with a new id refetches,
+resets caps and discards the previous customer's data.
+
+### Notes
+
+| | |
+|---|---|
+| **Widget and messaging are independent** | Use either, both, or neither. Nothing in messaging requires the widget; while your widget is open, messages wait and appear once it closes |
+| **Message styling** | Colours, copy and behaviour come from the campaign. Anything the campaign leaves unset falls back to your app's Material theme, so messages adopt your colours |
+| **Analytics** | Impressions, clicks and dismissals are reported automatically, batched and kept on the device until sent. Campaigns are cached per customer, so a failed sync falls back to the last good campaigns |
+| **Personalisation** | `{token}` placeholders in campaign text are filled with the customer's current values just before display. If the values don't arrive within two seconds, the placeholders are removed and the message still shows |
+| **Navigation** | A campaign's navigate action needs `onNavigate`; without it, the SDK logs the route and does nothing |
+| **Diagnostics** | `adb logcat -s GameballIAM`. On in a debuggable build, silent in a release build; set `GameballApp.inAppMessagingLogging = true` (Java: `GameballApp.setInAppMessagingLogging(true)`) to turn them on in a release build |
+| **Requirements** | None beyond the SDK's own. No new dependencies, no manifest entries, no permissions |
+
 ## API Methods
 
 The SDK provides the following public methods:
@@ -304,6 +421,11 @@ The SDK provides the following public methods:
 - `hideProfile()` - Dismiss the currently shown profile widget (no-op when nothing is shown)
 - `setLanguage(lang)` - Change the SDK's global language on demand without re-calling `init`
 - `handlePushClick(payload, callback?, sessionToken?)` - Report a tap on a Gameball push notification for click tracking
+- `startInAppMessaging(customerId, options?)` - Start in-app messaging for a customer (v4.0.0+, opt-in)
+- `stopInAppMessaging()` - Stop in-app messaging and clear state; call on logout (v4.0.0+)
+- `isInAppMessagingStarted()` - Whether in-app messaging is running (v4.0.0+)
+- `logPurchase(customerId, productId, price, currency, quantity?, properties?, callback?, sessionToken?)` - Send a purchase event that in-app messaging campaigns can target (v4.0.0+)
+- `GameballApp.inAppMessagingLogging` - Turn in-app messaging logcat output on or off (v4.0.0+)
 
 **Note**: The optional `sessionToken` parameter (added in v3.1.0) allows per-request authentication override.
 
@@ -405,6 +527,10 @@ GameballApp.getInstance(this).initializeCustomer(
 )
 ```
 
+## Migration from v3.x
+
+⚠️ **Version 4.0.0 contains breaking changes**: the minimum supported Android version is now **API 24 (Android 7.0)** (was API 21). Every v3.x API keeps its signature and behaviour. See the [Migration Guide](MIGRATION.md#migration-guide-v3x--v400) for details.
+
 ## Migration from v2.x
 
 ⚠️ **Version 3.0.0 contains breaking changes**. Please see the [Migration Guide](MIGRATION.md) for detailed upgrade instructions.
@@ -431,7 +557,7 @@ GameballApp.getInstance(this).initializeCustomer(
 | `lang` | String | ✅ **Required** | Language code (e.g., "en", "ar") |
 | `platform` | String | ❌ Optional | Platform identifier |
 | `shop` | String | ❌ Optional | Shop identifier |
-| `sessionToken` | String | ❌ Optional | Session Token for secure authentication (enables automatic v4.1 endpoint routing) |
+| `sessionToken` | String | ❌ Optional | Session Token for secure authentication (enables automatic v4.1 endpoint routing; the in-app messaging endpoints stay on v4.0, where they are served) |
 | `apiPrefix` | String | ❌ Optional | Custom API endpoint prefix |
 
 **GameballConfig Validation Rules:**
@@ -518,6 +644,58 @@ GameballApp.getInstance(this).initializeCustomer(
 - Event name must be set before adding metadata
 - At least one event must be added
 
+### InAppMessagingOptions
+
+Optional configuration passed to `startInAppMessaging` (v4.0.0+).
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `sessionTimeoutSeconds` | Int | ❌ Optional | Time in the background after which returning starts a new session (defaults to 30) |
+| `beforeDisplay` | BeforeDisplayHook | ❌ Optional | Called before each message; return `DisplayDecision.SHOW`, `LATER` or `DISCARD`. Shows every message when not set |
+| `onAction` | MessageActionHook | ❌ Optional | Called on a tap with `(message, button, action)`; return `true` if you handled it. `button` is null when the message itself was tapped |
+| `onNavigate` | MessageNavigationHook | ❌ Optional | Called with `(route, arguments)` when a campaign navigates. Without it, navigate actions do nothing |
+| `observer` | MessageObserver | ❌ Optional | Receives every message the SDK selects, whatever happens to it next |
+| `appVersion` | String | ❌ Optional | Reported with each sync so campaigns can target app versions |
+
+**InAppMessagingOptions Builder Methods:**
+- `sessionTimeoutSeconds(seconds)` - Sets the session timeout
+- `beforeDisplay(hook)` - Sets the before-display hook
+- `onAction(hook)` - Sets the tap hook
+- `onNavigate(hook)` - Sets the navigation hook
+- `observer(observer)` - Sets the message observer
+- `appVersion(version)` - Sets the app version reported to Gameball
+
+### startInAppMessaging
+
+Starts in-app messaging for a customer (v4.0.0+).
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `customerId` | String | ✅ **Required** | Customer to fetch campaigns for |
+| `options` | InAppMessagingOptions | ❌ Optional | Hooks and settings; defaults apply when omitted |
+
+**Validation Rules:**
+- Call it after `init`
+- Calling it again for the same customer does nothing; a different customer refetches campaigns and resets frequency caps, so there's no need to stop first
+
+### logPurchase
+
+Sends a `purchase` event that in-app messaging campaigns can target (v4.0.0+).
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `customerId` | String | ✅ **Required** | Customer who made the purchase |
+| `productId` | String | ✅ **Required** | Identifier of the purchased item |
+| `price` | Double | ✅ **Required** | Unit price |
+| `currency` | String | ✅ **Required** | ISO currency code, e.g. `"USD"` |
+| `quantity` | Int | ❌ Optional | Number of units (defaults to 1) |
+| `properties` | Map<String, Any> | ❌ Optional | Extra metadata, also available to campaign filters |
+| `callback` | Callback<Boolean> | ❌ Optional | Receives the result, as with `sendEvent` |
+| `sessionToken` | String | ❌ Optional | Overrides the global session token for this request, as with `sendEvent` |
+
+**Validation Rules:**
+- A blank `customerId` is reported to `callback` as an error, and nothing is sent
+
 ## Proguard/R8
 
 If you're using code obfuscation, add these rules to your `proguard-rules.pro`:
@@ -556,24 +734,31 @@ If you're using code obfuscation, add these rules to your `proguard-rules.pro`:
 
 ### Debug Logging
 
-The SDK automatically enables debug logging in debug builds. Network requests and responses are logged when `BuildConfig.DEBUG` is true in your app. No additional configuration is needed.
+Network requests and responses are logged only when the SDK itself is built in debug mode: `LoggingInterceptor` checks the SDK's own `BuildConfig.DEBUG`, not your app's.
 
 To view SDK logs, filter by these tags:
 - `GameballApp` - General SDK operations
 - `LoggingInterceptor` - Network requests/responses
 - `HeaderInterceptor` - Request headers
+- `GameballIAM` - In-app messaging: why a campaign was shown or skipped (v4.0.0+)
+
+In-app messaging logs are on in debuggable builds and off in release builds. To turn them on in a release build while reproducing an issue:
+
+```kotlin
+GameballApp.inAppMessagingLogging = true
+```
 
 ## Documentation
 
 - 📋 **[Changelog](CHANGELOG.md)** - Version history and release notes
-- 🔄 **[Migration Guide](MIGRATION.md)** - Upgrade from v2.x to v3.0.0
+- 🔄 **[Migration Guide](MIGRATION.md)** - Upgrade instructions, including v3.x to v4.0.0
 - 📝 **[Release Notes](RELEASE_NOTES.md)** - Latest release details
 
 ## Support
 
 - 📧 **Email**: support@gameball.co
 - 📖 **Documentation**: [https://developer.gameball.co/](https://developer.gameball.co/)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/gameballers/gameball-android/issues)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/gameballers/gb-mobile-android/issues)
 
 ## License
 

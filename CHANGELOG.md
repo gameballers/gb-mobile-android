@@ -2,6 +2,27 @@
 
 All notable changes to Gameball Android SDK are documented here
 
+## [4.0.0] - 2026-10-22 🎉
+
+> **Major Release**: Raised the minimum Android version to API 24 (Android 7.0), and added in-app messaging — an opt-in module that displays campaigns authored in the Gameball dashboard inside your app
+
+### ✨ Added
+- 🏗️ **In-App Messaging**: Added `startInAppMessaging(customerId, options)`, `stopInAppMessaging()` and `isInAppMessagingStarted()`. Nothing runs until `startInAppMessaging` is called — no requests, no timers, no stored data, nothing drawn and no lifecycle callbacks registered — so upgrading without calling it changes nothing
+- 🎁 **Three Message Types**: Added modal (a card over a dimmed background, up to two buttons), slideup (a non-blocking banner at the top or bottom edge, dismissed by swiping toward its edge) and fullscreen messages, chosen per campaign in the dashboard
+- 🎁 **Triggers**: Added session-start triggers, fired on launch and when the app returns to the foreground after 30 seconds in the background (configurable with `sessionTimeoutSeconds`), and custom-event triggers matched on the event name and optionally filtered on its metadata (`equals`, `notEquals`, `greaterThan`, `greaterThanOrEqual`, `lessThan`, `lessThanOrEqual`, `contains`)
+- 🎁 **Purchase Logging**: Added `logPurchase(customerId, productId, price, currency, quantity, properties, callback, sessionToken)`, which sends a `purchase` event to Gameball whose `productId`, `price`, `currency` and `quantity` are available to campaign filters
+- 🎁 **Display Rules**: Added a backend-controlled minimum interval between any two messages, per-campaign repeat rules that persist across restarts, campaign expiry and priority, quiet hours, and orientation-specific campaigns that wait until the device is in that orientation. A message that can't be shown yet — because the Gameball widget or another message is open — waits and shows as soon as it can
+- 🔧 **Host Hooks**: Added `InAppMessagingOptions` with `beforeDisplay` (show, postpone or discard a message), `onAction` (handle a tap yourself), `onNavigate` (route a campaign's navigate action through your own navigation) and `observer` (see every message the SDK selects)
+- 🏗️ **Message Analytics**: Added automatic impression, click and dismissal reporting. Events are batched and kept on the device until sent, and failed sends are retried
+- 🏗️ **Offline Campaigns**: Added a per-customer campaign cache, so a failed sync falls back to the last good campaigns
+- 🎁 **Personalisation**: Added `{token}` placeholders in campaign text, filled with the customer's current values fetched just before a message is shown. The fetch waits at most two seconds; if the values don't arrive, the placeholders are removed and the message still shows
+- ⚙️ **Diagnostic Logging Switch**: Added `GameballApp.inAppMessagingLogging` to control in-app messaging logcat output (tag `GameballIAM`); it defaults to on in debuggable builds and off in release builds
+
+### 🔄 Changed
+- 💥 **BREAKING**: **Minimum Android Version**: Raised the minimum supported Android version from API 21 (Android 5.0) to API 24 (Android 7.0)
+
+---
+
 ## [3.3.1] - 2026-10-19 🔧
 
 > **Patch Release**: Widget close button direction, runtime language switching and supported language fallback
