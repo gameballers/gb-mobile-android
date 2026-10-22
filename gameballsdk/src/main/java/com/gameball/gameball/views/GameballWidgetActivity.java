@@ -50,6 +50,8 @@ public class GameballWidgetActivity extends AppCompatActivity {
     private static Callback<String> externalLinkCallback;
     private static Callback<Map<String, Object>> widgetEventCallback;
     private static WeakReference<GameballWidgetActivity> currentInstance;
+    private static volatile boolean open = false;
+    private static Runnable onClosed;
     private GestureDetector gestureDetector;
     final private static String WIDGET_URL_KEY = "WIDGET_URL_KEY";
     final private static String CUSTOMER_ID_KEY = "CUSTOMER_ID_KEY";
@@ -73,6 +75,9 @@ public class GameballWidgetActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gameball_widget);
         currentInstance = new WeakReference<>(this);
+        // Open once it actually exists, not when it is asked for: a launch Android blocks never
+        // shows a widget, and must not hold messages back.
+        open = true;
 
         // Ensure SharedPreferences is initialized before any usage
         if (!SharedPreferencesUtils.isInitialized()) {
@@ -263,7 +268,26 @@ public class GameballWidgetActivity extends AppCompatActivity {
         if (currentInstance != null && currentInstance.get() == this) {
             currentInstance = null;
         }
+        // Closed for good rather than recreated: the close button, Back, a swipe, the page's
+        // closeWidget() and hideProfile() all end here.
+        if (isFinishing()) {
+            open = false;
+            Runnable listener = onClosed;
+            onClosed = null;
+            if (listener != null) {
+                try {
+                    listener.run();
+                } catch (Throwable t) {
+                    Log.e("GameballApp", "widget close listener failed", t);
+                }
+            }
+        }
         super.onDestroy();
+    }
+
+    /** Whether the widget is open: from creation until it closes for good. Backs in-app messaging. */
+    public static boolean isOpen() {
+        return open;
     }
 
     private void loadWidget() {
@@ -413,6 +437,9 @@ public class GameballWidgetActivity extends AppCompatActivity {
     }
 
     public static void start(Activity context, @Nullable String customerId, @Nullable Boolean showCloseButton, @Nullable String closeButtonColor, @Nullable String widgetUrlPrefix, @Nullable String lang, @Nullable Callback<String> externalLinkCallback, @Nullable Callback<Map<String, Object>> widgetEventCallback) {
+        start(context, customerId, showCloseButton, closeButtonColor, widgetUrlPrefix, lang, externalLinkCallback, widgetEventCallback, null);
+    }
+    public static void start(Activity context, @Nullable String customerId, @Nullable Boolean showCloseButton, @Nullable String closeButtonColor, @Nullable String widgetUrlPrefix, @Nullable String lang, @Nullable Callback<String> externalLinkCallback, @Nullable Callback<Map<String, Object>> widgetEventCallback, @Nullable Runnable onClosed) {
         // Ensure SharedPreferences is initialized
         if (!SharedPreferencesUtils.isInitialized()) {
             SharedPreferencesUtils.init(context, new Gson());
@@ -430,6 +457,7 @@ public class GameballWidgetActivity extends AppCompatActivity {
         instance.putExtra(CUSTOMER_ID_KEY, customerId);
         instance.putExtra(WIDGET_URL_KEY, widgetUrlPrefix);
         instance.putExtra(LANG_KEY, lang);
+        GameballWidgetActivity.onClosed = onClosed;
         context.startActivity(instance);
         context.overridePendingTransition(R.anim.translate_bottom_to_top, R.anim.translate_top_to_bottom);
     }

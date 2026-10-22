@@ -41,7 +41,7 @@ internal fun ArtworkPrefetcher.isReady(content: MessageContent): Boolean =
 
 internal class PicassoArtworkPrefetcher(
     private val scope: CoroutineScope,
-    @VisibleForTesting internal val fetch: suspend (String) -> Boolean = ::picassoFetch
+    @get:VisibleForTesting internal val fetch: suspend (String) -> Boolean = ::picassoFetch
 ) : ArtworkPrefetcher {
 
     private companion object {
