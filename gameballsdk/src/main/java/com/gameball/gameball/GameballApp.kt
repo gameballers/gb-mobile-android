@@ -58,6 +58,14 @@ class GameballApp private constructor(context: Context) {
     init {
         SharedPreferencesUtils.init(mContext, Gson())
         SharedPreferencesUtils.getInstance().putClientBotSettings(null)
+
+        // Settles the in-app messaging logging default up front, so inAppMessagingLogging reads
+        // correctly before messaging starts. It only reads the app's debuggable flag.
+        try {
+            IamLog.resolveDefaultFrom(mContext)
+        } catch (t: Throwable) {
+            Log.e(TAG, "could not read the app's build type for in-app messaging logging", t)
+        }
     }
 
     companion object {
@@ -82,6 +90,20 @@ class GameballApp private constructor(context: Context) {
          */
         @JvmStatic
         fun getInstance(context: Context): GameballApp = initGameball(context)
+
+        /**
+         * Whether in-app messaging writes its diagnostics to logcat, under the tag GameballIAM.
+         *
+         * On in a debuggable build and off in a release build, where these lines reach every end
+         * user's device log. Set it to true in a release build only to reproduce a reported
+         * problem. Takes effect immediately, before or after startInAppMessaging.
+         */
+        @JvmStatic
+        var inAppMessagingLogging: Boolean
+            get() = IamLog.enabled
+            set(value) {
+                IamLog.enabled = value
+            }
     }
 
 
