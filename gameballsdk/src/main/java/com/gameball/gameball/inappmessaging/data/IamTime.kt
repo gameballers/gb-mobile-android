@@ -35,10 +35,13 @@ internal object IamTime {
 
     private val OFFSET_WITH_COLON = Regex("""([+-]\d{2}):(\d{2})$""")
 
-    private val emitter = ThreadLocal.withInitial {
-        SimpleDateFormat(EMIT_PATTERN, Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }
+    // A subclass rather than ThreadLocal.withInitial, which needs API 26: on Android 7.0 and 7.1
+    // the latter fails the first time IamTime is touched.
+    private val emitter = object : ThreadLocal<SimpleDateFormat>() {
+        override fun initialValue(): SimpleDateFormat =
+            SimpleDateFormat(EMIT_PATTERN, Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
     }
 
     fun toIso8601Utc(millis: Long): String = emitter.get()!!.format(Date(millis))
