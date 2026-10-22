@@ -4,101 +4,195 @@ This file contains detailed release notes for the latest version. For complete v
 
 ---
 
-## Latest Release: v3.3.1
+## Latest Release: v4.0.0
 
-**Release Date**: 2026-10-19
-**Version**: 3.3.1
-**Type**: Patch Release
+**Release Date**: 2026-10-22
+**Version**: 4.0.0
+**Type**: Major Release
 
 ---
 
-## 🐛 What's Fixed
+## 🎉 What's New
 
-v3.3.1 is a bug-fix release: the widget's close button no longer lands on the wrong side, `setLanguage(lang)` takes effect when a preferred language was already set, and unsupported language codes fall back to `en`.
+v4.0.0 raises the minimum supported Android version to **API 24 (Android 7.0)**, and adds **in-app messaging**: campaigns authored in the Gameball dashboard, displayed inside your app. In-app messaging is opt-in — until you call `startInAppMessaging` it makes no requests, starts no timers, stores nothing, draws nothing and registers no lifecycle callbacks.
 
-### Close Button Direction
+- **In-app messaging**: modal, slideup and fullscreen campaigns from the Gameball dashboard, shown inside your app
+- **Triggers**: session start, and custom events filtered on their metadata
+- **Purchase logging**: `logPurchase(...)` for purchase-triggered campaigns
+- **Hooks**: `beforeDisplay`, `onAction`, `onNavigate` and `observer` to control display, taps and navigation
+- **Raised minimum**: Android API 24+ (Android 7.0)
 
-The widget's close button is now positioned from the widget's own language alone and pinned to the screen's physical edge: left for Arabic, right for every other language.
+---
 
-Previously its side was chosen by comparing the **device locale** against the widget language, and the button was laid out along the activity's layout direction (start/end). That only worked when the app's layout direction matched the device language and both languages were on the SDK's built-in lists; otherwise the button could land on the wrong side. For example, in an app that doesn't declare `android:supportsRtl`, an Arabic widget on an Arabic device showed it on the right.
+## 🚀 Key Features
 
-### Runtime Language Switching
-
-`setLanguage(lang)` was only setting the SDK's global preferred language, which is resolved *after* the customer's preferred language. When a preferred language had been persisted by an earlier `initializeCustomer`, that value won and the call silently had no effect.
+### 💬 Opting in
 
 ```kotlin
-GameballApp.getInstance(this).setLanguage("ar")
+val gameball = GameballApp.getInstance(context)
+gameball.init(config)
+gameball.initializeCustomer(customerRequest, callback)
+
+gameball.startInAppMessaging("customer-123")
+
+// On logout
+gameball.stopInAppMessaging()
 ```
 
-It now takes precedence, so the change applies to `showProfile` presentations that don't pass their own `lang` and to any other SDK call that resolves language.
+```java
+GameballApp gameball = GameballApp.getInstance(context);
+gameball.startInAppMessaging("customer-123");
+```
 
-### Preferred Language Sync
+Starting for a different customer refetches campaigns and resets frequency caps, so you don't need to stop first.
 
-`setLanguage(lang)` now also mirrors the new language onto the customer's Gameball profile, so server-driven communications (campaigns, emails) follow it as well — previously the change only affected this device. The profile update goes to the most recently initialized customer (remembered across app launches) and is skipped until one has been initialized; to set the language before that, pass it as `preferredLanguage` to `initializeCustomer`.
+### 🖼️ Message types
 
-### Supported Languages
+**Modal** — a card over a dimmed background, with up to two buttons.
 
-Language codes from `init`, `setLanguage`, `initializeCustomer` and a per-call `lang` are now matched case-insensitively against the supported languages: `en`, `ar`, `fr`, `es`, `de`, `pt`, `pl`, `it`, `hu`, `zh-tw`, `nl`, `sv`, `no`, `dk`, `ja`. Any other code, including an unsupported device language, falls back to `en`.
+**Slideup** — a banner at the top or bottom edge. It doesn't block the app, carries no buttons (the banner itself is the tap target), and is dismissed by swiping toward its own edge.
 
-Previously any two-character code was accepted, so one that isn't a real language code (e.g. `"عر"`) could make every SDK request fail until the language was changed again.
+**Fullscreen** — edge to edge. A fullscreen campaign can insist on portrait or landscape, and waits until the device is turned that way.
 
-Codes must match one of these exactly (letter case doesn't matter): regional variants such as `ar-EG` and three-letter codes such as `ara` aren't mapped and fall back to `en`. `initializeCustomer` still sends `preferredLanguage` to Gameball exactly as passed; only the language the SDK itself uses falls back to `en`.
+### 🎯 Triggers
 
-### Registered Customers Only
+**Session start** fires on launch, and again when the app returns to the foreground after more than the session timeout (30 seconds by default; set it with `InAppMessagingOptions.builder().sessionTimeoutSeconds(...)`).
 
-The SDK now always initializes customers as registered: `initializeCustomer` sends `guest` as `false`, and `InitializeCustomerRequest.builder().isGuest(...)` is ignored.
+**Custom events** match on the event name and, optionally, on the event's metadata. Events you already send through `sendEvent` reach the trigger engine automatically:
+
+```kotlin
+gameball.sendEvent(
+    Event.builder()
+        .customerId("customer-123")
+        .eventName("place_order")
+        .eventMetaData("total", 250)
+        .build(),
+    callback
+)
+```
+
+### 🛒 Purchase logging
+
+```kotlin
+gameball.logPurchase(
+    customerId = "customer-123",
+    productId = "sku-42",
+    price = 250.0,
+    currency = "USD"
+)
+```
+
+`logPurchase` sends a `purchase` event to Gameball with `productId`, `price`, `currency` and `quantity` as metadata, whether or not in-app messaging has started, so purchase-triggered campaigns can filter on them.
+
+### 🚦 What controls whether a message shows
+
+A backend-controlled minimum interval between any two messages, per-campaign repeat rules that persist across restarts, campaign expiry and priority, and quiet hours. A message that can't be shown yet — because the Gameball profile widget or another message is open — waits and shows as soon as it can.
+
+### 🖐️ Hooks
+
+```kotlin
+val options = InAppMessagingOptions.builder()
+    // Postpone during checkout rather than interrupting it.
+    .beforeDisplay { message ->
+        if (checkoutInProgress) DisplayDecision.LATER else DisplayDecision.SHOW
+    }
+    // Return true if you handled the tap yourself.
+    .onAction { message, button, action -> false }
+    // Route a campaign's navigate action through your own navigation.
+    .onNavigate { route, arguments -> navController.navigate(route) }
+    // See every message the SDK selects.
+    .observer { message -> analytics.log("gb_message_selected", message.campaignId) }
+    .build()
+
+gameball.startInAppMessaging("customer-123", options)
+```
+
+Every hook is optional and individually guarded: if one throws, the SDK falls back to its own handling and the message still shows. A tap is reported to Gameball whatever `onAction` returns.
+
+### 📊 Analytics and personalisation
+
+Impressions, clicks and dismissals are reported automatically, batched and kept on the device until sent. Campaign text can contain `{token}` placeholders, filled with the customer's current values just before display (waiting at most two seconds). If the values don't arrive, the placeholders are removed rather than shown as raw `{braces}`, and the message still shows.
+
+### 🔍 Diagnostics
+
+```kotlin
+GameballApp.inAppMessagingLogging = true      // Kotlin
+```
+
+```java
+GameballApp.setInAppMessagingLogging(true);   // Java
+```
+
+In-app messaging logs to logcat under the tag `GameballIAM`: on in debuggable builds, off in release builds. Turn it on in a release build only to reproduce a reported problem.
+
+### ⚠️ Availability
+
+In-app messaging needs the in-app messaging endpoints enabled for your account. Where they aren't, the SDK logs the error in debuggable builds and stays silent — nothing surfaces to your app.
+
+---
+
+## ⚠️ Breaking Changes
+
+**This is a major release.** Apps whose `minSdk` is below 24 must raise it before upgrading.
+
+- **Android**: minimum raised from API 21 (Android 5.0) to **API 24 (Android 7.0)**
+
+There are no changes to the public API — every v3.x call keeps its signature and behaviour.
 
 ---
 
 ## 🔄 Changes
 
-- Fixed the widget close button being positioned by device locale and layout direction instead of widget language
-- Fixed `setLanguage(lang)` being outranked by a preferred language set through `initializeCustomer`
-- `setLanguage(lang)` now mirrors the preferred language onto the customer's Gameball profile
-- Language codes are now matched against the supported languages; any other code falls back to `en`
-- `initializeCustomer` now always sends `guest: false`; `InitializeCustomerRequest.builder().isGuest(...)` is ignored
-- Internal diagnostic logging now only records widget usage
-- Removed the undocumented `LanguageUtils.isLtr` and `LanguageUtils.shouldHandleCloseButtonDirection` helpers
+- Raised the minimum supported Android version to API 24 (Android 7.0)
+- Added in-app messaging: `startInAppMessaging(customerId, options)`, `stopInAppMessaging()` and `isInAppMessagingStarted()`
+- Added modal, slideup and fullscreen messages, triggered on session start or by custom events with metadata filters
+- Added `logPurchase(...)` to send purchase events that campaigns can target
+- Added `beforeDisplay`, `onAction`, `onNavigate` and `observer` hooks through `InAppMessagingOptions`
+- Added automatic impression, click and dismissal analytics, kept on the device until sent
+- Added `GameballApp.inAppMessagingLogging` to control in-app messaging logcat output
 
 ---
 
-## Requirements
+## 🔧 Technical Details
 
-- Android API 21+
+### Requirements
+
+- Android API 24+ (Android 7.0)
 - Kotlin 2.0.0+
 - AndroidX
 
 ---
 
-## Migration
+## 📚 Migration Support
 
-No code changes required — no public API signature changed. Behavior changes to check: `isGuest(...)` is now ignored, so apps that passed `isGuest(true)` now initialize registered customers; `setLanguage(lang)` now also updates the preferred language on the Gameball profile of the most recently initialized customer; and unsupported language codes now fall back to `en`.
+Raise your app's `minSdk` to 24. No code changes are required — all v3.x calls work without modification. In-app messaging is opt-in; to adopt it, call `startInAppMessaging(customerId)` once the customer is known and `stopInAppMessaging()` on logout.
 
-See [MIGRATION.md](MIGRATION.md) for details.
+### Migration Resources
+- **[Migration Guide](MIGRATION.md#migration-guide-v3x--v400)**: Step-by-step migration instructions
+- **[README](README.md)**: Complete usage documentation with examples
+- **[Changelog](CHANGELOG.md)**: Detailed list of all changes
+
+### Support
+
+- 📧 Email: support@gameball.co
+- 📖 Documentation: https://developer.gameball.co/
+- 🐛 Issues: https://github.com/gameballers/gb-mobile-android/issues
 
 ---
 
-## Installation
+## 📦 Installation
 
 ```kotlin
 dependencies {
-    implementation 'com.github.gameballers:gb-mobile-android:3.3.1'
+    implementation 'com.github.gameballers:gb-mobile-android:4.0.0'
 }
 ```
 
 ---
 
-## Support
+## Previous Release: v3.3.1
 
-- 📧 Email: support@gameball.co
-- 📖 Documentation: https://developer.gameball.co/
-- 🐛 Issues: https://github.com/gameballers/gameball-android/issues
+**Release Date**: 2026-10-19
+**Type**: Patch Release
 
----
-
-## Previous Release: v3.3.0
-
-**Release Date**: 2026-08-29
-**Type**: Minor Release
-
-Per-call widget language (`ShowProfileRequest.builder().lang(...)`), a global language switch (`GameballApp.setLanguage(lang)`), and push notification click tracking (`GameballApp.handlePushClick(...)`). See [CHANGELOG.md](CHANGELOG.md) for the full history.
+Fixed the widget close button direction and `setLanguage(lang)` being outranked by an earlier preferred language; `setLanguage(lang)` now mirrors the language onto the customer's Gameball profile, unsupported language codes fall back to `en`, and customers are always initialized as registered. See [CHANGELOG.md](CHANGELOG.md) for the full history.
