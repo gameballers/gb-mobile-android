@@ -37,6 +37,7 @@ import com.gameball.gameball.inappmessaging.runtime.SystemClock
 import com.gameball.gameball.inappmessaging.ui.OverlayPresenter
 import com.gameball.gameball.local.SharedPreferencesUtils
 import com.gameball.gameball.utils.LanguageUtils
+import com.gameball.gameball.views.GameballWidgetActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -120,7 +121,8 @@ class GameballInAppMessaging internal constructor(private val appContext: Contex
                 ?: RemoteVariableSource(api, store, newScope, clock),
             presenter = presenterOverride ?: overlay,
             sessionState = SessionState(clock, options.sessionTimeoutSeconds * 1000L),
-            hooks = hooks(options)
+            hooks = hooks(options),
+            isWidgetOpen = { GameballWidgetActivity.isOpen() }
         )
 
         scope = newScope
@@ -156,8 +158,6 @@ class GameballInAppMessaging internal constructor(private val appContext: Contex
     fun onEvent(name: String, metadata: Map<String, Any?>) {
         service?.onEvent(name, metadata)
     }
-
-    fun onWidgetOpened() { service?.onWidgetOpened() }
 
     fun onWidgetClosed() { service?.onWidgetClosed() }
 
