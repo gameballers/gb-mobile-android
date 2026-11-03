@@ -4,7 +4,6 @@ import com.gameball.gameball.inappmessaging.domain.CampaignKey
 import com.gameball.gameball.inappmessaging.domain.MessageType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -117,10 +116,14 @@ class GameCampaignParserTest {
     }
 
     @Test
-    fun `the delay is read in seconds and capped`() {
-        assertEquals(3_000L, parse(wheel(overrides = mapOf("delay" to "3"))).first().widget!!.delayMillis)
-        assertEquals(60_000L, parse(wheel(overrides = mapOf("delay" to "9999"))).first().widget!!.delayMillis)
-        assertNull(parse(wheel()).first().widget!!.delayMillis)
+    fun `a delay or dismiss limit on the entry changes nothing`() {
+        // A game opens when its trigger fires and is offered by the same frequency rules as a
+        // message: there is no delay and no dismissal limit.
+        val plain = parse(wheel()).first().widget
+        val withExtras = parse(
+            wheel(overrides = mapOf("delay" to "3", "dismissLimit" to "2"))
+        ).first().widget
+        assertEquals(plain, withExtras)
     }
 
     @Test

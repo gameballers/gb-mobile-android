@@ -56,8 +56,6 @@ internal object MessageParser {
         "tictactoe", "shooter", "puzzle", "tap_target", "highway_drive"
     )
 
-    /** The contract's ceiling on how long a game may be held back after its trigger fires. */
-    private const val MAX_GAME_DELAY_SECONDS = 60
     private val KNOWN_CLOSE_BEHAVIOURS = setOf("both", "button", "swipe")
 
     fun parse(rawJson: String?): SyncResult {
@@ -215,23 +213,7 @@ internal object MessageParser {
             return null
         }
 
-        return WidgetContent(
-            gameCampaignId = gameCampaignId,
-            gameCampaignType = gameCampaignType,
-            delayMillis = parseGameDelay(obj, campaignId),
-            dismissLimit = obj.int("dismissLimit")
-        )
-    }
-
-    /** Seconds on the wire, capped: a campaign held back longer than a minute has missed its moment. */
-    private fun parseGameDelay(obj: JsonObject, campaignId: Int): Long? {
-        val seconds = obj.int("delay") ?: return null
-        if (seconds <= 0) return null
-        if (seconds > MAX_GAME_DELAY_SECONDS) {
-            IamLog.w("campaign $campaignId asked for a ${seconds}s delay; capped at ${MAX_GAME_DELAY_SECONDS}s")
-            return MAX_GAME_DELAY_SECONDS * 1000L
-        }
-        return seconds * 1000L
+        return WidgetContent(gameCampaignId = gameCampaignId, gameCampaignType = gameCampaignType)
     }
 
     private fun parseContent(

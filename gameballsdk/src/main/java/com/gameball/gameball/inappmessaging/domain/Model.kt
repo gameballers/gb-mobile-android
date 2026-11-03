@@ -155,20 +155,15 @@ internal data class MessageContent(
  * Deliberately not a URL on the wire: one would carry the api key and the player id, making the
  * payload both credential-bearing and customer-specific, and stale the moment either changed.
  * The SDK composes the URL from state it already holds and the two fields here.
+ *
+ * There is no delay and no dismissal limit: a game opens when its trigger fires and is offered
+ * by exactly the rules a message is — repeatable, minIntervalSeconds, the cooldown and quiet hours.
  */
 internal data class WidgetContent(
     /** The challenge to open. All bookkeeping keys off this, never off the entry's campaignId. */
     val gameCampaignId: Int,
     /** Which game it is, as the open-details text: `wheel`, `quiz`, `scratch`... */
-    val gameCampaignType: String,
-    /**
-     * How long to wait after the trigger fires. Null means open immediately.
-     *
-     * Not on the sync entry today. Read when it appears, so this needs no change on that day.
-     */
-    val delayMillis: Long? = null,
-    /** Stop offering after this many dismissals without a play. Null means no cap. */
-    val dismissLimit: Int? = null
+    val gameCampaignType: String
 ) {
     /** What the host widget is asked to open. */
     val openDetail: String get() = "details_${gameCampaignType}_$gameCampaignId"
