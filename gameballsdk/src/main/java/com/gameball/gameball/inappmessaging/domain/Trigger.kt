@@ -25,11 +25,13 @@ internal enum class FilterOperator {
         private val BY_NAME: Map<String, FilterOperator> = mapOf(
             "equals" to EQUALS, "is" to EQUALS, "eq" to EQUALS,
             "notequals" to NOT_EQUALS, "isnot" to NOT_EQUALS, "neq" to NOT_EQUALS,
-            "greaterthan" to GREATER_THAN, "gt" to GREATER_THAN,
+            // "Greater" and "Less" are what the sync sends; the longer forms are kept for older
+            // payloads.
+            "greater" to GREATER_THAN, "greaterthan" to GREATER_THAN, "gt" to GREATER_THAN,
             "greaterthanorequal" to GREATER_OR_EQUAL,
             "greaterthanorequals" to GREATER_OR_EQUAL,
             "gte" to GREATER_OR_EQUAL,
-            "lessthan" to LESS_THAN, "lt" to LESS_THAN,
+            "less" to LESS_THAN, "lessthan" to LESS_THAN, "lt" to LESS_THAN,
             "lessthanorequal" to LESS_OR_EQUAL,
             "lessthanorequals" to LESS_OR_EQUAL,
             "lte" to LESS_OR_EQUAL,
