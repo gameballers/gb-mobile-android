@@ -111,6 +111,7 @@ class InAppMessagingServiceTest {
     private lateinit var cache: CampaignCache
     private lateinit var history: DisplayHistory
     private val clock = MutableClock()
+    private var widgetOpen = false
 
     private fun payload(
         campaignId: Int = 1,
@@ -142,6 +143,7 @@ class InAppMessagingServiceTest {
         artwork = FakePrefetcher()
         variables = FakeVariables()
         presenter = FakePresenter()
+        widgetOpen = false
     }
 
     private fun service(hooks: HostHooks = HostHooks()) = InAppMessagingService(
@@ -155,7 +157,8 @@ class InAppMessagingServiceTest {
         variables = variables,
         presenter = presenter,
         sessionState = SessionState(clock),
-        hooks = hooks
+        hooks = hooks,
+        isWidgetOpen = { widgetOpen }
     )
 
     // --- sync sequencing ---
@@ -248,10 +251,11 @@ class InAppMessagingServiceTest {
     fun `the widget being open defers, and closing it retries`() {
         source.outcome = success(payload())
         val svc = service()
-        svc.onWidgetOpened()
+        widgetOpen = true
         svc.start("alice")
         assertNull(presenter.presented)
 
+        widgetOpen = false
         svc.onWidgetClosed()
         assertEquals(1, presenter.presented?.campaignId)
     }

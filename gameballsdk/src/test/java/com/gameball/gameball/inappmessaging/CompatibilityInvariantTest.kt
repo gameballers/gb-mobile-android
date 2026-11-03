@@ -143,10 +143,11 @@ class CompatibilityInvariantTest {
     }
 
     @Test
-    fun `logPurchase without an initialized customer reports an error rather than throwing`() {
+    fun `logPurchase with a blank customer id reports an error rather than throwing`() {
         prefs.putCustomerId(null)
         var error: Throwable? = null
         app.logPurchase(
+            customerId = "",
             productId = "sku-1", price = 10.0, currency = "USD", quantity = 1,
             properties = null,
             callback = object : Callback<Boolean> {
