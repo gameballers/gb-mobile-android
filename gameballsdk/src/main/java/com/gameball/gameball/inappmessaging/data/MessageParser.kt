@@ -481,8 +481,18 @@ internal object MessageParser {
             IamLog.w("campaign $campaignId has no trigger; dropped")
             return null
         }
+        // The repeat rule is read the same way for every type: an app-open campaign set to repeat
+        // is as repeatable as an event-triggered one. Absent means once ever.
+        val repeatable = triggerObject.bool("repeatable") ?: false
+        // 0 or absent means every occurrence.
+        val minIntervalSeconds = triggerObject.int("minIntervalSeconds")?.takeIf { it > 0 }
+
         return when (triggerObject.str("type")?.lowercase()) {
-            "session_start" -> Trigger(TriggerType.SESSION_START)
+            "session_start" -> Trigger(
+                type = TriggerType.SESSION_START,
+                repeatable = repeatable,
+                minIntervalSeconds = minIntervalSeconds
+            )
 
             // Deliberate, not unimplemented. A screen trigger addresses a registered screen name,
             // which this SDK has no API to report; the same targeting is expressed as a custom
@@ -519,8 +529,8 @@ internal object MessageParser {
                     type = TriggerType.EVENT,
                     eventName = name,
                     filters = filters,
-                    repeatable = triggerObject.bool("repeatable") ?: false,
-                    minIntervalSeconds = triggerObject.int("minIntervalSeconds")?.takeIf { it > 0 },
+                    repeatable = repeatable,
+                    minIntervalSeconds = minIntervalSeconds,
                     filterLogic = filterLogic
                 )
             }
