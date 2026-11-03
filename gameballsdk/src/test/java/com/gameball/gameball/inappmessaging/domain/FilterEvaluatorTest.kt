@@ -99,4 +99,24 @@ class FilterEvaluatorTest {
         assertFalse(FilterEvaluator.matches(filters, mapOf("price" to 50, "currency" to "USD")))
         assertFalse(FilterEvaluator.matches(filters, mapOf("price" to 150)))
     }
+
+    @Test
+    fun `under any, one passing filter is enough`() {
+        val filters = listOf(
+            MetadataFilter("price", FilterOperator.GREATER_THAN, 100),
+            MetadataFilter("currency", FilterOperator.EQUALS, "USD")
+        )
+        val any = FilterLogic.ANY
+        assertTrue(FilterEvaluator.matches(filters, mapOf("price" to 150, "currency" to "EUR"), any))
+        assertTrue(FilterEvaluator.matches(filters, mapOf("price" to 50, "currency" to "USD"), any))
+        assertTrue(FilterEvaluator.matches(filters, mapOf("currency" to "USD"), any))
+        assertFalse(FilterEvaluator.matches(filters, mapOf("price" to 50, "currency" to "EUR"), any))
+        assertFalse(FilterEvaluator.matches(filters, emptyMap(), any))
+    }
+
+    /** No conditions means nothing to fail, under either logic. */
+    @Test
+    fun `under any, no filters still matches`() {
+        assertTrue(FilterEvaluator.matches(emptyList(), emptyMap(), FilterLogic.ANY))
+    }
 }

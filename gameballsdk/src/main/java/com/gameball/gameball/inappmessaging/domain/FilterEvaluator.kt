@@ -5,13 +5,20 @@ import com.gameball.gameball.inappmessaging.runtime.IamLog
 /**
  * Evaluates a campaign's metadata filters against a triggering event's properties.
  *
- * Always a conjunction: metadataLogicalOperator is either "And" or the campaign was dropped
- * at parse.
+ * A conjunction unless the trigger's metadataLogicalOperator was OR, when one passing filter is
+ * enough. Any other operator dropped the campaign at parse.
  */
 internal object FilterEvaluator {
 
-    fun matches(filters: List<MetadataFilter>, metadata: Map<String, Any?>): Boolean =
-        filters.all { matches(it, metadata) }
+    fun matches(
+        filters: List<MetadataFilter>,
+        metadata: Map<String, Any?>,
+        logic: FilterLogic = FilterLogic.ALL
+    ): Boolean = when (logic) {
+        FilterLogic.ALL -> filters.all { matches(it, metadata) }
+        // No conditions means nothing to fail, exactly as under ALL.
+        FilterLogic.ANY -> filters.isEmpty() || filters.any { matches(it, metadata) }
+    }
 
     private fun matches(filter: MetadataFilter, metadata: Map<String, Any?>): Boolean {
         // A filter is a requirement, so absence is failure. Otherwise filters are decorative:

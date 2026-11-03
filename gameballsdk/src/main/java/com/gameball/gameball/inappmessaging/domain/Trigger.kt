@@ -15,8 +15,13 @@ internal data class Trigger(
     /** false means once ever, enforced on device. */
     val repeatable: Boolean = false,
     /** Only meaningful when [repeatable]. 0 or null means every occurrence. */
-    val minIntervalSeconds: Int? = null
+    val minIntervalSeconds: Int? = null,
+    /** How [filters] combine: metadataLogicalOperator AND (or absent) is ALL, OR is ANY. */
+    val filterLogic: FilterLogic = FilterLogic.ALL
 )
+
+/** Whether every metadata filter must pass, or one is enough. */
+internal enum class FilterLogic { ALL, ANY }
 
 internal enum class FilterOperator {
     EQUALS, NOT_EQUALS, GREATER_THAN, GREATER_OR_EQUAL, LESS_THAN, LESS_OR_EQUAL, CONTAINS;

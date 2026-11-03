@@ -97,6 +97,18 @@ class GameCampaignParserTest {
     }
 
     @Test
+    fun `a game whose conditions are joined by OR is kept`() {
+        val entry = wheel(overrides = mapOf(
+            "trigger" to """{ "type": "event", "name": "purchase", "repeatable": true,
+                "metadataLogicalOperator": "OR",
+                "metadataFilters": [
+                  { "metadataId": 1, "name": "price", "value": "100", "operator": "Greater" },
+                  { "metadataId": 2, "name": "currency", "value": "USD", "operator": "Is" } ] }"""
+        ))
+        assertEquals(1, parse(entry).size)
+    }
+
+    @Test
     fun `a screen-triggered game is dropped until screens are supported`() {
         val entry = wheel(overrides = mapOf(
             "trigger" to """{ "type": "screen", "name": "cart", "repeatable": true }"""

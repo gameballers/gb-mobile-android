@@ -1,12 +1,14 @@
 package com.gameball.gameball.inappmessaging.data
 
 import com.gameball.gameball.inappmessaging.domain.Campaign
+import com.gameball.gameball.inappmessaging.domain.FilterLogic
 import com.gameball.gameball.inappmessaging.domain.FilterOperator
 import com.gameball.gameball.inappmessaging.domain.MessageSelector
 import com.gameball.gameball.inappmessaging.domain.TriggerOccurrence
 import com.gameball.gameball.inappmessaging.domain.TriggerType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -126,20 +128,48 @@ class MessageParserTriggerTest {
         assertEquals(listOf("c"), filters.map { it.name })
     }
 
+    /** "Any of these conditions" in the dashboard. It used to drop the campaign outright. */
     @Test
-    fun `a logical operator other than And drops the campaign`() {
+    fun `an Or logical operator is kept, in any case, and matches on any filter`() {
+        listOf("Or", "OR", "or").forEach { spelling ->
+            val parsed = parseOne(
+                """{ "type": "event", "name": "purchase", "metadataLogicalOperator": "$spelling",
+                     "metadataFilters": [ { "name": "price", "operator": "Greater", "value": 100 },
+                                          { "name": "currency", "operator": "Is", "value": "USD" } ] }"""
+            )
+            assertNotNull("'$spelling' must not drop the campaign", parsed)
+            val trigger = parsed!!.trigger
+            assertEquals(FilterLogic.ANY, trigger.filterLogic)
+
+            fun matches(metadata: Map<String, Any?>) = MessageSelector.triggerMatches(
+                trigger, TriggerOccurrence.Event("purchase", metadata)
+            )
+            assertTrue(matches(mapOf("price" to 150, "currency" to "EUR")))
+            assertTrue(matches(mapOf("price" to 50, "currency" to "USD")))
+            assertFalse(matches(mapOf("price" to 50, "currency" to "EUR")))
+        }
+    }
+
+    @Test
+    fun `an unknown logical operator still drops the campaign`() {
         assertNull(parseOne(
-            """{ "type": "event", "name": "x", "metadataLogicalOperator": "Or",
+            """{ "type": "event", "name": "x", "metadataLogicalOperator": "Xor",
                  "metadataFilters": [ { "name": "a", "operator": "equals", "value": 1 } ] }"""
         ))
     }
 
     @Test
     fun `a null or absent logical operator is treated as And`() {
-        assertTrue(parseOne(
+        val trigger = parseOne(
             """{ "type": "event", "name": "x", "metadataLogicalOperator": null,
                  "metadataFilters": [ { "name": "a", "operator": "equals", "value": 1 } ] }"""
-        )!!.trigger.filters.isNotEmpty())
+        )!!.trigger
+        assertTrue(trigger.filters.isNotEmpty())
+        assertEquals(FilterLogic.ALL, trigger.filterLogic)
+        assertEquals(
+            FilterLogic.ALL,
+            parseOne("""{ "type": "event", "name": "x" }""")!!.trigger.filterLogic
+        )
     }
 
     @Test

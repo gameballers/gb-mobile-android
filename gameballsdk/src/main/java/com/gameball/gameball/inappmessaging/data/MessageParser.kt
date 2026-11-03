@@ -2,6 +2,7 @@ package com.gameball.gameball.inappmessaging.data
 
 import androidx.annotation.VisibleForTesting
 import com.gameball.gameball.inappmessaging.domain.ButtonColors
+import com.gameball.gameball.inappmessaging.domain.FilterLogic
 import com.gameball.gameball.inappmessaging.domain.FilterOperator
 import com.gameball.gameball.inappmessaging.domain.MetadataFilter
 import com.gameball.gameball.inappmessaging.domain.Campaign
@@ -502,12 +503,16 @@ internal object MessageParser {
                     return null
                 }
                 val logicalOperator = triggerObject.str("metadataLogicalOperator")
-                if (logicalOperator != null && !logicalOperator.equals("And", ignoreCase = true)) {
-                    IamLog.w(
-                        "campaign $campaignId uses metadataLogicalOperator " +
-                            "'$logicalOperator', which this SDK cannot evaluate; dropped"
-                    )
-                    return null
+                val filterLogic = when (logicalOperator?.lowercase()) {
+                    null, "and" -> FilterLogic.ALL
+                    "or" -> FilterLogic.ANY
+                    else -> {
+                        IamLog.w(
+                            "campaign $campaignId uses metadataLogicalOperator " +
+                                "'$logicalOperator', which this SDK cannot evaluate; dropped"
+                        )
+                        return null
+                    }
                 }
                 val filters = parseFilters(triggerObject, campaignId) ?: return null
                 Trigger(
@@ -515,7 +520,8 @@ internal object MessageParser {
                     eventName = name,
                     filters = filters,
                     repeatable = triggerObject.bool("repeatable") ?: false,
-                    minIntervalSeconds = triggerObject.int("minIntervalSeconds")?.takeIf { it > 0 }
+                    minIntervalSeconds = triggerObject.int("minIntervalSeconds")?.takeIf { it > 0 },
+                    filterLogic = filterLogic
                 )
             }
 
