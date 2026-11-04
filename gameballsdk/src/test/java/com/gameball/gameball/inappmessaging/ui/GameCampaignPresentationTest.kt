@@ -79,8 +79,10 @@ class GameCampaignPresentationTest {
 
     private fun contentRoot(): ViewGroup = activity.findViewById(android.R.id.content)
 
-    private fun widgetView(): GameballWidgetView? =
-        (contentRoot().getChildAt(contentRoot().childCount - 1) as? WidgetMessageView)?.widget
+    private fun overlay(): WidgetMessageView? =
+        contentRoot().getChildAt(contentRoot().childCount - 1) as? WidgetMessageView
+
+    private fun widgetView(): GameballWidgetView? = overlay()?.widget
 
     /** Drives a real layout pass, exactly as a frame would. */
     private fun paint() {
@@ -140,6 +142,47 @@ class GameCampaignPresentationTest {
     fun `a fullscreen game mounts edge to edge`() {
         assertTrue(presenter().present(gameCampaign(MessageType.FULLSCREEN), resolved, callbacks))
         assertNotNull(widgetView())
+    }
+
+    // --- closing ---
+
+    /** The page's own close, `GameballWidget.closeWidget()`, used to only tell the service. */
+    @Test
+    fun `the widget's own close removes the game`() {
+        val presenter = presenter()
+        presenter.present(gameCampaign(), resolved, callbacks)
+        widgetView()!!.settle(ready = true)
+
+        widgetView()!!.closeRequested()
+
+        assertEquals("the game must leave the screen", 0, contentRoot().childCount)
+        assertFalse(presenter.isShowing)
+        assertEquals(1, dismissed)
+    }
+
+    @Test
+    fun `a tap on the backdrop removes the game`() {
+        val presenter = presenter()
+        presenter.present(gameCampaign(), resolved, callbacks)
+        widgetView()!!.settle(ready = true)
+
+        overlay()!!.performClick()
+
+        assertEquals("the game must leave the screen", 0, contentRoot().childCount)
+        assertFalse(presenter.isShowing)
+        assertEquals(1, dismissed)
+    }
+
+    @Test
+    fun `a close that arrives after the game is gone touches nothing`() {
+        val presenter = presenter()
+        presenter.present(gameCampaign(), resolved, callbacks)
+        val stale = widgetView()!!
+        presenter.dismissCurrent()
+
+        // A bridge call already on its way when the WebView was torn down.
+        stale.closeRequested()
+        assertEquals(0, dismissed)
     }
 
     @Test

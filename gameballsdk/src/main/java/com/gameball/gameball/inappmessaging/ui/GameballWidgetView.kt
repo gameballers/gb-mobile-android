@@ -123,6 +123,12 @@ internal class GameballWidgetView @JvmOverloads constructor(
     fun destroy() {
         handler.removeCallbacksAndMessages(null)
         settled = true
+        // A bridge call already on its way from the page's thread must find nobody to tell: this
+        // game is gone, and whatever is on screen now is not its to close.
+        onReady = null
+        onFailed = null
+        onCloseRequested = null
+        onEvent = null
         removeView(webView)
         webView.stopLoading()
         webView.removeJavascriptInterface(BRIDGE_NAME)
@@ -131,8 +137,21 @@ internal class GameballWidgetView @JvmOverloads constructor(
 
     private fun elapsed() = System.currentTimeMillis() - startedAtMillis
 
+    /** The page asked to close, through `GameballWidget.closeWidget()`. */
+    @VisibleForTesting
+    internal fun closeRequested() {
+        onCloseRequested?.invoke()
+    }
+
+    /** The page posted an event, through `WidgetEvent.postEvent(...)`. */
+    @VisibleForTesting
+    internal fun eventPosted(raw: String) {
+        onEvent?.invoke(raw)
+    }
+
     /** Reports the outcome exactly once. */
-    private fun settle(ready: Boolean) {
+    @VisibleForTesting
+    internal fun settle(ready: Boolean) {
         if (settled) return
         settled = true
         timeoutRunnable?.let { handler.removeCallbacks(it) }
@@ -263,10 +282,10 @@ internal class GameballWidgetView @JvmOverloads constructor(
         fun onTimeout() = handler.post { settle(ready = false) }
 
         @JavascriptInterface
-        fun onClose() = handler.post { onCloseRequested?.invoke() }
+        fun onClose() = handler.post { closeRequested() }
 
         @JavascriptInterface
-        fun onEvent(raw: String) = handler.post { onEvent?.invoke(raw) }
+        fun onEvent(raw: String) = handler.post { eventPosted(raw) }
     }
 
     companion object {

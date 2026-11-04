@@ -166,8 +166,15 @@ internal class OverlayPresenter(
             return false
         }
 
+        // Every way out takes the game off the screen first and then tells the service, exactly
+        // as back does. Telling the service alone left the game on screen with nothing to close.
+        val close = {
+            dismissCurrent()
+            callbacks.onDismissed()
+        }
+
         val view = WidgetMessageView(activity)
-        view.bind(campaign) { if (campaign.content.dismissOnScrimTap) callbacks.onDismissed() }
+        view.bind(campaign) { if (campaign.content.dismissOnScrimTap) close() }
 
         root.addView(
             view,
@@ -196,7 +203,7 @@ internal class OverlayPresenter(
                 IamLog.w("campaign ${campaign.label} never became ready; removed unshown")
                 dismissCurrent()
             },
-            onCloseRequested = { callbacks.onDismissed() }
+            onCloseRequested = close
         )
         return true
     }
