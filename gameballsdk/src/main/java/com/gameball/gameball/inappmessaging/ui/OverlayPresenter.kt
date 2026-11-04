@@ -190,16 +190,27 @@ internal class OverlayPresenter(
         )
         currentView = view
         currentActivity = activity
-        registerBack(activity, campaign, slot, callbacks)
+        // Back is not taken here. Until the game is drawn nothing is on screen, so back belongs
+        // to the app; it is registered with the reveal below.
 
         view.widget.load(
             url = builder(widget.openDetail),
             onReady = {
-                view.reveal()
-                if (!slot.impressionReported) {
-                    slot.impressionReported = true
-                    slot.impressionAtMillis = clock.nowMillis()
-                    callbacks.onShown()
+                if (!view.isAttachedToWindow) {
+                    // Its screen went away while it loaded — back, say, which is the app's until
+                    // the game is drawn. Nobody can see it, so it goes like a game that never
+                    // loaded rather than booking an impression for an empty window.
+                    IamLog.w("campaign ${campaign.label} became ready after its screen went away; removed unshown")
+                    dismissCurrent()
+                    callbacks.onFailed()
+                } else {
+                    view.reveal()
+                    registerBack(activity, campaign, slot, callbacks)
+                    if (!slot.impressionReported) {
+                        slot.impressionReported = true
+                        slot.impressionAtMillis = clock.nowMillis()
+                        callbacks.onShown()
+                    }
                 }
             },
             // Taken away unshown: nothing was ever visible, so nothing is reported and the cap is

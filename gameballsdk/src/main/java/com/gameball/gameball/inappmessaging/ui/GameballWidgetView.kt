@@ -56,18 +56,11 @@ internal class GameballWidgetView @JvmOverloads constructor(
         addView(view, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
     }
 
-    init {
-        // The gate. Held at a hair above transparent rather than at zero, and never with
-        // visibility: Flutter's port of this hid the view at opacity 0 and the page stopped
-        // loading entirely — a fully transparent surface is skipped in the draw path, and a
-        // WebView that is never drawn has its render loop suspended. UNVERIFIED on Android's
-        // Chromium engine, which may not share that behaviour; the conservative value is the one
-        // that is known to work on the two platforms where it was measured. A test pins it.
-        alpha = HIDDEN_ALPHA
-    }
-
     /**
-     * Loads [url] out of sight and calls back once the widget has finished drawing.
+     * Loads [url] and calls back once the widget has finished drawing.
+     *
+     * Out of sight is the caller's job: [WidgetMessageView] holds the whole overlay behind the
+     * gate, so this view is never hidden a second time.
      *
      * [onReady] fires at most once; so does [onFailed], and only one of the two ever fires.
      */
@@ -112,11 +105,6 @@ internal class GameballWidgetView @JvmOverloads constructor(
         timeoutRunnable = Runnable { settle(ready = false) }.also {
             handler.postDelayed(it, readyTimeoutMillis)
         }
-    }
-
-    /** Reveals the widget. Called by the presenter once readiness has been reported. */
-    fun reveal() {
-        alpha = 1f
     }
 
     /** Frees the WebView. A leaked one keeps a renderer process and the Activity alive. */
@@ -290,14 +278,6 @@ internal class GameballWidgetView @JvmOverloads constructor(
 
     companion object {
         private const val BRIDGE_NAME = "GBIam"
-
-        /**
-         * A hair above transparent, never zero. See the note in `init`: zero opacity stopped the
-         * page loading on Flutter, because a fully transparent surface is skipped in the draw
-         * path and an undrawn WebView has its render loop suspended.
-         */
-        @VisibleForTesting
-        internal const val HIDDEN_ALPHA = 1f / 255f
 
         /**
          * How long the widget has to become ready before the message is abandoned.

@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -45,6 +46,31 @@ internal class WidgetMessageView(context: Context) : FrameLayout(context) {
      */
     @VisibleForTesting
     internal val closeTarget = FrameLayout(context)
+
+    private var revealed = false
+
+    init {
+        // The gate, on the whole overlay: hiding only the WebView left the scrim and an empty
+        // white card, or a black fullscreen surface, on screen for as long as the game loaded.
+        //
+        // Held at a hair above transparent rather than at zero, and never with visibility:
+        // Flutter's port of this hid the view at opacity 0 and the page stopped loading
+        // entirely — a fully transparent surface is skipped in the draw path, and a WebView that
+        // is never drawn has its render loop suspended. UNVERIFIED on Android's Chromium engine,
+        // which may not share that behaviour; the conservative value is the one that is known to
+        // work on the two platforms where it was measured. A test pins it.
+        alpha = HIDDEN_ALPHA
+        // Nothing to read out either until there is something to see.
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+    }
+
+    /**
+     * Until the game is drawn the overlay takes no touch at all: every one falls through to the
+     * app beneath, which is all the customer can see. An invisible surface that swallowed them
+     * would look like a frozen app.
+     */
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean =
+        revealed && super.dispatchTouchEvent(event)
 
     /**
      * Lays out the chrome for the campaign's messageType.
@@ -90,6 +116,9 @@ internal class WidgetMessageView(context: Context) : FrameLayout(context) {
 
     private fun bindFullscreen() {
         setBackgroundColor(Color.BLACK)
+        // Once drawn it is opaque, and it absorbs taps so nothing reaches the app beneath —
+        // including in the system-bar bands outside the game.
+        isClickable = true
     }
 
     private fun bindClose(onClose: () -> Unit) {
@@ -149,8 +178,12 @@ internal class WidgetMessageView(context: Context) : FrameLayout(context) {
         doOnAttach { ViewCompat.requestApplyInsets(it) }
     }
 
-    /** Reveals the widget. Called once the readiness gate reports the page drawn. */
-    fun reveal() = widget.reveal()
+    /** Shows the game and lets it take touches. Called once the readiness gate reports it drawn. */
+    fun reveal() {
+        revealed = true
+        alpha = 1f
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+    }
 
     fun destroy() = widget.destroy()
 
@@ -165,5 +198,15 @@ internal class WidgetMessageView(context: Context) : FrameLayout(context) {
                 v.updateLayoutParams<LayoutParams> { width = max }
             }
         }
+    }
+
+    companion object {
+        /**
+         * A hair above transparent, never zero. See the note in `init`: zero opacity stopped the
+         * page loading on Flutter, because a fully transparent surface is skipped in the draw
+         * path and an undrawn WebView has its render loop suspended.
+         */
+        @VisibleForTesting
+        internal const val HIDDEN_ALPHA = 1f / 255f
     }
 }

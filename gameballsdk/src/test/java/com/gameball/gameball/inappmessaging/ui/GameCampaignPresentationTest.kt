@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.os.Looper
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -114,14 +115,25 @@ class GameCampaignPresentationTest {
         assertNotNull(widgetView())
     }
 
+    /**
+     * The whole overlay, not just the WebView: hiding only the WebView left a dark backdrop and
+     * an empty white card on screen for up to twelve seconds, or a black screen in fullscreen.
+     */
     @Test
-    fun `the widget is hidden until it reports itself drawn`() {
-        presenter().present(gameCampaign(), resolved, callbacks)
-        val widget = widgetView()!!
+    fun `the whole game is invisible until it reports itself drawn`() {
+        listOf(MessageType.MODAL, MessageType.FULLSCREEN).forEach { type ->
+            val presenter = presenter()
+            presenter.present(gameCampaign(type), resolved, callbacks)
+            val overlay = overlay()!!
 
-        assertTrue("the gate must hide the widget while it loads", widget.alpha < 1f)
-        widget.reveal()
-        assertEquals(1f, widget.alpha, 0f)
+            assertTrue("$type: the scrim, card and surface must be hidden", overlay.alpha < 0.01f)
+            assertTrue("$type: hidden, never at zero", overlay.alpha > 0f)
+            assertEquals("$type: the game is not hidden a second time", 1f, overlay.widget.alpha, 0f)
+
+            overlay.widget.settle(ready = true)
+            assertEquals("$type", 1f, overlay.alpha, 0f)
+            presenter.dismissCurrent()
+        }
     }
 
     @Test
@@ -129,8 +141,66 @@ class GameCampaignPresentationTest {
         // The regression this pins: Flutter hid at opacity 0 and the page stopped loading — a
         // fully transparent surface is skipped in the draw path, and a WebView that is never
         // drawn has its render loop suspended. Zero is the one value that must not come back.
-        assertTrue(GameballWidgetView.HIDDEN_ALPHA > 0f)
-        assertTrue(GameballWidgetView.HIDDEN_ALPHA < 0.01f)
+        assertTrue(WidgetMessageView.HIDDEN_ALPHA > 0f)
+        assertTrue(WidgetMessageView.HIDDEN_ALPHA < 0.01f)
+    }
+
+    private fun touchAt(x: Float, y: Float): MotionEvent =
+        MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_DOWN, x, y, 0)
+
+    /** An invisible game that swallows taps is a frozen app as far as the customer can tell. */
+    @Test
+    fun `a loading game lets every touch through to the app`() {
+        listOf(MessageType.MODAL, MessageType.FULLSCREEN).forEach { type ->
+            val presenter = presenter()
+            presenter.present(gameCampaign(type), resolved, callbacks)
+            val overlay = overlay()!!
+            @Suppress("DEPRECATION")
+            val insets = WindowInsetsCompat.Builder()
+                .setSystemWindowInsets(Insets.of(0, 96, 0, 48))
+                .build()
+            ViewCompat.dispatchApplyWindowInsets(overlay, insets)
+            paint()
+
+            assertFalse("$type: while loading", overlay.dispatchTouchEvent(touchAt(10f, 10f)))
+            assertFalse("$type: while loading", overlay.dispatchTouchEvent(touchAt(540f, 960f)))
+
+            overlay.widget.settle(ready = true)
+            assertTrue(
+                "$type: once drawn, nothing reaches the app beneath",
+                overlay.dispatchTouchEvent(touchAt(10f, 10f))
+            )
+            presenter.dismissCurrent()
+        }
+    }
+
+    @Test
+    fun `back belongs to the app until the game is drawn`() {
+        val host = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        tracker.onActivityResumed(host)
+        presenter().present(gameCampaign(), resolved, callbacks)
+        val root = host.findViewById<ViewGroup>(android.R.id.content)
+
+        host.onBackPressedDispatcher.onBackPressed()
+
+        assertEquals("nothing visible may take back from the app", 0, dismissed)
+        assertTrue("the app's own back ran", host.isFinishing)
+        assertEquals(1, root.childCount)
+    }
+
+    @Test
+    fun `a game drawn after its screen went away is let go, not shown`() {
+        val presenter = presenter()
+        presenter.present(gameCampaign(), resolved, callbacks)
+        val overlay = overlay()!!
+        // Its Activity finished while it loaded, which takes the window and the overlay with it.
+        contentRoot().removeView(overlay)
+
+        overlay.widget.settle(ready = true)
+
+        assertEquals("nobody saw it", 0, shown)
+        assertEquals(1, failed)
+        assertFalse(presenter.isShowing)
     }
 
     @Test
