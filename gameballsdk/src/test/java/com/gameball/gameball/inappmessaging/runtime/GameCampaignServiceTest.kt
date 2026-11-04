@@ -57,18 +57,34 @@ class GameCampaignServiceTest {
     }
 
     private class FakePresenter : MessagePresenter {
+        var canPresent = true
         var presented: Campaign? = null
+        var presentCount = 0
         var callbacks: PresentationCallbacks? = null
         override var isShowing = false
         override fun present(
             campaign: Campaign, resolved: ResolvedMessage, callbacks: PresentationCallbacks
         ): Boolean {
+            if (!canPresent) return false
             presented = campaign
+            presentCount++
             this.callbacks = callbacks
             isShowing = true
             return true
         }
         override fun dismissCurrent() { isShowing = false }
+
+        /** What the real presenter does when a game never becomes ready: off the screen, unseen. */
+        fun fail() {
+            isShowing = false
+            callbacks?.onFailed()
+        }
+
+        /** What the real presenter does on close, a backdrop tap or back. */
+        fun close() {
+            isShowing = false
+            callbacks?.onDismissed()
+        }
     }
 
     private class MutableClock(var now: Long = 1_800_000_000_000L) : Clock {
@@ -98,6 +114,30 @@ class GameCampaignServiceTest {
     """.trimIndent()
 
     private fun success(raw: String) = SyncOutcome.Success(raw, MessageParser.parse(raw))
+
+    /** One game entry, shaped as the sync sends it. */
+    private fun game(
+        id: Int = 9645,
+        trigger: String = """{ "type": "event", "name": "spin", "repeatable": true }""",
+        expiresAt: String? = null
+    ) = """
+        { "campaignType": 2, "campaignId": 0, "messageType": 2, "priority": 0,
+          "trigger": $trigger, "content": null, "locale": null,
+          "expiresAt": ${expiresAt?.let { "\"$it\"" } ?: "null"},
+          "gameCampaignId": $id, "gameCampaignType": "wheel" }
+    """.trimIndent()
+
+    /** One ordinary message entry. */
+    private fun message(
+        id: Int = 2215,
+        trigger: String = """{ "type": "event", "name": "buy", "repeatable": true }"""
+    ) = """
+        { "campaignType": 1, "campaignId": $id, "messageType": 2, "priority": 0,
+          "trigger": $trigger, "content": {}, "locale": { "header": "Hello" } }
+    """.trimIndent()
+
+    private fun sync(vararg entries: String) =
+        """{ "cooldownSeconds": 0, "messages": [ ${entries.joinToString(",")} ] }"""
 
     @Before
     fun setUp() {
@@ -189,5 +229,37 @@ class GameCampaignServiceTest {
         val presented = presenter.presented
         assertNotNull(presented)
         assertEquals(2215, presented!!.campaignId)
+    }
+
+    // --- a game that never loads ---
+
+    @Test
+    fun `a game that never loads is let go until its next trigger`() {
+        source.outcome = success(sync(game()))
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+        assertEquals(1, presenter.presentCount)
+
+        presenter.fail()
+        // What every Activity resume does. Kept waiting, the game loaded again on each one.
+        svc.onSurfaceAvailable()
+        assertEquals("a resume must not load it again", 1, presenter.presentCount)
+
+        svc.onEvent("spin", emptyMap())
+        assertEquals("its next trigger may offer it again", 2, presenter.presentCount)
+    }
+
+    @Test
+    fun `a campaign waiting behind a game that never loads still shows`() {
+        source.outcome = success(sync(game(), message()))
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+        svc.onEvent("buy", emptyMap())
+        assertTrue("the message waits while the game loads", presenter.presented!!.isWidget)
+
+        presenter.fail()
+        assertEquals(2215, presenter.presented!!.campaignId)
     }
 }

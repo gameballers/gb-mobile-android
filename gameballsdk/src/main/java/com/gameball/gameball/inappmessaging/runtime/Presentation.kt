@@ -35,6 +35,13 @@ internal interface PresentationCallbacks {
     fun onTapped(button: MessageButton?)
 
     fun onDismissed()
+
+    /**
+     * Mounted, then taken away before it was ever seen: a game that never became ready. Nothing
+     * was shown, so nothing is reported. A message drawn from its own payload cannot fail this
+     * way, hence the default.
+     */
+    fun onFailed() = Unit
 }
 
 /** A campaign's copy after personalisation and the blanking pass. */

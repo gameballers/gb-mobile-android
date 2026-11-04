@@ -374,6 +374,16 @@ internal class InAppMessagingService(
             pending = null
             retryPending()
         }
+
+        override fun onFailed() {
+            // Never seen: nothing to report, nothing recorded. Let go rather than kept waiting,
+            // or every Activity resume would load it again; its next trigger may offer it again.
+            // Only this presentation's own slot is released — a campaign that was deferred
+            // behind it while it loaded keeps its place and gets its turn now.
+            IamLog.d("campaign ${slot.campaign.label} could not be shown; waiting for its next trigger")
+            if (pending === slot) pending = null
+            retryPending()
+        }
     }
 
     /**

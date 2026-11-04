@@ -151,7 +151,8 @@ internal class OverlayPresenter(
      * it, so counting at pre-draw books a view of a loading skeleton.
      *
      * A readiness timeout takes the message away **without** counting an impression, so no
-     * telemetry is logged and the cap is untouched; the campaign retries at its next trigger.
+     * telemetry is logged and the cap is untouched, and tells the service it failed so the game
+     * is let go rather than loaded again on every resume; it is offered again at its next trigger.
      */
     private fun presentWidget(
         campaign: Campaign,
@@ -202,10 +203,11 @@ internal class OverlayPresenter(
                 }
             },
             // Taken away unshown: nothing was ever visible, so nothing is reported and the cap is
-            // left alone. onDismissed would log a dismissal for a message nobody saw.
+            // left alone. Not onDismissed, which is the customer closing something they saw.
             onFailed = {
                 IamLog.w("campaign ${campaign.label} never became ready; removed unshown")
                 dismissCurrent()
+                callbacks.onFailed()
             },
             onCloseRequested = close
         )

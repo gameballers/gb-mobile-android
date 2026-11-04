@@ -2,6 +2,7 @@ package com.gameball.gameball.inappmessaging.ui
 
 import android.app.Activity
 import android.app.Application
+import android.os.Looper
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -34,6 +35,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
 class GameCampaignPresentationTest {
@@ -43,12 +46,14 @@ class GameCampaignPresentationTest {
 
     private var shown = 0
     private var dismissed = 0
+    private var failed = 0
     private val urlsRequested = mutableListOf<String>()
 
     private val callbacks = object : PresentationCallbacks {
         override fun onShown() { shown++ }
         override fun onTapped(button: MessageButton?) = Unit
         override fun onDismissed() { dismissed++ }
+        override fun onFailed() { failed++ }
     }
 
     private val noCallbacks = object : ActivityTracker.Callbacks {
@@ -64,7 +69,7 @@ class GameCampaignPresentationTest {
         // The presenter resolves the Activity at presentation time and never caches one, so the
         // tracker has to have seen a resume before anything can be drawn.
         tracker.onActivityResumed(activity)
-        shown = 0; dismissed = 0; urlsRequested.clear()
+        shown = 0; dismissed = 0; failed = 0; urlsRequested.clear()
     }
 
     private fun gameCampaign(type: MessageType = MessageType.MODAL) = Campaign(
@@ -270,6 +275,24 @@ class GameCampaignPresentationTest {
         assertEquals(0, root.childCount)
         assertEquals(1, dismissed)
         assertFalse("the host's route must survive", host.isFinishing)
+    }
+
+    // --- a game that never loads ---
+
+    @Test
+    fun `a game that never becomes ready is taken away unseen and reported as failed`() {
+        val presenter = presenter()
+        presenter.present(gameCampaign(), resolved, callbacks)
+
+        shadowOf(Looper.getMainLooper()).idleFor(
+            GameballWidgetView.READY_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS
+        )
+
+        assertEquals(0, contentRoot().childCount)
+        assertFalse(presenter.isShowing)
+        assertEquals("the service must hear it failed, or it keeps the game waiting", 1, failed)
+        assertEquals("nothing was seen, so nothing is reported", 0, shown)
+        assertEquals(0, dismissed)
     }
 
     @Test
