@@ -2,9 +2,16 @@ package com.gameball.gameball.inappmessaging.ui
 
 import android.app.Activity
 import android.app.Application
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import androidx.activity.ComponentActivity
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.test.core.app.ApplicationProvider
+import com.gameball.gameball.R
 import com.gameball.gameball.inappmessaging.data.WidgetUrl
 import com.gameball.gameball.inappmessaging.domain.Campaign
 import com.gameball.gameball.inappmessaging.domain.MessageButton
@@ -183,6 +190,86 @@ class GameCampaignPresentationTest {
         // A bridge call already on its way when the WebView was torn down.
         stale.closeRequested()
         assertEquals(0, dismissed)
+    }
+
+    // --- the close control ---
+
+    private fun dp(value: Float) = MessageMetrics.dp(activity, value)
+
+    /** On mobile the widget page draws no close or back control for a game; this is the way out. */
+    @Test
+    fun `every game draws a labelled close control at its top end`() {
+        listOf(MessageType.MODAL, MessageType.FULLSCREEN).forEach { type ->
+            val presenter = presenter()
+            presenter.present(gameCampaign(type), resolved, callbacks)
+            widgetView()!!.settle(ready = true)
+            paint()
+
+            val close = overlay()!!.closeTarget
+            assertEquals("$type", View.VISIBLE, close.visibility)
+            assertEquals("$type", activity.getString(R.string.gb_iam_close), close.contentDescription?.toString())
+            assertEquals(
+                "$type: top end, so it mirrors under RTL",
+                Gravity.TOP or Gravity.END,
+                (close.layoutParams as FrameLayout.LayoutParams).gravity
+            )
+            assertTrue("$type: a 48dp target at least", close.width >= dp(48f) && close.height >= dp(48f))
+            presenter.dismissCurrent()
+        }
+    }
+
+    @Test
+    fun `the close control closes the game`() {
+        listOf(MessageType.MODAL, MessageType.FULLSCREEN).forEach { type ->
+            dismissed = 0
+            val presenter = presenter()
+            presenter.present(gameCampaign(type), resolved, callbacks)
+            widgetView()!!.settle(ready = true)
+
+            overlay()!!.closeTarget.performClick()
+
+            assertEquals("$type", 0, contentRoot().childCount)
+            assertFalse("$type", presenter.isShowing)
+            assertEquals("$type", 1, dismissed)
+        }
+    }
+
+    @Test
+    fun `the close control clears the status bar and a cutout`() {
+        listOf(MessageType.MODAL, MessageType.FULLSCREEN).forEach { type ->
+            val presenter = presenter()
+            presenter.present(gameCampaign(type), resolved, callbacks)
+            val overlay = overlay()!!
+
+            // An edge-to-edge host: a 96px status bar (or cutout) on top, a nav bar below.
+            @Suppress("DEPRECATION")
+            val insets = WindowInsetsCompat.Builder()
+                .setSystemWindowInsets(Insets.of(0, 96, 0, 48))
+                .build()
+            ViewCompat.dispatchApplyWindowInsets(overlay, insets)
+            paint()
+
+            val close = overlay.closeTarget
+            val top = (close.parent as View).top + close.top
+            assertTrue("$type: the close starts at ${top}px, under the 96px bar", top >= 96)
+            presenter.dismissCurrent()
+        }
+    }
+
+    @Test
+    fun `back still closes a game`() {
+        val host = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        tracker.onActivityResumed(host)
+        val presenter = presenter()
+        presenter.present(gameCampaign(), resolved, callbacks)
+        val root = host.findViewById<ViewGroup>(android.R.id.content)
+        (root.getChildAt(root.childCount - 1) as WidgetMessageView).widget.settle(ready = true)
+
+        host.onBackPressedDispatcher.onBackPressed()
+
+        assertEquals(0, root.childCount)
+        assertEquals(1, dismissed)
+        assertFalse("the host's route must survive", host.isFinishing)
     }
 
     @Test

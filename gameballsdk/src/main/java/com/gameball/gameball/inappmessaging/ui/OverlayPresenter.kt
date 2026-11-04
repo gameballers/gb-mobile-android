@@ -174,7 +174,11 @@ internal class OverlayPresenter(
         }
 
         val view = WidgetMessageView(activity)
-        view.bind(campaign) { if (campaign.content.dismissOnScrimTap) close() }
+        view.bind(
+            campaign,
+            onScrimTap = { if (campaign.content.dismissOnScrimTap) close() },
+            onClose = close
+        )
 
         root.addView(
             view,
