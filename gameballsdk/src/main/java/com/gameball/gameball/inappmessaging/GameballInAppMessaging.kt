@@ -59,6 +59,12 @@ class GameballInAppMessaging internal constructor(private val appContext: Contex
     private var presenter: OverlayPresenter? = null
     private var options: InAppMessagingOptions? = null
 
+    /**
+     * The customer messaging is running for. A game opens for this customer — never for whoever
+     * the SDK stored last, which need not be the same one.
+     */
+    private var runningCustomerId: String? = null
+
     /** Test seams. Set before start; ignored once running. */
     @VisibleForTesting internal var sourceOverride: MessageSource? = null
     @VisibleForTesting internal var analyticsOverride: MessageAnalytics? = null
@@ -74,14 +80,18 @@ class GameballInAppMessaging internal constructor(private val appContext: Contex
         options: InAppMessagingOptions,
         apiPrefix: String?,
         sdkVersion: String,
-        /** Composes the URL a game campaign opens. Null in tests, where nothing is drawn. */
-        widgetUrlBuilder: ((String) -> String)? = null
+        /**
+         * Composes the URL a game campaign opens, for an open-details text and a customer. Null
+         * in tests, where nothing is drawn.
+         */
+        widgetUrlBuilder: ((openDetail: String, customerId: String) -> String)? = null
     ) {
         if (customerId.isBlank()) {
             IamLog.e("startInAppMessaging needs a customer id; ignoring the call")
             return
         }
         this.options = options
+        runningCustomerId = customerId
         val existing = service
         if (existing != null) {
             existing.setHooks(hooks(options))
@@ -103,7 +113,14 @@ class GameballInAppMessaging internal constructor(private val appContext: Contex
                 override fun onSurfaceAvailable() { service?.onSurfaceAvailable() }
             }
         )
-        val overlay = OverlayPresenter(activityTracker, clock, widgetUrlBuilder)
+        // Read at open time, so a customer change made after this start is followed.
+        val overlay = OverlayPresenter(
+            activityTracker,
+            clock,
+            widgetUrlBuilder?.let { build ->
+                { openDetail: String -> build(openDetail, runningCustomerId ?: customerId) }
+            }
+        )
 
         val created = InAppMessagingService(
             scope = newScope,
@@ -146,6 +163,7 @@ class GameballInAppMessaging internal constructor(private val appContext: Contex
         service = null
         tracker = null
         presenter = null
+        runningCustomerId = null
     }
 
     /**

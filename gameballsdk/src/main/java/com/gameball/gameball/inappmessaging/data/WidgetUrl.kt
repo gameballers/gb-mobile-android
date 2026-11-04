@@ -54,6 +54,26 @@ internal object WidgetUrl {
         return uri.build().toString()
     }
 
+    /**
+     * [url] fit for a log line: the api key and the session token are masked, and everything
+     * that tells a wrong host, customer or game apart is kept. Logcat is readable by anyone with
+     * the device on a cable, and a release build can have logging switched on.
+     */
+    fun redacted(url: String): String {
+        val uri = Uri.parse(url)
+        val masked = uri.buildUpon().clearQuery()
+        uri.queryParameterNames.forEach { name ->
+            masked.appendQueryParameter(
+                name,
+                if (name in CREDENTIALS) MASK else uri.getQueryParameter(name)
+            )
+        }
+        return masked.build().toString()
+    }
+
+    private val CREDENTIALS = setOf("apiKey", "sessionToken")
+    private const val MASK = "***"
+
     @VisibleForTesting
     internal const val HIDE_NAVIGATION = "true"
 }

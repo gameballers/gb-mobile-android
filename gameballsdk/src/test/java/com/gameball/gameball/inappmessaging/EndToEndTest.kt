@@ -16,6 +16,7 @@ import com.gameball.gameball.inappmessaging.data.SyncOutcome
 import com.gameball.gameball.inappmessaging.data.VariableSource
 import com.gameball.gameball.inappmessaging.model.DisplayDecision
 import com.gameball.gameball.inappmessaging.model.InAppMessage
+import com.gameball.gameball.inappmessaging.runtime.IamLog
 import com.gameball.gameball.local.SharedPreferencesUtils
 import com.gameball.gameball.model.request.Event
 import com.gameball.gameball.model.request.GameballConfig
@@ -30,6 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowLog
 
 /**
  * Drives the whole module through the public API only, against a stubbed source.
@@ -107,14 +109,18 @@ class EndToEndTest {
     private fun start(
         raw: String,
         values: Map<String, String> = emptyMap(),
-        options: InAppMessagingOptions = InAppMessagingOptions.builder().build()
+        options: InAppMessagingOptions = InAppMessagingOptions.builder().build(),
+        widgetUrlBuilder: ((openDetail: String, customerId: String) -> String)? = null
     ): StubSource {
         val source = StubSource(raw)
         messaging.sourceOverride = source
         messaging.analyticsOverride = analytics
         messaging.artworkOverride = ReadyArtwork()
         messaging.variablesOverride = FixedVariables(values)
-        messaging.start("alice", options, apiPrefix = null, sdkVersion = "3.3.0")
+        messaging.start(
+            "alice", options, apiPrefix = null, sdkVersion = "3.3.0",
+            widgetUrlBuilder = widgetUrlBuilder
+        )
         return source
     }
 
@@ -264,6 +270,57 @@ class EndToEndTest {
         messaging.stop()
         assertEquals(0, drawnCount())
         assertFalse(messaging.isStarted)
+    }
+
+    // --- the game's url ---
+
+    private val gamePayload = """
+        { "cooldownSeconds": 0, "messages": [ {
+            "campaignType": 2, "campaignId": 0, "messageType": 2, "priority": 0,
+            "trigger": { "type": "session_start", "repeatable": true },
+            "content": null, "locale": null,
+            "gameCampaignId": 9645, "gameCampaignType": "wheel" } ] }
+    """.trimIndent()
+
+    /**
+     * The stored customer is whoever initializeCustomer saw last, which need not be the one the
+     * host started messaging for — and a game opened for the wrong customer plays for them.
+     */
+    @Test
+    fun `a game opens for the customer messaging runs for`() {
+        val opened = mutableListOf<Pair<String, String>>()
+        SharedPreferencesUtils.getInstance().putCustomerId("someone-stored-earlier")
+        start(gamePayload, widgetUrlBuilder = { openDetail, customerId ->
+            opened.add(openDetail to customerId)
+            "https://m.gameball.app/?openDetail=$openDetail"
+        })
+        activityResumed()
+        assertEquals(listOf("details_wheel_9645" to "alice"), opened)
+
+        // A customer change keeps the host's options and moves the game with the customer.
+        messaging.onCustomerChanged("carol", apiPrefix = null, sdkVersion = "3.3.0")
+        assertEquals("details_wheel_9645" to "carol", opened.last())
+    }
+
+    @Test
+    fun `the game url names the customer it is given and is logged without credentials`() {
+        app.init(GameballConfig.builder().apiKey("key-1").lang("en").sessionToken("token-1").build())
+        SharedPreferencesUtils.getInstance().putCustomerId("someone-stored-earlier")
+        IamLog.enabled = true
+        try {
+            val url = app.buildInAppWidgetUrl("details_wheel_9645", "alice")
+
+            assertTrue(url, url.contains("customerId=alice"))
+            assertFalse(url, url.contains("someone-stored-earlier"))
+            assertTrue("the widget itself still needs the key: $url", url.contains("apiKey=key-1"))
+
+            val logged = ShadowLog.getLogsForTag("GameballIAM").joinToString("\n") { it.msg }
+            assertTrue(logged, logged.contains("details_wheel_9645"))
+            assertFalse(logged, logged.contains("key-1"))
+            assertFalse(logged, logged.contains("token-1"))
+        } finally {
+            IamLog.enabled = false
+        }
     }
 
     // --- helpers ---

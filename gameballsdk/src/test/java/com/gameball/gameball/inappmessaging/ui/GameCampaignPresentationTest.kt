@@ -471,4 +471,20 @@ class WidgetUrlTest {
         assertFalse(bare.contains("platform="))
         assertTrue(bare.contains("customerId=&") || bare.endsWith("customerId="))
     }
+
+    @Test
+    fun `the url written to the log carries neither the api key nor the session token`() {
+        val full = WidgetUrl.build(
+            host = "m.gameball.app/alpha", apiKey = "key-1", customerId = "alice",
+            openDetail = "details_wheel_9645", language = "en", sessionToken = "token-1"
+        )
+        val logged = WidgetUrl.redacted(full)
+
+        assertFalse(logged, logged.contains("key-1"))
+        assertFalse(logged, logged.contains("token-1"))
+        // Everything that tells an environment or id mismatch apart is still there.
+        assertTrue(logged, logged.startsWith("https://m.gameball.app/alpha/"))
+        assertTrue(logged, logged.contains("customerId=alice"))
+        assertTrue(logged, logged.contains("openDetail=details_wheel_9645"))
+    }
 }

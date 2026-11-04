@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import com.gameball.gameball.inappmessaging.GameballInAppMessaging
 import com.gameball.gameball.inappmessaging.InAppMessagingOptions
 import com.gameball.gameball.inappmessaging.data.WidgetUrl
@@ -349,19 +350,21 @@ class GameballApp private constructor(context: Context) {
     }
 
     /**
-     * The widget URL a game campaign opens.
+     * The widget URL a game campaign opens, for [customerId] — the customer in-app messaging
+     * runs for, never the one stored last, which need not be the same.
      *
      * Composed from state the SDK already holds. Logged because it is otherwise invisible: a
      * campaign that opens on "this campaign is not available" looks identical whether the id is
      * wrong, the customer cannot play it, or the host is pointed at a different widget
-     * environment than its api key belongs to.
+     * environment than its api key belongs to. Logged without the api key and session token.
      */
-    private fun buildInAppWidgetUrl(openDetail: String): String {
+    @VisibleForTesting
+    internal fun buildInAppWidgetUrl(openDetail: String, customerId: String): String {
         val prefs = SharedPreferencesUtils.getInstance()
         val url = WidgetUrl.build(
             host = widgetUrlPrefix ?: BuildConfig.Widget_Url,
             apiKey = mApiKey,
-            customerId = prefs.getCustomerId(),
+            customerId = customerId,
             openDetail = openDetail,
             language = LanguageUtils.handleLanguage(),
             mainColor = prefs.getClientBotSettings()?.botMainColor,
@@ -371,7 +374,7 @@ class GameballApp private constructor(context: Context) {
             osVersion = OS,
             sessionToken = prefs.getSessionTokenPreference()
         )
-        IamLog.d("opening widget $url")
+        IamLog.d("opening widget ${WidgetUrl.redacted(url)}")
         return url
     }
 
