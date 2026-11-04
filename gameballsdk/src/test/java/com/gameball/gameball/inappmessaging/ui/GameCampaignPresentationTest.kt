@@ -75,14 +75,14 @@ class GameCampaignPresentationTest {
         shown = 0; dismissed = 0; failed = 0; played = 0; urlsRequested.clear()
     }
 
-    private fun gameCampaign(type: MessageType = MessageType.MODAL) = Campaign(
+    private fun gameCampaign(type: MessageType = MessageType.MODAL, gameId: Int = 9645) = Campaign(
         campaignId = 0, variationId = null, dispatchId = null, name = "Spin the Wheel",
         priority = 0, messageType = type, rawMessageType = type.wire,
         expiresAtMillis = null, isTest = false,
         trigger = Trigger(TriggerType.SESSION_START),
         content = MessageContent.forGame(),
         responseIndex = 0,
-        widget = WidgetContent(gameCampaignId = 9645, gameCampaignType = "wheel")
+        widget = WidgetContent(gameCampaignId = gameId, gameCampaignType = "wheel")
     )
 
     private val resolved = ResolvedMessage(null, null, emptyList())
@@ -347,6 +347,31 @@ class GameCampaignPresentationTest {
         assertEquals(0, root.childCount)
         assertEquals(1, dismissed)
         assertFalse("the host's route must survive", host.isFinishing)
+    }
+
+    // --- identity ---
+
+    /**
+     * Every game's campaignId is 0. Matched on that, a second game picked up the first one's
+     * presentation, already marked shown, and its own impression was never recorded — so a
+     * once-ever game would come back.
+     */
+    @Test
+    fun `a different game never inherits another game's presentation`() {
+        val presenter = presenter()
+        presenter.present(gameCampaign(gameId = 9645), resolved, callbacks)
+        widgetView()!!.settle(ready = true)
+        assertEquals(1, shown)
+
+        // Rotation takes the view away and there is no Activity to put it back into, so the
+        // presentation stays behind.
+        tracker.onActivityPaused(activity)
+        assertFalse(presenter.rePresentAfterConfigurationChange(resolved, callbacks))
+        tracker.onActivityResumed(activity)
+
+        assertTrue(presenter.present(gameCampaign(gameId = 9702), resolved, callbacks))
+        widgetView()!!.settle(ready = true)
+        assertEquals("the second game is a view of its own", 2, shown)
     }
 
     // --- a play ---

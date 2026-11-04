@@ -65,7 +65,7 @@ internal class OverlayPresenter(
         presentInternal(campaign, resolved, callbacks)
     } catch (t: Throwable) {
         // A presenter that throws would take the host's frame down with it. Defer instead.
-        IamLog.e("could not present campaign ${campaign.campaignId}", t)
+        IamLog.e("could not present campaign ${campaign.label}", t)
         false
     }
 
@@ -78,14 +78,16 @@ internal class OverlayPresenter(
         // dead surface after the first rotation, and messages then silently never appear.
         val activity = tracker.currentActivity
         if (activity == null || activity.isFinishing) {
-            IamLog.d("no Activity available; campaign ${campaign.campaignId} deferred")
+            IamLog.d("no Activity available; campaign ${campaign.label} deferred")
             return false
         }
         if (isShowing) return false
 
         val root = activity.findViewById<ViewGroup>(android.R.id.content) ?: return false
 
-        val slot = presentation?.takeIf { it.campaign.campaignId == campaign.campaignId }
+        // By kind and id: every game's campaignId is 0, so matching on it handed one game the
+        // presentation of another, already marked shown.
+        val slot = presentation?.takeIf { it.campaign.key == campaign.key }
             ?: PendingPresentation(campaign)
         presentation = slot
 
@@ -102,7 +104,7 @@ internal class OverlayPresenter(
                 val fullscreen = FullscreenMessageView(activity)
                 if (!fullscreen.orientationMatches(campaign.content)) {
                     IamLog.d(
-                        "campaign ${campaign.campaignId} wants " +
+                        "campaign ${campaign.label} wants " +
                             "${campaign.content.orientation}; deferred until rotation"
                     )
                     return false

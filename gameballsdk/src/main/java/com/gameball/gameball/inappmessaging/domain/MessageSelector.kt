@@ -46,7 +46,7 @@ internal object MessageSelector {
         val winner = eligible.sortedWith(RANKING).first()
         if (eligible.size > 1) {
             IamLog.d(
-                "selected campaign ${winner.campaignId} (priority ${winner.priority}) from " +
+                "selected campaign ${winner.label} (priority ${winner.priority}) from " +
                     "${eligible.size} eligible"
             )
         }

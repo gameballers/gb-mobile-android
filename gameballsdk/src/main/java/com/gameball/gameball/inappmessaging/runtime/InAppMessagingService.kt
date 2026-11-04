@@ -239,7 +239,7 @@ internal class InAppMessagingService(
                 return
             }
             DisplayDecision.DISCARD -> {
-                IamLog.d("campaign ${winner.campaignId} discarded by the host")
+                IamLog.d("campaign ${winner.label} discarded by the host")
                 return
             }
             DisplayDecision.SHOW -> Unit
@@ -276,26 +276,39 @@ internal class InAppMessagingService(
      */
     private fun defer(campaign: Campaign, reason: String) {
         val existing = pending
-        if (existing != null && existing.campaign.campaignId != campaign.campaignId) {
+        // By kind and id: every game's campaignId is 0, so the number alone would make every
+        // game the same campaign.
+        if (existing != null && existing.campaign.key != campaign.key) {
             IamLog.d(
-                "campaign ${campaign.campaignId} displaces campaign " +
-                    "${existing.campaign.campaignId} in the pending slot ($reason)"
+                "campaign ${campaign.label} displaces campaign " +
+                    "${existing.campaign.label} in the pending slot ($reason)"
             )
         } else {
-            IamLog.d("campaign ${campaign.campaignId} deferred: $reason")
+            IamLog.d("campaign ${campaign.label} deferred: $reason")
         }
         pending = PendingPresentation(campaign)
     }
 
     private fun retryPending() {
-        val slot = pending ?: return
+        val waiting = pending ?: return
         if (presenter.isShowing || isWidgetOpen()) return
         val customerId = currentCustomerId ?: return
+
+        // It may have waited across a sync, so what it holds is an older response's promise. Ask
+        // the latest one, by kind and id: a campaign it no longer offers — ended, paused, or a
+        // game played since — is dropped, and one it still offers is judged on its latest terms,
+        // its expiry included.
+        val campaign = offerable().firstOrNull { it.key == waiting.campaign.key }
+        if (campaign == null) {
+            IamLog.d("pending campaign ${waiting.campaign.label} is not in the latest sync; dropped")
+            pending = null
+            return
+        }
 
         // "May this display now", not "has it ever displayed". The cruder question threw away
         // every repeatable campaign that happened to be waiting.
         val eligible = MessageSelector.mayDisplayNow(
-            campaign = slot.campaign,
+            campaign = campaign,
             history = history.load(customerId),
             nowMillis = clock.nowMillis(),
             cooldownSeconds = held.cooldownSeconds,
@@ -303,12 +316,12 @@ internal class InAppMessagingService(
             isArtworkReady = { artwork.isReady(it.content) }
         )
         if (!eligible) {
-            IamLog.d("pending campaign ${slot.campaign.campaignId} is no longer eligible; dropped")
+            IamLog.d("pending campaign ${campaign.label} is no longer eligible; dropped")
             pending = null
             return
         }
         pending = null
-        scope.launch { presentOrDefer(slot) }
+        scope.launch { presentOrDefer(PendingPresentation(campaign)) }
     }
 
     // --- personalisation ---

@@ -6,6 +6,7 @@ import com.gameball.gameball.inappmessaging.data.CampaignCache
 import com.gameball.gameball.inappmessaging.data.DisplayHistory
 import com.gameball.gameball.inappmessaging.data.IamEvent
 import com.gameball.gameball.inappmessaging.data.IamStore
+import com.gameball.gameball.inappmessaging.data.IamTime
 import com.gameball.gameball.inappmessaging.data.MessageAnalytics
 import com.gameball.gameball.inappmessaging.data.MessageParser
 import com.gameball.gameball.inappmessaging.data.MessageSource
@@ -26,6 +27,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowLog
 
 @RunWith(RobolectricTestRunner::class)
 class GameCampaignServiceTest {
@@ -283,6 +285,92 @@ class GameCampaignServiceTest {
 
         svc.onEvent("quiz", emptyMap())
         assertEquals(9702, presenter.presented!!.widget!!.gameCampaignId)
+    }
+
+    // --- a waiting game ---
+
+    @Test
+    fun `a waiting game the latest sync no longer offers is dropped`() {
+        source.outcome = success(sync(game()))
+        presenter.canPresent = false
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+
+        // The campaign ended while the game waited; the new session's sync no longer has it.
+        source.outcome = success(sync())
+        nextSession(svc)
+        presenter.canPresent = true
+        svc.onSurfaceAvailable()
+
+        assertEquals(0, presenter.presentCount)
+    }
+
+    @Test
+    fun `a waiting game is held to the expiry the latest sync gives it`() {
+        source.outcome = success(sync(game()))
+        presenter.canPresent = false
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+
+        // Still offered, but with an end date that has already passed.
+        source.outcome = success(sync(game(expiresAt = IamTime.toIso8601Utc(clock.now - 60_000L))))
+        nextSession(svc)
+        presenter.canPresent = true
+        svc.onSurfaceAvailable()
+
+        assertEquals(0, presenter.presentCount)
+    }
+
+    @Test
+    fun `a waiting game past its expiresAt is dropped`() {
+        source.outcome = success(sync(game(expiresAt = IamTime.toIso8601Utc(clock.now + 10_000L))))
+        presenter.canPresent = false
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+
+        clock.now += 20_000L
+        presenter.canPresent = true
+        svc.onSurfaceAvailable()
+
+        assertEquals(0, presenter.presentCount)
+    }
+
+    @Test
+    fun `a waiting game still offered by the latest sync shows`() {
+        source.outcome = success(sync(game()))
+        presenter.canPresent = false
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+
+        presenter.canPresent = true
+        svc.onSurfaceAvailable()
+
+        assertEquals(9645, presenter.presented!!.widget!!.gameCampaignId)
+    }
+
+    /** Every game's campaignId is 0, so comparing campaignIds made every game the same one. */
+    @Test
+    fun `a game taking another's place in the waiting slot is logged by kind and id`() {
+        IamLog.enabled = true
+        try {
+            source.outcome = success(
+                sync(game(id = 9645), game(id = 9702, trigger = """{ "type": "event", "name": "quiz", "repeatable": true }"""))
+            )
+            presenter.canPresent = false
+            val svc = service()
+            svc.start("alice")
+            svc.onEvent("spin", emptyMap())
+            svc.onEvent("quiz", emptyMap())
+
+            val lines = ShadowLog.getLogsForTag("GameballIAM").map { it.msg }
+            assertTrue(lines.joinToString("\n"), lines.any { "game:9702 displaces campaign game:9645" in it })
+        } finally {
+            IamLog.enabled = false
+        }
     }
 
     // --- a game that never loads ---
