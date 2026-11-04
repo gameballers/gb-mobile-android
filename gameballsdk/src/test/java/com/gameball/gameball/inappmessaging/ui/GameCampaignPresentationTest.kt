@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.Build
 import android.os.Looper
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -350,6 +351,43 @@ class GameCampaignPresentationTest {
         assertEquals(0, root.childCount)
         assertEquals(1, dismissed)
         assertFalse("the host's route must survive", host.isFinishing)
+    }
+
+    /**
+     * On a host that is not a ComponentActivity, back was heard by a key listener on the overlay,
+     * which fires only while the overlay itself has focus. The WebView takes focus at the first
+     * touch, so from then on back went past the game and finished the host Activity.
+     */
+    @Test
+    fun `back closes a game on a plain Activity with focus inside the game`() {
+        val presenter = presenter()
+        presenter.present(gameCampaign(), resolved, callbacks)
+        val overlay = overlay()!!
+        overlay.widget.settle(ready = true)
+
+        // A tap on the game moves focus into it, off the overlay. Robolectric's WebView cannot take
+        // focus - it hands requestFocus to a stub - so a focusable view beside it stands in.
+        val keysHeard = mutableListOf<Int>()
+        val page = View(activity).apply {
+            isFocusableInTouchMode = true
+            setOnKeyListener { _, keyCode, _ -> keysHeard.add(keyCode); false }
+        }
+        overlay.widget.addView(page)
+        paint()
+        assertTrue(page.requestFocus())
+        assertFalse("focus is inside the game, not on the overlay", overlay.isFocused)
+
+        activity.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
+        assertEquals("any other key is the game's", listOf(KeyEvent.KEYCODE_ENTER), keysHeard)
+        assertTrue(presenter.isShowing)
+
+        activity.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))
+        activity.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK))
+
+        assertFalse("the host Activity must survive", activity.isFinishing)
+        assertEquals("the game must leave the screen", 0, contentRoot().childCount)
+        assertFalse(presenter.isShowing)
+        assertEquals(1, dismissed)
     }
 
     // --- identity ---

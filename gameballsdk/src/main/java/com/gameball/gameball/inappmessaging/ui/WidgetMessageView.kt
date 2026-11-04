@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
@@ -71,6 +72,30 @@ internal class WidgetMessageView(context: Context) : FrameLayout(context) {
      */
     override fun dispatchTouchEvent(event: MotionEvent): Boolean =
         revealed && super.dispatchTouchEvent(event)
+
+    /**
+     * What back does on a host that is not a ComponentActivity. Set by the presenter once the game
+     * is drawn; never set on a ComponentActivity, whose dispatcher owns back.
+     */
+    var onBack: (() -> Unit)? = null
+
+    /**
+     * Back, wherever focus is inside the game. A key listener on this view heard it only while the
+     * view itself held focus, and the WebView takes focus at the first touch: from then on back
+     * went past the game and finished the host Activity. A key on its way to anything focused
+     * inside passes through here first.
+     */
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val back = onBack
+        if (back != null &&
+            event.keyCode == KeyEvent.KEYCODE_BACK &&
+            event.action == KeyEvent.ACTION_UP
+        ) {
+            back()
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
 
     /**
      * Lays out the chrome for the campaign's messageType.

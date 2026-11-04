@@ -274,15 +274,25 @@ internal class OverlayPresenter(
             currentView?.apply {
                 isFocusableInTouchMode = true
                 requestFocus()
-                setOnKeyListener { _, keyCode, event ->
-                    if (keyCode == KeyEvent.KEYCODE_BACK &&
-                        event.action == KeyEvent.ACTION_UP
-                    ) {
+                if (this is WidgetMessageView) {
+                    // A key listener hears back only while this view itself has focus, and a
+                    // game's WebView takes focus at the first touch. The game catches back on its
+                    // way to whatever inside it has focus.
+                    onBack = {
                         dismissCurrent()
                         callbacks.onDismissed()
-                        true
-                    } else {
-                        false
+                    }
+                } else {
+                    setOnKeyListener { _, keyCode, event ->
+                        if (keyCode == KeyEvent.KEYCODE_BACK &&
+                            event.action == KeyEvent.ACTION_UP
+                        ) {
+                            dismissCurrent()
+                            callbacks.onDismissed()
+                            true
+                        } else {
+                            false
+                        }
                     }
                 }
             }
