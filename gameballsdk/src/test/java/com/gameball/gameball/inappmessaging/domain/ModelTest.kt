@@ -59,6 +59,7 @@ class ModelTest {
         assertEquals(FilterOperator.GREATER_OR_EQUAL, FilterOperator.from("GreaterThanOrEqual"))
         assertEquals(FilterOperator.LESS_OR_EQUAL, FilterOperator.from("LessThanOrEqual"))
         assertEquals(FilterOperator.CONTAINS, FilterOperator.from("Contains"))
+        assertEquals(FilterOperator.BETWEEN, FilterOperator.from("Between"))
     }
 
     @Test

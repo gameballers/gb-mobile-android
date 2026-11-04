@@ -81,6 +81,45 @@ class FilterEvaluatorTest {
         assertFalse(matches("t", FilterOperator.GREATER_OR_EQUAL, "x", mapOf("t" to 5)))
     }
 
+    /** The dashboard authors the range as one value, "min,max". */
+    @Test
+    fun `between is inclusive at both ends`() {
+        assertTrue(matches("a", FilterOperator.BETWEEN, "100,500", mapOf("a" to 300)))
+        assertTrue("the lower edge", matches("a", FilterOperator.BETWEEN, "100,500", mapOf("a" to 100)))
+        assertTrue("the upper edge", matches("a", FilterOperator.BETWEEN, "100,500", mapOf("a" to 500)))
+        assertFalse(matches("a", FilterOperator.BETWEEN, "100,500", mapOf("a" to 99.99)))
+        assertFalse(matches("a", FilterOperator.BETWEEN, "100,500", mapOf("a" to 500.01)))
+    }
+
+    /** As strings, "9" > "50" and this range would hold nothing. */
+    @Test
+    fun `between compares as numbers, with spaces around either bound`() {
+        assertTrue(matches("a", FilterOperator.BETWEEN, "9,100", mapOf("a" to 50L)))
+        assertTrue(matches("a", FilterOperator.BETWEEN, "9,100", mapOf("a" to "50")))
+        assertTrue(matches("a", FilterOperator.BETWEEN, " 1.5 , 2.5 ", mapOf("a" to 2)))
+    }
+
+    /** Swapped, as iOS does, rather than refused. */
+    @Test
+    fun `between bounds given the wrong way round are swapped`() {
+        assertTrue(matches("a", FilterOperator.BETWEEN, "500,100", mapOf("a" to 300)))
+        assertFalse(matches("a", FilterOperator.BETWEEN, "500,100", mapOf("a" to 50)))
+    }
+
+    @Test
+    fun `between never matches a range that is not two numbers`() {
+        listOf("100", "100,", ",100", "abc", "a,b", "100,abc", "50,100,150", "", 100L).forEach { range ->
+            assertFalse("'$range'", matches("a", FilterOperator.BETWEEN, range, mapOf("a" to 100)))
+        }
+    }
+
+    @Test
+    fun `between never matches an event value that is not a number`() {
+        assertFalse(matches("a", FilterOperator.BETWEEN, "100,500", mapOf("a" to "cheap")))
+        assertFalse(matches("a", FilterOperator.BETWEEN, "100,500", mapOf("a" to true)))
+        assertFalse(matches("a", FilterOperator.BETWEEN, "100,500", mapOf("a" to listOf(300))))
+    }
+
     @Test
     fun `booleans compare by their string form`() {
         assertTrue(matches("b", FilterOperator.EQUALS, true, mapOf("b" to true)))

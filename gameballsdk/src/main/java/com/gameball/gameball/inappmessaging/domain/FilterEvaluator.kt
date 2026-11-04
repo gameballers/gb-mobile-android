@@ -34,6 +34,7 @@ internal object FilterEvaluator {
             FilterOperator.GREATER_OR_EQUAL -> compare(actual, filter) { it >= 0 }
             FilterOperator.LESS_THAN -> compare(actual, filter) { it < 0 }
             FilterOperator.LESS_OR_EQUAL -> compare(actual, filter) { it <= 0 }
+            FilterOperator.BETWEEN -> between(actual, filter)
         }
     }
 
@@ -69,6 +70,35 @@ internal object FilterEvaluator {
             return false
         }
         return predicate(a.compareTo(b))
+    }
+
+    /**
+     * Inclusive at both ends, and on numbers only, as iOS evaluates it: a range that does not read
+     * as two numbers, or an event value that is not one, is not matched.
+     */
+    private fun between(actual: Any, filter: MetadataFilter): Boolean {
+        val a = asNumber(actual)
+        val range = bounds(filter.value)
+        if (a == null || range == null) {
+            IamLog.w(
+                "filter '${filter.name}' uses ${filter.operator} but '$actual' and " +
+                    "'${filter.value}' do not give a number and a numeric range; not matched"
+            )
+            return false
+        }
+        return a >= range.first && a <= range.second
+    }
+
+    /**
+     * "min,max", with spaces allowed around either bound. Bounds given the wrong way round are
+     * swapped rather than refused. Null unless there are exactly two numbers.
+     */
+    private fun bounds(value: Any): Pair<Double, Double>? {
+        val parts = value.toString().split(",")
+        if (parts.size != 2) return null
+        val low = asNumber(parts[0]) ?: return null
+        val high = asNumber(parts[1]) ?: return null
+        return if (low <= high) low to high else high to low
     }
 
     private fun asNumber(value: Any?): Double? = when (value) {

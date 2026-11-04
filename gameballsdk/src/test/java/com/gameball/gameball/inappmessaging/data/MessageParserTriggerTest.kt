@@ -170,6 +170,87 @@ class MessageParserTriggerTest {
         }
     }
 
+    /**
+     * Between was unrecognised, so its filter was dropped; under Or that left "any of none", and
+     * the campaign showed on every purchase whatever the amount.
+     */
+    @Test
+    fun `a Between filter is kept and gates the campaign, inclusive at both ends`() {
+        val trigger = parseOne(
+            """{ "type": "event", "name": "purchase", "metadataLogicalOperator": "OR",
+                 "metadataFilters": [ { "name": "amount", "operator": "Between", "value": "100,500" } ] }"""
+        )!!.trigger
+        assertEquals(listOf("amount"), trigger.filters.map { it.name })
+
+        fun matches(amount: Any) = MessageSelector.triggerMatches(
+            trigger, TriggerOccurrence.Event("purchase", mapOf("amount" to amount))
+        )
+        assertTrue(matches(300))
+        assertTrue("the lower edge is inside", matches(100))
+        assertTrue("the upper edge is inside", matches(500))
+        assertFalse(matches(99))
+        assertFalse(matches(501))
+    }
+
+    /** Kept, as iOS keeps it, and it narrows: a range that cannot be read is never inside. */
+    @Test
+    fun `a Between filter whose range cannot be read is kept and never matches`() {
+        val trigger = parseOne(
+            """{ "type": "event", "name": "purchase", "metadataLogicalOperator": "OR",
+                 "metadataFilters": [ { "name": "amount", "operator": "Between", "value": "100" } ] }"""
+        )!!.trigger
+        assertEquals(1, trigger.filters.size)
+        assertFalse(
+            MessageSelector.triggerMatches(
+                trigger, TriggerOccurrence.Event("purchase", mapOf("amount" to 100))
+            )
+        )
+    }
+
+    /**
+     * Under Or a dropped filter only narrows, until every one is dropped: "any of none" reads as
+     * no condition at all and shows the campaign on every occurrence of its event.
+     */
+    @Test
+    fun `an Or trigger none of whose filters can be read drops the campaign`() {
+        assertNull(parseOne(
+            """{ "type": "event", "name": "purchase", "metadataLogicalOperator": "OR",
+                 "metadataFilters": [ { "name": "a", "operator": "startsWith", "value": 1 },
+                                      { "name": "b", "operator": "equals", "value": null } ] }"""
+        ))
+        // Nothing declared is nothing dropped: no conditions, as under And.
+        assertNotNull(parseOne(
+            """{ "type": "event", "name": "purchase", "metadataLogicalOperator": "OR",
+                 "metadataFilters": [] }"""
+        ))
+    }
+
+    @Test
+    fun `an Or trigger keeps the filters it can read and matches on them alone`() {
+        val trigger = parseOne(
+            """{ "type": "event", "name": "purchase", "metadataLogicalOperator": "OR",
+                 "metadataFilters": [ { "name": "code", "operator": "startsWith", "value": "x" },
+                                      { "name": "price", "operator": "Greater", "value": 100 } ] }"""
+        )!!.trigger
+        assertEquals(listOf("price"), trigger.filters.map { it.name })
+
+        fun matches(metadata: Map<String, Any?>) = MessageSelector.triggerMatches(
+            trigger, TriggerOccurrence.Event("purchase", metadata)
+        )
+        assertTrue(matches(mapOf("price" to 150)))
+        assertFalse(matches(mapOf("price" to 50, "code" to "xyz")))
+    }
+
+    /** The Or guard is Or's alone: under And an unreadable filter still drops only itself. */
+    @Test
+    fun `an And trigger none of whose filters can be read keeps the campaign, as before`() {
+        val trigger = parseOne(
+            """{ "type": "event", "name": "purchase", "metadataLogicalOperator": "AND",
+                 "metadataFilters": [ { "name": "a", "operator": "startsWith", "value": 1 } ] }"""
+        )!!.trigger
+        assertTrue(trigger.filters.isEmpty())
+    }
+
     @Test
     fun `an unknown logical operator still drops the campaign`() {
         assertNull(parseOne(

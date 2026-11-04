@@ -24,7 +24,10 @@ internal data class Trigger(
 internal enum class FilterLogic { ALL, ANY }
 
 internal enum class FilterOperator {
-    EQUALS, NOT_EQUALS, GREATER_THAN, GREATER_OR_EQUAL, LESS_THAN, LESS_OR_EQUAL, CONTAINS;
+    EQUALS, NOT_EQUALS, GREATER_THAN, GREATER_OR_EQUAL, LESS_THAN, LESS_OR_EQUAL, CONTAINS,
+
+    /** An inclusive numeric range, authored as one value: "min,max". */
+    BETWEEN;
 
     companion object {
         private val BY_NAME: Map<String, FilterOperator> = mapOf(
@@ -40,7 +43,8 @@ internal enum class FilterOperator {
             "lessthanorequal" to LESS_OR_EQUAL,
             "lessthanorequals" to LESS_OR_EQUAL,
             "lte" to LESS_OR_EQUAL,
-            "contains" to CONTAINS
+            "contains" to CONTAINS,
+            "between" to BETWEEN
         )
 
         /** Null for anything unrecognised — the caller drops that filter, not the campaign. */

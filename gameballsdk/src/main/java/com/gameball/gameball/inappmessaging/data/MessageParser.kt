@@ -525,6 +525,17 @@ internal object MessageParser {
                     }
                 }
                 val filters = parseFilters(triggerObject, campaignId) ?: return null
+                // Under OR a dropped filter only narrows the campaign - unless every filter was
+                // dropped, when "any of none" would read as no condition at all and show the
+                // campaign on every occurrence of its event.
+                val declared = triggerObject.arr("metadataFilters")?.size() ?: 0
+                if (filterLogic == FilterLogic.ANY && filters.isEmpty() && declared > 0) {
+                    IamLog.w(
+                        "campaign $campaignId shows when any of its conditions match, and none " +
+                            "of them can be evaluated; dropped rather than shown on every '$name'"
+                    )
+                    return null
+                }
                 Trigger(
                     type = TriggerType.EVENT,
                     eventName = name,
