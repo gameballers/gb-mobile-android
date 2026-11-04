@@ -2,6 +2,25 @@
 
 All notable changes to Gameball Android SDK are documented here
 
+## [Unreleased]
+
+> Game campaigns open over the app through in-app messaging, and in-app messaging triggers and quiet hours behave as the dashboard describes them
+
+### ✨ Added
+- 🎮 **Game Campaigns**: games the merchant set to open over the app (Spin the Wheel, Quiz, Scratch & Win and the other Gameball games) now arrive with in-app messaging and open on their own trigger in the Gameball widget, as a card over a dimmed screen or fullscreen. They follow the message rules exactly — app-open or event triggers with their conditions, the repeat setting and minimum interval, the minimum time between campaigns, quiet hours and the end date — with no delay and no dismissal limit. A game opens only from a fresh sync, never from the offline cache, and reports nothing to in-app message analytics
+- 🎮 **Game Close Button**: the SDK draws a close button over every game, in the top-end corner and clear of the status bar and any cutout; back, a tap outside the card and the game's own close also close it
+- 🎮 **Games Load Out of Sight**: nothing is drawn, and taps and back go to the app, until a game has finished drawing; one that hasn't drawn within 12 seconds is dropped quietly and offered again at its next trigger
+- 🎮 **After a Play**: a game the customer has finished isn't offered again until the next successful sync
+- ⚙️ **Widget Host on the Configuration**: `GameballConfig.widgetUrlPrefix` sets the widget host (without a scheme, e.g. `m.gameball.app/alpha`) once, for the profile widget and for game campaigns; a per-call `ShowProfileRequest.widgetUrlPrefix` still overrides it for that presentation
+- 🎁 **Any-Condition Triggers**: an event trigger whose conditions are joined by OR now shows when at least one of them matches; such campaigns used to be skipped
+
+### 🐛 Fixed
+- 🔧 **App-Open Repeat Rules**: app-open campaigns now honour their repeat setting and minimum interval; they used to show once ever
+- 🔧 **Greater and Less Conditions**: event conditions using `Greater` or `Less` are now applied; they used to be ignored, so the campaign showed for any value
+- 🌙 **Quiet Hours Time Zone**: quiet hours are now read on the device's local clock; they used to be read in UTC
+
+---
+
 ## [4.0.0] - 2026-10-22 🎉
 
 > **Major Release**: Raised the minimum Android version to API 24 (Android 7.0), and added in-app messaging — an opt-in module that displays campaigns authored in the Gameball dashboard inside your app
