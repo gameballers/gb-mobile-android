@@ -11,6 +11,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.VisibleForTesting
 import androidx.core.view.doOnPreDraw
+import com.gameball.gameball.inappmessaging.data.WidgetEvents
 import com.gameball.gameball.inappmessaging.domain.Campaign
 import com.gameball.gameball.inappmessaging.domain.MessageButton
 import com.gameball.gameball.inappmessaging.domain.MessageType
@@ -220,7 +221,9 @@ internal class OverlayPresenter(
                 dismissCurrent()
                 callbacks.onFailed()
             },
-            onCloseRequested = close
+            onCloseRequested = close,
+            // A play does not close the game: the customer is still looking at the result.
+            onEvent = { raw -> if (WidgetEvents.isGameCompleted(raw)) callbacks.onGameCompleted() }
         )
         return true
     }

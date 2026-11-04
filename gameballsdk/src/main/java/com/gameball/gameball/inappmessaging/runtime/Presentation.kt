@@ -42,6 +42,9 @@ internal interface PresentationCallbacks {
      * way, hence the default.
      */
     fun onFailed() = Unit
+
+    /** The open game was played to its end. Only a game can say so, hence the default. */
+    fun onGameCompleted() = Unit
 }
 
 /** A campaign's copy after personalisation and the blanking pass. */

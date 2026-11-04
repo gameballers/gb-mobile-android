@@ -11,6 +11,7 @@ import com.gameball.gameball.inappmessaging.data.MessageSource
 import com.gameball.gameball.inappmessaging.data.SyncOutcome
 import com.gameball.gameball.inappmessaging.data.VariableSource
 import com.gameball.gameball.inappmessaging.domain.Campaign
+import com.gameball.gameball.inappmessaging.domain.CampaignKey
 import com.gameball.gameball.inappmessaging.domain.DisplayHistorySnapshot
 import com.gameball.gameball.inappmessaging.domain.MessageAction
 import com.gameball.gameball.inappmessaging.domain.MessageButton
@@ -58,6 +59,13 @@ internal class InAppMessagingService(
     private var pending: PendingPresentation? = null
     private var currentCustomerId: String? = null
 
+    /**
+     * Games played to their end since the last successful sync, which are not offered again
+     * until the next one: the backend decides whether a customer may play again, and it says so
+     * only in a sync.
+     */
+    private val playedSinceSync = HashSet<CampaignKey>()
+
     var isStarted: Boolean = false
         private set
 
@@ -88,6 +96,7 @@ internal class InAppMessagingService(
         held = SyncResult.EMPTY
         neededTokens = emptySet()
         pending = null
+        playedSinceSync.clear()
         artwork.reset()
         sessionState.reset()
         variables.clear()
@@ -106,6 +115,7 @@ internal class InAppMessagingService(
         held = SyncResult.EMPTY
         neededTokens = emptySet()
         pending = null
+        playedSinceSync.clear()
         artwork.reset()
         cache.clear()
         history.clear()
@@ -126,6 +136,8 @@ internal class InAppMessagingService(
                 // A successful response replaces the entire cache; it is never merged, and an
                 // empty one is still a replacement.
                 cache.put(customerId, outcome.rawPayload)
+                // The backend has now had its say on every game played since the last sync.
+                playedSinceSync.clear()
                 outcome.result
             }
             // Only a failure falls back. Applying the cache unconditionally reintroduces the
@@ -209,7 +221,7 @@ internal class InAppMessagingService(
 
         val winner = MessageSelector.select(
             occurrence = occurrence,
-            campaigns = held.campaigns,
+            campaigns = offerable(),
             history = snapshot,
             nowMillis = clock.nowMillis(),
             cooldownSeconds = held.cooldownSeconds,
@@ -235,6 +247,11 @@ internal class InAppMessagingService(
 
         scope.launch { presentOrDefer(PendingPresentation(winner)) }
     }
+
+    /** The latest sync's campaigns, less any game played since that sync arrived. */
+    private fun offerable(): List<Campaign> =
+        if (playedSinceSync.isEmpty()) held.campaigns
+        else held.campaigns.filterNot { it.key in playedSinceSync }
 
     private suspend fun presentOrDefer(slot: PendingPresentation) {
         if (isWidgetOpen()) {
@@ -383,6 +400,13 @@ internal class InAppMessagingService(
             IamLog.d("campaign ${slot.campaign.label} could not be shown; waiting for its next trigger")
             if (pending === slot) pending = null
             retryPending()
+        }
+
+        override fun onGameCompleted() {
+            // Matched by the open presentation, never by the event's own ids: the widget names
+            // the game in its own terms, and this is the only game that is open.
+            IamLog.d("game ${slot.campaign.label} was played; not offered again until the next sync")
+            playedSinceSync.add(slot.campaign.key)
         }
     }
 

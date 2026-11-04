@@ -231,6 +231,60 @@ class GameCampaignServiceTest {
         assertEquals(2215, presented!!.campaignId)
     }
 
+    // --- after a play ---
+
+    /** Away for longer than the session timeout, so coming back syncs again. */
+    private fun nextSession(svc: InAppMessagingService) {
+        svc.onAppBackgrounded()
+        clock.now += 31_000L
+        svc.onAppForegrounded()
+    }
+
+    @Test
+    fun `a played game is not offered again until the next successful sync`() {
+        source.outcome = success(sync(game()))
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+        presenter.callbacks!!.onShown()
+        presenter.callbacks!!.onGameCompleted()
+        presenter.close()
+
+        svc.onEvent("spin", emptyMap())
+        assertEquals("repeatable, but just played", 1, presenter.presentCount)
+
+        nextSession(svc)
+        svc.onEvent("spin", emptyMap())
+        assertEquals("the next sync decides whether it may be played again", 2, presenter.presentCount)
+    }
+
+    @Test
+    fun `a game closed without a play is offered again`() {
+        source.outcome = success(sync(game()))
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+        presenter.callbacks!!.onShown()
+        presenter.close()
+
+        svc.onEvent("spin", emptyMap())
+        assertEquals(2, presenter.presentCount)
+    }
+
+    @Test
+    fun `a play holds back only the game that was played`() {
+        source.outcome = success(sync(game(id = 9645), game(id = 9702, trigger = """{ "type": "event", "name": "quiz", "repeatable": true }""")))
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+        presenter.callbacks!!.onShown()
+        presenter.callbacks!!.onGameCompleted()
+        presenter.close()
+
+        svc.onEvent("quiz", emptyMap())
+        assertEquals(9702, presenter.presented!!.widget!!.gameCampaignId)
+    }
+
     // --- a game that never loads ---
 
     @Test

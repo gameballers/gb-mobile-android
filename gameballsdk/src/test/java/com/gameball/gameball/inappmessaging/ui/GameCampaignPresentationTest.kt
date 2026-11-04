@@ -48,6 +48,7 @@ class GameCampaignPresentationTest {
     private var shown = 0
     private var dismissed = 0
     private var failed = 0
+    private var played = 0
     private val urlsRequested = mutableListOf<String>()
 
     private val callbacks = object : PresentationCallbacks {
@@ -55,6 +56,7 @@ class GameCampaignPresentationTest {
         override fun onTapped(button: MessageButton?) = Unit
         override fun onDismissed() { dismissed++ }
         override fun onFailed() { failed++ }
+        override fun onGameCompleted() { played++ }
     }
 
     private val noCallbacks = object : ActivityTracker.Callbacks {
@@ -70,7 +72,7 @@ class GameCampaignPresentationTest {
         // The presenter resolves the Activity at presentation time and never caches one, so the
         // tracker has to have seen a resume before anything can be drawn.
         tracker.onActivityResumed(activity)
-        shown = 0; dismissed = 0; failed = 0; urlsRequested.clear()
+        shown = 0; dismissed = 0; failed = 0; played = 0; urlsRequested.clear()
     }
 
     private fun gameCampaign(type: MessageType = MessageType.MODAL) = Campaign(
@@ -345,6 +347,25 @@ class GameCampaignPresentationTest {
         assertEquals(0, root.childCount)
         assertEquals(1, dismissed)
         assertFalse("the host's route must survive", host.isFinishing)
+    }
+
+    // --- a play ---
+
+    /** The widget's events reached the bridge, but nobody was listening. */
+    @Test
+    fun `a finished game is reported, and nothing else is`() {
+        presenter().present(gameCampaign(), resolved, callbacks)
+        val widget = widgetView()!!
+        widget.settle(ready = true)
+
+        widget.eventPosted("""{"type":"rewardClaimed","metadata":{}}""")
+        assertEquals(0, played)
+
+        widget.eventPosted(
+            """{"type":"gameCompleted","metadata":{"campaignId":"9645","campaignType":"spinTheWheel","hasWon":true}}"""
+        )
+        assertEquals(1, played)
+        assertEquals("a play does not close the game; the customer still sees the result", 1, contentRoot().childCount)
     }
 
     // --- a game that never loads ---
