@@ -2,11 +2,13 @@ package com.gameball.gameball.inappmessaging.ui
 
 import android.app.Activity
 import android.app.Application
+import android.os.Build
 import android.os.Looper
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.core.graphics.Insets
@@ -37,6 +39,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
@@ -408,6 +411,54 @@ class GameCampaignPresentationTest {
         assertFalse(presenter.isShowing)
         assertEquals("the service must hear it failed, or it keeps the game waiting", 1, failed)
         assertEquals("nothing was seen, so nothing is reported", 0, shown)
+        assertEquals(0, dismissed)
+    }
+
+    // --- a renderer that dies ---
+
+    /**
+     * The WebView's client, told its renderer is gone. No RenderProcessGoneDetail is built: the
+     * class arrived in API 26, and constructing one here would fail this whole class on the
+     * suite's default SDK. Nothing reads it.
+     */
+    private fun rendererGone(webView: WebView): Boolean =
+        shadowOf(webView).webViewClient.onRenderProcessGone(webView, null)
+
+    /** Android's own answer to a renderer that crashed or was killed is to take the app with it. */
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+    fun `a loading game whose renderer dies is taken away unseen, and the app lives on`() {
+        val presenter = presenter()
+        presenter.present(gameCampaign(), resolved, callbacks)
+        val webView = widgetView()!!.webView
+
+        assertTrue("unhandled, a dead renderer takes the host app down", rendererGone(webView))
+
+        assertNull("the dead WebView is out of the hierarchy", webView.parent)
+        assertTrue("and destroyed", shadowOf(webView).wasDestroyCalled())
+        assertEquals(0, contentRoot().childCount)
+        assertFalse(presenter.isShowing)
+        assertEquals("the way a failed load goes", 1, failed)
+        assertEquals(0, shown)
+        assertEquals(0, dismissed)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+    fun `a shown game whose renderer dies leaves the screen the same way`() {
+        val presenter = presenter()
+        presenter.present(gameCampaign(), resolved, callbacks)
+        widgetView()!!.settle(ready = true)
+        val webView = widgetView()!!.webView
+
+        assertTrue(rendererGone(webView))
+
+        assertNull(webView.parent)
+        assertTrue(shadowOf(webView).wasDestroyCalled())
+        assertEquals(0, contentRoot().childCount)
+        assertFalse(presenter.isShowing)
+        assertEquals(1, failed)
+        assertEquals("its one impression stands, and nothing more is reported", 1, shown)
         assertEquals(0, dismissed)
     }
 

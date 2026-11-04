@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.webkit.JavascriptInterface
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -36,6 +37,7 @@ internal class GameballWidgetView @JvmOverloads constructor(
 
     private val handler = Handler(Looper.getMainLooper())
     private var settled = false
+    private var destroyed = false
     private var timeoutRunnable: Runnable? = null
 
     private var onReady: (() -> Unit)? = null
@@ -97,6 +99,19 @@ internal class GameballWidgetView @JvmOverloads constructor(
                 IamLog.w("widget failed to load (${error?.errorCode})")
                 settle(ready = false)
             }
+
+            /**
+             * The renderer crashed, or the system killed it for memory. Left to Android's default,
+             * that takes the host app down with it. Handled, only the game goes.
+             */
+            override fun onRenderProcessGone(
+                view: WebView?,
+                detail: RenderProcessGoneDetail?
+            ): Boolean {
+                IamLog.w("widget renderer gone; taking the game away")
+                renderProcessGone()
+                return true
+            }
         }
         webView.loadUrl(url)
 
@@ -109,6 +124,10 @@ internal class GameballWidgetView @JvmOverloads constructor(
 
     /** Frees the WebView. A leaked one keeps a renderer process and the Activity alive. */
     fun destroy() {
+        // Once: after a dead renderer this runs from here and then again from the presenter's
+        // teardown, which must not reach into a WebView already destroyed.
+        if (destroyed) return
+        destroyed = true
         handler.removeCallbacksAndMessages(null)
         settled = true
         // A bridge call already on its way from the page's thread must find nobody to tell: this
@@ -121,6 +140,19 @@ internal class GameballWidgetView @JvmOverloads constructor(
         webView.stopLoading()
         webView.removeJavascriptInterface(BRIDGE_NAME)
         webView.destroy()
+    }
+
+    /**
+     * A WebView whose renderer is gone must not be used again, so it is removed and destroyed at
+     * once. The game then goes the way a failed load does, whether or not it had been revealed:
+     * unrevealed, it is taken away unshown; shown, it leaves the screen as a closed game does. No
+     * analytics either way.
+     */
+    private fun renderProcessGone() {
+        // Read first: destroy() lets go of every callback.
+        val failed = onFailed
+        destroy()
+        failed?.invoke()
     }
 
     private fun elapsed() = System.currentTimeMillis() - startedAtMillis
