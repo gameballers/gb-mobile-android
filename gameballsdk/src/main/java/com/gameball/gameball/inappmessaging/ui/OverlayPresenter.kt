@@ -55,8 +55,18 @@ internal class OverlayPresenter(
      */
     private var presentation: PendingPresentation? = null
 
+    /** What the presentation was drawn with, kept so it can be drawn again on a new screen. */
+    private var presentedWith: ResolvedMessage? = null
+    private var presentedTo: PresentationCallbacks? = null
+
+    /**
+     * Its screen was recreated under it (a rotation, most often) and it waits for the new one. It
+     * still counts as showing, so nothing else is drawn in its place in between.
+     */
+    private var awaitingNewScreen = false
+
     override val isShowing: Boolean
-        get() = currentView != null
+        get() = currentView != null || awaitingNewScreen
 
     override fun present(
         campaign: Campaign,
@@ -91,6 +101,8 @@ internal class OverlayPresenter(
         val slot = presentation?.takeIf { it.campaign.key == campaign.key }
             ?: PendingPresentation(campaign)
         presentation = slot
+        presentedWith = resolved
+        presentedTo = callbacks
 
         if (campaign.isWidget) {
             return presentWidget(campaign, activity, root, slot, callbacks)
@@ -385,6 +397,9 @@ internal class OverlayPresenter(
         currentView = null
         currentActivity = null
         presentation = null
+        presentedWith = null
+        presentedTo = null
+        awaitingNewScreen = false
     }
 
     /**
@@ -402,6 +417,68 @@ internal class OverlayPresenter(
         backCallback?.remove()
         backCallback = null
         return present(slot.campaign, resolved, callbacks)
+    }
+
+    /**
+     * The Activity the presentation was drawn into is gone, and the view went with it.
+     *
+     * Holding on to the dead view kept [isShowing] true for good, so every later message was
+     * deferred until the app restarted. A configuration change (a rotation, most often) brings the
+     * presentation back on the new screen at its first resume — see [resumeAfterHostLoss]. A
+     * screen closed for good takes it away as if closed: it was seen, so it counts as dismissed;
+     * a game that never drew goes as a failed load.
+     */
+    fun onHostDestroyed(activity: Activity) {
+        if (currentActivity !== activity || currentView == null) return
+        val label = presentation?.campaign?.label
+        if (activity.isChangingConfigurations) {
+            IamLog.d("campaign $label lost its screen to a configuration change; it comes back on the new one")
+            releaseDeadSurface()
+            awaitingNewScreen = true
+            return
+        }
+        IamLog.d("campaign $label went with its screen")
+        val callbacks = presentedTo
+        val seen = presentation?.impressionReported == true
+        dismissCurrent()
+        if (seen) callbacks?.onDismissed() else callbacks?.onFailed()
+    }
+
+    /**
+     * Draws a presentation whose screen was recreated under it on the screen there is now. Called
+     * at every resume; true when it drew. One that cannot draw yet — no Activity, or a fullscreen
+     * waiting for its orientation — keeps waiting for the next resume.
+     */
+    fun resumeAfterHostLoss(): Boolean {
+        if (!awaitingNewScreen) return false
+        val resolved = presentedWith
+        val callbacks = presentedTo
+        if (resolved == null || callbacks == null) {
+            awaitingNewScreen = false
+            return false
+        }
+        awaitingNewScreen = false
+        if (rePresentAfterConfigurationChange(resolved, callbacks)) return true
+        awaitingNewScreen = true
+        return false
+    }
+
+    /**
+     * Lets go of everything tied to the dead screen while keeping the presentation itself. The game's
+     * WebView is destroyed first: still loading, its late word would otherwise close whatever is drawn
+     * on the new screen.
+     */
+    private fun releaseDeadSurface() {
+        autoDismissRunnable?.let { handler.removeCallbacks(it) }
+        autoDismissRunnable = null
+        backCallback?.remove()
+        backCallback = null
+        currentView?.let { view ->
+            (view as? WidgetMessageView)?.destroy()
+            (view.parent as? ViewGroup)?.removeView(view)
+        }
+        currentView = null
+        currentActivity = null
     }
 
     @VisibleForTesting
