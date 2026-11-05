@@ -1,6 +1,7 @@
 package com.gameball.gameball.inappmessaging.ui
 
 import android.app.Activity
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
@@ -177,14 +178,21 @@ internal class OverlayPresenter(
             callbacks.onDismissed()
         }
 
+        val url = builder(widget.openDetail)
         val view = WidgetMessageView(activity)
         view.bind(
             campaign,
             onScrimTap = { if (campaign.content.dismissOnScrimTap) close() },
-            onClose = close
+            onClose = close,
+            // The language the page opens in, read off the very url it opens with.
+            rightToLeft = WidgetMessageView.isRightToLeft(languageOf(url))
         )
 
-        root.addView(
+        // Over the whole window, the app bar and status bar included, as on the other SDKs. In the
+        // content root a fullscreen game covered only the area under the host's action bar. Its
+        // content still keeps to the safe area: WidgetMessageView measures the bars on the window.
+        val surface = activity.window?.decorView as? ViewGroup ?: root
+        surface.addView(
             view,
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -197,7 +205,7 @@ internal class OverlayPresenter(
         // to the app; it is registered with the reveal below.
 
         view.widget.load(
-            url = builder(widget.openDetail),
+            url = url,
             onReady = {
                 if (!view.isAttachedToWindow) {
                     // Its screen went away while it loaded — back, say, which is the app's until
@@ -228,6 +236,12 @@ internal class OverlayPresenter(
             onEvent = { raw -> if (WidgetEvents.isGameCompleted(raw)) callbacks.onGameCompleted() }
         )
         return true
+    }
+
+    private fun languageOf(url: String): String? = try {
+        Uri.parse(url).getQueryParameter("lang")
+    } catch (t: Throwable) {
+        null
     }
 
     /** Marks engagement on the shared slot so a dismissal after a tap is not double-counted. */

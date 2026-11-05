@@ -3,6 +3,7 @@ package com.gameball.gameball.inappmessaging.ui
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
@@ -11,6 +12,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.annotation.VisibleForTesting
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnAttach
@@ -18,6 +20,7 @@ import androidx.core.view.updateLayoutParams
 import com.gameball.gameball.R
 import com.gameball.gameball.inappmessaging.domain.Campaign
 import com.gameball.gameball.inappmessaging.domain.MessageType
+import java.util.Locale
 
 /**
  * The chrome around a game campaign: a scrim and a card for a modal, edge to edge for fullscreen.
@@ -105,7 +108,13 @@ internal class WidgetMessageView(context: Context) : FrameLayout(context) {
      * inside the ratio at which the widget starts clipping. The earlier reading that fullscreen
      * clipped came from measuring a 1.12-aspect box and was wrong.
      */
-    fun bind(campaign: Campaign, onScrimTap: () -> Unit, onClose: () -> Unit) {
+    /** [rightToLeft]: the game's own page is laid out right to left (its language is Arabic, say). */
+    fun bind(
+        campaign: Campaign,
+        onScrimTap: () -> Unit,
+        onClose: () -> Unit,
+        rightToLeft: Boolean = false
+    ) {
         val modal = campaign.messageType != MessageType.FULLSCREEN
         val margin = if (modal) dp(MessageMetrics.Modal.MARGIN_DP) else 0
 
@@ -118,7 +127,7 @@ internal class WidgetMessageView(context: Context) : FrameLayout(context) {
         )
 
         if (modal) bindModal(campaign, onScrimTap) else bindFullscreen()
-        bindClose(onClose)
+        bindClose(onClose, rightToLeft)
         applyInsets(margin)
     }
 
@@ -146,7 +155,7 @@ internal class WidgetMessageView(context: Context) : FrameLayout(context) {
         isClickable = true
     }
 
-    private fun bindClose(onClose: () -> Unit) {
+    private fun bindClose(onClose: () -> Unit, rightToLeft: Boolean) {
         val disc = dp(MessageMetrics.Game.CLOSE_DISC_DP)
         val glyphPadding = (disc - dp(MessageMetrics.Shared.CLOSE_GLYPH_SIZE_DP)) / 2
         val glyph = ImageView(context).apply {
@@ -171,10 +180,13 @@ internal class WidgetMessageView(context: Context) : FrameLayout(context) {
 
         val target = dp(MessageMetrics.Shared.CLOSE_TOUCH_TARGET_DP)
         val inset = dp(MessageMetrics.Game.CLOSE_INSET_DP)
-        // END rather than RIGHT, so it mirrors under RTL.
-        host.addView(closeTarget, LayoutParams(target, target, Gravity.TOP or Gravity.END).apply {
+        // The top end of the game, which mirrors with the game's own language rather than with the
+        // app: an Arabic game is laid out right to left whatever direction the app runs in, and
+        // Gravity.END followed only the app — or nothing, in an app that never declared RTL support.
+        val side = if (rightToLeft) Gravity.LEFT else Gravity.RIGHT
+        host.addView(closeTarget, LayoutParams(target, target, Gravity.TOP or side).apply {
             topMargin = inset
-            marginEnd = inset
+            if (rightToLeft) leftMargin = inset else rightMargin = inset
         })
     }
 
@@ -184,9 +196,11 @@ internal class WidgetMessageView(context: Context) : FrameLayout(context) {
      * margin inside that area.
      */
     private fun applyInsets(margin: Int) {
-        ViewCompat.setOnApplyWindowInsetsListener(this) { _, windowInsets ->
-            val insets = windowInsets.getInsets(
-                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+        ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
+            val bars = WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            val insets = safeArea(
+                dispatched = windowInsets.getInsets(bars),
+                window = ViewCompat.getRootWindowInsets(view)?.getInsets(bars)
             )
             host.updateLayoutParams<LayoutParams> {
                 setMargins(
@@ -233,5 +247,22 @@ internal class WidgetMessageView(context: Context) : FrameLayout(context) {
          */
         @VisibleForTesting
         internal const val HIDDEN_ALPHA = 1f / 255f
+
+        /**
+         * The larger of the insets dispatched to the overlay and the window's own, edge by edge.
+         *
+         * The overlay hangs over the whole window, so the bars are measured on the window itself:
+         * a window that fits system windows hands the views under its decor insets with the bars
+         * already taken out, which would put the game under the status bar.
+         */
+        internal fun safeArea(dispatched: Insets, window: Insets?): Insets =
+            if (window == null) dispatched else Insets.max(dispatched, window)
+
+        /** Whether a page in [language], a tag such as "ar", is laid out right to left. */
+        internal fun isRightToLeft(language: String?): Boolean {
+            if (language.isNullOrBlank()) return false
+            return TextUtils.getLayoutDirectionFromLocale(Locale.forLanguageTag(language)) ==
+                View.LAYOUT_DIRECTION_RTL
+        }
     }
 }

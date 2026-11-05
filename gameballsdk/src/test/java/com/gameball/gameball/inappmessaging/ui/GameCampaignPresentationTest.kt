@@ -33,6 +33,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -96,16 +97,23 @@ class GameCampaignPresentationTest {
         "https://m.gameball.app/?openDetail=$openDetail"
     }) = OverlayPresenter(tracker, Clock { 1_000L }, builder)
 
-    private fun contentRoot(): ViewGroup = activity.findViewById(android.R.id.content)
+    /** The whole window: a game hangs over all of it, the app bar and status bar included. */
+    private fun gameRoot(): ViewGroup = activity.window.decorView as ViewGroup
 
-    private fun overlay(): WidgetMessageView? =
-        contentRoot().getChildAt(contentRoot().childCount - 1) as? WidgetMessageView
+    /** Every game overlay in [of], wherever it hangs. */
+    private fun games(of: View = gameRoot()): List<WidgetMessageView> = when (of) {
+        is WidgetMessageView -> listOf(of)
+        is ViewGroup -> (0 until of.childCount).flatMap { games(of.getChildAt(it)) }
+        else -> emptyList()
+    }
+
+    private fun overlay(): WidgetMessageView? = games().lastOrNull()
 
     private fun widgetView(): GameballWidgetView? = overlay()?.widget
 
     /** Drives a real layout pass, exactly as a frame would. */
     private fun paint() {
-        val root = contentRoot()
+        val root = gameRoot()
         root.measure(
             View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(1920, View.MeasureSpec.EXACTLY)
@@ -185,13 +193,11 @@ class GameCampaignPresentationTest {
         val host = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
         tracker.onActivityResumed(host)
         presenter().present(gameCampaign(), resolved, callbacks)
-        val root = host.findViewById<ViewGroup>(android.R.id.content)
-
         host.onBackPressedDispatcher.onBackPressed()
 
         assertEquals("nothing visible may take back from the app", 0, dismissed)
         assertTrue("the app's own back ran", host.isFinishing)
-        assertEquals(1, root.childCount)
+        assertEquals(1, games(host.window.decorView).size)
     }
 
     @Test
@@ -200,13 +206,57 @@ class GameCampaignPresentationTest {
         presenter.present(gameCampaign(), resolved, callbacks)
         val overlay = overlay()!!
         // Its Activity finished while it loaded, which takes the window and the overlay with it.
-        contentRoot().removeView(overlay)
+        (overlay.parent as ViewGroup).removeView(overlay)
 
         overlay.widget.settle(ready = true)
 
         assertEquals("nobody saw it", 0, shown)
         assertEquals(1, failed)
         assertFalse(presenter.isShowing)
+    }
+
+    // --- the widget's own word (gameReady) ---
+
+    private val gameReady =
+        """{"type":"gameReady","metadata":{"page":"details_wheel_9645","playable":true}}"""
+    private val unplayable =
+        """{"type":"gameReady","metadata":{"page":"details_wheel_9645","playable":false,"reason":"unplayable"}}"""
+
+    /** Tracker C4: an Arabic scratch card with no Arabic title never passed the page guess. */
+    @Test
+    fun `a game the widget says is on screen is revealed`() {
+        val presenter = presenter()
+        presenter.present(gameCampaign(), resolved, callbacks)
+
+        widgetView()!!.eventPosted(gameReady)
+
+        assertEquals(1f, overlay()!!.alpha, 0f)
+        assertEquals(1, shown)
+        assertTrue(presenter.isShowing)
+    }
+
+    /** Tracker B3: the widget's "already played today" page must never be put over the app. */
+    @Test
+    fun `a game the widget says cannot be played is taken away unseen`() {
+        val presenter = presenter()
+        presenter.present(gameCampaign(), resolved, callbacks)
+
+        widgetView()!!.eventPosted(unplayable)
+
+        assertEquals("nobody saw it", 0, shown)
+        assertEquals(1, failed)
+        assertFalse(presenter.isShowing)
+        assertNull(overlay())
+    }
+
+    @Test
+    fun `any other event leaves a loading game hidden`() {
+        presenter().present(gameCampaign(), resolved, callbacks)
+
+        widgetView()!!.eventPosted("""{"type":"gameCompleted"}""")
+
+        assertTrue(overlay()!!.alpha < 0.01f)
+        assertEquals(0, shown)
     }
 
     @Test
@@ -223,13 +273,51 @@ class GameCampaignPresentationTest {
         // An empty card is worse than no card. A build with no url builder declines the campaign,
         // which leaves it eligible at its next trigger.
         assertFalse(presenter(builder = null).present(gameCampaign(), resolved, callbacks))
-        assertEquals(0, contentRoot().childCount)
+        assertEquals(0, games().size)
     }
 
     @Test
     fun `a fullscreen game mounts edge to edge`() {
         assertTrue(presenter().present(gameCampaign(MessageType.FULLSCREEN), resolved, callbacks))
         assertNotNull(widgetView())
+    }
+
+    /**
+     * Tracker C1: in the content root a fullscreen game covered only the area under the app's
+     * action bar, with the status bar and title bar still showing above it. It hangs over the
+     * whole window instead, as on the other SDKs; its content still keeps to the safe area.
+     */
+    @Test
+    fun `a game covers the whole window, app bar included`() {
+        listOf(MessageType.MODAL, MessageType.FULLSCREEN).forEach { type ->
+            val presenter = presenter()
+            presenter.present(gameCampaign(type), resolved, callbacks)
+
+            assertSame("$type", activity.window.decorView, overlay()!!.parent)
+            presenter.dismissCurrent()
+            assertEquals("$type: and leaves it whole", 0, games().size)
+        }
+    }
+
+    /**
+     * Over the whole window the bars are measured on the window itself. A window that fits system
+     * windows hands the views under its decor insets with the bars already taken out, which would
+     * have put the game under the status bar.
+     */
+    @Test
+    fun `a game over the whole window keeps clear of the bars even when its insets arrive consumed`() {
+        val window = Insets.of(0, 96, 0, 48)
+        assertEquals(window, WidgetMessageView.safeArea(dispatched = Insets.NONE, window = window))
+        assertEquals(
+            "edge by edge",
+            Insets.of(10, 96, 0, 48),
+            WidgetMessageView.safeArea(dispatched = Insets.of(10, 0, 0, 0), window = window)
+        )
+        assertEquals(
+            "no window insets to read: what was dispatched",
+            Insets.of(0, 24, 0, 0),
+            WidgetMessageView.safeArea(dispatched = Insets.of(0, 24, 0, 0), window = null)
+        )
     }
 
     // --- closing ---
@@ -243,7 +331,7 @@ class GameCampaignPresentationTest {
 
         widgetView()!!.closeRequested()
 
-        assertEquals("the game must leave the screen", 0, contentRoot().childCount)
+        assertEquals("the game must leave the screen", 0, games().size)
         assertFalse(presenter.isShowing)
         assertEquals(1, dismissed)
     }
@@ -256,7 +344,7 @@ class GameCampaignPresentationTest {
 
         overlay()!!.performClick()
 
-        assertEquals("the game must leave the screen", 0, contentRoot().childCount)
+        assertEquals("the game must leave the screen", 0, games().size)
         assertFalse(presenter.isShowing)
         assertEquals(1, dismissed)
     }
@@ -290,11 +378,30 @@ class GameCampaignPresentationTest {
             assertEquals("$type", View.VISIBLE, close.visibility)
             assertEquals("$type", activity.getString(R.string.gb_iam_close), close.contentDescription?.toString())
             assertEquals(
-                "$type: top end, so it mirrors under RTL",
-                Gravity.TOP or Gravity.END,
+                "$type: the top end of a left-to-right game",
+                Gravity.TOP or Gravity.RIGHT,
                 (close.layoutParams as FrameLayout.LayoutParams).gravity
             )
             assertTrue("$type: a 48dp target at least", close.width >= dp(48f) && close.height >= dp(48f))
+            presenter.dismissCurrent()
+        }
+    }
+
+    /**
+     * Tracker C4: the close sits at the top end of the game, which mirrors with the game's own
+     * language. Following the app's direction left it at the top right of an Arabic game whenever
+     * the app itself was left to right, or had not declared RTL support at all.
+     */
+    @Test
+    fun `the close control sits at the top end of the game's own language`() {
+        mapOf("ar" to Gravity.LEFT, "en" to Gravity.RIGHT, "he" to Gravity.LEFT).forEach { (lang, side) ->
+            val presenter = presenter(builder = { "https://m.gameball.app/?lang=$lang&openDetail=$it" })
+            presenter.present(gameCampaign(), resolved, callbacks)
+
+            val params = overlay()!!.closeTarget.layoutParams as FrameLayout.LayoutParams
+            assertEquals(lang, Gravity.TOP or side, params.gravity)
+            val inset = if (side == Gravity.LEFT) params.leftMargin else params.rightMargin
+            assertTrue("$lang: kept off the edge", inset > 0)
             presenter.dismissCurrent()
         }
     }
@@ -309,7 +416,7 @@ class GameCampaignPresentationTest {
 
             overlay()!!.closeTarget.performClick()
 
-            assertEquals("$type", 0, contentRoot().childCount)
+            assertEquals("$type", 0, games().size)
             assertFalse("$type", presenter.isShowing)
             assertEquals("$type", 1, dismissed)
         }
@@ -343,12 +450,11 @@ class GameCampaignPresentationTest {
         tracker.onActivityResumed(host)
         val presenter = presenter()
         presenter.present(gameCampaign(), resolved, callbacks)
-        val root = host.findViewById<ViewGroup>(android.R.id.content)
-        (root.getChildAt(root.childCount - 1) as WidgetMessageView).widget.settle(ready = true)
+        games(host.window.decorView).last().widget.settle(ready = true)
 
         host.onBackPressedDispatcher.onBackPressed()
 
-        assertEquals(0, root.childCount)
+        assertEquals(0, games(host.window.decorView).size)
         assertEquals(1, dismissed)
         assertFalse("the host's route must survive", host.isFinishing)
     }
@@ -385,7 +491,7 @@ class GameCampaignPresentationTest {
         activity.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK))
 
         assertFalse("the host Activity must survive", activity.isFinishing)
-        assertEquals("the game must leave the screen", 0, contentRoot().childCount)
+        assertEquals("the game must leave the screen", 0, games().size)
         assertFalse(presenter.isShowing)
         assertEquals(1, dismissed)
     }
@@ -431,7 +537,7 @@ class GameCampaignPresentationTest {
             """{"type":"gameCompleted","metadata":{"campaignId":"9645","campaignType":"spinTheWheel","hasWon":true}}"""
         )
         assertEquals(1, played)
-        assertEquals("a play does not close the game; the customer still sees the result", 1, contentRoot().childCount)
+        assertEquals("a play does not close the game; the customer still sees the result", 1, games().size)
     }
 
     // --- a game that never loads ---
@@ -445,7 +551,7 @@ class GameCampaignPresentationTest {
             GameballWidgetView.READY_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS
         )
 
-        assertEquals(0, contentRoot().childCount)
+        assertEquals(0, games().size)
         assertFalse(presenter.isShowing)
         assertEquals("the service must hear it failed, or it keeps the game waiting", 1, failed)
         assertEquals("nothing was seen, so nothing is reported", 0, shown)
@@ -474,7 +580,7 @@ class GameCampaignPresentationTest {
 
         assertNull("the dead WebView is out of the hierarchy", webView.parent)
         assertTrue("and destroyed", shadowOf(webView).wasDestroyCalled())
-        assertEquals(0, contentRoot().childCount)
+        assertEquals(0, games().size)
         assertFalse(presenter.isShowing)
         assertEquals("the way a failed load goes", 1, failed)
         assertEquals(0, shown)
@@ -493,7 +599,7 @@ class GameCampaignPresentationTest {
 
         assertNull(webView.parent)
         assertTrue(shadowOf(webView).wasDestroyCalled())
-        assertEquals(0, contentRoot().childCount)
+        assertEquals(0, games().size)
         assertFalse(presenter.isShowing)
         assertEquals(1, failed)
         assertEquals("its one impression stands, and nothing more is reported", 1, shown)
@@ -504,11 +610,11 @@ class GameCampaignPresentationTest {
     fun `dismissing tears the WebView down`() {
         val presenter = presenter()
         presenter.present(gameCampaign(), resolved, callbacks)
-        assertEquals(1, contentRoot().childCount)
+        assertEquals(1, games().size)
 
         // A WebView left attached keeps a renderer process and this Activity alive.
         presenter.dismissCurrent()
-        assertEquals(0, contentRoot().childCount)
+        assertEquals(0, games().size)
         assertFalse(presenter.isShowing)
     }
 }

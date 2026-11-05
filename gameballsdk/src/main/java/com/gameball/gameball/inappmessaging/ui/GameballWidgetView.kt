@@ -13,6 +13,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
+import com.gameball.gameball.inappmessaging.data.GameReadiness
+import com.gameball.gameball.inappmessaging.data.WidgetEvents
 import com.gameball.gameball.inappmessaging.runtime.IamLog
 
 /**
@@ -163,15 +165,28 @@ internal class GameballWidgetView @JvmOverloads constructor(
         onCloseRequested?.invoke()
     }
 
-    /** The page posted an event, through `WidgetEvent.postEvent(...)`. */
+    /**
+     * The page posted an event, through `WidgetEvent.postEvent(...)`.
+     *
+     * A `gameReady` is the widget's own word that the page it opened is on screen, and it settles
+     * the view whichever comes first, it or the page guess in [readinessScript]. The guess stays
+     * for widgets that predate the event, and it can miss: a canvas game with under 40 characters
+     * of text, such as an Arabic scratch card with no Arabic title, never passes it.
+     */
     @VisibleForTesting
     internal fun eventPosted(raw: String) {
+        when (val said = WidgetEvents.readinessOf(raw)) {
+            is GameReadiness.Playable -> settle(ready = true)
+            is GameReadiness.Unplayable ->
+                settle(ready = false, why = "the widget says it cannot be played now (${said.reason})")
+            null -> Unit
+        }
         onEvent?.invoke(raw)
     }
 
     /** Reports the outcome exactly once. */
     @VisibleForTesting
-    internal fun settle(ready: Boolean) {
+    internal fun settle(ready: Boolean, why: String? = null) {
         if (settled) return
         settled = true
         timeoutRunnable?.let { handler.removeCallbacks(it) }
@@ -180,7 +195,7 @@ internal class GameballWidgetView @JvmOverloads constructor(
             onReady?.invoke()
         } else {
             IamLog.w(
-                "widget did not become ready within ${readyTimeoutMillis / 1000}s; " +
+                "${why ?: "widget did not become ready within ${readyTimeoutMillis / 1000}s"}; " +
                     "taking the message away unshown"
             )
             onFailed?.invoke()
