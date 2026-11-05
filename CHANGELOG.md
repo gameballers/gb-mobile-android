@@ -8,13 +8,18 @@ All notable changes to Gameball Android SDK are documented here
 
 ### ✨ Added
 - 🎮 **Game Campaigns**: games the merchant set to open over the app (Spin the Wheel, Quiz, Scratch & Win and the other Gameball games) now arrive with in-app messaging and open on their own trigger in the Gameball widget, as a card over a dimmed screen or fullscreen. They follow the message rules exactly — app-open or event triggers with their conditions, the repeat setting and minimum interval, the minimum time between campaigns, quiet hours and the end date — with no delay and no dismissal limit. A game opens only from a fresh sync, never from the offline cache, and reports nothing to in-app message analytics
-- 🎮 **Game Close Button**: the SDK draws a close button over every game, in the top-end corner and clear of the status bar and any cutout; back, a tap outside the card and the game's own close also close it
+- 🎮 **Game Close Button**: the SDK draws a close button over every game, in the top-end corner of the game's own language (top left in Arabic, whatever direction the app runs in) and clear of the status bar and any cutout; back, a tap outside the card and the game's own close also close it
+- 🎮 **Games Cover the Whole Screen**: a game is drawn over the whole window, the app bar and status bar included, with its content kept clear of the status bar, cutouts and the navigation bar
 - 🎮 **Games Load Out of Sight**: nothing is drawn, and taps and back go to the app, until a game has finished drawing; one that hasn't drawn within 12 seconds is dropped quietly and offered again at its next trigger
+- 🎮 **The Widget Says When a Game Is Ready**: a game shows as soon as the widget reports it on screen, so a game with little text (an Arabic scratch card without an Arabic title, say) is no longer dropped; when the widget reports that the customer can't play it now (already played today, not available), it's taken away unseen instead of opening on that screen. Widgets that don't report it fall back to the previous check
 - 🎮 **After a Play**: a game the customer has finished isn't offered again until the next successful sync
 - ⚙️ **Widget Host on the Configuration**: `GameballConfig.widgetUrlPrefix` sets the widget host (without a scheme, e.g. `m.gameball.app/alpha`) once, for the profile widget and for game campaigns; a per-call `ShowProfileRequest.widgetUrlPrefix` still overrides it for that presentation
 - 🎁 **Any-Condition Triggers**: an event trigger whose conditions are joined by OR now shows when at least one of them matches; such campaigns used to be skipped
 
 ### 🐛 Fixed
+- 💥 **Crash After the First Sync**: in-app messaging no longer crashes the app once a sync or the cache holds a message; a pattern in the personalisation code was rejected by Android's regular-expression engine
+- 🔄 **Rotation**: a message or game that's open when the screen rotates comes back on the new screen; it used to disappear, and no other message could show until the app was restarted
+- 🔧 **Two Campaigns on One Trigger**: when a trigger matches two campaigns, the second now shows once the first is closed and the minimum time between campaigns has passed; it used to be lost. A campaign waiting behind an open message also keeps its place when that message is closed
 - 🔧 **App-Open Repeat Rules**: app-open campaigns now honour their repeat setting and minimum interval; they used to show once ever
 - 🔧 **Greater and Less Conditions**: event conditions using `Greater` or `Less` are now applied; they used to be ignored, so the campaign showed for any value
 - 🌙 **Quiet Hours Time Zone**: quiet hours are now read on the device's local clock; they used to be read in UTC
