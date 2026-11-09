@@ -64,6 +64,15 @@ class HeaderInterceptorTest {
         )
     }
 
+    @Test
+    fun `push engagement stays on v4_0 when a session token is set`() {
+        SharedPreferencesUtils.getInstance().putSessionTokenPreference("a-session-token")
+        assertEquals(
+            "/api/v4.0/integrations/mobile/push-engagement",
+            pathSeenByServer("/api/v4.0/integrations/mobile/push-engagement")
+        )
+    }
+
     /** Positive control: the exemption must not disable the switch for anything else. */
     @Test
     fun `existing endpoints still upgrade to v4_1 when a session token is set`() {

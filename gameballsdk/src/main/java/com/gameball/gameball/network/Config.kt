@@ -12,7 +12,12 @@ object Config {
     const val GetBotSettings = "api/v1.0/Bots/BotSettings?c=mobile"
     const val InitializeCustomer = "api/v4.0/integrations/customers"
     const val MobileLogs = "api/v4.0/integrations/mobile/logs"
-    const val PushClick = "api/v4.0/integrations/mobile/push-click"
+    /**
+     * Taps, swipe-aways and influenced opens of Gameball pushes. The backend still serves
+     * push-click as the same action, for apps on 4.0.0; a backend without push-engagement answers
+     * 404 instead of counting a swipe-away as a click.
+     */
+    const val PushEngagement = "api/v4.0/integrations/mobile/push-engagement"
 
     /**
      * In-app messaging lives on v4.0 only. /api/v4.1/.../inapp-messages/sync exists and answers

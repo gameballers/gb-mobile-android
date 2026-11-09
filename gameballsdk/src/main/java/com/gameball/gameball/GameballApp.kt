@@ -1,10 +1,23 @@
 package com.gameball.gameball
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.annotation.VisibleForTesting
+import androidx.core.app.OnNewIntentProvider
+import androidx.lifecycle.ProcessLifecycleOwner
+import com.gameball.gameball.engagement.AppOpen
+import com.gameball.gameball.engagement.AppOpenObserver
+import com.gameball.gameball.engagement.InfluencedOpens
+import com.gameball.gameball.engagement.PushEngagementType
+import com.gameball.gameball.engagement.ReceivedPushes
+import com.gameball.gameball.engagement.pushEngagementBody
 import com.gameball.gameball.inappmessaging.GameballInAppMessaging
 import com.gameball.gameball.inappmessaging.InAppMessagingOptions
 import com.gameball.gameball.inappmessaging.data.WidgetUrl
@@ -22,11 +35,15 @@ import com.gameball.gameball.model.response.InitializeCustomerResponse
 import com.gameball.gameball.network.Callback
 import com.gameball.gameball.network.Network
 import com.gameball.gameball.network.api.GameBallApi
+import com.gameball.gameball.push.GameballPush
+import com.gameball.gameball.push.PushNotificationDisplay
+import com.gameball.gameball.push.detectPush
 import com.gameball.gameball.services.GameballCoroutineService
 import com.gameball.gameball.utils.Constants
 import com.gameball.gameball.utils.Constants.TAG
 import com.gameball.gameball.utils.LanguageUtils
 import com.gameball.gameball.views.GameballWidgetActivity
+import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import io.reactivex.CompletableObserver
 import io.reactivex.SingleObserver
@@ -63,6 +80,18 @@ class GameballApp private constructor(context: Context) {
         GameballInAppMessaging(mContext.applicationContext)
     }
 
+    // --- engagement signals: app opens, push taps, swipe-aways and push arrivals ---
+
+    private val appOpens = AppOpenObserver { open -> onAppOpen(open) }
+
+    // Opens that follow an untapped push, from the pushes saved as they arrive
+    private val influencedOpens by lazy { InfluencedOpens(ReceivedPushes(mContext)) }
+
+    // Taps already handled in this process, so one tap that reaches the SDK twice counts once
+    private val handledTaps = mutableSetOf<String>()
+
+    private var pushLifecycleRegistered = false
+
     init {
         SharedPreferencesUtils.init(mContext, Gson())
         SharedPreferencesUtils.getInstance().putClientBotSettings(null)
@@ -79,6 +108,9 @@ class GameballApp private constructor(context: Context) {
     companion object {
         /** Purchases reach campaigns as an ordinary event, so filters work on their fields. */
         private const val PURCHASE_EVENT = "purchase"
+
+        /** The action FCM delivers incoming messages with, to FirebaseMessagingService.handleIntent. */
+        private const val RECEIVE_ACTION = "com.google.android.c2dm.intent.RECEIVE"
 
         @Volatile
         private var instance: GameballApp? = null
@@ -171,6 +203,8 @@ class GameballApp private constructor(context: Context) {
         logger.api = gameBallApi
 
         getBotSettings()
+
+        startEngagementSignals()
     }
 
     /**
@@ -239,6 +273,10 @@ class GameballApp private constructor(context: Context) {
 
         // Save to SharedPreferences
         SharedPreferencesUtils.getInstance().putApiKey(mApiKey!!)
+        // Another customer's pushes must never credit this customer's opens
+        if (SharedPreferencesUtils.getInstance().getCustomerId() != customerRequest.customerId) {
+            influencedOpens.clear()
+        }
         SharedPreferencesUtils.getInstance().putCustomerId(customerRequest.customerId)
 
         GameballCoroutineService.initializeCustomerService(TAG, customerRequest, callback, gameBallApi)
@@ -386,6 +424,16 @@ class GameballApp private constructor(context: Context) {
     }
 
     /**
+     * Detects a Gameball push in [intent] and reports it: a tap as a click, a swipe-away as a
+     * dismissal. The SDK calls this itself for every activity launch and for its dismiss
+     * receiver, so most apps never need to. Call it only for an intent those can't see, such as
+     * one a plain Activity (not a ComponentActivity) receives in onNewIntent.
+     */
+    fun handlePushClick(intent: Intent?) {
+        detectPush(intent, onClick = { onClick(it) }, onDismiss = { onDismiss(it) })
+    }
+
+    /**
      * Handle a tap on a push notification, called from the host app's own
      * notification handler with the notification's FCM data payload
      * (e.g. RemoteMessage.data, or the launcher intent extras when the
@@ -395,15 +443,23 @@ class GameballApp private constructor(context: Context) {
      * carries a click token, the tap is reported to Gameball to count the
      * campaign click; the optional callback receives that report's result.
      *
+     * Kept for apps that followed the 4.0.0 docs. Taps are now detected automatically, so a tap
+     * reported both ways still counts once.
+     *
      * @param sessionToken Optional session token for this request.
      *                     If provided, overrides the global sessionToken.
      *                     If null, clears the global sessionToken.
      */
+    @Deprecated("Taps on Gameball pushes are now detected automatically. For an intent the SDK can't see, call handlePushClick(intent).")
     @JvmOverloads
     fun handlePushClick(payload: Map<String, String>, callback: Callback<Boolean>? = null, sessionToken: String? = null): Boolean {
         if (!payload[Constants.IS_GB_KEY].equals("true", ignoreCase = true)) {
             return false
         }
+
+        // The open a Gameball tap causes is a normal click, even when the tap can't be reported
+        // (no token, or no API key yet). A second mark before the same open changes nothing.
+        appOpens.onTap()
 
         val token = payload[Constants.PUSH_CLICK_TOKEN_KEY]
 
@@ -421,7 +477,135 @@ class GameballApp private constructor(context: Context) {
             return true
         }
 
-        gameBallApi.reportPushClick(mapOf("clickToken" to token))
+        // Automatic detection may already have reported this tap
+        if (!synchronized(handledTaps) { handledTaps.add(token) }) {
+            callback?.onSuccess(true)
+            return true
+        }
+
+        // A tapped push is a normal tap and never counts toward an influenced open
+        influencedOpens.onTap(token)
+        reportPushEngagement(token, PushEngagementType.CLICKED, callback)
+        return true
+    }
+
+    /**
+     * Lets the SDK see Gameball pushes as they arrive: it saves each one for influenced opens
+     * and shows it itself, so swipe-aways are tracked. Call it first in your
+     * FirebaseMessagingService.handleIntent, and skip super.handleIntent when it returns true.
+     *
+     * Returns false for other pushes, while the app is on screen (FCM then calls
+     * onMessageReceived as usual), and whenever the push can't be shown this way, so FCM shows it.
+     */
+    fun handlePushIntent(intent: Intent): Boolean = try {
+        val extras = intent.extras
+        val push = if (intent.action == RECEIVE_ACTION) GameballPush.from(extras) else null
+        if (push == null || extras == null) {
+            false
+        } else {
+            // Every arrival passes here once the app opts in, whatever state the app is in.
+            // RemoteMessage reads FCM's google.sent_time whether it arrives as a Long or a String.
+            val sentAt = RemoteMessage(extras).sentTime
+            logSignal(
+                "push_received",
+                "clickToken" to push.clickToken,
+                "sentAt" to sentAt,
+                "receivedAt" to System.currentTimeMillis()
+            )
+            // Saved before the push is shown; a failure here never stops it from showing
+            push.key?.let {
+                try {
+                    influencedOpens.onReceived(it, push.clickToken, sentAt)
+                } catch (t: Throwable) {
+                    Log.e(TAG, "could not save a received Gameball push", t)
+                }
+            }
+            PushNotificationDisplay.handle(mContext, extras)
+        }
+    } catch (t: Throwable) {
+        // Never in the way of the push itself: FCM shows it as usual
+        Log.e(TAG, "could not handle an incoming Gameball push", t)
+        false
+    }
+
+    // Registers what notices taps and app opens. Safe on every init.
+    private fun startEngagementSignals() {
+        (mContext as? Application)?.let { registerPushLifecycle(it) }
+        // addObserver only works on the main thread, and init can run on any thread.
+        // Adding the same observer again is ignored, so a second init is safe.
+        Handler(Looper.getMainLooper()).post { ProcessLifecycleOwner.get().lifecycle.addObserver(appOpens) }
+    }
+
+    @Synchronized
+    private fun registerPushLifecycle(app: Application) {
+        // init can run more than once, and Android would call a duplicate registration twice
+        if (pushLifecycleRegistered) return
+        pushLifecycleRegistered = true
+        app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                // Saved state means a rotation or process restore re-delivering a tap already handled
+                if (savedInstanceState == null) handlePushClick(activity.intent)
+                // Warm taps on singleTop and singleTask activities arrive in onNewIntent instead
+                (activity as? OnNewIntentProvider)?.addOnNewIntentListener { handlePushClick(it) }
+            }
+
+            override fun onActivityStarted(activity: Activity) = Unit
+            override fun onActivityResumed(activity: Activity) = Unit
+            override fun onActivityPaused(activity: Activity) = Unit
+            override fun onActivityStopped(activity: Activity) = Unit
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+            override fun onActivityDestroyed(activity: Activity) = Unit
+        })
+    }
+
+    // A tap on a Gameball push: counted once and reported. App opens are a separate signal.
+    private fun onClick(push: GameballPush) {
+        val key = push.key
+        if (key != null && !synchronized(handledTaps) { handledTaps.add(key) }) return
+        logSignal("push_click", "clickToken" to push.clickToken)
+        // A tapped push is a normal tap and never counts toward an influenced open
+        key?.let { influencedOpens.onTap(it) }
+        // Nor does the open the tap causes, whatever else is saved
+        appOpens.onTap()
+        push.clickToken?.let { reportPushEngagement(it, PushEngagementType.CLICKED) }
+    }
+
+    // A swipe-away of a push the SDK showed; a delete intent fires once, so there's nothing to drop
+    private fun onDismiss(push: GameballPush) {
+        logSignal("push_dismiss", "clickToken" to push.clickToken)
+        push.clickToken?.let { reportPushEngagement(it, PushEngagementType.DISMISSED) }
+    }
+
+    private fun onAppOpen(open: AppOpen) {
+        logSignal("app_open", "type" to open.type, "openedAt" to open.openedAt, "fromTap" to open.fromTap)
+        // Not from a tap, and the most recent untapped push arrived within the window: it influenced this open
+        influencedOpens.influencedBy(open)?.let { push ->
+            logSignal(
+                "influenced_open",
+                "clickToken" to push.clickToken,
+                "sentAt" to push.sentAt,
+                "receivedAt" to push.receivedAt,
+                "type" to open.type,
+                "openedAt" to open.openedAt
+            )
+            // Timed at the open, which is what the push influenced
+            push.clickToken?.let { reportPushEngagement(it, PushEngagementType.INFLUENCED_OPEN, occurredAt = open.openedAt) }
+        }
+    }
+
+    // Every signal is logged. App opens and arrivals have no endpoint, so for them that's all.
+    private fun logSignal(name: String, vararg fields: Pair<String, Any?>) {
+        Log.d(TAG, "engagement $name " + fields.joinToString(" ") { (key, value) -> "$key=$value" })
+    }
+
+    // Sent once, with no retry. A push without a click token can't be reported.
+    private fun reportPushEngagement(
+        token: String,
+        type: PushEngagementType,
+        callback: Callback<Boolean>? = null,
+        occurredAt: Long = System.currentTimeMillis()
+    ) {
+        gameBallApi.reportPushEngagement(pushEngagementBody(token, type, occurredAt))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
@@ -435,7 +619,6 @@ class GameballApp private constructor(context: Context) {
                     callback?.onError(e)
                 }
             })
-        return true
     }
 
     // --- in-app messaging -------------------------------------------------------------
