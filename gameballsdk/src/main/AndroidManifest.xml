@@ -13,6 +13,11 @@
         <activity android:name=".views.laregNotificationView.LargeNotificationActivity"
             android:theme="@style/Theme.Transparent"
             />
+
+        <!-- Swipe-aways of Gameball pushes the SDK shows; only the app itself can send to it -->
+        <receiver
+            android:name=".push.PushDismissReceiver"
+            android:exported="false" />
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
