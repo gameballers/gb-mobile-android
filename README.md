@@ -1,6 +1,6 @@
 # Gameball Android SDK
 
-[![Version](https://img.shields.io/badge/version-4.0.0-blue.svg)](https://github.com/gameballers/gb-mobile-android)
+[![Version](https://img.shields.io/badge/version-4.1.0-blue.svg)](https://github.com/gameballers/gb-mobile-android)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![API](https://img.shields.io/badge/API-24%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=24)
 
@@ -11,7 +11,8 @@ The Gameball Android SDK provides a comprehensive solution for integrating custo
 - 🎯 **Customer Management** - Initialize and manage customer profiles
 - 📊 **Event Tracking** - Track user actions and behaviors
 - 🎁 **Profile Widget** - Display customer loyalty information
-- 🔔 **In-App Messaging** - Dashboard-configured campaigns, drawn over your UI (opt-in)
+- 🔔 **In-App Messaging** - Dashboard-configured campaigns and games, drawn over your UI (opt-in)
+- 📣 **Push Engagement** - Taps on Gameball pushes detected automatically; swipe-aways and influenced opens reported on request
 - 🔧 **Modern Architecture** - Built with Kotlin and modern Android patterns
 - 🛡️ **Type Safety** - Builder pattern with compile-time validation
 - ⚡ **Coroutines Support** - Async operations with structured concurrency
@@ -42,7 +43,7 @@ Then add the dependency to your app-level `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation 'com.github.gameballers:gb-mobile-android:4.0.0'
+    implementation 'com.github.gameballers:gb-mobile-android:4.1.0'
 }
 ```
 
@@ -77,7 +78,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.github.gameballers</groupId>
     <artifactId>gb-mobile-android</artifactId>
-    <version>4.0.0</version>
+    <version>4.1.0</version>
 </dependency>
 ```
 
@@ -272,27 +273,51 @@ As of v3.3.1 it also becomes the customer's preferred language, taking precedenc
 
 **Supported languages:** `en`, `ar`, `fr`, `es`, `de`, `pt`, `pl`, `it`, `hu`, `zh-tw`, `nl`, `sv`, `no`, `dk`, `ja`, matched case-insensitively. As of v3.3.1, any other code passed to `init`, `setLanguage`, `initializeCustomer` or `ShowProfileRequest.builder().lang(...)`, and an unsupported device language, falls back to `en` (earlier versions ignored codes that weren't 2 characters long). Codes must match one of these exactly (letter case doesn't matter): regional variants such as `ar-EG` and three-letter codes such as `ara` aren't mapped and fall back to `en`. `initializeCustomer` still sends `preferredLanguage` to Gameball exactly as passed; only the language the SDK itself uses falls back to `en`.
 
-### Push Click Tracking (v3.3.0+)
+### Push Tap Tracking (automatic since v4.1.0)
 
-Report taps on Gameball push notifications so campaign clicks are counted. Call `handlePushClick` from your notification-tap handler with the notification's FCM data payload (e.g. `RemoteMessage.data`, or the launcher intent extras when the system tray showed the notification):
+Taps on Gameball push notifications are detected and reported automatically, so campaign clicks are counted with no code. The SDK checks the intent of every activity that starts, and every intent a `ComponentActivity` (`AppCompatActivity` included) receives in `onNewIntent`. Detection starts in `init`, so call `init` in `Application.onCreate`, as in [Quick Start](#1-initialize-the-sdk), to catch the tap that cold-starts your app.
 
-> **Call this from wherever your app handles the notification tap — not on receive/delivery.** If you call it as soon as the notification arrives, you'll count every delivery as a click; call it from the tap handler so it only counts when the user actually opens it.
+A tap counts once, however many times it reaches the SDK (through a splash screen that passes its extras on, say). Reopening the app from Recents and rotating the screen aren't taps.
+
+The only tap the SDK can't see by itself is an intent a plain `android.app.Activity` (not a `ComponentActivity`) receives in `onNewIntent`. Pass it on:
 
 ```kotlin
-val isGameball = GameballApp.getInstance(this).handlePushClick(
-    payload = remoteMessage.data,
-    callback = object : Callback<Boolean> {
-        override fun onSuccess(result: Boolean) { Log.d(TAG, "Click reported") }
-        override fun onError(t: Throwable) { Log.e(TAG, "Click report failed", t) }
-    }
-)
-
-if (!isGameball) {
-    // Not a Gameball notification — run your own handling.
+override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    GameballApp.getInstance(this).handlePushClick(intent)
 }
 ```
 
-An optional `sessionToken` parameter overrides the global session token for this request.
+> **Upgrading from v3.3.0–v4.0.0?** `handlePushClick(payload, callback?, sessionToken?)`, called from your own tap handler, is deprecated. It still works, and a tap reported both ways counts once, so you can remove it whenever it suits you.
+
+### Swipe-Aways and Influenced Opens (v4.1.0+)
+
+To also report swipe-aways, and app opens that a push led to without being tapped, let the SDK see Gameball pushes as they arrive. Call `handlePushIntent` first in your `FirebaseMessagingService.handleIntent`, and skip `super.handleIntent` when it returns `true`:
+
+```kotlin
+class MyMessagingService : FirebaseMessagingService() {
+
+    override fun handleIntent(intent: Intent) {
+        if (GameballApp.getInstance(this).handlePushIntent(intent)) return
+        super.handleIntent(intent)
+    }
+
+    override fun onMessageReceived(message: RemoteMessage) {
+        // Your own handling, unchanged
+    }
+}
+```
+
+| | |
+|---|---|
+| **Swipe-aways** | The SDK shows a Gameball push itself, the way FCM would, with your manifest's FCM icon, colour and channel, and adds a delete intent, so swiping the push away (or "Clear all") is reported as a dismissal |
+| **Influenced opens** | An app open that no tap caused, within 30 minutes of an untapped Gameball push arriving, is reported as an open that the most recent such push influenced. A tap removes its push from the count; every open, and a switch to another customer in `initializeCustomer`, clears the saved pushes |
+| **App opens** | An open is the app coming to the foreground from a cold start, or after more than 30 seconds in the background. Moving between screens and rotating aren't opens |
+| **What it leaves to FCM** | It returns `false` for pushes that aren't Gameball's, while your app is on screen (FCM then calls `onMessageReceived` as usual), and whenever a push can't be shown this way, so FCM shows it. A failure inside it never stops a push from showing |
+| **Reporting** | Taps, swipe-aways and influenced opens are each sent once, with no retry. A push without a click token can't be reported. They go to the v4.0 endpoint even when a session token moves other calls to v4.1 |
+| **Without it** | Taps are still reported; only swipe-aways and influenced opens are missed |
+| **Requirements** | Nothing to add to your manifest: the SDK's own declares the non-exported receiver for swipe-aways |
+| **Diagnostics** | `adb logcat -s GameballApp` shows each signal as `engagement push_received`, `push_click`, `push_dismiss`, `app_open` or `influenced_open` |
 
 ## In-App Messaging (v4.0.0+)
 
@@ -384,6 +409,26 @@ gameball.logPurchase(
 It's sent whether or not in-app messaging has started, so replace a hand-built purchase event with
 it rather than sending both.
 
+### Game campaigns (v4.1.0+)
+
+A game campaign — a Spin the Wheel, a Quiz, a Scratch & Win, or any other Gameball game the
+merchant set to open over the app — arrives with your in-app messages and opens on its own
+trigger, inside your app, in the Gameball widget: as a card over a dimmed screen or fullscreen,
+as the campaign says. There is nothing extra to call; `startInAppMessaging` and your events are
+enough.
+
+| | |
+|---|---|
+| **When it opens** | Exactly as a message does: on app open or on a named event, with the event's conditions (all of them, or any of them), the campaign's repeat setting and minimum interval, the minimum time between any two campaigns, and quiet hours on the device's clock. There is no delay and no dismissal limit. A campaign set to open on a screen is skipped — send an event instead |
+| **While it loads** | Nothing is drawn, and taps and back go to your app, until the game has finished drawing. One that hasn't drawn within 12 seconds is dropped quietly and offered again at its next trigger |
+| **Closing** | The SDK draws a close button in the game's top-end corner, clear of the status bar and any cutout. Back, a tap outside the card and the game's own close also close it |
+| **After a play** | A game the customer has finished isn't offered again until the next successful sync, when Gameball decides whether it may be played again |
+| **Freshness** | A game opens only from a fresh sync — never from the offline cache — and never after its end date. A game waiting for its turn is checked against the latest sync before it opens |
+| **Customer** | The game opens for the customer passed to `startInAppMessaging` (or the one `initializeCustomer` switched messaging to) |
+| **Analytics** | Games report nothing to in-app message analytics; the play itself is recorded by Gameball |
+| **Environment** | The widget host comes from `GameballConfig.widgetUrlPrefix`, the same one `showProfile` uses. Give the host without a scheme, e.g. `m.gameball.app/alpha`; leave it unset for production |
+| **Diagnostics** | `adb logcat -s GameballIAM` names each game `game:<id>` and logs the widget URL it opens, with the api key and session token masked |
+
 ### Stopping
 
 On logout, or whenever messaging should stop:
@@ -420,7 +465,9 @@ The SDK provides the following public methods:
 - `showProfile(activity, request, sessionToken?)` - Show profile widget
 - `hideProfile()` - Dismiss the currently shown profile widget (no-op when nothing is shown)
 - `setLanguage(lang)` - Change the SDK's global language on demand without re-calling `init`
-- `handlePushClick(payload, callback?, sessionToken?)` - Report a tap on a Gameball push notification for click tracking
+- `handlePushClick(intent)` - Report a Gameball push tap in an intent the SDK can't see by itself; taps are otherwise detected automatically (v4.1.0+)
+- `handlePushIntent(intent)` - Let the SDK see Gameball pushes as they arrive, from `FirebaseMessagingService.handleIntent`, to report swipe-aways and influenced opens (v4.1.0+)
+- `handlePushClick(payload, callback?, sessionToken?)` - Report a tap on a Gameball push notification for click tracking (deprecated in v4.1.0: taps are detected automatically)
 - `startInAppMessaging(customerId, options?)` - Start in-app messaging for a customer (v4.0.0+, opt-in)
 - `stopInAppMessaging()` - Stop in-app messaging and clear state; call on logout (v4.0.0+)
 - `isInAppMessagingStarted()` - Whether in-app messaging is running (v4.0.0+)
@@ -500,6 +547,8 @@ val customerRequest = InitializeCustomerRequest.builder()
     .build()
 ```
 
+Taps on Gameball pushes are reported automatically (v4.1.0+); see [Push Tap Tracking](#push-tap-tracking-automatic-since-v410). To also report swipe-aways and influenced opens of Firebase pushes, see [Swipe-Aways and Influenced Opens](#swipe-aways-and-influenced-opens-v410).
+
 ### Error Handling
 
 ```kotlin
@@ -557,8 +606,9 @@ GameballApp.getInstance(this).initializeCustomer(
 | `lang` | String | ✅ **Required** | Language code (e.g., "en", "ar") |
 | `platform` | String | ❌ Optional | Platform identifier |
 | `shop` | String | ❌ Optional | Shop identifier |
-| `sessionToken` | String | ❌ Optional | Session Token for secure authentication (enables automatic v4.1 endpoint routing; the in-app messaging endpoints stay on v4.0, where they are served) |
+| `sessionToken` | String | ❌ Optional | Session Token for secure authentication (enables automatic v4.1 endpoint routing; the in-app messaging and push engagement endpoints stay on v4.0, where they are served) |
 | `apiPrefix` | String | ❌ Optional | Custom API endpoint prefix |
+| `widgetUrlPrefix` | String | ❌ Optional | Widget host without a scheme (e.g. `m.gameball.app/alpha`), for the profile widget and for game campaigns (v4.1.0+). A per-call `ShowProfileRequest.widgetUrlPrefix` still overrides it for that presentation. Defaults to production |
 
 **GameballConfig Validation Rules:**
 - API key is required (cannot be null)
@@ -737,7 +787,7 @@ If you're using code obfuscation, add these rules to your `proguard-rules.pro`:
 Network requests and responses are logged only when the SDK itself is built in debug mode: `LoggingInterceptor` checks the SDK's own `BuildConfig.DEBUG`, not your app's.
 
 To view SDK logs, filter by these tags:
-- `GameballApp` - General SDK operations
+- `GameballApp` - General SDK operations, and push engagement signals (`engagement push_click`, `app_open`, ...) (v4.1.0+)
 - `LoggingInterceptor` - Network requests/responses
 - `HeaderInterceptor` - Request headers
 - `GameballIAM` - In-app messaging: why a campaign was shown or skipped (v4.0.0+)

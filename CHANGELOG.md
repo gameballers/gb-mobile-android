@@ -2,6 +2,39 @@
 
 All notable changes to Gameball Android SDK are documented here
 
+## [4.1.0] - 2026-11-19 📱
+
+> **Minor Release**: Game campaigns open over the app through in-app messaging, taps on Gameball pushes are detected automatically, swipe-aways and influenced opens can be reported, and in-app messaging triggers and quiet hours behave as the dashboard describes them
+
+### ✨ Added
+- 📣 **Automatic Push Tap Detection**: taps on Gameball pushes are now detected and reported without any code, whether the tap launches the app or brings an open screen back (`onNewIntent` on any `ComponentActivity`, `AppCompatActivity` included). Detection starts in `init`, so a tap that cold-starts the app is seen when `init` runs in `Application.onCreate`. A tap counts once, however many times it reaches the SDK (through a splash screen that passes its extras on, say); reopening from Recents and rotating aren't taps
+- 📣 **`handlePushClick(intent)`**: reports a Gameball push in an intent the SDK can't see by itself, such as one a plain `Activity` (not a `ComponentActivity`) receives in `onNewIntent`
+- 📣 **Swipe-Aways and Influenced Opens**: new `handlePushIntent(intent)`, called first in your `FirebaseMessagingService.handleIntent`, lets the SDK see Gameball pushes as they arrive. It shows each one the way FCM would, with your manifest's FCM icon, colour and channel, plus a delete intent, so swiping it away is reported as a dismissal. It also keeps the push, so an app open that no tap caused, within 30 minutes of an untapped push arriving, is reported as an open that push influenced. It returns `false` for other pushes, while the app is on screen and whenever a push can't be shown this way, and FCM then handles the push as usual
+- 🎮 **Game Campaigns**: games the merchant set to open over the app (Spin the Wheel, Quiz, Scratch & Win and the other Gameball games) now arrive with in-app messaging and open on their own trigger in the Gameball widget, as a card over a dimmed screen or fullscreen. They follow the message rules exactly — app-open or event triggers with their conditions, the repeat setting and minimum interval, the minimum time between campaigns, quiet hours and the end date — with no delay and no dismissal limit. A game opens only from a fresh sync, never from the offline cache, and reports nothing to in-app message analytics
+- 🎮 **Game Close Button**: the SDK draws a close button over every game, in the top-end corner of the game's own language (top left in Arabic, whatever direction the app runs in) and clear of the status bar and any cutout; back, a tap outside the card and the game's own close also close it
+- 🎮 **Games Cover the Whole Screen**: a game is drawn over the whole window, the app bar and status bar included, with its content kept clear of the status bar, cutouts and the navigation bar
+- 🎮 **Games Load Out of Sight**: nothing is drawn, and taps and back go to the app, until a game has finished drawing; one that hasn't drawn within 12 seconds is dropped quietly and offered again at its next trigger
+- 🎮 **The Widget Says When a Game Is Ready**: a game shows as soon as the widget reports it on screen, so a game with little text (an Arabic scratch card without an Arabic title, say) is no longer dropped; when the widget reports that the customer can't play it now (already played today, not available), it's taken away unseen instead of opening on that screen. Widgets that don't report it fall back to the previous check
+- 🎮 **After a Play**: a game the customer has finished isn't offered again until the next successful sync
+- ⚙️ **Widget Host on the Configuration**: `GameballConfig.widgetUrlPrefix` sets the widget host (without a scheme, e.g. `m.gameball.app/alpha`) once, for the profile widget and for game campaigns; a per-call `ShowProfileRequest.widgetUrlPrefix` still overrides it for that presentation
+- 🎁 **Any-Condition Triggers**: an event trigger whose conditions are joined by OR now shows when at least one of them matches; such campaigns used to be skipped
+
+### 🔄 Changed
+- 📣 **Push Engagement Reporting**: taps, swipe-aways and influenced opens are reported to the `push-engagement` endpoint, which replaces `push-click`. Each is sent once, with no retry, and stays on v4.0 when a session token moves the other calls to v4.1. A push without a click token can't be reported
+- ⚠️ **Deprecated `handlePushClick(payload, callback?, sessionToken?)`**: taps are now detected automatically. It still works, and a tap reported both ways counts once, so it can be removed at your own pace
+- ⚙️ **Manifest**: the SDK's manifest now declares a non-exported receiver for swipe-aways of the pushes it shows; nothing needs adding to yours
+- 📦 **Dependencies**: added `androidx.lifecycle:lifecycle-process` 2.6.2 (already resolved through `appcompat`) to detect app opens
+
+### 🐛 Fixed
+- 🔧 **Crash After the First Sync**: in-app messaging no longer crashes the app once a sync or the cache holds a message; a pattern in the personalisation code was rejected by Android's regular-expression engine
+- 🔄 **Rotation**: a message or game that's open when the screen rotates comes back on the new screen; it used to disappear, and no other message could show until the app was restarted
+- 🔧 **Two Campaigns on One Trigger**: when a trigger matches two campaigns, the second now shows once the first is closed and the minimum time between campaigns has passed; it used to be lost. A campaign waiting behind an open message also keeps its place when that message is closed
+- 🔧 **App-Open Repeat Rules**: app-open campaigns now honour their repeat setting and minimum interval; they used to show once ever
+- 🔧 **Greater, Less and Between Conditions**: event conditions using `Greater`, `Less` or `Between` (an inclusive range, e.g. `100,500`) are now applied; they used to be ignored, so the campaign showed for any value
+- 🌙 **Quiet Hours Time Zone**: quiet hours are now read on the device's local clock; they used to be read in UTC
+
+---
+
 ## [4.0.0] - 2026-10-22 🎉
 
 > **Major Release**: Raised the minimum Android version to API 24 (Android 7.0), and added in-app messaging — an opt-in module that displays campaigns authored in the Gameball dashboard inside your app
