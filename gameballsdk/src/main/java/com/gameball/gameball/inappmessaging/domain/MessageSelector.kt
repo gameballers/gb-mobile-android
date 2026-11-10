@@ -89,6 +89,16 @@ internal object MessageSelector {
         return true
     }
 
+    /** How long the account's display floor still holds every campaign back; 0 once it has lapsed. */
+    fun floorRemainingMillis(
+        history: DisplayHistorySnapshot,
+        nowMillis: Long,
+        cooldownSeconds: Int
+    ): Long {
+        val lastDisplay = history.lastDisplayAtMillis ?: return 0L
+        return (cooldownSeconds * 1000L - (nowMillis - lastDisplay)).coerceAtLeast(0L)
+    }
+
     fun triggerMatches(trigger: Trigger, occurrence: TriggerOccurrence): Boolean =
         when (occurrence) {
             is TriggerOccurrence.SessionStart -> trigger.type == TriggerType.SESSION_START

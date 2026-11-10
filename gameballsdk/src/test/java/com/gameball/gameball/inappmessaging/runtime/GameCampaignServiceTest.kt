@@ -14,6 +14,8 @@ import com.gameball.gameball.inappmessaging.data.SyncOutcome
 import com.gameball.gameball.inappmessaging.data.VariableSource
 import com.gameball.gameball.inappmessaging.domain.Campaign
 import com.gameball.gameball.inappmessaging.domain.CampaignKey
+import com.gameball.gameball.inappmessaging.domain.MessageAction
+import com.gameball.gameball.inappmessaging.domain.MessageButton
 import com.gameball.gameball.inappmessaging.domain.SyncResult
 import com.gameball.gameball.local.SharedPreferencesUtils
 import com.google.gson.Gson
@@ -93,6 +95,22 @@ class GameCampaignServiceTest {
         override fun nowMillis() = now
     }
 
+    /** Holds what the service schedules until the test runs it. */
+    private class ManualScheduler {
+        val due = mutableListOf<() -> Unit>()
+
+        fun schedule(delayMillis: Long, block: () -> Unit): () -> Unit {
+            due.add(block)
+            return { due.remove(block) }
+        }
+
+        fun runAll() {
+            val now = due.toList()
+            due.clear()
+            now.forEach { it() }
+        }
+    }
+
     private lateinit var source: FakeSource
     private lateinit var analytics: RecordingAnalytics
     private lateinit var presenter: FakePresenter
@@ -100,6 +118,7 @@ class GameCampaignServiceTest {
     private lateinit var cache: CampaignCache
     private lateinit var history: DisplayHistory
     private val clock = MutableClock()
+    private val scheduler = ManualScheduler()
 
     /** A game entry and, optionally, an ordinary message beside it. */
     private fun payload(withMessage: Boolean = false, gamePriority: Int = 0) = """
@@ -132,14 +151,19 @@ class GameCampaignServiceTest {
     /** One ordinary message entry. */
     private fun message(
         id: Int = 2215,
-        trigger: String = """{ "type": "event", "name": "buy", "repeatable": true }"""
+        trigger: String = """{ "type": "event", "name": "buy", "repeatable": true }""",
+        priority: Int = 0
     ) = """
-        { "campaignType": 1, "campaignId": $id, "messageType": 2, "priority": 0,
+        { "campaignType": 1, "campaignId": $id, "messageType": 2, "priority": $priority,
           "trigger": $trigger, "content": {}, "locale": { "header": "Hello" } }
     """.trimIndent()
 
-    private fun sync(vararg entries: String) =
-        """{ "cooldownSeconds": 0, "messages": [ ${entries.joinToString(",")} ] }"""
+    private val spin = """{ "type": "event", "name": "spin", "repeatable": true }"""
+
+    private fun sync(vararg entries: String) = syncWithCooldown(0, *entries)
+
+    private fun syncWithCooldown(seconds: Int, vararg entries: String) =
+        """{ "cooldownSeconds": $seconds, "messages": [ ${entries.joinToString(",")} ] }"""
 
     @Before
     fun setUp() {
@@ -164,7 +188,8 @@ class GameCampaignServiceTest {
         variables = FakeVariables(),
         presenter = presenter,
         sessionState = SessionState(clock),
-        hooks = HostHooks()
+        hooks = HostHooks(),
+        schedule = scheduler::schedule
     )
 
     @Test
@@ -390,6 +415,102 @@ class GameCampaignServiceTest {
 
         svc.onEvent("spin", emptyMap())
         assertEquals("its next trigger may offer it again", 2, presenter.presentCount)
+    }
+
+    // --- two campaigns on one trigger (tracker F1, F2) ---
+
+    /** F2: only the winner was kept, so the game that lost the tie was never offered again. */
+    @Test
+    fun `a second game on the same trigger opens once the first is closed`() {
+        source.outcome = success(sync(game(id = 9645), game(id = 9702)))
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+        assertEquals(9645, presenter.presented!!.widget!!.gameCampaignId)
+
+        presenter.callbacks!!.onShown()
+        presenter.close()
+
+        assertEquals("the runner-up waited behind it", 9702, presenter.presented!!.widget!!.gameCampaignId)
+        assertEquals(2, presenter.presentCount)
+    }
+
+    /** F1: the message wins on priority, and the game behind it must not be lost. */
+    @Test
+    fun `a game on the same trigger as a higher-priority message opens once the message is closed`() {
+        source.outcome = success(sync(message(id = 2215, trigger = spin, priority = 100), game(id = 9645)))
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+        assertEquals(2215, presenter.presented!!.campaignId)
+
+        presenter.callbacks!!.onShown()
+        presenter.close()
+
+        assertEquals(9645, presenter.presented?.widget?.gameCampaignId)
+    }
+
+    /** F1 on device closed the message with its OK button: a tap must not throw the game away. */
+    @Test
+    fun `the game behind a message still opens when the message is closed with its button`() {
+        source.outcome = success(sync(message(id = 2215, trigger = spin, priority = 100), game(id = 9645)))
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+        presenter.callbacks!!.onShown()
+
+        presenter.callbacks!!.onTapped(MessageButton("ok", "OK", MessageAction.Dismiss))
+
+        assertEquals(9645, presenter.presented?.widget?.gameCampaignId)
+    }
+
+    /** The floor counts from the winner's display, so the runner-up waits it out instead of being dropped. */
+    @Test
+    fun `the game behind another waits out the cooldown, then opens`() {
+        source.outcome = success(syncWithCooldown(10, game(id = 9645), game(id = 9702)))
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+        presenter.callbacks!!.onShown()
+
+        clock.now += 3_000L
+        presenter.close()
+        assertEquals("inside the 10 s floor the first game started", 1, presenter.presentCount)
+
+        clock.now += 7_000L
+        scheduler.runAll()
+
+        assertEquals(9702, presenter.presented!!.widget!!.gameCampaignId)
+    }
+
+    /** Deferred because the screen was busy, it was thrown away when the game on screen closed. */
+    @Test
+    fun `a campaign deferred behind a shown game keeps its place when the game is closed`() {
+        source.outcome = success(sync(game(), message()))
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+        svc.onEvent("buy", emptyMap())
+        presenter.callbacks!!.onShown()
+
+        presenter.close()
+
+        assertEquals(2215, presenter.presented!!.campaignId)
+    }
+
+    /** Only a winner that took the screen leaves a runner-up behind; one that could not draw keeps its place. */
+    @Test
+    fun `a winner that could not draw keeps the waiting slot for itself`() {
+        source.outcome = success(sync(game(id = 9645), game(id = 9702)))
+        presenter.canPresent = false
+        val svc = service()
+        svc.start("alice")
+        svc.onEvent("spin", emptyMap())
+
+        presenter.canPresent = true
+        svc.onSurfaceAvailable()
+
+        assertEquals(9645, presenter.presented!!.widget!!.gameCampaignId)
     }
 
     @Test
