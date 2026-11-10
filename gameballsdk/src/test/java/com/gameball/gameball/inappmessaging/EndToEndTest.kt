@@ -176,6 +176,26 @@ class EndToEndTest {
     }
 
     /**
+     * Tracker C5 on Android, end to end: rotating recreated the Activity, the message went with it,
+     * and the SDK went on believing it was on screen, so nothing could open again until a restart.
+     * The tracker, the presenter and the module are wired together here exactly as they ship.
+     */
+    @Test
+    fun `a message comes back on the new screen after a rotation, counted once`() {
+        start(sessionStartPayload())
+        activityResumed()
+        paint()
+        assertEquals(listOf(IamEventType.IMPRESSION), analytics.types())
+
+        controller.recreate()
+        activity = controller.get()
+        paint()
+
+        assertTrue("the message is on the new screen", drawnCount() > 0)
+        assertEquals("one view, one impression", listOf(IamEventType.IMPRESSION), analytics.types())
+    }
+
+    /**
      * The defect-7 catcher, end to end: a filtered campaign is only reachable if sendEvent
      * passes the metadata map and not just the event name.
      */
