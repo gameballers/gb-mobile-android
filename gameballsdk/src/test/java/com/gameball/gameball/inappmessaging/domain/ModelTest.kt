@@ -45,6 +45,23 @@ class ModelTest {
         assertEquals(FilterOperator.CONTAINS, FilterOperator.from("Contains"))
     }
 
+    /**
+     * The names the sync actually sends. Greater and Less used to be unrecognised, so their
+     * filter was dropped and a campaign meant for "price Greater 100" showed for any price.
+     */
+    @Test
+    fun `every operator name the backend sends is recognised`() {
+        assertEquals(FilterOperator.EQUALS, FilterOperator.from("Is"))
+        assertEquals(FilterOperator.EQUALS, FilterOperator.from("Equals"))
+        assertEquals(FilterOperator.NOT_EQUALS, FilterOperator.from("NotEquals"))
+        assertEquals(FilterOperator.GREATER_THAN, FilterOperator.from("Greater"))
+        assertEquals(FilterOperator.LESS_THAN, FilterOperator.from("Less"))
+        assertEquals(FilterOperator.GREATER_OR_EQUAL, FilterOperator.from("GreaterThanOrEqual"))
+        assertEquals(FilterOperator.LESS_OR_EQUAL, FilterOperator.from("LessThanOrEqual"))
+        assertEquals(FilterOperator.CONTAINS, FilterOperator.from("Contains"))
+        assertEquals(FilterOperator.BETWEEN, FilterOperator.from("Between"))
+    }
+
     @Test
     fun `an unrecognised operator is null so that one filter drops, not the campaign`() {
         assertNull(FilterOperator.from("startsWith"))

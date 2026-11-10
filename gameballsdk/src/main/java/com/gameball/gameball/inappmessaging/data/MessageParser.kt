@@ -2,6 +2,7 @@ package com.gameball.gameball.inappmessaging.data
 
 import androidx.annotation.VisibleForTesting
 import com.gameball.gameball.inappmessaging.domain.ButtonColors
+import com.gameball.gameball.inappmessaging.domain.FilterLogic
 import com.gameball.gameball.inappmessaging.domain.FilterOperator
 import com.gameball.gameball.inappmessaging.domain.MetadataFilter
 import com.gameball.gameball.inappmessaging.domain.Campaign
@@ -502,20 +503,36 @@ internal object MessageParser {
                     return null
                 }
                 val logicalOperator = triggerObject.str("metadataLogicalOperator")
-                if (logicalOperator != null && !logicalOperator.equals("And", ignoreCase = true)) {
+                val filterLogic = when (logicalOperator?.lowercase()) {
+                    null, "and" -> FilterLogic.ALL
+                    "or" -> FilterLogic.ANY
+                    else -> {
+                        IamLog.w(
+                            "campaign $campaignId uses metadataLogicalOperator " +
+                                "'$logicalOperator', which this SDK cannot evaluate; dropped"
+                        )
+                        return null
+                    }
+                }
+                val filters = parseFilters(triggerObject, campaignId) ?: return null
+                // Under OR a dropped filter only narrows the campaign - unless every filter was
+                // dropped, when "any of none" would read as no condition at all and show the
+                // campaign on every occurrence of its event.
+                val declared = triggerObject.arr("metadataFilters")?.size() ?: 0
+                if (filterLogic == FilterLogic.ANY && filters.isEmpty() && declared > 0) {
                     IamLog.w(
-                        "campaign $campaignId uses metadataLogicalOperator " +
-                            "'$logicalOperator', which this SDK cannot evaluate; dropped"
+                        "campaign $campaignId shows when any of its conditions match, and none " +
+                            "of them can be evaluated; dropped rather than shown on every '$name'"
                     )
                     return null
                 }
-                val filters = parseFilters(triggerObject, campaignId) ?: return null
                 Trigger(
                     type = TriggerType.EVENT,
                     eventName = name,
                     filters = filters,
                     repeatable = triggerObject.bool("repeatable") ?: false,
-                    minIntervalSeconds = triggerObject.int("minIntervalSeconds")?.takeIf { it > 0 }
+                    minIntervalSeconds = triggerObject.int("minIntervalSeconds")?.takeIf { it > 0 },
+                    filterLogic = filterLogic
                 )
             }
 

@@ -95,7 +95,7 @@ internal object MessageSelector {
             is TriggerOccurrence.Event ->
                 trigger.type == TriggerType.EVENT &&
                     trigger.eventName == occurrence.name &&
-                    FilterEvaluator.matches(trigger.filters, occurrence.metadata)
+                    FilterEvaluator.matches(trigger.filters, occurrence.metadata, trigger.filterLogic)
         }
 
     fun repeatEligible(
