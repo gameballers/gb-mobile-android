@@ -232,6 +232,61 @@ class InAppMessagingServiceTest {
         assertTrue(variables.clears > 0)
     }
 
+    // --- app-open repeat rules ---
+
+    /** Shows, is seen and closed, the way the real presenter reports it. */
+    private fun showAndClose() {
+        presenter.callbacks!!.onShown()
+        presenter.dismissCurrent()
+        presenter.callbacks!!.onDismissed()
+        presenter.presented = null
+    }
+
+    /** Away for longer than the session timeout, so coming back is a new session. */
+    private fun nextSession(svc: InAppMessagingService, awayMillis: Long = 31_000L) {
+        svc.onAppBackgrounded()
+        clock.now += awayMillis
+        svc.onAppForegrounded()
+    }
+
+    @Test
+    fun `a repeatable app-open campaign shows again in the next session`() {
+        source.outcome = success(payload(trigger = """{ "type": "session_start", "repeatable": true }"""))
+        val svc = service()
+        svc.start("alice")
+        showAndClose()
+
+        nextSession(svc)
+        assertEquals(1, presenter.presented?.campaignId)
+    }
+
+    @Test
+    fun `a once-ever app-open campaign does not show in the next session`() {
+        source.outcome = success(payload(trigger = """{ "type": "session_start", "repeatable": false }"""))
+        val svc = service()
+        svc.start("alice")
+        showAndClose()
+
+        nextSession(svc)
+        assertNull(presenter.presented)
+    }
+
+    @Test
+    fun `a repeatable app-open campaign waits out its minimum interval`() {
+        source.outcome = success(
+            payload(trigger = """{ "type": "session_start", "repeatable": true, "minIntervalSeconds": 3600 }""")
+        )
+        val svc = service()
+        svc.start("alice")
+        showAndClose()
+
+        nextSession(svc)
+        assertNull("inside the hour it must not repeat", presenter.presented)
+
+        nextSession(svc, awayMillis = 3_600_000L)
+        assertEquals(1, presenter.presented?.campaignId)
+    }
+
     // --- deferral vs suppression ---
 
     @Test
