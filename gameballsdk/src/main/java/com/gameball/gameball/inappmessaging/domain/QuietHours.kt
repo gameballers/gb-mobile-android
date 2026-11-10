@@ -1,14 +1,15 @@
 package com.gameball.gameball.inappmessaging.domain
 
 import com.gameball.gameball.inappmessaging.runtime.IamLog
+import java.util.TimeZone
 
 /**
  * A global suppression window, sent at the sync response root as
  * {enabled, start, end} alongside cooldownSeconds. No campaign carries its own.
  *
- * The times are UTC — confirmed with the backend team. The strings carry no zone and the
- * obvious reading, the customer's local wall clock, is wrong: at UTC+3 the two
- * interpretations disagree for six hours of every day, in both directions.
+ * The times are on the device's local clock, never UTC — the sync contract says so in as many
+ * words. The strings carry no zone, and at UTC+3 the two readings disagree for six hours of
+ * every day, in both directions.
  *
  * The window is half-open (the start minute is inside, the end minute is not) and it wraps
  * midnight, so 22:00 -> 08:00 is two ranges rather than one.
@@ -18,8 +19,9 @@ internal data class QuietHours(
     val endMinute: Int
 ) {
 
-    fun contains(nowMillis: Long): Boolean {
-        val minute = minuteOfDayUtc(nowMillis)
+    /** [timeZone] is the device's own unless a test pins one. */
+    fun contains(nowMillis: Long, timeZone: TimeZone = TimeZone.getDefault()): Boolean {
+        val minute = minuteOfDay(nowMillis, timeZone)
         return if (startMinute < endMinute) {
             minute >= startMinute && minute < endMinute
         } else {
@@ -32,9 +34,13 @@ internal data class QuietHours(
 
         private const val MINUTES_PER_DAY = 1440L
 
-        /** Minute of day in UTC. Math.floorMod is API 24, hence the manual wrap. */
-        fun minuteOfDayUtc(millis: Long): Int {
-            var minutes = (millis / 60_000L) % MINUTES_PER_DAY
+        /**
+         * Minute of day on [timeZone]'s wall clock, daylight saving included: the offset is the
+         * one in force at [millis]. The manual wrap keeps an instant before 1970 in range.
+         */
+        fun minuteOfDay(millis: Long, timeZone: TimeZone): Int {
+            val local = millis + timeZone.getOffset(millis)
+            var minutes = (local / 60_000L) % MINUTES_PER_DAY
             if (minutes < 0) minutes += MINUTES_PER_DAY
             return minutes.toInt()
         }

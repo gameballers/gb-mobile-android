@@ -96,12 +96,14 @@ class EndToEndTest {
         app = GameballApp.getInstance(context)
         app.init(GameballConfig.builder().apiKey("k").lang("en").build())
         messaging = GameballInAppMessaging(context)
-        // 2026-08-27T12:00:00Z. Pinned because the live payload carries an enabled
-        // 22:00-08:00 UTC quiet-hours window, and a wall-clock test would suppress every
-        // message for ten hours of every day.
-        messaging.clockOverride = com.gameball.gameball.inappmessaging.runtime.Clock {
-            1_787_832_000_000L
-        }
+        // Noon on 2026-08-27 on this machine's own clock. Pinned because the live payload
+        // carries an enabled 22:00-08:00 quiet-hours window, read on the device's clock, and a
+        // wall-clock test would suppress every message for ten hours of every day.
+        val localNoon = java.util.Calendar.getInstance().apply {
+            clear()
+            set(2026, java.util.Calendar.AUGUST, 27, 12, 0, 0)
+        }.timeInMillis
+        messaging.clockOverride = com.gameball.gameball.inappmessaging.runtime.Clock { localNoon }
     }
 
     private fun start(

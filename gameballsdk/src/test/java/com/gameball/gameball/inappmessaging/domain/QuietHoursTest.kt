@@ -10,53 +10,86 @@ import java.util.TimeZone
 
 class QuietHoursTest {
 
+    /** A device three hours ahead of UTC. A fixed offset, so no daylight saving moves it. */
+    private val device: TimeZone = TimeZone.getTimeZone("GMT+03:00")
+
     /**
-     * Builds an instant from a UTC wall clock. Test instants must be built in UTC — a local
-     * literal is judged by its UTC equivalent, so the same test would pass in Cairo and fail
-     * in Los Angeles.
+     * Builds the instant at which [zone]'s wall clock reads [hour]:[minute]. The window is read
+     * on the device's clock, so test instants are built on that same clock — otherwise the same
+     * test would pass in Cairo and fail in Los Angeles.
      */
-    private fun utc(hour: Int, minute: Int): Long =
-        Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+    private fun at(hour: Int, minute: Int, zone: TimeZone = device): Long =
+        Calendar.getInstance(zone).apply {
             clear()
             set(2026, Calendar.AUGUST, 27, hour, minute, 0)
         }.timeInMillis
 
+    private fun QuietHours.containsAt(hour: Int, minute: Int) = contains(at(hour, minute), device)
+
     @Test
     fun `a same-day window contains only its own hours`() {
         val window = QuietHours.from(true, "09:00", "17:00")!!
-        assertFalse(window.contains(utc(8, 59)))
-        assertTrue(window.contains(utc(9, 0)))
-        assertTrue(window.contains(utc(12, 0)))
-        assertTrue(window.contains(utc(16, 59)))
-        assertFalse(window.contains(utc(17, 0)))
+        assertFalse(window.containsAt(8, 59))
+        assertTrue(window.containsAt(9, 0))
+        assertTrue(window.containsAt(12, 0))
+        assertTrue(window.containsAt(16, 59))
+        assertFalse(window.containsAt(17, 0))
     }
 
     @Test
     fun `the window is half-open so adjacent windows do not overlap`() {
         val window = QuietHours.from(true, "22:00", "08:00")!!
-        assertTrue("the start minute is inside", window.contains(utc(22, 0)))
-        assertFalse("the end minute is not", window.contains(utc(8, 0)))
+        assertTrue("the start minute is inside", window.containsAt(22, 0))
+        assertFalse("the end minute is not", window.containsAt(8, 0))
     }
 
     /** 22:00 -> 08:00 is what the backend actually sends. It is two ranges, not one. */
     @Test
     fun `a window wrapping midnight covers both sides`() {
         val window = QuietHours.from(true, "22:00", "08:00")!!
-        assertTrue(window.contains(utc(22, 30)))
-        assertTrue(window.contains(utc(23, 59)))
-        assertTrue(window.contains(utc(0, 0)))
-        assertTrue(window.contains(utc(3, 0)))
-        assertTrue(window.contains(utc(7, 59)))
-        assertFalse(window.contains(utc(8, 1)))
-        assertFalse(window.contains(utc(12, 0)))
-        assertFalse(window.contains(utc(21, 59)))
+        assertTrue(window.containsAt(22, 30))
+        assertTrue(window.containsAt(23, 59))
+        assertTrue(window.containsAt(0, 0))
+        assertTrue(window.containsAt(3, 0))
+        assertTrue(window.containsAt(7, 59))
+        assertFalse(window.containsAt(8, 1))
+        assertFalse(window.containsAt(12, 0))
+        assertFalse(window.containsAt(21, 59))
     }
 
     @Test
     fun `seconds in the wire value are tolerated`() {
         val window = QuietHours.from(true, "22:00:00", "08:00:00")!!
-        assertTrue(window.contains(utc(23, 0)))
-        assertFalse(window.contains(utc(9, 0)))
+        assertTrue(window.containsAt(23, 0))
+        assertFalse(window.containsAt(9, 0))
+    }
+
+    /**
+     * The contract: "daily do-not-disturb in the device's local clock (never UTC)". At UTC+3 the
+     * two readings disagree for six hours of every day, in both directions.
+     */
+    @Test
+    fun `the window is read on the device's local clock, not UTC`() {
+        val window = QuietHours.from(true, "22:00", "08:00")!!
+        // 23:00 on the device is 20:00 UTC: inside locally, outside in UTC.
+        assertTrue(window.contains(at(23, 0), device))
+        // 09:00 on the device is 06:00 UTC: outside locally, inside in UTC.
+        assertFalse(window.contains(at(9, 0), device))
+    }
+
+    @Test
+    fun `with no zone given, the device's own zone is used`() {
+        val originalZone = TimeZone.getDefault()
+        try {
+            val newYorkWinter = TimeZone.getTimeZone("GMT-05:00")
+            TimeZone.setDefault(newYorkWinter)
+            val window = QuietHours.from(true, "22:00", "08:00")!!
+            // 21:00 on the device is 02:00 UTC, and 07:00 on the device is 12:00 UTC.
+            assertFalse(window.contains(at(21, 0, newYorkWinter)))
+            assertTrue(window.contains(at(7, 0, newYorkWinter)))
+        } finally {
+            TimeZone.setDefault(originalZone)
+        }
     }
 
     /**
@@ -82,15 +115,10 @@ class QuietHoursTest {
     }
 
     @Test
-    fun `minute of day is computed in UTC regardless of the device timezone`() {
-        val originalZone = TimeZone.getDefault()
-        try {
-            TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"))
-            assertEquals(22 * 60 + 30, QuietHours.minuteOfDayUtc(utc(22, 30)))
-            TimeZone.setDefault(TimeZone.getTimeZone("Africa/Cairo"))
-            assertEquals(22 * 60 + 30, QuietHours.minuteOfDayUtc(utc(22, 30)))
-        } finally {
-            TimeZone.setDefault(originalZone)
-        }
+    fun `minute of day is read on the clock of the zone it is given`() {
+        val losAngelesSummer = TimeZone.getTimeZone("GMT-07:00")
+        assertEquals(22 * 60 + 30, QuietHours.minuteOfDay(at(22, 30, losAngelesSummer), losAngelesSummer))
+        assertEquals(22 * 60 + 30, QuietHours.minuteOfDay(at(22, 30, device), device))
+        assertEquals(19 * 60 + 30, QuietHours.minuteOfDay(at(22, 30, device), TimeZone.getTimeZone("UTC")))
     }
 }
