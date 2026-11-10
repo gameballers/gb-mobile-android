@@ -1,5 +1,6 @@
 package com.gameball.gameball.inappmessaging.data
 
+import com.gameball.gameball.inappmessaging.domain.CampaignKey
 import com.gameball.gameball.inappmessaging.domain.DisplayHistorySnapshot
 import com.gameball.gameball.inappmessaging.domain.DisplayRecord
 import com.gameball.gameball.inappmessaging.runtime.IamLog
@@ -27,12 +28,16 @@ internal class DisplayHistory(private val store: IamStore) {
             @Suppress("DEPRECATION")
             val root = JsonParser().parse(raw).takeIf { it.isJsonObject }?.asJsonObject
                 ?: return DisplayHistorySnapshot()
-            val records = HashMap<Int, DisplayRecord>()
-            root.obj("records")?.entrySet()?.forEach { (key, value) ->
-                val id = key.toIntOrNull() ?: return@forEach
+            val records = HashMap<CampaignKey, DisplayRecord>()
+            root.obj("records")?.entrySet()?.forEach { (rawKey, value) ->
+                // CampaignKey.parse reads a bare number as a message campaign, which is exactly
+                // what every history written before this release contains — games did not exist
+                // then. Without that, an update loses the history and every once-ever campaign
+                // shows again, which is the most damaging thing this work could ship.
+                val key = CampaignKey.parse(rawKey) ?: return@forEach
                 val entry = value.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
                 val at = entry.long("at") ?: return@forEach
-                records[id] = DisplayRecord(at, entry.int("count") ?: 1)
+                records[key] = DisplayRecord(at, entry.int("count") ?: 1)
             }
             DisplayHistorySnapshot(records, root.long("last"))
         } catch (t: Throwable) {
@@ -42,15 +47,15 @@ internal class DisplayHistory(private val store: IamStore) {
         }
     }
 
-    fun recordImpression(customerId: String, campaignId: Int, atMillis: Long) {
+    fun recordImpression(customerId: String, key: CampaignKey, atMillis: Long) {
         val current = load(customerId)
-        val existing = current.perCampaign[campaignId]
+        val existing = current.perCampaign[key]
         val updated = current.perCampaign.toMutableMap().apply {
-            put(campaignId, DisplayRecord(atMillis, (existing?.count ?: 0) + 1))
+            put(key, DisplayRecord(atMillis, (existing?.count ?: 0) + 1))
         }
         val records = JsonObject()
-        updated.forEach { (id, record) ->
-            records.add(id.toString(), JsonObject().apply {
+        updated.forEach { (entryKey, record) ->
+            records.add(entryKey.storageKey, JsonObject().apply {
                 addProperty("at", record.lastDisplayAtMillis)
                 addProperty("count", record.count)
             })

@@ -13,6 +13,6 @@ internal data class DisplayRecord(
  * floor is not per campaign.
  */
 internal data class DisplayHistorySnapshot(
-    val perCampaign: Map<Int, DisplayRecord> = emptyMap(),
+    val perCampaign: Map<CampaignKey, DisplayRecord> = emptyMap(),
     val lastDisplayAtMillis: Long? = null
 )

@@ -11,6 +11,7 @@ import com.gameball.gameball.inappmessaging.data.MessageSource
 import com.gameball.gameball.inappmessaging.data.SyncOutcome
 import com.gameball.gameball.inappmessaging.data.VariableSource
 import com.gameball.gameball.inappmessaging.domain.Campaign
+import com.gameball.gameball.inappmessaging.domain.CampaignKey
 import com.gameball.gameball.inappmessaging.domain.DisplayHistorySnapshot
 import com.gameball.gameball.inappmessaging.domain.MessageAction
 import com.gameball.gameball.inappmessaging.domain.MessageButton
@@ -58,6 +59,13 @@ internal class InAppMessagingService(
     private var pending: PendingPresentation? = null
     private var currentCustomerId: String? = null
 
+    /**
+     * Games played to their end since the last successful sync, which are not offered again
+     * until the next one: the backend decides whether a customer may play again, and it says so
+     * only in a sync.
+     */
+    private val playedSinceSync = HashSet<CampaignKey>()
+
     var isStarted: Boolean = false
         private set
 
@@ -88,6 +96,7 @@ internal class InAppMessagingService(
         held = SyncResult.EMPTY
         neededTokens = emptySet()
         pending = null
+        playedSinceSync.clear()
         artwork.reset()
         sessionState.reset()
         variables.clear()
@@ -106,6 +115,7 @@ internal class InAppMessagingService(
         held = SyncResult.EMPTY
         neededTokens = emptySet()
         pending = null
+        playedSinceSync.clear()
         artwork.reset()
         cache.clear()
         history.clear()
@@ -126,13 +136,15 @@ internal class InAppMessagingService(
                 // A successful response replaces the entire cache; it is never merged, and an
                 // empty one is still a replacement.
                 cache.put(customerId, outcome.rawPayload)
+                // The backend has now had its say on every game played since the last sync.
+                playedSinceSync.clear()
                 outcome.result
             }
             // Only a failure falls back. Applying the cache unconditionally reintroduces the
             // race where a slow cache read lands after a fast sync and clobbers fresher data.
             is SyncOutcome.Failure -> {
                 IamLog.w("sync failed (${outcome.reason}); falling back to the cache")
-                cache.get(customerId) ?: SyncResult.EMPTY
+                dropCachedGames(cache.get(customerId) ?: SyncResult.EMPTY)
             }
         }
 
@@ -209,7 +221,7 @@ internal class InAppMessagingService(
 
         val winner = MessageSelector.select(
             occurrence = occurrence,
-            campaigns = held.campaigns,
+            campaigns = offerable(),
             history = snapshot,
             nowMillis = clock.nowMillis(),
             cooldownSeconds = held.cooldownSeconds,
@@ -227,7 +239,7 @@ internal class InAppMessagingService(
                 return
             }
             DisplayDecision.DISCARD -> {
-                IamLog.d("campaign ${winner.campaignId} discarded by the host")
+                IamLog.d("campaign ${winner.label} discarded by the host")
                 return
             }
             DisplayDecision.SHOW -> Unit
@@ -235,6 +247,11 @@ internal class InAppMessagingService(
 
         scope.launch { presentOrDefer(PendingPresentation(winner)) }
     }
+
+    /** The latest sync's campaigns, less any game played since that sync arrived. */
+    private fun offerable(): List<Campaign> =
+        if (playedSinceSync.isEmpty()) held.campaigns
+        else held.campaigns.filterNot { it.key in playedSinceSync }
 
     private suspend fun presentOrDefer(slot: PendingPresentation) {
         if (isWidgetOpen()) {
@@ -259,26 +276,39 @@ internal class InAppMessagingService(
      */
     private fun defer(campaign: Campaign, reason: String) {
         val existing = pending
-        if (existing != null && existing.campaign.campaignId != campaign.campaignId) {
+        // By kind and id: every game's campaignId is 0, so the number alone would make every
+        // game the same campaign.
+        if (existing != null && existing.campaign.key != campaign.key) {
             IamLog.d(
-                "campaign ${campaign.campaignId} displaces campaign " +
-                    "${existing.campaign.campaignId} in the pending slot ($reason)"
+                "campaign ${campaign.label} displaces campaign " +
+                    "${existing.campaign.label} in the pending slot ($reason)"
             )
         } else {
-            IamLog.d("campaign ${campaign.campaignId} deferred: $reason")
+            IamLog.d("campaign ${campaign.label} deferred: $reason")
         }
         pending = PendingPresentation(campaign)
     }
 
     private fun retryPending() {
-        val slot = pending ?: return
+        val waiting = pending ?: return
         if (presenter.isShowing || isWidgetOpen()) return
         val customerId = currentCustomerId ?: return
+
+        // It may have waited across a sync, so what it holds is an older response's promise. Ask
+        // the latest one, by kind and id: a campaign it no longer offers — ended, paused, or a
+        // game played since — is dropped, and one it still offers is judged on its latest terms,
+        // its expiry included.
+        val campaign = offerable().firstOrNull { it.key == waiting.campaign.key }
+        if (campaign == null) {
+            IamLog.d("pending campaign ${waiting.campaign.label} is not in the latest sync; dropped")
+            pending = null
+            return
+        }
 
         // "May this display now", not "has it ever displayed". The cruder question threw away
         // every repeatable campaign that happened to be waiting.
         val eligible = MessageSelector.mayDisplayNow(
-            campaign = slot.campaign,
+            campaign = campaign,
             history = history.load(customerId),
             nowMillis = clock.nowMillis(),
             cooldownSeconds = held.cooldownSeconds,
@@ -286,12 +316,12 @@ internal class InAppMessagingService(
             isArtworkReady = { artwork.isReady(it.content) }
         )
         if (!eligible) {
-            IamLog.d("pending campaign ${slot.campaign.campaignId} is no longer eligible; dropped")
+            IamLog.d("pending campaign ${campaign.label} is no longer eligible; dropped")
             pending = null
             return
         }
         pending = null
-        scope.launch { presentOrDefer(slot) }
+        scope.launch { presentOrDefer(PendingPresentation(campaign)) }
     }
 
     // --- personalisation ---
@@ -341,7 +371,7 @@ internal class InAppMessagingService(
             slot.impressionReported = true
             val at = clock.nowMillis()
             slot.impressionAtMillis = at
-            currentCustomerId?.let { history.recordImpression(it, slot.campaign.campaignId, at) }
+            currentCustomerId?.let { history.recordImpression(it, slot.campaign.key, at) }
             report(slot, IamEventType.IMPRESSION)
         }
 
@@ -374,6 +404,42 @@ internal class InAppMessagingService(
             pending = null
             retryPending()
         }
+
+        override fun onFailed() {
+            // Never seen: nothing to report, nothing recorded. Let go rather than kept waiting,
+            // or every Activity resume would load it again; its next trigger may offer it again.
+            // Only this presentation's own slot is released — a campaign that was deferred
+            // behind it while it loaded keeps its place and gets its turn now.
+            IamLog.d("campaign ${slot.campaign.label} could not be shown; waiting for its next trigger")
+            if (pending === slot) pending = null
+            retryPending()
+        }
+
+        override fun onGameCompleted() {
+            // Matched by the open presentation, never by the event's own ids: the widget names
+            // the game in its own terms, and this is the only game that is open.
+            IamLog.d("game ${slot.campaign.label} was played; not offered again until the next sync")
+            playedSinceSync.add(slot.campaign.key)
+        }
+    }
+
+    /**
+     * Drops game campaigns from a cached set.
+     *
+     * A message carries its own content, so a cached one is still correct to draw. A game carries
+     * only a pointer and fetches its content live: the campaign may have ended, been paused, or
+     * run out of rewards since it was cached, and the customer would open it to an error. This
+     * narrows the exposure to one foreground session rather than eliminating it.
+     */
+    private fun dropCachedGames(cached: SyncResult): SyncResult {
+        val openable = cached.campaigns.filterNot { it.isWidget }
+        val dropped = cached.campaigns.size - openable.size
+        if (dropped == 0) return cached
+        IamLog.w(
+            "$dropped cached game campaign(s) skipped: a game's content is fetched live and a " +
+                "cached entry may no longer be open"
+        )
+        return cached.copy(campaigns = openable)
     }
 
     private fun report(
@@ -385,6 +451,11 @@ internal class InAppMessagingService(
         // An isTest campaign displays normally so a marketer can see their work; its
         // telemetry must never reach campaign statistics.
         if (slot.campaign.isTest) return
+        // A game has no message analytics to report against: its campaignId is always 0, so the
+        // default path would file every impression, click and dismiss under campaign zero. The
+        // game reports its own engagement from inside the widget. This does NOT suppress the
+        // display history — that still records, or a once-ever game would reappear every session.
+        if (slot.campaign.isWidget) return
         val customerId = currentCustomerId ?: return
         analytics.record(
             IamEvent(
