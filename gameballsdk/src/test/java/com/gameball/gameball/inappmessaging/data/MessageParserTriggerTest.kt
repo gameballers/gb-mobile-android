@@ -33,6 +33,26 @@ class MessageParserTriggerTest {
         assertNull(trigger.minIntervalSeconds)
     }
 
+    /**
+     * The live account sends repeatable and minIntervalSeconds on session_start too. Ignoring
+     * them made every app-open campaign once-ever, whatever the dashboard said.
+     */
+    @Test
+    fun `a session_start trigger carries its repeat rule`() {
+        val trigger = parseOne(
+            """{ "type": "session_start", "repeatable": true, "minIntervalSeconds": 3600 }"""
+        )!!.trigger
+        assertEquals(TriggerType.SESSION_START, trigger.type)
+        assertEquals(true, trigger.repeatable)
+        assertEquals(3600, trigger.minIntervalSeconds)
+
+        val everySession = parseOne(
+            """{ "type": "session_start", "repeatable": true, "minIntervalSeconds": 0 }"""
+        )!!.trigger
+        assertEquals(true, everySession.repeatable)
+        assertNull(everySession.minIntervalSeconds)
+    }
+
     @Test
     fun `an event trigger matches on name and carries its repeat rule`() {
         val trigger = parseOne(
