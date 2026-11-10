@@ -1,5 +1,6 @@
 package com.gameball.gameball.inappmessaging
 
+import android.app.Activity
 import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -110,7 +111,15 @@ class GameballInAppMessaging internal constructor(private val appContext: Contex
             object : ActivityTracker.Callbacks {
                 override fun onAppForegrounded() { service?.onAppForegrounded() }
                 override fun onAppBackgrounded() { service?.onAppBackgrounded() }
-                override fun onSurfaceAvailable() { service?.onSurfaceAvailable() }
+                override fun onSurfaceAvailable() {
+                    // A message whose screen was recreated under it (a rotation) comes back first;
+                    // only then does whatever waits behind it get its turn.
+                    presenter?.resumeAfterHostLoss()
+                    service?.onSurfaceAvailable()
+                }
+                override fun onActivityDestroyed(activity: Activity) {
+                    presenter?.onHostDestroyed(activity)
+                }
             }
         )
         // Read at open time, so a customer change made after this start is followed.

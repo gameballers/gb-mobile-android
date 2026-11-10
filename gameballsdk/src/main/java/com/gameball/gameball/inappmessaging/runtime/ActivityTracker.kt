@@ -21,6 +21,9 @@ internal class ActivityTracker(
         fun onAppBackgrounded()
         /** A retry trigger: an Activity became available, or the device rotated. */
         fun onSurfaceAvailable()
+
+        /** An Activity is gone, and with it anything drawn into it. */
+        fun onActivityDestroyed(activity: Activity) = Unit
     }
 
     private var startedActivities = 0
@@ -82,5 +85,5 @@ internal class ActivityTracker(
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
-    override fun onActivityDestroyed(activity: Activity) = Unit
+    override fun onActivityDestroyed(activity: Activity) = callbacks.onActivityDestroyed(activity)
 }
