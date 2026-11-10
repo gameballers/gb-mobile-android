@@ -384,6 +384,26 @@ gameball.logPurchase(
 It's sent whether or not in-app messaging has started, so replace a hand-built purchase event with
 it rather than sending both.
 
+### Game campaigns (unreleased)
+
+A game campaign — a Spin the Wheel, a Quiz, a Scratch & Win, or any other Gameball game the
+merchant set to open over the app — arrives with your in-app messages and opens on its own
+trigger, inside your app, in the Gameball widget: as a card over a dimmed screen or fullscreen,
+as the campaign says. There is nothing extra to call; `startInAppMessaging` and your events are
+enough.
+
+| | |
+|---|---|
+| **When it opens** | Exactly as a message does: on app open or on a named event, with the event's conditions (all of them, or any of them), the campaign's repeat setting and minimum interval, the minimum time between any two campaigns, and quiet hours on the device's clock. There is no delay and no dismissal limit. A campaign set to open on a screen is skipped — send an event instead |
+| **While it loads** | Nothing is drawn, and taps and back go to your app, until the game has finished drawing. One that hasn't drawn within 12 seconds is dropped quietly and offered again at its next trigger |
+| **Closing** | The SDK draws a close button in the game's top-end corner, clear of the status bar and any cutout. Back, a tap outside the card and the game's own close also close it |
+| **After a play** | A game the customer has finished isn't offered again until the next successful sync, when Gameball decides whether it may be played again |
+| **Freshness** | A game opens only from a fresh sync — never from the offline cache — and never after its end date. A game waiting for its turn is checked against the latest sync before it opens |
+| **Customer** | The game opens for the customer passed to `startInAppMessaging` (or the one `initializeCustomer` switched messaging to) |
+| **Analytics** | Games report nothing to in-app message analytics; the play itself is recorded by Gameball |
+| **Environment** | The widget host comes from `GameballConfig.widgetUrlPrefix`, the same one `showProfile` uses. Give the host without a scheme, e.g. `m.gameball.app/alpha`; leave it unset for production |
+| **Diagnostics** | `adb logcat -s GameballIAM` names each game `game:<id>` and logs the widget URL it opens, with the api key and session token masked |
+
 ### Stopping
 
 On logout, or whenever messaging should stop:
@@ -559,6 +579,7 @@ GameballApp.getInstance(this).initializeCustomer(
 | `shop` | String | ❌ Optional | Shop identifier |
 | `sessionToken` | String | ❌ Optional | Session Token for secure authentication (enables automatic v4.1 endpoint routing; the in-app messaging endpoints stay on v4.0, where they are served) |
 | `apiPrefix` | String | ❌ Optional | Custom API endpoint prefix |
+| `widgetUrlPrefix` | String | ❌ Optional | Widget host without a scheme (e.g. `m.gameball.app/alpha`), for the profile widget and for game campaigns. A per-call `ShowProfileRequest.widgetUrlPrefix` still overrides it for that presentation. Defaults to production |
 
 **GameballConfig Validation Rules:**
 - API key is required (cannot be null)
