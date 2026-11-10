@@ -1,6 +1,7 @@
 package com.gameball.gameball.inappmessaging.ui
 
 import android.app.Activity
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
@@ -11,6 +12,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.VisibleForTesting
 import androidx.core.view.doOnPreDraw
+import com.gameball.gameball.inappmessaging.data.WidgetEvents
 import com.gameball.gameball.inappmessaging.domain.Campaign
 import com.gameball.gameball.inappmessaging.domain.MessageButton
 import com.gameball.gameball.inappmessaging.domain.MessageType
@@ -31,7 +33,14 @@ import com.gameball.gameball.inappmessaging.runtime.ResolvedMessage
  */
 internal class OverlayPresenter(
     private val tracker: ActivityTracker,
-    private val clock: Clock
+    private val clock: Clock,
+    /**
+     * Composes the widget URL a game campaign opens, from the open-details text.
+     *
+     * Null means this build cannot open games — every game campaign is then passed over with a
+     * log rather than drawn as an empty card.
+     */
+    private val widgetUrlBuilder: ((String) -> String)? = null
 ) : MessagePresenter {
 
     private var currentView: View? = null
@@ -57,7 +66,7 @@ internal class OverlayPresenter(
         presentInternal(campaign, resolved, callbacks)
     } catch (t: Throwable) {
         // A presenter that throws would take the host's frame down with it. Defer instead.
-        IamLog.e("could not present campaign ${campaign.campaignId}", t)
+        IamLog.e("could not present campaign ${campaign.label}", t)
         false
     }
 
@@ -70,16 +79,22 @@ internal class OverlayPresenter(
         // dead surface after the first rotation, and messages then silently never appear.
         val activity = tracker.currentActivity
         if (activity == null || activity.isFinishing) {
-            IamLog.d("no Activity available; campaign ${campaign.campaignId} deferred")
+            IamLog.d("no Activity available; campaign ${campaign.label} deferred")
             return false
         }
         if (isShowing) return false
 
         val root = activity.findViewById<ViewGroup>(android.R.id.content) ?: return false
 
-        val slot = presentation?.takeIf { it.campaign.campaignId == campaign.campaignId }
+        // By kind and id: every game's campaignId is 0, so matching on it handed one game the
+        // presentation of another, already marked shown.
+        val slot = presentation?.takeIf { it.campaign.key == campaign.key }
             ?: PendingPresentation(campaign)
         presentation = slot
+
+        if (campaign.isWidget) {
+            return presentWidget(campaign, activity, root, slot, callbacks)
+        }
 
         val view = when (campaign.messageType) {
             MessageType.SLIDEUP -> SlideupMessageView(activity)
@@ -90,7 +105,7 @@ internal class OverlayPresenter(
                 val fullscreen = FullscreenMessageView(activity)
                 if (!fullscreen.orientationMatches(campaign.content)) {
                     IamLog.d(
-                        "campaign ${campaign.campaignId} wants " +
+                        "campaign ${campaign.label} wants " +
                             "${campaign.content.orientation}; deferred until rotation"
                     )
                     return false
@@ -130,6 +145,103 @@ internal class OverlayPresenter(
             startAutoDismiss(campaign, slot, callbacks)
         }
         return true
+    }
+
+    /**
+     * Mounts a game campaign, hidden, and reveals it only once the widget reports itself drawn.
+     *
+     * The impression is counted at readiness rather than at the first pre-draw pass, which is the
+     * whole point: the surface is attached and painting for seconds before there is anything on
+     * it, so counting at pre-draw books a view of a loading skeleton.
+     *
+     * A readiness timeout takes the message away **without** counting an impression, so no
+     * telemetry is logged and the cap is untouched, and tells the service it failed so the game
+     * is let go rather than loaded again on every resume; it is offered again at its next trigger.
+     */
+    private fun presentWidget(
+        campaign: Campaign,
+        activity: Activity,
+        root: ViewGroup,
+        slot: PendingPresentation,
+        callbacks: PresentationCallbacks
+    ): Boolean {
+        val widget = campaign.widget ?: return false
+        val builder = widgetUrlBuilder ?: run {
+            IamLog.w("campaign ${campaign.label} needs the Gameball widget, which this build cannot open; passed over")
+            return false
+        }
+
+        // Every way out takes the game off the screen first and then tells the service, exactly
+        // as back does. Telling the service alone left the game on screen with nothing to close.
+        val close = {
+            dismissCurrent()
+            callbacks.onDismissed()
+        }
+
+        val url = builder(widget.openDetail)
+        val view = WidgetMessageView(activity)
+        view.bind(
+            campaign,
+            onScrimTap = { if (campaign.content.dismissOnScrimTap) close() },
+            onClose = close,
+            // The language the page opens in, read off the very url it opens with.
+            rightToLeft = WidgetMessageView.isRightToLeft(languageOf(url))
+        )
+
+        // Over the whole window, the app bar and status bar included, as on the other SDKs. In the
+        // content root a fullscreen game covered only the area under the host's action bar. Its
+        // content still keeps to the safe area: WidgetMessageView measures the bars on the window.
+        val surface = activity.window?.decorView as? ViewGroup ?: root
+        surface.addView(
+            view,
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        )
+        currentView = view
+        currentActivity = activity
+        // Back is not taken here. Until the game is drawn nothing is on screen, so back belongs
+        // to the app; it is registered with the reveal below.
+
+        view.widget.load(
+            url = url,
+            onReady = {
+                if (!view.isAttachedToWindow) {
+                    // Its screen went away while it loaded — back, say, which is the app's until
+                    // the game is drawn. Nobody can see it, so it goes like a game that never
+                    // loaded rather than booking an impression for an empty window.
+                    IamLog.w("campaign ${campaign.label} became ready after its screen went away; removed unshown")
+                    dismissCurrent()
+                    callbacks.onFailed()
+                } else {
+                    view.reveal()
+                    registerBack(activity, campaign, slot, callbacks)
+                    if (!slot.impressionReported) {
+                        slot.impressionReported = true
+                        slot.impressionAtMillis = clock.nowMillis()
+                        callbacks.onShown()
+                    }
+                }
+            },
+            // Taken away unshown: nothing was ever visible, so nothing is reported and the cap is
+            // left alone. Not onDismissed, which is the customer closing something they saw.
+            onFailed = {
+                IamLog.w("campaign ${campaign.label} never became ready; removed unshown")
+                dismissCurrent()
+                callbacks.onFailed()
+            },
+            onCloseRequested = close,
+            // A play does not close the game: the customer is still looking at the result.
+            onEvent = { raw -> if (WidgetEvents.isGameCompleted(raw)) callbacks.onGameCompleted() }
+        )
+        return true
+    }
+
+    private fun languageOf(url: String): String? = try {
+        Uri.parse(url).getQueryParameter("lang")
+    } catch (t: Throwable) {
+        null
     }
 
     /** Marks engagement on the shared slot so a dismissal after a tap is not double-counted. */
@@ -176,15 +288,25 @@ internal class OverlayPresenter(
             currentView?.apply {
                 isFocusableInTouchMode = true
                 requestFocus()
-                setOnKeyListener { _, keyCode, event ->
-                    if (keyCode == KeyEvent.KEYCODE_BACK &&
-                        event.action == KeyEvent.ACTION_UP
-                    ) {
+                if (this is WidgetMessageView) {
+                    // A key listener hears back only while this view itself has focus, and a
+                    // game's WebView takes focus at the first touch. The game catches back on its
+                    // way to whatever inside it has focus.
+                    onBack = {
                         dismissCurrent()
                         callbacks.onDismissed()
-                        true
-                    } else {
-                        false
+                    }
+                } else {
+                    setOnKeyListener { _, keyCode, event ->
+                        if (keyCode == KeyEvent.KEYCODE_BACK &&
+                            event.action == KeyEvent.ACTION_UP
+                        ) {
+                            dismissCurrent()
+                            callbacks.onDismissed()
+                            true
+                        } else {
+                            false
+                        }
                     }
                 }
             }
@@ -254,6 +376,8 @@ internal class OverlayPresenter(
         backCallback?.remove()
         backCallback = null
         currentView?.let { view ->
+            // A WebView left attached keeps a renderer process and this Activity alive.
+            (view as? WidgetMessageView)?.destroy()
             // Dismissal removes the overlay on the spot: there is no exit animation on any
             // type, the one exception being a swiped slideup, which the gesture drives.
             (view.parent as? ViewGroup)?.removeView(view)

@@ -46,7 +46,7 @@ internal object MessageSelector {
         val winner = eligible.sortedWith(RANKING).first()
         if (eligible.size > 1) {
             IamLog.d(
-                "selected campaign ${winner.campaignId} (priority ${winner.priority}) from " +
+                "selected campaign ${winner.label} (priority ${winner.priority}) from " +
                     "${eligible.size} eligible"
             )
         }
@@ -103,7 +103,7 @@ internal object MessageSelector {
         history: DisplayHistorySnapshot,
         nowMillis: Long
     ): Boolean {
-        val record = history.perCampaign[campaign.campaignId] ?: return true
+        val record = history.perCampaign[campaign.key] ?: return true
         if (!campaign.trigger.repeatable) return false
         val interval = campaign.trigger.minIntervalSeconds ?: return true
         return nowMillis - record.lastDisplayAtMillis >= interval * 1000L

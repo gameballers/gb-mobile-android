@@ -1,5 +1,6 @@
 package com.gameball.gameball.inappmessaging.data
 
+import com.gameball.gameball.inappmessaging.domain.CampaignKey
 import androidx.test.core.app.ApplicationProvider
 import com.gameball.gameball.local.SharedPreferencesUtils
 import com.google.gson.Gson
@@ -39,22 +40,22 @@ class PersistenceTest {
     /** A once-ever campaign must stay suppressed across a restart. */
     @Test
     fun `a display record survives a simulated restart`() {
-        DisplayHistory(store()).recordImpression("alice", 2055, 1_000L)
+        DisplayHistory(store()).recordImpression("alice", CampaignKey.message(2055), 1_000L)
 
         // A fresh store and history, as if the process had died and come back.
         val afterRestart = DisplayHistory(store()).load("alice")
         assertEquals(1, afterRestart.perCampaign.size)
-        assertEquals(1_000L, afterRestart.perCampaign[2055]!!.lastDisplayAtMillis)
-        assertEquals(1, afterRestart.perCampaign[2055]!!.count)
+        assertEquals(1_000L, afterRestart.perCampaign[CampaignKey.message(2055)]!!.lastDisplayAtMillis)
+        assertEquals(1, afterRestart.perCampaign[CampaignKey.message(2055)]!!.count)
         assertEquals(1_000L, afterRestart.lastDisplayAtMillis)
     }
 
     @Test
     fun `repeat impressions increment the count and move the timestamp`() {
         val history = DisplayHistory(store())
-        history.recordImpression("alice", 2055, 1_000L)
-        history.recordImpression("alice", 2055, 5_000L)
-        val record = history.load("alice").perCampaign[2055]!!
+        history.recordImpression("alice", CampaignKey.message(2055), 1_000L)
+        history.recordImpression("alice", CampaignKey.message(2055), 5_000L)
+        val record = history.load("alice").perCampaign[CampaignKey.message(2055)]!!
         assertEquals(2, record.count)
         assertEquals(5_000L, record.lastDisplayAtMillis)
     }
@@ -62,21 +63,21 @@ class PersistenceTest {
     @Test
     fun `lastDisplayAtMillis tracks the most recent display from any campaign`() {
         val history = DisplayHistory(store())
-        history.recordImpression("alice", 1, 1_000L)
-        history.recordImpression("alice", 2, 9_000L)
+        history.recordImpression("alice", CampaignKey.message(1), 1_000L)
+        history.recordImpression("alice", CampaignKey.message(2), 9_000L)
         assertEquals(9_000L, history.load("alice").lastDisplayAtMillis)
     }
 
     @Test
     fun `history is scoped per customer`() {
-        DisplayHistory(store()).recordImpression("alice", 2055, 1_000L)
+        DisplayHistory(store()).recordImpression("alice", CampaignKey.message(2055), 1_000L)
         assertTrue(DisplayHistory(store()).load("bob").perCampaign.isEmpty())
     }
 
     /** Reading another customer's blob discards it, so it cannot resurface later. */
     @Test
     fun `reading another customer's blob clears it`() {
-        DisplayHistory(store()).recordImpression("alice", 2055, 1_000L)
+        DisplayHistory(store()).recordImpression("alice", CampaignKey.message(2055), 1_000L)
         assertTrue(DisplayHistory(store()).load("bob").perCampaign.isEmpty())
         assertTrue(
             "alice's history should have been discarded on the mismatched read",

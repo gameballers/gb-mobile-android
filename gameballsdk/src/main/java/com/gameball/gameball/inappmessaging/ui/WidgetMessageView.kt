@@ -1,0 +1,268 @@
+package com.gameball.gameball.inappmessaging.ui
+
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.text.TextUtils
+import android.util.TypedValue
+import android.view.Gravity
+import android.view.KeyEvent
+import android.view.MotionEvent
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
+import androidx.annotation.VisibleForTesting
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnAttach
+import androidx.core.view.updateLayoutParams
+import com.gameball.gameball.R
+import com.gameball.gameball.inappmessaging.domain.Campaign
+import com.gameball.gameball.inappmessaging.domain.MessageType
+import java.util.Locale
+
+/**
+ * The chrome around a game campaign: a scrim and a card for a modal, edge to edge for fullscreen.
+ *
+ * Deliberately not `showProfile`'s dialog. An in-app message is drawn by this module, in this
+ * module's own chrome, and a campaign that arrives through a message trigger should be
+ * indistinguishable from one drawn as artwork.
+ *
+ * Nothing here reads [Campaign.content]: a game carries none. On mobile the widget page draws no
+ * close or back control for a game, so the way out is drawn here — a close control over the
+ * game's top-end corner — beside the scrim and the back button, which the presenter owns.
+ */
+internal class WidgetMessageView(context: Context) : FrameLayout(context) {
+
+    @VisibleForTesting
+    internal val widget = GameballWidgetView(context)
+
+    /** The box the game lives in: a rounded card for a modal, the safe area for fullscreen. */
+    private val host = FrameLayout(context)
+
+    /**
+     * The close control, on a 48dp target in the game's top-end corner.
+     *
+     * A sibling of the game rather than anything inside it, so closing can never also be a tap on
+     * the game; and inside [host], so it sits in the safe area with the game — never under the
+     * status bar or a cutout.
+     */
+    @VisibleForTesting
+    internal val closeTarget = FrameLayout(context)
+
+    private var revealed = false
+
+    init {
+        // The gate, on the whole overlay: hiding only the WebView left the scrim and an empty
+        // white card, or a black fullscreen surface, on screen for as long as the game loaded.
+        //
+        // Held at a hair above transparent rather than at zero, and never with visibility:
+        // Flutter's port of this hid the view at opacity 0 and the page stopped loading
+        // entirely — a fully transparent surface is skipped in the draw path, and a WebView that
+        // is never drawn has its render loop suspended. UNVERIFIED on Android's Chromium engine,
+        // which may not share that behaviour; the conservative value is the one that is known to
+        // work on the two platforms where it was measured. A test pins it.
+        alpha = HIDDEN_ALPHA
+        // Nothing to read out either until there is something to see.
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+    }
+
+    /**
+     * Until the game is drawn the overlay takes no touch at all: every one falls through to the
+     * app beneath, which is all the customer can see. An invisible surface that swallowed them
+     * would look like a frozen app.
+     */
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean =
+        revealed && super.dispatchTouchEvent(event)
+
+    /**
+     * What back does on a host that is not a ComponentActivity. Set by the presenter once the game
+     * is drawn; never set on a ComponentActivity, whose dispatcher owns back.
+     */
+    var onBack: (() -> Unit)? = null
+
+    /**
+     * Back, wherever focus is inside the game. A key listener on this view heard it only while the
+     * view itself held focus, and the WebView takes focus at the first touch: from then on back
+     * went past the game and finished the host Activity. A key on its way to anything focused
+     * inside passes through here first.
+     */
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val back = onBack
+        if (back != null &&
+            event.keyCode == KeyEvent.KEYCODE_BACK &&
+            event.action == KeyEvent.ACTION_UP
+        ) {
+            back()
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
+    /**
+     * Lays out the chrome for the campaign's messageType.
+     *
+     * Fullscreen insets its content into the safe area while the surface stays edge to edge.
+     * Measured on Flutter: a real fullscreen box is about 0.46 aspect on a portrait phone, well
+     * inside the ratio at which the widget starts clipping. The earlier reading that fullscreen
+     * clipped came from measuring a 1.12-aspect box and was wrong.
+     */
+    /** [rightToLeft]: the game's own page is laid out right to left (its language is Arabic, say). */
+    fun bind(
+        campaign: Campaign,
+        onScrimTap: () -> Unit,
+        onClose: () -> Unit,
+        rightToLeft: Boolean = false
+    ) {
+        val modal = campaign.messageType != MessageType.FULLSCREEN
+        val margin = if (modal) dp(MessageMetrics.Modal.MARGIN_DP) else 0
+
+        host.addView(widget, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        addView(
+            host,
+            LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER).apply {
+                setMargins(margin, margin, margin, margin)
+            }
+        )
+
+        if (modal) bindModal(campaign, onScrimTap) else bindFullscreen()
+        bindClose(onClose, rightToLeft)
+        applyInsets(margin)
+    }
+
+    private fun bindModal(campaign: Campaign, onScrimTap: () -> Unit) {
+        setBackgroundColor(campaign.content.colors.frame ?: MessageMetrics.Shared.DEFAULT_SCRIM)
+
+        host.background = GradientDrawable().apply {
+            cornerRadius = dp(MessageMetrics.Modal.CORNER_RADIUS_DP).toFloat()
+            setColor(Color.WHITE)
+        }
+        // Clipped so the widget's own corners cannot square off the card's.
+        host.clipToOutline = true
+        host.maxWidthDp(MessageMetrics.Modal.MAX_WIDTH_DP)
+
+        // A tap outside the card dismisses, matching every other modal in this module. Taps on
+        // the card itself must not: a wheel is played by tapping it.
+        setOnClickListener { onScrimTap() }
+        host.setOnClickListener { /* swallowed */ }
+    }
+
+    private fun bindFullscreen() {
+        setBackgroundColor(Color.BLACK)
+        // Once drawn it is opaque, and it absorbs taps so nothing reaches the app beneath —
+        // including in the system-bar bands outside the game.
+        isClickable = true
+    }
+
+    private fun bindClose(onClose: () -> Unit, rightToLeft: Boolean) {
+        val disc = dp(MessageMetrics.Game.CLOSE_DISC_DP)
+        val glyphPadding = (disc - dp(MessageMetrics.Shared.CLOSE_GLYPH_SIZE_DP)) / 2
+        val glyph = ImageView(context).apply {
+            setImageResource(R.drawable.gb_iam_ic_close)
+            // The game draws whatever it likes under this corner, so the glyph brings its own
+            // contrast: white on a dark disc, rather than a colour derived from a background
+            // nobody here can see.
+            setColorFilter(MessageMetrics.Shared.CLOSE_GLYPH_ON_DARK)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(MessageMetrics.Game.CLOSE_DISC_COLOR)
+            }
+            setPadding(glyphPadding, glyphPadding, glyphPadding, glyphPadding)
+            // The target carries the label; the glyph is decoration.
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        closeTarget.addView(glyph, LayoutParams(disc, disc, Gravity.CENTER))
+        closeTarget.contentDescription = context.getString(R.string.gb_iam_close)
+        closeTarget.isClickable = true
+        closeTarget.isFocusable = true
+        closeTarget.setOnClickListener { onClose() }
+
+        val target = dp(MessageMetrics.Shared.CLOSE_TOUCH_TARGET_DP)
+        val inset = dp(MessageMetrics.Game.CLOSE_INSET_DP)
+        // The top end of the game, which mirrors with the game's own language rather than with the
+        // app: an Arabic game is laid out right to left whatever direction the app runs in, and
+        // Gravity.END followed only the app — or nothing, in an app that never declared RTL support.
+        val side = if (rightToLeft) Gravity.LEFT else Gravity.RIGHT
+        host.addView(closeTarget, LayoutParams(target, target, Gravity.TOP or side).apply {
+            topMargin = inset
+            if (rightToLeft) leftMargin = inset else rightMargin = inset
+        })
+    }
+
+    /**
+     * The surface goes edge to edge; the game and its close sit inside the safe area, so a wheel
+     * is not cut by a cutout and the close is never under the status bar. A modal keeps its
+     * margin inside that area.
+     */
+    private fun applyInsets(margin: Int) {
+        ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
+            val bars = WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            val insets = safeArea(
+                dispatched = windowInsets.getInsets(bars),
+                window = ViewCompat.getRootWindowInsets(view)?.getInsets(bars)
+            )
+            host.updateLayoutParams<LayoutParams> {
+                setMargins(
+                    margin + insets.left,
+                    margin + insets.top,
+                    margin + insets.right,
+                    margin + insets.bottom
+                )
+            }
+            windowInsets
+        }
+        // Added to a window that has already dispatched its insets, which a view attached later
+        // never hears about unless it asks.
+        doOnAttach { ViewCompat.requestApplyInsets(it) }
+    }
+
+    /** Shows the game and lets it take touches. Called once the readiness gate reports it drawn. */
+    fun reveal() {
+        revealed = true
+        alpha = 1f
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+    }
+
+    fun destroy() = widget.destroy()
+
+    private fun dp(value: Float): Int = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, value, resources.displayMetrics
+    ).toInt()
+
+    private fun View.maxWidthDp(value: Float) {
+        val max = dp(value)
+        addOnLayoutChangeListener { v, left, _, right, _, _, _, _, _ ->
+            if (right - left > max) {
+                v.updateLayoutParams<LayoutParams> { width = max }
+            }
+        }
+    }
+
+    companion object {
+        /**
+         * A hair above transparent, never zero. See the note in `init`: zero opacity stopped the
+         * page loading on Flutter, because a fully transparent surface is skipped in the draw
+         * path and an undrawn WebView has its render loop suspended.
+         */
+        @VisibleForTesting
+        internal const val HIDDEN_ALPHA = 1f / 255f
+
+        /**
+         * The larger of the insets dispatched to the overlay and the window's own, edge by edge.
+         *
+         * The overlay hangs over the whole window, so the bars are measured on the window itself:
+         * a window that fits system windows hands the views under its decor insets with the bars
+         * already taken out, which would put the game under the status bar.
+         */
+        internal fun safeArea(dispatched: Insets, window: Insets?): Insets =
+            if (window == null) dispatched else Insets.max(dispatched, window)
+
+        /** Whether a page in [language], a tag such as "ar", is laid out right to left. */
+        internal fun isRightToLeft(language: String?): Boolean {
+            if (language.isNullOrBlank()) return false
+            return TextUtils.getLayoutDirectionFromLocale(Locale.forLanguageTag(language)) ==
+                View.LAYOUT_DIRECTION_RTL
+        }
+    }
+}

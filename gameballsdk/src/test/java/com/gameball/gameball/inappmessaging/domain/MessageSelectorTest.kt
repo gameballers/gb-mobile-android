@@ -1,5 +1,6 @@
 package com.gameball.gameball.inappmessaging.domain
 
+import com.gameball.gameball.inappmessaging.domain.CampaignKey
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -114,7 +115,7 @@ class MessageSelectorTest {
     fun `a non-repeatable campaign is never selected twice`() {
         val c = campaign(1)
         val history = DisplayHistorySnapshot(
-            perCampaign = mapOf(1 to DisplayRecord(now - 10_000_000L, 1)),
+            perCampaign = mapOf(CampaignKey.message(1) to DisplayRecord(now - 10_000_000L, 1)),
             lastDisplayAtMillis = now - 10_000_000L
         )
         assertNull(select(listOf(c), history = history))
@@ -128,12 +129,12 @@ class MessageSelectorTest {
         val occurrence = TriggerOccurrence.Event("x")
 
         val tooSoon = DisplayHistorySnapshot(
-            mapOf(1 to DisplayRecord(now - 299_000L, 1)), now - 299_000L
+            mapOf(CampaignKey.message(1) to DisplayRecord(now - 299_000L, 1)), now - 299_000L
         )
         assertNull(select(listOf(c), occurrence, tooSoon, cooldownSeconds = 0))
 
         val longEnough = DisplayHistorySnapshot(
-            mapOf(1 to DisplayRecord(now - 300_000L, 1)), now - 300_000L
+            mapOf(CampaignKey.message(1) to DisplayRecord(now - 300_000L, 1)), now - 300_000L
         )
         assertEquals(1, select(listOf(c), occurrence, longEnough, cooldownSeconds = 0)?.campaignId)
     }
@@ -143,7 +144,7 @@ class MessageSelectorTest {
         val c = campaign(1, trigger = Trigger(
             TriggerType.EVENT, eventName = "x", repeatable = true, minIntervalSeconds = null
         ))
-        val history = DisplayHistorySnapshot(mapOf(1 to DisplayRecord(now - 1L, 5)), now - 1L)
+        val history = DisplayHistorySnapshot(mapOf(CampaignKey.message(1) to DisplayRecord(now - 1L, 5)), now - 1L)
         assertEquals(1, select(
             listOf(c), TriggerOccurrence.Event("x"), history, cooldownSeconds = 0
         )?.campaignId)
@@ -167,7 +168,7 @@ class MessageSelectorTest {
     @Test
     fun `the floor blocks a campaign that has never displayed`() {
         val history = DisplayHistorySnapshot(
-            perCampaign = mapOf(99 to DisplayRecord(now - 5_000L, 1)),
+            perCampaign = mapOf(CampaignKey.message(99) to DisplayRecord(now - 5_000L, 1)),
             lastDisplayAtMillis = now - 5_000L
         )
         assertNull(select(listOf(campaign(1)), history = history, cooldownSeconds = 30))
@@ -284,7 +285,7 @@ class MessageSelectorTest {
             TriggerType.EVENT, eventName = "x", repeatable = true, minIntervalSeconds = 60
         ))
         val history = DisplayHistorySnapshot(
-            mapOf(1 to DisplayRecord(now - 120_000L, 3)), now - 120_000L
+            mapOf(CampaignKey.message(1) to DisplayRecord(now - 120_000L, 3)), now - 120_000L
         )
         assertTrue(MessageSelector.mayDisplayNow(c, history, now, 30, null) { true })
     }

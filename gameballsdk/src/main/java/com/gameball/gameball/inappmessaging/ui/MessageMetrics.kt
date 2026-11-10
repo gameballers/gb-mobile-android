@@ -123,6 +123,19 @@ internal object MessageMetrics {
         const val BODY_LINE_SP = 24f
     }
 
+    /** A game campaign's chrome. The game itself is the widget's; only the way out is ours. */
+    object Game {
+        /** How far the close target sits in from the game's top-end corner. */
+        const val CLOSE_INSET_DP = 4f
+        /**
+         * The disc behind the close glyph. The game draws whatever it likes under that corner,
+         * so the glyph brings its own contrast: white on this disc reads over any artwork,
+         * where a glyph derived from a background colour would be guessing.
+         */
+        const val CLOSE_DISC_DP = 32f
+        val CLOSE_DISC_COLOR: Int = 0x99000000.toInt()
+    }
+
     object Motion {
         const val MODAL_DURATION_MS = 200L
         const val MODAL_SCALE_FROM = 0.96f
