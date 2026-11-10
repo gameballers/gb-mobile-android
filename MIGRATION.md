@@ -6,12 +6,113 @@ This guide provides migration instructions for upgrading between major versions 
 
 ## Table of Contents
 
+- [v4.0.x → v4.1.0](#migration-guide-v40x--v410)
 - [v3.x → v4.0.0](#migration-guide-v3x--v400)
 - [v3.2.x → v3.3.0](#migration-guide-v32x--v330)
 - [v3.1.1 → v3.2.0](#migration-guide-v311--v320)
 - [v3.1.0 → v3.1.1](#migration-guide-v310--v311)
 - [v3.0.0 → v3.1.0](#migration-guide-v300--v310)
 - [v2.x → v3.0.0](#migration-guide-v2x--v300)
+
+---
+
+## Migration Guide: v4.0.x → v4.1.0
+
+Version 4.1.0 adds game campaigns to in-app messaging, detects taps on Gameball pushes automatically, and can report swipe-aways and influenced opens. This is a **minor update** with no breaking changes — all v4.0.x code continues to work.
+
+### Overview of Changes
+
+#### ✨ What's New
+- **Game campaigns** - games the merchant set to open over the app open on their own in-app messaging trigger, with nothing extra to call
+- **Automatic push tap detection** - taps on Gameball pushes are reported without any code; `handlePushClick(intent)` covers an intent the SDK can't see
+- **Swipe-aways and influenced opens** - `handlePushIntent(intent)`, called from your `FirebaseMessagingService.handleIntent`
+- **Widget host on the configuration** - `GameballConfig.widgetUrlPrefix` for the profile widget and game campaigns
+
+#### ⚠️ Deprecated
+- `handlePushClick(payload, callback?, sessionToken?)` - taps are detected automatically. It still works, and a tap reported both ways counts once
+
+### Update Dependencies
+
+**Before (v4.0.x):**
+```groovy
+implementation 'com.github.gameballers:gb-mobile-android:4.0.0'
+```
+
+**After (v4.1.0):**
+```groovy
+implementation 'com.github.gameballers:gb-mobile-android:4.1.0'
+```
+
+### Action Required
+
+None. Push taps are detected from `init` on, so keep `init` in `Application.onCreate` to catch the tap that cold-starts your app. To adopt the rest:
+
+### 1. Remove Manual Push Tap Reporting (Optional)
+
+**Before (v4.0.x):**
+```kotlin
+// In your notification-tap handler
+GameballApp.getInstance(this).handlePushClick(remoteMessage.data)
+```
+
+**After (v4.1.0):** nothing — taps are detected automatically. Only a plain `Activity` (not a `ComponentActivity`) that receives taps in `onNewIntent` needs to pass them on:
+
+```kotlin
+override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    GameballApp.getInstance(this).handlePushClick(intent)
+}
+```
+
+### 2. Report Swipe-Aways and Influenced Opens (Optional)
+
+**Before (v4.0.x):** not available.
+
+**After (v4.1.0):**
+```kotlin
+class MyMessagingService : FirebaseMessagingService() {
+
+    override fun handleIntent(intent: Intent) {
+        if (GameballApp.getInstance(this).handlePushIntent(intent)) return
+        super.handleIntent(intent)
+    }
+}
+```
+
+Call it first, and skip `super.handleIntent` only when it returns `true`. It returns `false` for pushes that aren't Gameball's, while your app is on screen, and whenever a push can't be shown this way, so `onMessageReceived` and FCM's own display work as before.
+
+### 3. Set the Widget Host Once (Optional)
+
+**Before (v4.0.x):**
+```kotlin
+val request = ShowProfileRequest.builder()
+    .customerId("customer-123")
+    .widgetUrlPrefix("m.gameball.app/alpha")
+    .build()
+```
+
+**After (v4.1.0):**
+```kotlin
+val config = GameballConfig.builder()
+    .apiKey("your-api-key")
+    .widgetUrlPrefix("m.gameball.app/alpha")
+    .build()
+```
+
+Game campaigns read the host from `GameballConfig`, so a non-production environment needs it there. A per-call `ShowProfileRequest.widgetUrlPrefix` still overrides it for that presentation.
+
+### Migration Checklist
+
+#### During Migration
+- [ ] Update `gb-mobile-android` to `4.1.0`
+- [ ] Confirm `init` runs in `Application.onCreate`
+- [ ] (Optional) Remove calls to `handlePushClick(payload)`
+- [ ] (Optional) Call `handlePushIntent(intent)` first in your `FirebaseMessagingService.handleIntent`
+- [ ] (Optional) Move a non-production `widgetUrlPrefix` to `GameballConfig`
+
+#### Post-Migration
+- [ ] Tap a Gameball push with the app closed and in the background; `adb logcat -s GameballApp` shows `engagement push_click` once for each
+- [ ] If `handlePushIntent` is adopted, swipe a Gameball push away and confirm `engagement push_dismiss`
 
 ---
 
