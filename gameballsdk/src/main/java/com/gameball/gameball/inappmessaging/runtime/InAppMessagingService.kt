@@ -23,6 +23,7 @@ import com.gameball.gameball.inappmessaging.domain.TriggerOccurrence
 import com.gameball.gameball.inappmessaging.model.DisplayDecision
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -46,7 +47,20 @@ internal class InAppMessagingService(
     private val sessionState: SessionState,
     private var hooks: HostHooks = HostHooks(),
     /** Asked whenever a message is about to show: nothing is drawn over the host's widget. */
-    private val isWidgetOpen: () -> Boolean = { false }
+    private val isWidgetOpen: () -> Boolean = { false },
+    /**
+     * Runs [block] after a delay and returns what cancels it. The waiting slot uses it to try
+     * again the moment the display floor lapses; tests pass one they run by hand.
+     */
+    private val schedule: (delayMillis: Long, block: () -> Unit) -> (() -> Unit) =
+        { delayMillis, block ->
+            val job = scope.launch {
+                delay(delayMillis)
+                block()
+            }
+            val cancel: () -> Unit = { job.cancel() }
+            cancel
+        }
 ) {
 
     private companion object {
@@ -56,7 +70,16 @@ internal class InAppMessagingService(
 
     private var held: SyncResult = SyncResult.EMPTY
     private var neededTokens: Set<String> = emptySet()
+
+    /**
+     * The campaign waiting for the screen, never the one on it. Holding the one on screen here
+     * too meant closing it emptied the slot, and whatever waited behind it was lost.
+     */
     private var pending: PendingPresentation? = null
+
+    /** Cancels the retry booked for when the display floor lapses. */
+    private var floorRetry: (() -> Unit)? = null
+
     private var currentCustomerId: String? = null
 
     /**
@@ -96,6 +119,7 @@ internal class InAppMessagingService(
         held = SyncResult.EMPTY
         neededTokens = emptySet()
         pending = null
+        cancelFloorRetry()
         playedSinceSync.clear()
         artwork.reset()
         sessionState.reset()
@@ -115,6 +139,7 @@ internal class InAppMessagingService(
         held = SyncResult.EMPTY
         neededTokens = emptySet()
         pending = null
+        cancelFloorRetry()
         playedSinceSync.clear()
         artwork.reset()
         cache.clear()
@@ -219,9 +244,10 @@ internal class InAppMessagingService(
 
         if (held.campaigns.isEmpty()) return
 
+        val candidates = offerable()
         val winner = MessageSelector.select(
             occurrence = occurrence,
-            campaigns = offerable(),
+            campaigns = candidates,
             history = snapshot,
             nowMillis = clock.nowMillis(),
             cooldownSeconds = held.cooldownSeconds,
@@ -245,7 +271,40 @@ internal class InAppMessagingService(
             DisplayDecision.SHOW -> Unit
         }
 
-        scope.launch { presentOrDefer(PendingPresentation(winner)) }
+        scope.launch {
+            if (presentOrDefer(PendingPresentation(winner))) {
+                deferRunnerUp(occurrence, candidates, snapshot, winner)
+            }
+        }
+    }
+
+    /**
+     * Keeps the next-best campaign for this occurrence waiting behind the one that took the screen.
+     *
+     * Without it a trigger that matched two campaigns showed one and forgot the other: the game
+     * behind a higher-priority message, or the second of two games at the same priority, never
+     * opened. Judged on the history from before the winner displayed, so the winner's own
+     * impression cannot rule it out; the floor that impression starts is waited out at retry.
+     */
+    private fun deferRunnerUp(
+        occurrence: TriggerOccurrence,
+        candidates: List<Campaign>,
+        snapshot: DisplayHistorySnapshot,
+        winner: Campaign
+    ) {
+        if (!presenter.isShowing || pending != null) return
+        val runnerUp = MessageSelector.select(
+            occurrence = occurrence,
+            // By kind and id: every game's campaignId is 0, so the number alone would rule out
+            // every other game along with the winner.
+            campaigns = candidates.filter { it.key != winner.key },
+            history = snapshot,
+            nowMillis = clock.nowMillis(),
+            cooldownSeconds = held.cooldownSeconds,
+            quietHours = held.quietHours,
+            isArtworkReady = { artwork.isReady(it.content) }
+        ) ?: return
+        defer(runnerUp, "campaign ${winner.label} took this trigger first")
     }
 
     /** The latest sync's campaigns, less any game played since that sync arrived. */
@@ -253,21 +312,22 @@ internal class InAppMessagingService(
         if (playedSinceSync.isEmpty()) held.campaigns
         else held.campaigns.filterNot { it.key in playedSinceSync }
 
-    private suspend fun presentOrDefer(slot: PendingPresentation) {
+    /** True when the campaign took the screen; false when it was deferred instead. */
+    private suspend fun presentOrDefer(slot: PendingPresentation): Boolean {
         if (isWidgetOpen()) {
             defer(slot.campaign, "the host's widget is open")
-            return
+            return false
         }
         if (presenter.isShowing) {
             defer(slot.campaign, "another message is already showing")
-            return
+            return false
         }
         val resolved = resolve(slot.campaign)
         if (!presenter.present(slot.campaign, resolved, callbacksFor(slot))) {
             defer(slot.campaign, "no surface was available")
-            return
+            return false
         }
-        pending = slot
+        return true
     }
 
     /**
@@ -306,12 +366,15 @@ internal class InAppMessagingService(
         }
 
         // "May this display now", not "has it ever displayed". The cruder question threw away
-        // every repeatable campaign that happened to be waiting.
+        // every repeatable campaign that happened to be waiting. The floor is left out here and
+        // waited out below: it is usually the one the campaign ahead of this one just started.
+        val snapshot = history.load(customerId)
+        val now = clock.nowMillis()
         val eligible = MessageSelector.mayDisplayNow(
             campaign = campaign,
-            history = history.load(customerId),
-            nowMillis = clock.nowMillis(),
-            cooldownSeconds = held.cooldownSeconds,
+            history = snapshot,
+            nowMillis = now,
+            cooldownSeconds = 0,
             quietHours = held.quietHours,
             isArtworkReady = { artwork.isReady(it.content) }
         )
@@ -320,8 +383,23 @@ internal class InAppMessagingService(
             pending = null
             return
         }
+        val floorLeft = MessageSelector.floorRemainingMillis(snapshot, now, held.cooldownSeconds)
+        if (floorLeft > 0) {
+            IamLog.d("pending campaign ${campaign.label} waits ${floorLeft}ms for the display floor")
+            cancelFloorRetry()
+            floorRetry = schedule(floorLeft) {
+                floorRetry = null
+                retryPending()
+            }
+            return
+        }
         pending = null
         scope.launch { presentOrDefer(PendingPresentation(campaign)) }
+    }
+
+    private fun cancelFloorRetry() {
+        floorRetry?.invoke()
+        floorRetry = null
     }
 
     // --- personalisation ---
@@ -392,26 +470,27 @@ internal class InAppMessagingService(
             // Dismiss before performing: a navigate starts a transition, and leaving the
             // message up during it briefly covers the screen the user just asked for.
             presenter.dismissCurrent()
-            pending = null
 
             if (!handled) scope.launch { perform(action) }
+            // Whatever waited behind this message keeps its place. After a button that leaves
+            // the screen it waits for the next one, whose resume retries it, rather than being
+            // drawn on the screen being left.
+            if (action !is MessageAction.Navigate && action !is MessageAction.OpenUrl) retryPending()
         }
 
         override fun onDismissed() {
             // A dismissal without an impression is nonsense, and the dismissal that follows a
             // tap must not also count as "shown and ignored".
             if (slot.impressionReported && !slot.engaged) report(slot, IamEventType.DISMISS)
-            pending = null
             retryPending()
         }
 
         override fun onFailed() {
             // Never seen: nothing to report, nothing recorded. Let go rather than kept waiting,
             // or every Activity resume would load it again; its next trigger may offer it again.
-            // Only this presentation's own slot is released — a campaign that was deferred
-            // behind it while it loaded keeps its place and gets its turn now.
+            // The waiting slot never holds the presentation on screen, so a campaign deferred
+            // behind this one keeps its place and gets its turn now.
             IamLog.d("campaign ${slot.campaign.label} could not be shown; waiting for its next trigger")
-            if (pending === slot) pending = null
             retryPending()
         }
 
