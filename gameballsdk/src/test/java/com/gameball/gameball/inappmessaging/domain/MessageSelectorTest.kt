@@ -243,8 +243,9 @@ class MessageSelectorTest {
 
     // --- quiet hours ---
 
-    private fun utcInstantAt(hour: Int, minute: Int): Long =
-        Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+    /** The window is read on the device's clock, so the instants are built on it too. */
+    private fun localInstantAt(hour: Int, minute: Int): Long =
+        Calendar.getInstance(TimeZone.getDefault()).apply {
             clear(); set(2026, Calendar.AUGUST, 27, hour, minute, 0)
         }.timeInMillis
 
@@ -252,10 +253,10 @@ class MessageSelectorTest {
     fun `inside quiet hours nothing displays and outside the same campaign does`() {
         val window = QuietHours.from(true, "22:00", "08:00")!!
         assertNull(select(
-            listOf(campaign(1)), nowMillis = utcInstantAt(23, 0), quietHours = window
+            listOf(campaign(1)), nowMillis = localInstantAt(23, 0), quietHours = window
         ))
         assertEquals(1, select(
-            listOf(campaign(1)), nowMillis = utcInstantAt(12, 0), quietHours = window
+            listOf(campaign(1)), nowMillis = localInstantAt(12, 0), quietHours = window
         )?.campaignId)
     }
 
@@ -267,9 +268,9 @@ class MessageSelectorTest {
     fun `suppression leaves the campaign eligible once the window ends`() {
         val window = QuietHours.from(true, "22:00", "08:00")!!
         val c = campaign(1)
-        assertNull(select(listOf(c), nowMillis = utcInstantAt(23, 0), quietHours = window))
+        assertNull(select(listOf(c), nowMillis = localInstantAt(23, 0), quietHours = window))
         assertEquals(1, select(
-            listOf(c), nowMillis = utcInstantAt(9, 0), quietHours = window
+            listOf(c), nowMillis = localInstantAt(9, 0), quietHours = window
         )?.campaignId)
     }
 
