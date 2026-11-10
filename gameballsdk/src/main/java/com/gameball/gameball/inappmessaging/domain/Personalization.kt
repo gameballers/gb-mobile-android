@@ -15,8 +15,11 @@ internal object Personalization {
      *
      * Deliberately strict: a loose pattern lets a value map mangle ordinary copy, so
      * "{ spaced }", "{2}" and a lone "{" are not tokens.
+     *
+     * Both braces are escaped on purpose: Android's regex engine (ICU) rejects a bare `}`, which
+     * the JVM that runs the unit tests accepts. RegexPortabilityTest checks every pattern for it.
      */
-    private val TOKEN = Regex("""\{([A-Za-z_][A-Za-z0-9_]*)}""")
+    private val TOKEN = Regex("""\{([A-Za-z_][A-Za-z0-9_]*)\}""")
 
     /**
      * Cheap-scans for a brace first, so a message with no tokens costs one character
